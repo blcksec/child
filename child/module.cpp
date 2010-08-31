@@ -28,14 +28,14 @@ namespace Child {
 
     void Module::addModule(Module *mod) {
         if(!mod) { throw NullPointerException("NULL value passed to addModule()"); }
-        if(_modules.contains(mod)) { throw DuplicatedException("Duplicated module passed to addModule()"); }
+        if(_modules.contains(mod)) { throw DuplicateException("Duplicate module passed to addModule()"); }
         _modules.append(mod);
         mod->_clones.append(this);
     }
 
     void Module::prependModule(Module *mod) {
         if(!mod) { throw NullPointerException("NULL value passed to prependModule()"); }
-        if(_modules.contains(mod)) { throw DuplicatedException("Duplicated module passed to prependModule()"); }
+        if(_modules.contains(mod)) { throw DuplicateException("Duplicate module passed to prependModule()"); }
         _modules.prepend(mod);
         mod->_clones.append(this);
     }
@@ -63,8 +63,8 @@ namespace Child {
 
     void Module::addParent(const QString &tag, Module *mod) {
         TaggedModule taggedModule = TaggedModule(tag, mod);
-        if(_parents.contains(taggedModule)) { throw DuplicatedException("Duplicated module/tag passed to addParent()"); }
-        if(mod->_children.contains(tag)) { throw DuplicatedException("Duplicated tag in parent passed to addParent()"); }
+        if(_parents.contains(taggedModule)) { throw DuplicateException("Duplicate module/tag passed to addParent()"); }
+        if(mod->_children.contains(tag)) { throw DuplicateException("Duplicate tag in parent passed to addParent()"); }
         _parents.insert(taggedModule);
         mod->_children.insert(tag, this);
     }

@@ -30,9 +30,9 @@ namespace Child {
         NotFoundException(const QString &msg = "Undefined NotFoundException") : Exception(msg) {}
     };
 
-    class DuplicatedException : public Exception {
+    class DuplicateException : public Exception {
     public:
-        DuplicatedException(const QString &msg = "Undefined DuplicatedException") : Exception(msg) {}
+        DuplicateException(const QString &msg = "Undefined DuplicateException") : Exception(msg) {}
     };
 }
 
