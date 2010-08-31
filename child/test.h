@@ -11,6 +11,7 @@ do { \
     bool exceptionThrown = false; \
     try { EXPRESSION; } \
     catch(EXCEPTION) { exceptionThrown = true; } \
+    catch(Exception &e) { QWARN(qPrintable(e.message)); } \
     if(!exceptionThrown) { QFAIL("'" #EXCEPTION "' has not been thrown"); } \
 } while(false)
 
@@ -189,9 +190,19 @@ namespace Child {
             Module *world = new Module;
             Module *window1 = new Module;
             QCATCH(world->child(""), ArgumentException);
-            QVERIFY(!world->child("window"));
+            QCATCH(world->child("window"), NotFoundException);
             world->setChild("window", window1);
             QCOMPARE(world->child("window"), window1);
+            delete world;
+        }
+
+        void hasChild() {
+            Module *world = new Module;
+            Module *window1 = new Module;
+            QCATCH(world->hasChild(""), ArgumentException);
+            QVERIFY(!world->hasChild("window"));
+            world->setChild("window", window1);
+            QVERIFY(world->hasChild("window"));
             delete world;
         }
 
@@ -223,6 +234,32 @@ namespace Child {
             QCOMPARE(window1->children().size(), 1);
             window1->removeChild("button");
             QCOMPARE(window1->children().size(), 0);
+            delete world;
+        }
+
+        void findChild() {
+            Module *world = new Module;
+            Module *Window = new Module;
+            world->setChild("Window", Window);
+            Module *close = new Module;
+            Window->setChild("close", close);
+            Module *window1 = Window->clone();
+            Module *window2 = Window->clone();
+            world->setChild("win1", window1);
+            world->setChild("win2", window2);
+            Module *button = new Module;
+            window1->setChild("button", button);
+            Module *own, *rcv;
+            QCATCH(button->findChild("", own, rcv), ArgumentException);
+            QVERIFY(!button->findChild("win3", own, rcv));
+            QVERIFY(button->findChild("win2", own, rcv));
+            QCOMPARE(own, world);
+            QCOMPARE(rcv, world);
+            QCOMPARE(own->child("win2"), window2);
+            QVERIFY(button->findChild("close", own, rcv));
+            QCOMPARE(own, Window);
+            QCOMPARE(rcv, window1);
+            QCOMPARE(own->child("close"), close);
             delete world;
         }
 

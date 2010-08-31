@@ -79,13 +79,21 @@ namespace Child {
 
     Module *Module::child(const QString &tag) const {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to child()"); }
-        return(_children.value(tag));
+        Module *value = _children.value(tag);
+        if(!value) { throw NotFoundException("Missing tag passed to child()"); }
+        return(value);
+    }
+
+    bool Module::hasChild(const QString &tag) const {
+        if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to hasChild()"); }
+        return(_children.contains(tag));
     }
 
     void Module::setChild(const QString &tag, Module *mod) {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to setChild()"); }
         if(!mod) { throw NullPointerException("NULL value passed to setChild()"); }
-        if(Module *currentChild = child(tag)) {
+        if(hasChild(tag)) {
+            Module *currentChild = child(tag);
             if(currentChild == mod) return;
             currentChild->removeParent(tag, this);
         }
@@ -99,38 +107,43 @@ namespace Child {
         mod->removeParent(tag, this);
     }
 
-//    Module *const Module::findParentInSelfOrGenres() const {
-//        if(Module *par = parent()) { return(par); }
-//        if(Module *gnr = genre()) {
-//            return(gnr->findParentInSelfOrGenres());
-//        } else {
-//            return(NULL);
-//        }
-//    }
+    bool Module::findChild(const QString &tag, Module *&own, Module *&rcv) const {
+        if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to findChild()"); }
+        ModuleSet modSeen;
+        return(_findChildInSelfAndParents(tag, own, rcv, modSeen));
+    }
 
-//    bool Module::findSlot(const QString &name, Module *&own, Module *&rcv, Module *&val) const {
-//        ModuleSet objSeen;
-//        return(findSlotInSelfAndParents(name, own, rcv, val, objSeen));
-//    }
+    bool Module::_findChildInSelfAndParents(const QString &tag, Module *&own, Module *&rcv, ModuleSet &modSeen) const {
+        if(_findChildInSelfAndModules(tag, own, modSeen)) {
+            rcv = const_cast<Module *>(this);
+            return(true);
+        }
+        foreach(TaggedModule value, _parents) {
+            if(value.module->_findChildInSelfAndParents(tag, own, rcv, modSeen)) return(true);
+        }
+        return(false);
+    }
 
-//    bool Module::findSlotInSelfAndParents(const QString &name, Module *&own, Module *&rcv, Module *&val, ModuleSet &objSeen) const {
-//        if(findSlotInSelfMixinsAndGenres(name, own, val, objSeen)) {
-//            rcv = const_cast<Module *>(this);
-//            return(true);
-//        }
-//        Module *par = findParentInSelfOrGenres();
-//        if(!par) { return(false); }
-//        return(par->findSlotInSelfAndParents(name, own, rcv, val, objSeen));
-//    }
+    bool Module::_findChildInSelfAndModules(const QString &tag, Module *&own, ModuleSet &modSeen) const {
+        if(modSeen.contains(const_cast<Module *>(this))) return(false);
+        modSeen.insert(const_cast<Module *>(this));
+        if(hasChild(tag)) { own = const_cast<Module *>(this); return(true); }
+        foreach(Module *mod, _modules) {
+            if(mod->_findChildInSelfAndModules(tag, own, modSeen)) return(true);
+        }
+        return(false);
+    }
 
-//    bool Module::findSlotInSelfMixinsAndGenres(const QString &name, Module *&own, Module *&val, ModuleSet &objSeen) const {
-//        if(objSeen.contains(const_cast<Module *>(this))) { return(false); }
-//        objSeen << const_cast<Module *>(this);
-//        if(hasSlot(name, val)) { own = const_cast<Module *>(this); return(true); }
-//        // FIXME: mixins search here
-//        if(!genre()) { return(false); }
-//        return(genre()->findSlotInSelfMixinsAndGenres(name, own, val, objSeen));
-//    }
+    const QString Module::inspect() {
+        QString str;
+        str = uniqueHexID();
+        str.append(": [");
+        str.append(QStringList(parents().keys()).join(", "));
+        str.append("] => [");
+        str.append(QStringList(children().keys()).join(", "));
+        str.append("]");
+        return str;
+    }
 
 //    Module *const Module::send(const QString &name) {
 //        Module *own = NULL, *rcv = NULL, *val = NULL;

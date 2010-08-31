@@ -30,6 +30,7 @@ namespace Child {
     typedef QHash<QString, Module *> ModuleHash;
     typedef QHashIterator<QString, Module *> ModuleHashIterator;
     typedef QMultiHash<QString, Module *> ModuleMultiHash;
+    typedef QSet<Module *> ModuleSet;
     typedef QSet<TaggedModule> TaggedModuleSet;
     typedef Module *(Module::*ModuleMethodPtr)();
 
@@ -51,33 +52,17 @@ namespace Child {
         void addParent(const QString &tag, Module *mod);
         void removeParent(const QString &tag, Module *mod, bool callDeleteIfOrphan = true);
         Module *child(const QString &tag) const;
+        bool hasChild(const QString &tag) const;
         void setChild(const QString &tag, Module *mod);
         void removeChild(const QString &tag);
         void deleteIfOrphan() { if(_parents.empty()) { delete this; } }
+        bool findChild(const QString &tag, Module *&own, Module *&rcv) const;
+        bool _findChildInSelfAndParents(const QString &tag, Module *&own, Module *&rcv, ModuleSet &modSeen) const;
+        bool _findChildInSelfAndModules(const QString &tag, Module *&own, ModuleSet &modSeen) const;
 
-        const long long int uniqueID() {
-            return(reinterpret_cast<long long int>(this));
-        }
-
-        const QString uniqueHexID() {
-            return(QString("0x%1").arg(uniqueID(), 0, 16));
-        }
-
-        const QString inspect() {
-            QString str;
-            str = uniqueHexID();
-            str.append(": [");
-            str.append(QStringList(parents().keys()).join(", "));
-            str.append("] => [");
-            str.append(QStringList(children().keys()).join(", "));
-            str.append("]");
-            return str;
-        }
-
-//        Module *const findParentInSelfOrGenres() const;
-//        bool findSlot(const QString &name, Module *&own, Module *&rcv, Module *&val) const;
-//        bool findSlotInSelfAndParents(const QString &name, Module *&own, Module *&rcv, Module *&val, ModuleSet &objSeen) const;
-//        bool findSlotInSelfMixinsAndGenres(const QString &name, Module *&own, Module *&val, ModuleSet &objSeen) const;
+        const long long int uniqueID() { return(reinterpret_cast<long long int>(this)); }
+        const QString uniqueHexID() { return(QString("0x%1").arg(uniqueID(), 0, 16)); }
+        const QString inspect();
 
 //        Module *const send(const QString &name);
 //        Module *const fatalSend(const QString &name);
