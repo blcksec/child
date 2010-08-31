@@ -6,7 +6,7 @@
 using namespace Child;
 
 int main() { // int argc, char *argv[]
-    TestModule::run();;
+    TestModule::run();
 //    NativeMethod *meth;
 
 //    Module *world = new Module;
