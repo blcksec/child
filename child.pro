@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     child/module.cpp \
     child/nativemethod.cpp \
     child/text.cpp \
-    child/toolbox.cpp
+    child/toolbox.cpp \
+    child/object.cpp
 
 HEADERS += \
     child/module.h \
@@ -27,4 +28,5 @@ HEADERS += \
     child/text.h \
     child/toolbox.h \
     child/test.h \
-    child/exception.h
+    child/exception.h \
+    child/object.h

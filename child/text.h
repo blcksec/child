@@ -6,7 +6,7 @@
 namespace Child {
     class Text : public Module {
     public:
-        virtual Text *clone() const;
+        virtual Text *clone() const { return(_clone(this)); }
 
 //        Text(Module *const &genre = NULL, Module *const &parent = NULL) : Module(genre, parent) {}
 

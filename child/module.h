@@ -40,12 +40,23 @@ namespace Child {
         virtual ~Module();
         static const long long int moduleCount() { return(_moduleCount); }
 
+        static Module *bigBang() {
+            return(new Module);
+        }
+
         const ModuleList modules() const { return(ModuleList(_modules)); }
         const ModuleList clones() const { return(ModuleList(_clones)); }
         void addModule(Module *mod);
         void prependModule(Module *mod);
         void removeModule(Module *mod);
-        virtual Module *clone() const;
+    protected:
+        template<typename T> static T *_clone(const T *module) {
+            T *clone = new T;
+            clone->addModule(const_cast<T *>(module));
+            return(clone);
+        }
+    public:
+        virtual Module *clone() const { return(_clone(this)); }
 
         const ModuleMultiHash parents() const;
         const ModuleHash children() const { return(ModuleHash(_children)); }
@@ -57,9 +68,10 @@ namespace Child {
         void removeChild(const QString &tag);
         void deleteIfOrphan() { if(_parents.empty()) { delete this; } }
         bool findChild(const QString &tag, Module *&own, Module *&rcv) const;
+    private:
         bool _findChildInSelfAndParents(const QString &tag, Module *&own, Module *&rcv, ModuleSet &modSeen) const;
         bool _findChildInSelfAndModules(const QString &tag, Module *&own, ModuleSet &modSeen) const;
-
+    public:
         const long long int uniqueID() { return(reinterpret_cast<long long int>(this)); }
         const QString uniqueHexID() { return(QString("0x%1").arg(uniqueID(), 0, 16)); }
         const QString inspect();

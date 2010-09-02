@@ -47,12 +47,6 @@ namespace Child {
         mod->_clones.removeOne(this);
     }
 
-    Module *Module::clone() const {
-        Module *mod = new Module;
-        mod->addModule(const_cast<Module *>(this));
-        return(mod);
-    }
-
     const ModuleMultiHash Module::parents() const {
         ModuleMultiHash hash;
         foreach(TaggedModule value, _parents) {
