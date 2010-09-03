@@ -78,19 +78,27 @@ namespace Child {
         return(value);
     }
 
+    inline bool Module::_hasChild(const QString &tag) const { return(_children.contains(tag)); }
+
     bool Module::hasChild(const QString &tag) const {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to hasChild()"); }
-        return(_children.contains(tag));
+        return(_hasChild(tag));
+    }
+
+    void Module::addChild(const QString &tag, Module *mod) {
+        if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to addChild()"); }
+        if(!mod) { throw NullPointerException("NULL value passed to addChild()"); }
+        if(_hasChild(tag)) { throw DuplicateException("Duplicate tag passed to addChild()"); }
+        mod->addParent(tag, this);
     }
 
     void Module::setChild(const QString &tag, Module *mod) {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to setChild()"); }
         if(!mod) { throw NullPointerException("NULL value passed to setChild()"); }
-        if(hasChild(tag)) {
-            Module *currentChild = child(tag);
-            if(currentChild == mod) return;
-            currentChild->removeParent(tag, this);
-        }
+        if(!_hasChild(tag)) { throw NotFoundException("Missing tag passed to setChild()"); }
+        Module *currentChild = child(tag);
+        if(currentChild == mod) return;
+        currentChild->removeParent(tag, this);
         mod->addParent(tag, this);
     }
 
@@ -121,7 +129,7 @@ namespace Child {
     bool Module::_findChildInSelfAndModules(const QString &tag, Module *&own, ModuleSet &modSeen) const {
         if(modSeen.contains(const_cast<Module *>(this))) return(false);
         modSeen.insert(const_cast<Module *>(this));
-        if(hasChild(tag)) { own = const_cast<Module *>(this); return(true); }
+        if(_hasChild(tag)) { own = const_cast<Module *>(this); return(true); }
         foreach(Module *mod, _modules) {
             if(mod->_findChildInSelfAndModules(tag, own, modSeen)) return(true);
         }

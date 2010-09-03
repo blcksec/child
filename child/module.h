@@ -63,7 +63,9 @@ namespace Child {
         void addParent(const QString &tag, Module *mod);
         void removeParent(const QString &tag, Module *mod, bool callDeleteIfOrphan = true);
         Module *child(const QString &tag) const;
+        bool _hasChild(const QString &tag) const;
         bool hasChild(const QString &tag) const;
+        void addChild(const QString &tag, Module *mod);
         void setChild(const QString &tag, Module *mod);
         void removeChild(const QString &tag);
         void deleteIfOrphan() { if(_parents.empty()) { delete this; } }
