@@ -1,0 +1,1 @@
+* "objets persistants" pour gérer les watchers sur des objets changeants

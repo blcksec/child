@@ -189,20 +189,20 @@ namespace Child {
         void child() {
             Module *world = new Module;
             Module *window1 = new Module;
-            QCATCH(world->child(""), ArgumentException);
-            QCATCH(world->child("window"), NotFoundException);
+            QCATCH(world->directChild(""), ArgumentException);
+            QCATCH(world->directChild("window"), NotFoundException);
             world->addChild("window", window1);
-            QCOMPARE(world->child("window"), window1);
+            QCOMPARE(world->directChild("window"), window1);
             delete world;
         }
 
         void hasChild() {
             Module *world = new Module;
             Module *window1 = new Module;
-            QCATCH(world->hasChild(""), ArgumentException);
-            QVERIFY(!world->hasChild("window"));
+            QCATCH(world->hasDirectChild(""), ArgumentException);
+            QVERIFY(!world->hasDirectChild("window"));
             world->addChild("window", window1);
-            QVERIFY(world->hasChild("window"));
+            QVERIFY(world->hasDirectChild("window"));
             delete world;
         }
 
@@ -213,11 +213,11 @@ namespace Child {
             QCATCH(world->addChild("window", NULL), NullPointerException);
             QCATCH(world->addChild("", window1), ArgumentException);
             world->addChild("window", window1);
-            QCOMPARE(world->child("window"), window1);
+            QCOMPARE(world->directChild("window"), window1);
             QCATCH(world->addChild("window", window1), DuplicateException);
             world->addChild("window2", window2);
             QCOMPARE(world->children().size(), 2);
-            QCOMPARE(world->child("window2"), window2);
+            QCOMPARE(world->directChild("window2"), window2);
             delete world;
         }
 
@@ -229,13 +229,13 @@ namespace Child {
             QCATCH(world->setChild("", window1), ArgumentException);
             QCATCH(world->setChild("window", window1), NotFoundException);
             world->addChild("window", window1);
-            QCOMPARE(world->child("window"), window1);
+            QCOMPARE(world->directChild("window"), window1);
             world->setChild("window", window1);
             QCOMPARE(world->children().size(), 1);
-            QCOMPARE(world->child("window"), window1);
+            QCOMPARE(world->directChild("window"), window1);
             world->setChild("window", window2);
             QCOMPARE(world->children().size(), 1);
-            QCOMPARE(world->child("window"), window2);
+            QCOMPARE(world->directChild("window"), window2);
             delete world;
         }
 
@@ -271,11 +271,11 @@ namespace Child {
             QVERIFY(button->findChild("win2", own, rcv));
             QCOMPARE(own, world);
             QCOMPARE(rcv, world);
-            QCOMPARE(own->child("win2"), window2);
+            QCOMPARE(own->directChild("win2"), window2);
             QVERIFY(button->findChild("close", own, rcv));
             QCOMPARE(own, Window);
             QCOMPARE(rcv, window1);
-            QCOMPARE(own->child("close"), close);
+            QCOMPARE(own->directChild("close"), close);
             delete world;
         }
 

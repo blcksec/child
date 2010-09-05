@@ -62,9 +62,9 @@ namespace Child {
         const ModuleHash children() const { return(ModuleHash(_children)); }
         void addParent(const QString &tag, Module *mod);
         void removeParent(const QString &tag, Module *mod, bool callDeleteIfOrphan = true);
-        Module *child(const QString &tag) const;
-        bool _hasChild(const QString &tag) const;
-        bool hasChild(const QString &tag) const;
+        bool _hasDirectChild(const QString &tag) const;
+        bool hasDirectChild(const QString &tag) const;
+        Module *directChild(const QString &tag) const;
         void addChild(const QString &tag, Module *mod);
         void setChild(const QString &tag, Module *mod);
         void removeChild(const QString &tag);

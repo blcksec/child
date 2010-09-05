@@ -30,3 +30,8 @@ HEADERS += \
     child/test.h \
     child/exception.h \
     child/object.h
+
+OTHER_FILES += \
+    notes/ideas.txt \
+    notes/syntax.txt \
+    notes/pseudocode.txt

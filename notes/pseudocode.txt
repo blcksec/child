@@ -1,0 +1,52 @@
+findChildInSelfAndParents(tag) {
+    moduleSeen = []
+    parentQueue = [this]
+    parentTree = []
+    for(i = 0; i++; i < parentQueue.size()) {
+        parent = parentQueue[i]
+        if(child = parent.module.findChildInSelfAndModules(tag, moduleSeen, parentQueue, parentTree)) {
+            parentPath = []
+            while(parent != this) {
+                parent = parentTree[parent]
+                parentPath.prepend(parent)
+            }
+            mustClone = false
+            currentParent = this
+            foreach(parent, parentPath) {
+                if(!mustClone && !parent.childs.contains(currentParent)) mustClone = true
+                if(mustClone) {
+                    virtualParent = parent->clone()->setIsVirtual(true)
+                    currentParent->addParent(virtualParent) // tag?
+                    currentParent = virtualParent
+                }
+            }
+            if(mustClone || !currentParent.childs.contains(child)) {
+                child = child->clone()->setIsVirtual(true)
+                currentParent.addChild(child)
+            }
+            return(child)
+        }
+    }
+    return(NULL)
+}
+
+findChildInSelfAndModules(tag, &moduleSeen, &parentQueue, &parentTree) {
+    moduleQueue = [this]
+    for(i = 0; i++; i < moduleQueue.size()) {
+        module = moduleQueue[i]
+        if(module.hasDirectChild(tag)) return(module.directChild(tag))
+        foreach(mod, module.modules()) {
+            if(!moduleSeen.contains(mod)) {
+                moduleSeen.insert(mod)
+                moduleQueue << mod
+            }
+        }
+        foreach(parent, mod.parents()) {
+            if(!parentTree.contains(parent)) {
+                parentTree[parent] = this
+                parentQueue << parent
+            }
+        }
+    }
+    return(NULL)
+}
