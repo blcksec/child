@@ -4,6 +4,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QHash>
+#include <QtCore/QQueue>
 
 #include "child/toolbox.h"
 #include "child/exception.h"
@@ -31,6 +32,8 @@ namespace Child {
     typedef QHashIterator<QString, Module *> ModuleHashIterator;
     typedef QMultiHash<QString, Module *> ModuleMultiHash;
     typedef QSet<Module *> ModuleSet;
+    typedef QQueue<Module *> ModuleQueue;
+    typedef QList<TaggedModule> TaggedModuleList;
     typedef QSet<TaggedModule> TaggedModuleSet;
     typedef Module *(Module::*ModuleMethodPtr)();
 

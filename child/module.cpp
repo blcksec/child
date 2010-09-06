@@ -87,30 +87,119 @@ namespace Child {
 
     Module *Module::child(const QString &tag) const {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to child()"); }
-        ModuleSet modSeen;
-        return(_findChildInSelfAndParents(tag, modSeen));
+        ModuleSet moduleSeen;
+        ModuleQueue moduleQueue;
+        ModuleQueue parentQueue;
+        parentQueue.enqueue(this);
+        QHash<Module *, TaggedModule> parentTree;
+        Module *child = NULL;
+        while (!parentQueue.isEmpty()) {
+            parent = parentQueue.dequeue();
+            moduleQueue.enqueue(parent);
+            while (!moduleQueue.isEmpty()) {
+                Module *module = moduleQueue.dequeue();
+                if(module->hasDirectChild(tag)) { child = module->directChild(targ); break; }
+                foreach(Module *mod, module->_modules) {
+                    if(!moduleSeen.contains(mod)) {
+                        moduleSeen.insert(mod);
+                        moduleQueue.enqueue(mod);
+                    }
+                }
+                foreach(TaggedModule par, _parents) {
+                    if(!parentTree.contains(par.module)) {
+                        parentTree.insert(par.module, TaggedModule(par.tag, parent));
+                        parentQueue.enqueue(par.module);
+                    }
+                }
+            }
+            if(child) {
+                TaggedModuleList parentPath;
+                while(parent != this) {
+                    TaggedModule par = parentTree.value(parent);
+                    parentPath.prepend(par);
+                    parent = par.module;
+                }
+                bool mustVirtualize = false;
+                foreach(TaggedModule par, parentPath) {
+                    if(!mustVirtualize && )
+                }
+            }
+        }
     }
 
-    Module *Module::_findChildInSelfAndParents(const QString &tag, ModuleSet &modSeen) const {
-        if(_findChildInSelfAndModules(tag, modSeen)) {
-            rcv = const_cast<Module *>(this);
-            return(true);
-        }
-        foreach(TaggedModule value, _parents) {
-            if(value.module->_findChildInSelfAndParents(tag, own, rcv, modSeen)) return(true);
-        }
-        return(false);
-    }
+//    findChildInSelfAndParents(tag) {
+//        moduleSeen = []
+//        parentQueue = [this]
+//        parentTree = []
+//        for(i = 0; i < parentQueue.size(); i++) {
+//            parent = parentQueue[i]
+//            if(child = parent.findChildInSelfAndModules(tag, moduleSeen, parentQueue, parentTree)) {
+//                parentPath = []
+//                while(parent != this) {
+//                    parent = parentTree[parent]
+//                    parentPath.prepend(pair(parent.tag, parent.module))
+//                }
+//                mustClone = false
+//                currentParent = this
+//                foreach(parent, parentPath) {
+//                    if(!mustClone && !parent.module.childs.contains(currentParent)) mustClone = true
+//                    if(mustClone) {
+//                        virtualParent = parent.module.clone().setIsVirtual(true)
+//                        currentParent.addParent(parent.tag, virtualParent)
+//                        currentParent = virtualParent
+//                    }
+//                }
+//                if(mustClone || !currentParent.childs.contains(child)) {
+//                    child = child.clone().setIsVirtual(true)
+//                    currentParent.addChild(tag, child)
+//                }
+//                return(child)
+//            }
+//        }
+//        return(NULL)
+//    }
 
-    bool Module::_findChildInSelfAndModules(const QString &tag, Module *&own, ModuleSet &modSeen) const {
-        if(modSeen.contains(const_cast<Module *>(this))) return(false);
-        modSeen.insert(const_cast<Module *>(this));
-        if(_hasDirectChild(tag)) { own = const_cast<Module *>(this); return(true); }
-        foreach(Module *mod, _modules) {
-            if(mod->_findChildInSelfAndModules(tag, own, modSeen)) return(true);
-        }
-        return(false);
-    }
+    //    findChildInSelfAndModules(tag, &moduleSeen, &parentQueue, &parentTree) {
+    //        moduleQueue = [this]
+    //        for(i = 0; i < moduleQueue.size(); i++) {
+    //            module = moduleQueue[i]
+    //            if(module.hasDirectChild(tag)) return(module.directChild(tag))
+    //            foreach(mod, module.modules()) {
+    //                if(!moduleSeen.contains(mod)) {
+    //                    moduleSeen.insert(mod)
+    //                    moduleQueue << mod
+    //                }
+    //            }
+    //            foreach(parent, mod.parents()) {
+    //                if(!parentTree.contains(parent.module)) {
+    //                    parentTree[parent.module] = pair(parent.tag, this)
+    //                    parentQueue << parent.module
+    //                }
+    //            }
+    //        }
+    //        return(NULL)
+    //    }
+
+//    Module *Module::_findChildInSelfAndParents(const QString &tag, ModuleSet &modSeen) const {
+//        if(_findChildInSelfAndModules(tag, modSeen)) {
+//            rcv = const_cast<Module *>(this);
+//            return(true);
+//        }
+//        foreach(TaggedModule value, _parents) {
+//            if(value.module->_findChildInSelfAndParents(tag, own, rcv, modSeen)) return(true);
+//        }
+//        return(false);
+//    }
+
+//    bool Module::_findChildInSelfAndModules(const QString &tag, Module *&own, ModuleSet &modSeen) const {
+//        if(modSeen.contains(const_cast<Module *>(this))) return(false);
+//        modSeen.insert(const_cast<Module *>(this));
+//        if(_hasDirectChild(tag)) { own = const_cast<Module *>(this); return(true); }
+//        foreach(Module *mod, _modules) {
+//            if(mod->_findChildInSelfAndModules(tag, own, modSeen)) return(true);
+//        }
+//        return(false);
+//    }
 
     void Module::addChild(const QString &tag, Module *mod) {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to addChild()"); }
