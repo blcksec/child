@@ -14,9 +14,10 @@ namespace Child {
 
     class TaggedModule {
     public:
+        TaggedModule() { throw RuntimeException("Cannot construct a NULL TaggedModule"); }
         TaggedModule(const QString &t, Module *const m);
-        const QString tag;
-        Module *const module;
+        QString tag;
+        Module *module;
     };
 
     inline bool operator==(const TaggedModule &a, const TaggedModule &b) {
@@ -39,9 +40,12 @@ namespace Child {
 
     class Module {
     public:
-        Module() { _moduleCount++; }
+        Module() : _isVirtual(0) { _moduleCount++; }
         virtual ~Module();
         static const long long int moduleCount() { return(_moduleCount); }
+
+        bool isVirtual() const { return(_isVirtual); }
+        Module *setIsVirtual(bool value) { _isVirtual = value; return(this); }
 
         static Module *bigBang() {
             return(new Module);
@@ -49,6 +53,7 @@ namespace Child {
 
         const ModuleList modules() const { return(ModuleList(_modules)); }
         const ModuleList clones() const { return(ModuleList(_clones)); }
+        bool hasDirectModule(Module *mod) const;
         void addModule(Module *mod);
         void prependModule(Module *mod);
         void removeModule(Module *mod);
@@ -63,20 +68,20 @@ namespace Child {
 
         const ModuleMultiHash parents() const;
         const ModuleHash children() const { return(ModuleHash(_children)); }
+        bool hasDirectParent(Module *mod);
         void addParent(const QString &tag, Module *mod);
         void removeParent(const QString &tag, Module *mod, bool callDeleteIfOrphan = true);
         bool _hasDirectChild(const QString &tag) const;
         bool hasDirectChild(const QString &tag) const;
         Module *directChild(const QString &tag) const;
+        Module *_child(const QString &tag, bool returnThisIfFound = false);
+        bool hasChild(const QString &tag);
+        Module *child(const QString &tag);
         void addChild(const QString &tag, Module *mod);
         void setChild(const QString &tag, Module *mod);
         void removeChild(const QString &tag);
         void deleteIfOrphan() { if(_parents.empty()) { delete this; } }
-        bool findChild(const QString &tag, Module *&own, Module *&rcv) const;
-    private:
-        bool _findChildInSelfAndParents(const QString &tag, Module *&own, Module *&rcv, ModuleSet &modSeen) const;
-        bool _findChildInSelfAndModules(const QString &tag, Module *&own, ModuleSet &modSeen) const;
-    public:
+
         const long long int uniqueID() { return(reinterpret_cast<long long int>(this)); }
         const QString uniqueHexID() { return(QString("0x%1").arg(uniqueID(), 0, 16)); }
         const QString inspect();
@@ -89,11 +94,12 @@ namespace Child {
 //        Module *print();
 
     private:
+        static long long int _moduleCount;
         ModuleList _modules;
         mutable ModuleList _clones; // cache
         TaggedModuleSet _parents;
         mutable ModuleHash _children; // cache
-        static long long int _moduleCount;
+        bool _isVirtual : 1;
     };
 }
 

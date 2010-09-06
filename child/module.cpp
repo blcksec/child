@@ -26,6 +26,11 @@ namespace Child {
         _moduleCount--;
     }
 
+    bool Module::hasDirectModule(Module *mod) const {
+        if(!mod) { throw NullPointerException("NULL value passed to hasDirectModule()"); }
+        return(_modules.contains(mod));
+    }
+
     void Module::addModule(Module *mod) {
         if(!mod) { throw NullPointerException("NULL value passed to addModule()"); }
         if(_modules.contains(mod)) { throw DuplicateException("Duplicate module passed to addModule()"); }
@@ -53,6 +58,11 @@ namespace Child {
             hash.insert(value.tag, value.module);
         }
         return(hash);
+    }
+
+    bool Module::hasDirectParent(Module *mod) {
+        if(!mod) { throw NullPointerException("NULL value passed to hasDirectParent()"); }
+        return(!mod->_children.key(this).isEmpty());
     }
 
     void Module::addParent(const QString &tag, Module *mod) {
@@ -85,8 +95,7 @@ namespace Child {
         return(value);
     }
 
-    Module *Module::child(const QString &tag) const {
-        if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to child()"); }
+    Module *Module::_child(const QString &tag, bool returnThisIfFound) {
         ModuleSet moduleSeen;
         ModuleQueue moduleQueue;
         ModuleQueue parentQueue;
@@ -94,18 +103,19 @@ namespace Child {
         QHash<Module *, TaggedModule> parentTree;
         Module *child = NULL;
         while (!parentQueue.isEmpty()) {
-            parent = parentQueue.dequeue();
+            Module *parent = parentQueue.dequeue();
             moduleQueue.enqueue(parent);
             while (!moduleQueue.isEmpty()) {
                 Module *module = moduleQueue.dequeue();
-                if(module->hasDirectChild(tag)) { child = module->directChild(targ); break; }
+//                p(module->inspect());
+                if(module->hasDirectChild(tag)) { child = module->directChild(tag); break; }
                 foreach(Module *mod, module->_modules) {
                     if(!moduleSeen.contains(mod)) {
                         moduleSeen.insert(mod);
                         moduleQueue.enqueue(mod);
                     }
                 }
-                foreach(TaggedModule par, _parents) {
+                foreach(TaggedModule par, module->_parents) {
                     if(!parentTree.contains(par.module)) {
                         parentTree.insert(par.module, TaggedModule(par.tag, parent));
                         parentQueue.enqueue(par.module);
@@ -113,93 +123,47 @@ namespace Child {
                 }
             }
             if(child) {
+                if(returnThisIfFound) { return(this); }
                 TaggedModuleList parentPath;
                 while(parent != this) {
                     TaggedModule par = parentTree.value(parent);
-                    parentPath.prepend(par);
+                    parentPath.prepend(TaggedModule(par.tag, parent));
                     parent = par.module;
                 }
                 bool mustVirtualize = false;
                 foreach(TaggedModule par, parentPath) {
-                    if(!mustVirtualize && )
+                    if(!mustVirtualize && !parent->_parents.contains(par)) mustVirtualize = true;
+                    if(mustVirtualize) {
+//                        p("Cloning parent " + par.module->inspect());
+                        Module *virtualParent = par.module->clone()->setIsVirtual(true);
+                        parent->addParent(par.tag, virtualParent);
+                        parent = virtualParent;
+                    } else {
+                        parent = par.module;
+                    }
                 }
+                if(mustVirtualize || !child->_parents.contains(TaggedModule(tag, parent))) {
+//                    p("Cloning child " + child->inspect());
+                    child = child->clone()->setIsVirtual(true);
+                    child->addParent(tag, parent);
+                }
+                return(child);
             }
         }
+        return(NULL);
     }
 
-//    findChildInSelfAndParents(tag) {
-//        moduleSeen = []
-//        parentQueue = [this]
-//        parentTree = []
-//        for(i = 0; i < parentQueue.size(); i++) {
-//            parent = parentQueue[i]
-//            if(child = parent.findChildInSelfAndModules(tag, moduleSeen, parentQueue, parentTree)) {
-//                parentPath = []
-//                while(parent != this) {
-//                    parent = parentTree[parent]
-//                    parentPath.prepend(pair(parent.tag, parent.module))
-//                }
-//                mustClone = false
-//                currentParent = this
-//                foreach(parent, parentPath) {
-//                    if(!mustClone && !parent.module.childs.contains(currentParent)) mustClone = true
-//                    if(mustClone) {
-//                        virtualParent = parent.module.clone().setIsVirtual(true)
-//                        currentParent.addParent(parent.tag, virtualParent)
-//                        currentParent = virtualParent
-//                    }
-//                }
-//                if(mustClone || !currentParent.childs.contains(child)) {
-//                    child = child.clone().setIsVirtual(true)
-//                    currentParent.addChild(tag, child)
-//                }
-//                return(child)
-//            }
-//        }
-//        return(NULL)
-//    }
+    bool Module::hasChild(const QString &tag) {
+        if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to hasChild()"); }
+        return(_child(tag, true));
+    }
 
-    //    findChildInSelfAndModules(tag, &moduleSeen, &parentQueue, &parentTree) {
-    //        moduleQueue = [this]
-    //        for(i = 0; i < moduleQueue.size(); i++) {
-    //            module = moduleQueue[i]
-    //            if(module.hasDirectChild(tag)) return(module.directChild(tag))
-    //            foreach(mod, module.modules()) {
-    //                if(!moduleSeen.contains(mod)) {
-    //                    moduleSeen.insert(mod)
-    //                    moduleQueue << mod
-    //                }
-    //            }
-    //            foreach(parent, mod.parents()) {
-    //                if(!parentTree.contains(parent.module)) {
-    //                    parentTree[parent.module] = pair(parent.tag, this)
-    //                    parentQueue << parent.module
-    //                }
-    //            }
-    //        }
-    //        return(NULL)
-    //    }
-
-//    Module *Module::_findChildInSelfAndParents(const QString &tag, ModuleSet &modSeen) const {
-//        if(_findChildInSelfAndModules(tag, modSeen)) {
-//            rcv = const_cast<Module *>(this);
-//            return(true);
-//        }
-//        foreach(TaggedModule value, _parents) {
-//            if(value.module->_findChildInSelfAndParents(tag, own, rcv, modSeen)) return(true);
-//        }
-//        return(false);
-//    }
-
-//    bool Module::_findChildInSelfAndModules(const QString &tag, Module *&own, ModuleSet &modSeen) const {
-//        if(modSeen.contains(const_cast<Module *>(this))) return(false);
-//        modSeen.insert(const_cast<Module *>(this));
-//        if(_hasDirectChild(tag)) { own = const_cast<Module *>(this); return(true); }
-//        foreach(Module *mod, _modules) {
-//            if(mod->_findChildInSelfAndModules(tag, own, modSeen)) return(true);
-//        }
-//        return(false);
-//    }
+    Module *Module::child(const QString &tag) {
+        if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to child()"); }
+        Module *child = _child(tag);
+        if(!child) { throw NotFoundException("Child not found in child()"); }
+        return(child);
+    }
 
     void Module::addChild(const QString &tag, Module *mod) {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to addChild()"); }

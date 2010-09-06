@@ -162,7 +162,7 @@ namespace Child {
         }
 
         void removeParent() {
-            Module *world = new Module;
+            Module w; Module *world = &w;
             Module *window1 = new Module;
             window1->addParent("window1", world);
             Module *window2 = new Module;
@@ -183,31 +183,62 @@ namespace Child {
             QCOMPARE(button1->parents().size(), 2);
             button1->removeParent("button", window2);
             QCOMPARE(button1->parents().size(), 1);
-            delete world;
         }
 
-        void child() {
-            Module *world = new Module;
+        void directChild() {
+            Module w; Module *world = &w;
             Module *window1 = new Module;
             QCATCH(world->directChild(""), ArgumentException);
             QCATCH(world->directChild("window"), NotFoundException);
             world->addChild("window", window1);
             QCOMPARE(world->directChild("window"), window1);
-            delete world;
         }
 
-        void hasChild() {
-            Module *world = new Module;
+        void hasDirectChild() {
+            Module w; Module *world = &w;
             Module *window1 = new Module;
             QCATCH(world->hasDirectChild(""), ArgumentException);
             QVERIFY(!world->hasDirectChild("window"));
             world->addChild("window", window1);
             QVERIFY(world->hasDirectChild("window"));
-            delete world;
+        }
+
+        void child() {
+            Module w; Module *world = &w;
+            world->addChild("World", world);
+            Module *Window = new Module;
+            world->addChild("Window", Window);
+            Module *close = new Module;
+            Window->addChild("close", close);
+            Module *window1 = Window->clone();
+            Module *window2 = Window->clone();
+            world->addChild("win1", window1);
+            world->addChild("win2", window2);
+            Module *button = new Module;
+            window1->addChild("button", button);
+            QCATCH(button->child(""), ArgumentException);
+            QCATCH(button->child("win3"), NotFoundException);
+            QCOMPARE(world->child("Window"), Window);
+            QCOMPARE(Window->child("Window"), Window);
+            QCOMPARE(world->child("win1"), window1);
+            QCATCH(world->child("button"), NotFoundException);
+            QCOMPARE(window1->child("win2"), window2);
+            QCOMPARE(button->child("World"), world);
+            QCOMPARE(button->child("win2"), window2);
+            Module *virtualClose = window1->child("close");
+            QVERIFY(virtualClose->isVirtual());
+            QVERIFY(virtualClose->hasDirectModule(close));
+            QCOMPARE(button->child("close"), virtualClose);
+            Module *virtualButton = button->clone()->setIsVirtual(true);
+            QCOMPARE(window1->clones().size(), 0);
+            Module *virtualClose2 = virtualButton->child("close");
+            QVERIFY(virtualClose2->hasDirectModule(virtualClose));
+            QCOMPARE(window1->clones().size(), 1);
+            QVERIFY(virtualClose2->hasDirectParent(window1->clones().first()));
         }
 
         void addChild() {
-            Module *world = new Module;
+            Module w; Module *world = &w;
             Module *window1 = new Module;
             Module *window2 = new Module;
             QCATCH(world->addChild("window", NULL), NullPointerException);
@@ -218,11 +249,10 @@ namespace Child {
             world->addChild("window2", window2);
             QCOMPARE(world->children().size(), 2);
             QCOMPARE(world->directChild("window2"), window2);
-            delete world;
         }
 
         void setChild() {
-            Module *world = new Module;
+            Module w; Module *world = &w;
             Module *window1 = new Module;
             Module *window2 = new Module;
             QCATCH(world->setChild("window", NULL), NullPointerException);
@@ -236,11 +266,10 @@ namespace Child {
             world->setChild("window", window2);
             QCOMPARE(world->children().size(), 1);
             QCOMPARE(world->directChild("window"), window2);
-            delete world;
         }
 
         void removeChild() {
-            Module *world = new Module;
+            Module w; Module *world = &w;
             Module *window1 = new Module;
             window1->addParent("window1", world);
             Module *button1 = new Module;
@@ -250,37 +279,10 @@ namespace Child {
             QCOMPARE(window1->children().size(), 1);
             window1->removeChild("button");
             QCOMPARE(window1->children().size(), 0);
-            delete world;
-        }
-
-        void findChild() {
-            Module *world = new Module;
-            Module *Window = new Module;
-            world->addChild("Window", Window);
-            Module *close = new Module;
-            Window->addChild("close", close);
-            Module *window1 = Window->clone();
-            Module *window2 = Window->clone();
-            world->addChild("win1", window1);
-            world->addChild("win2", window2);
-            Module *button = new Module;
-            window1->addChild("button", button);
-            Module *own, *rcv;
-            QCATCH(button->findChild("", own, rcv), ArgumentException);
-            QVERIFY(!button->findChild("win3", own, rcv));
-            QVERIFY(button->findChild("win2", own, rcv));
-            QCOMPARE(own, world);
-            QCOMPARE(rcv, world);
-            QCOMPARE(own->directChild("win2"), window2);
-            QVERIFY(button->findChild("close", own, rcv));
-            QCOMPARE(own, Window);
-            QCOMPARE(rcv, window1);
-            QCOMPARE(own->directChild("close"), close);
-            delete world;
         }
 
         void inspect() {
-            Module *world = new Module;
+            Module w; Module *world = &w;
             Module *window = new Module;
             world->addChild("window", window);
             Module *person = new Module;
@@ -291,7 +293,6 @@ namespace Child {
             person->addChild("first_name", first);
             person->addChild("last_name", last);
             QCOMPARE(person->inspect(), person->uniqueHexID() + ": [person1, person2] => [last_name, first_name]");
-            delete world;
         }
     };
 }

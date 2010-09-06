@@ -10,29 +10,34 @@ namespace Child {
         const QString message;
     };
 
-    class ArgumentException : public Exception {
+    class RuntimeException : public Exception {
     public:
-        ArgumentException(const QString &msg = "Undefined ArgumentException") : Exception(msg) {}
+        RuntimeException(const QString &msg = "Undefined RuntimeException") : Exception(msg) {}
     };
 
-    class NullPointerException : public Exception {
+    class ArgumentException : public RuntimeException {
     public:
-        NullPointerException(const QString &msg = "Undefined NullPointerException") : Exception(msg) {}
+        ArgumentException(const QString &msg = "Undefined ArgumentException") : RuntimeException(msg) {}
     };
 
-    class IndexOutOfBoundsException : public Exception {
+    class NullPointerException : public RuntimeException {
     public:
-        IndexOutOfBoundsException(const QString &msg = "Undefined IndexOutOfBoundsException") : Exception(msg) {}
+        NullPointerException(const QString &msg = "Undefined NullPointerException") : RuntimeException(msg) {}
     };
 
-    class NotFoundException : public Exception {
+    class IndexOutOfBoundsException : public RuntimeException {
     public:
-        NotFoundException(const QString &msg = "Undefined NotFoundException") : Exception(msg) {}
+        IndexOutOfBoundsException(const QString &msg = "Undefined IndexOutOfBoundsException") : RuntimeException(msg) {}
     };
 
-    class DuplicateException : public Exception {
+    class NotFoundException : public RuntimeException {
     public:
-        DuplicateException(const QString &msg = "Undefined DuplicateException") : Exception(msg) {}
+        NotFoundException(const QString &msg = "Undefined NotFoundException") : RuntimeException(msg) {}
+    };
+
+    class DuplicateException : public RuntimeException {
+    public:
+        DuplicateException(const QString &msg = "Undefined DuplicateException") : RuntimeException(msg) {}
     };
 }
 
