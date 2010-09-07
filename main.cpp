@@ -1,12 +1,12 @@
 #include "child/module.h"
 #include "child/text.h"
 #include "child/nativemethod.h"
-#include "child/test.h"
+#include "tests/runalltests.h"
 
 using namespace Child;
 
 int main() { // int argc, char *argv[]
-    TestModule::run();
+    runAllTests();
 //    NativeMethod *meth;
 
 //    Module *world = new Module;

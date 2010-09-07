@@ -20,16 +20,21 @@ SOURCES += main.cpp \
     child/nativemethod.cpp \
     child/text.cpp \
     child/toolbox.cpp \
-    child/object.cpp
+    child/object.cpp \
+    child/world.cpp
 
 HEADERS += \
     child/module.h \
     child/nativemethod.h \
     child/text.h \
     child/toolbox.h \
-    child/test.h \
     child/exception.h \
-    child/object.h
+    child/object.h \
+    child/world.h \
+    tests/runalltests.h \
+    tests/moduletest.h \
+    tests/testhelper.h \
+    tests/objecttest.h
 
 OTHER_FILES += \
     notes/ideas.txt \

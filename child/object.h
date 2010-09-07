@@ -6,6 +6,7 @@
 namespace Child {
     class Object : public Module {
     public:
+        static void initialize();
         virtual Object *clone() const { return(_clone(this)); }
     };
 }
