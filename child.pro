@@ -30,7 +30,7 @@ HEADERS += \
     child/toolbox.h \
     child/exception.h \
     child/object.h \
-    tests/objecttest.h
+    tests/objecttest.h \
     tests/runalltests.h \
     tests/moduletest.h \
     tests/testhelper.h \
