@@ -30,11 +30,14 @@ HEADERS += \
     child/toolbox.h \
     child/exception.h \
     child/object.h \
+    child/world.h \
     tests/objecttest.h \
     tests/runalltests.h \
     tests/moduletest.h \
     tests/testhelper.h \
-    tests/objecttest.h
+    tests/objecttest.h \
+    tests/worldtest.h \
+    tests/texttest.h
 
 OTHER_FILES += \
     notes/ideas.txt \

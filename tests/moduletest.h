@@ -106,12 +106,12 @@ namespace Child {
         void clone() {
             Module *obj1 = new Module;
             QCOMPARE(obj1->clones().size(), 0);
-            Module *obj2 = obj1->clone();
+            Module *obj2 = obj1->fork();
             QCOMPARE(obj1->clones().size(), 1);
             QCOMPARE(obj1->clones()[0], obj2);
             QCOMPARE(obj2->modules().size(), 1);
             QCOMPARE(obj2->modules()[0], obj1);
-            Module *obj3 = obj1->clone();
+            Module *obj3 = obj1->fork();
             QCOMPARE(obj1->clones().size(), 2);
             QCOMPARE(obj1->clones()[1], obj3);
             QCOMPARE(obj3->modules().size(), 1);
@@ -121,7 +121,7 @@ namespace Child {
             delete obj1;
 
             Text *txt1 = new Text;
-            Text *txt2 = txt1->clone();
+            Text *txt2 = txt1->fork();
             QCOMPARE(txt1->clones().size(), 1);
             QCOMPARE(txt1->clones()[0], txt2);
             QCOMPARE(txt2->modules().size(), 1);
@@ -252,8 +252,8 @@ namespace Child {
             world->addDirectChild("Window", Window);
             Module *close = new Module;
             Window->addDirectChild("close", close);
-            Module *window1 = Window->clone();
-            Module *window2 = Window->clone();
+            Module *window1 = Window->fork();
+            Module *window2 = Window->fork();
             world->addDirectChild("win1", window1);
             world->addDirectChild("win2", window2);
             Module *button = new Module;
@@ -271,7 +271,7 @@ namespace Child {
             QVERIFY(virtualClose->isVirtual());
             QVERIFY(virtualClose->hasDirectModule(close));
             QCOMPARE(button->child("close"), virtualClose);
-            Module *virtualButton = button->clone()->setIsVirtual(true);
+            Module *virtualButton = button->fork()->setIsVirtual(true);
             QCOMPARE(window1->clones().size(), 0);
             Module *virtualClose2 = virtualButton->child("close");
             QVERIFY(virtualClose2->hasDirectModule(virtualClose));
@@ -282,7 +282,7 @@ namespace Child {
         void setChild() {
             Module w; Module *world = &w;
             Module *Person = world->addDirectChild("Person", new Module);
-            Module *mvila = Person->clone();
+            Module *mvila = Person->fork();
             Module *manu = new Module;
             Module *vila = new Module;
             QCATCH(mvila->setChild("", manu), ArgumentException);

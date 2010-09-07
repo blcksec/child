@@ -4,6 +4,8 @@
 #include "tests/testhelper.h"
 #include "tests/moduletest.h"
 #include "tests/objecttest.h"
+#include "tests/worldtest.h"
+#include "tests/texttest.h"
 
 namespace Child {
     static int testFailureCount;
@@ -29,6 +31,8 @@ namespace Child {
         beginTests();
         test(new ModuleTest);
         test(new ObjectTest);
+        test(new WorldTest);
+        test(new TextTest);
         endTests();
     }
 }

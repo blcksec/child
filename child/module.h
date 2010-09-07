@@ -44,7 +44,8 @@ namespace Child {
         virtual ~Module();
         static const long long int moduleCount() { return(_moduleCount); }
 
-        static Module *root(bool autoInitialize = true);
+        static bool hasRoot() { return(_root != NULL); }
+        static Module *root();
         static void initialize();
 
         bool isVirtual() const { return(_isVirtual); }
@@ -57,13 +58,13 @@ namespace Child {
         void prependModule(Module *mod);
         void removeModule(Module *mod);
     protected:
-        template<typename T> static T *_clone(const T *module) {
-            T *clone = new T;
-            clone->addModule(const_cast<T *>(module));
-            return(clone);
+        template<typename T> static T *_fork(const T *module) {
+            T *fork = new T;
+            fork->addModule(const_cast<T *>(module));
+            return(fork);
         }
     public:
-        virtual Module *clone() const { return(_clone(this)); }
+        virtual Module *fork() const { return(_fork(this)); }
 
         const ModuleMultiHash parents() const;
         const ModuleHash children() const { return(ModuleHash(_children)); }

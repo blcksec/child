@@ -1,19 +1,18 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include "child/module.h"
+#include "child/object.h"
 
 namespace Child {
-    class Text : public Module {
+    class Text : public Object {
     public:
-        virtual Text *clone() const { return(_clone(this)); }
+        static void initialize();
 
-//        Text(Module *const &genre = NULL, Module *const &parent = NULL) : Module(genre, parent) {}
+        virtual Text *fork() const { return(_fork(this)->setValue(_value)); }
+        Text *fork(const QString &value) { return(_fork(this)->setValue(value)); }
 
-//        static Text *const create(Module *const &world, const QString &value = "");
-
-//        const QString value() const { return(_value); }
-//        void setValue(const QString &value) { _value = value; }
+        const QString value() const { return(_value); }
+        Text *setValue(const QString &value) { _value = value; return(this); }
 
 //        Module *toText();
 

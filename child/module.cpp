@@ -27,8 +27,8 @@ namespace Child {
         _moduleCount--;
     }
 
-    Module *Module::root(bool autoInitialize) {
-        if(!_root && autoInitialize) { initialize(); }
+    Module *Module::root() {
+        if(!_root) { initialize(); }
         return(_root);
     }
 
@@ -173,7 +173,7 @@ namespace Child {
                     if(!mustVirtualize && !parent->_parents.contains(par)) mustVirtualize = true;
                     if(mustVirtualize) {
 //                        p("Cloning parent " + par.module->inspect());
-                        Module *virtualParent = par.module->clone()->setIsVirtual(true);
+                        Module *virtualParent = par.module->fork()->setIsVirtual(true);
                         parent->addParent(par.tag, virtualParent);
                         parent = virtualParent;
                     } else {
@@ -185,7 +185,7 @@ namespace Child {
                         child = setValue;
                     } else {
                         // p("Cloning child " + child->inspect());
-                        child = child->clone()->setIsVirtual(true);
+                        child = child->fork()->setIsVirtual(true);
                     }
                     child->addParent(tag, parent);
                 } else {

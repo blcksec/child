@@ -6,17 +6,17 @@
 #define CHILD_METHOD(METH) static_cast<Module::MethodPtr>(&METH)
 
 namespace Child {
-//    class NativeMethod : public Module {
-//    public:
-//        NativeMethod(Module *const &genre = NULL, Module *const &parent = NULL) : Module(genre, parent), _method(NULL) {}
+    class NativeMethod : public Module {
+    public:
+        static void initialize();
 
-//        static NativeMethod *const create(Module *const &world, ModuleMethodPtr const &method);
+        static NativeMethod *const create(Module *const &world, ModuleMethodPtr const &method);
 
-//        ModuleMethodPtr const method() const { return(_method); }
-//        void setMethod(ModuleMethodPtr const &method) { _method = method; }
-//    private:
-//        ModuleMethodPtr _method;
-//    };
+        ModuleMethodPtr const method() const { return(_method); }
+        void setMethod(ModuleMethodPtr const &method) { _method = method; }
+    private:
+        ModuleMethodPtr _method;
+    };
 }
 
 #endif // NATIVEMETHOD_H
