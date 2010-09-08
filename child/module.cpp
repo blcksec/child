@@ -9,7 +9,7 @@ namespace Child {
     }
 
     long long int Module::_moduleCount = 0;
-    Module *Module::_root = NULL;
+    Module *Module::_root = Module::root();
 
     Module::~Module() {
         foreach(Module *mod, _modules) {
@@ -28,15 +28,11 @@ namespace Child {
     }
 
     Module *Module::root() {
-        if(!_root) { initialize(); }
-        return(_root);
-    }
-
-    void Module::initialize() {
         if(!_root) {
             _root = new Module;
             _root->addParent("Module", _root);
         }
+        return(_root);
     }
 
     bool Module::hasDirectModule(Module *mod) const {
@@ -197,6 +193,10 @@ namespace Child {
                         }
                     }
                 }
+                NativeMethod *meth = dynamic_cast<NativeMethod *>(child);
+                if(meth && meth->method()) {
+                    child = (parent->*meth->method())();
+                }
                 return(child);
             }
         }
@@ -233,22 +233,6 @@ namespace Child {
         str.append("]");
         return str;
     }
-
-//    Module *const Module::send(const QString &name) {
-//        Module *own = NULL, *rcv = NULL, *val = NULL;
-//        if(!findSlot(name, own, rcv, val)) { return(NULL); }
-//        NativeMethod *meth = dynamic_cast<NativeMethod *>(val);
-//        if(meth && meth->method()) {
-//            return((rcv->*meth->method())());
-//        }
-//        return(val);
-//    }
-
-//    Module *const Module::fatalSend(const QString &name) {
-//        Module *obj = send(name);
-//        if(!obj) { qFatal("Object '%s' not found", qPrintable(name)); }
-//        return(obj);
-//    }
 
 //    Module *Module::toText() {
 //        QString str;

@@ -10,10 +10,7 @@ namespace Child {
     class World : public Object {
     public:
         World();
-        static void initialize();
         virtual Object *fork() const { return(_fork(this)); }
-    private:
-        static bool _isInitialized;
     };
 }
 

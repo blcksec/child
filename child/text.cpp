@@ -1,12 +1,18 @@
 #include "child/text.h"
 
 namespace Child {
-    void Text::initialize() {
-        if(!Module::root()->child("Object")->hasDirectChild("Text")) {
-            Text *txt = new Text;
-            txt->addModule(Module::root()->child("Object"));
-            txt->addParent("Text", Module::root()->child("Object"));
+    Text *Text::_root = Text::root();
+
+    Text *Text::root() {
+        if(!_root) {
+            _root = new Text;
+            _root->addModule(Object::root());
+            _root->addParent("Text", Object::root());
+
+            NativeMethod *meth = NativeMethod::root()->fork(CMETHODPTR(Text::upcase));
+            _root->addDirectChild("upcase", meth);
         }
+        return(_root);
     }
 //    Text *const Text::create(Module *const &world, const QString &value) {
 //        Text *txt = new Text(world->fatalSend("Text"));

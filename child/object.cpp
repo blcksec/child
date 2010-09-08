@@ -1,11 +1,14 @@
 #include "child/object.h"
 
 namespace Child {
-    void Object::initialize() {
-        if(!Module::root()->hasDirectChild("Object")) {
-            Object *mod = new Object;
-            mod->addModule(Module::root());
-            mod->addParent("Object", Module::root());
+    Object *Object::_root = Object::root();
+
+    Object *Object::root() {
+        if(!_root) {
+            _root = new Object;
+            _root->addModule(Module::root());
+            _root->addParent("Object", Module::root());
         }
+        return(_root);
     }
 }

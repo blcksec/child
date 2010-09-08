@@ -12,7 +12,6 @@ namespace Child {
         long long int _initialModuleCount;
     private slots:
         void initTestCase() {
-            World::initialize();
             _initialModuleCount = Module::moduleCount();
         }
 

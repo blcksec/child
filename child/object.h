@@ -6,8 +6,10 @@
 namespace Child {
     class Object : public Module {
     public:
-        static void initialize();
+        static Object *root();
         virtual Object *fork() const { return(_fork(this)); }
+    private:
+        static Object *_root;
     };
 }
 

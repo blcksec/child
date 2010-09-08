@@ -44,9 +44,7 @@ namespace Child {
         virtual ~Module();
         static const long long int moduleCount() { return(_moduleCount); }
 
-        static bool hasRoot() { return(_root != NULL); }
         static Module *root();
-        static void initialize();
 
         bool isVirtual() const { return(_isVirtual); }
         Module *setIsVirtual(bool value) { _isVirtual = value; return(this); }
