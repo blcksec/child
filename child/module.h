@@ -66,7 +66,7 @@ namespace Child {
 
         const ModuleMultiHash parents() const;
         const ModuleHash children() const { return(ModuleHash(_children)); }
-        bool hasDirectParent(Module *mod);
+        bool hasDirectParent(Module *mod) const;
         void addParent(const QString &tag, Module *mod);
         void removeParent(const QString &tag, Module *mod, bool callDeleteIfOrphan = true);
         bool hasDirectChild(const QString &tag) const;
@@ -75,14 +75,14 @@ namespace Child {
         Module *setDirectChild(const QString &tag, Module *mod);
         void removeDirectChild(const QString &tag);
         Module *_getOrSetChild(const QString &tag, Module *setValue = NULL, bool returnThisIfFound = false);
-        bool hasChild(const QString &tag);
-        Module *child(const QString &tag);
+        bool hasChild(const QString &tag) const;
+        Module *child(const QString &tag) const;
         Module *setChild(const QString &tag, Module *mod);
         void deleteIfOrphan() { if(_parents.empty()) { delete this; } }
 
-        const long long int uniqueID() { return(reinterpret_cast<long long int>(this)); }
-        const QString uniqueHexID() { return(QString("0x%1").arg(uniqueID(), 0, 16)); }
-        const QString inspect();
+        const long long int uniqueID() const { return(reinterpret_cast<long long int>(this)); }
+        const QString uniqueHexID() const { return(QString("0x%1").arg(uniqueID(), 0, 16)); }
+        const QString inspect() const;
 
 //        Module *const send(const QString &name);
 //        Module *const fatalSend(const QString &name);

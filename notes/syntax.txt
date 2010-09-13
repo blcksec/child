@@ -1,31 +1,135 @@
-Un objet est composé de :
+++++++++++++++++++++++++++++++++
++++ Child                    +++
++++ New programming language +++
+++++++++++++++++++++++++++++++++
 
-    * Prototype
-    * Parent
-    * Mixins/traits/abilities/extensions/modules
-    * Slots
+Person := Object {
+    modules << Archivable
 
-La recherche de slot se fait dans l'ordre suivant :
+    first_name := ""
+    last_name := ""
+    age := 0
 
-    * Mixins
-    * Prototype
-    * Parent
+    init(@first_name: "", @last_name: "") := {}
+
+    ... est équivalent à :
+
+    init(first_name: "", last_name: "") := {
+        @first_name = first_name
+        @last_name = last_name
+    }
+
+    full_name(capitalize: false) := {
+        doc:
+            Return the concatenation of first_name and last_name
+        code:
+            str := [first_name, last_name] join(" ")
+            if(capitalize) { str captitalize } else { str }
+        test:
+            p := Person()
+            test(p full_name == "Manuel Vila")
+    }
+
+    Text init(source<this>) := { value = source full_name }
+}
+
+Company := Object {
+    name := ""
+    boss := Person()
+
+    init(@name, @boss) := {}
+}
+
+p1 := Person()
+p2 := Person("Manu")
+p3 := Person("Manu", "Vila")
+
+c1 := Company(name: "Kindalab", boss: p3)
+
+***
+
+PersonTest := Test {
+    initialization := {
+        p := Person()
+        test(p first_name == "")
+    }
+
+    full_name := {
+        p := Person("Manu", "Vila")
+        test(p full_name == "Manuel Vila")
+    }
+ }
+
+PersonTest run
+
+***
+
+swith(letter) {
+    'a':
+        "This is a 'A'"
+    'b':
+        "This is a 'B'"
+    else:
+        "Unknown letter"
+} print
+
+***
+
+Person := Object {
+    create := { ... }
+    create(name<Text>, age<Number>) := { ... }
+    create(brother<Person>) := { ... }
+    create(company: Company())
+    create(childs,...)
+}
+
+***
+
+Person := Object {
+    name := Text()
+    name get := { value capitalize }
+    name set(val) := { value = val }
+    name spy { "name changed!" print }
+}
+
+---------------
+
+Un Module définit :
+
+    * Forks
+    * Childs
+
+Un Module est défini par :
+
+    * ForkedModules (ou simplement "Modules")
+    * Parents
 
 Création d'un objet :
 
-Person = Object clone {
-    extensions += Archivable
-    first_name = ""
-    last_name = ""
-    full_name = method(capitalize: false) { first_name + last_name }
+Person = Object {
+    modules << Archivable
+
+    first_name := Text
+    last_name := Text
+
+    full_name(capitalize: false) -> str := {
+        str = [first_name, last_name] join(" ")
+        if(capitalize) { str captitalize! }
+    }
 }
 
 Définition d'une méthode :
 
-meth = method(a: 0, b: 0, operation (Closure): nil => r) {
+meth(a: 0, b: 0, operation<Closure>: Nil) -> r = {
     r = a + b
-    do_something
+    operation()
 }
+
+Note à propos de Nil :
+
+Nil est un pseudo module descendant de tous les modules. Il signifie "n'importe quoi" et peut donc se substituer à n'importe quel module.
+
+~~~~~~~~~ à actualiser : ~~~~~~~~~
 
 Appel d'une méthode :
 
@@ -90,7 +194,7 @@ Structures de contrôle :
 
 if(i > 0) {
     "bonjour" print
-else:
+  else:
     "au revoir" print
 }
 

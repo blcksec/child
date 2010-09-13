@@ -69,9 +69,9 @@ namespace Child {
         return(hash);
     }
 
-    bool Module::hasDirectParent(Module *mod) {
+    bool Module::hasDirectParent(Module *mod) const {
         if(!mod) { throw NullPointerException("NULL value passed to hasDirectParent()"); }
-        return(!mod->_children.key(this).isEmpty());
+        return(!mod->_children.key(const_cast<Module *>(this)).isEmpty());
     }
 
     void Module::addParent(const QString &tag, Module *mod) {
@@ -203,14 +203,14 @@ namespace Child {
         return(NULL);
     }
 
-    bool Module::hasChild(const QString &tag) {
+    bool Module::hasChild(const QString &tag) const {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to hasChild()"); }
-        return(_getOrSetChild(tag, NULL, true));
+        return(const_cast<Module *>(this)->_getOrSetChild(tag, NULL, true));
     }
 
-    Module *Module::child(const QString &tag) {
+    Module *Module::child(const QString &tag) const {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to child()"); }
-        Module *child = _getOrSetChild(tag);
+        Module *child = const_cast<Module *>(this)->_getOrSetChild(tag);
         if(!child) { throw NotFoundException("Child not found in child()"); }
         return(child);
     }
@@ -223,7 +223,7 @@ namespace Child {
         return(child);
     }
 
-    const QString Module::inspect() {
+    const QString Module::inspect() const {
         QString str;
         str = uniqueHexID();
         str.append(": [");
