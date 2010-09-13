@@ -21,7 +21,7 @@ Person := Object {
 
     full_name(capitalize: false) := {
         doc:
-            Return the concatenation of first_name and last_name
+            "Return the concatenation of first_name and last_name"
         code:
             str := [first_name, last_name] join(" ")
             if(capitalize) { str captitalize } else { str }
