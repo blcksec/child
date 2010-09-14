@@ -30,7 +30,7 @@ Person := Object {
             test(p full_name == "Manuel Vila")
     }
 
-    Text init(source<this>) := { value = source full_name }
+    converters["Text"] := { full_name }
 }
 
 Company := Object {
@@ -45,6 +45,16 @@ p2 := Person("Manu")
 p3 := Person("Manu", "Vila")
 
 c1 := Company(name: "Kindalab", boss: p3)
+
+***
+
+each(&var: item) {code} := {
+
+}
+
+map(&var: item) {code} -> result: [] := {
+
+}
 
 ***
 
@@ -77,29 +87,15 @@ swith(letter) {
 
 Person := Object {
     create := { ... }
-    -> create()
     create(name<Text>, age<Number>) := { ... }
-    -> create(name, age)
-    -> create(<Text>, <Number>)
     create(brother<Person>) := { ... }
-    -> create(brother)
-    -> create(<Person>)
     create(company: Company())
-    -> create()
-    -> create(company)
-    -> create(<Company>)
     create(name: "", age: -1)
-    -> create()
-    -> create(name)
-    -> create(age)
-    -> create(name, age)
-    -> create(<Text>)
-    -> create(<Text>, <Number>)
     create(childs,...)
 }
 
 Text &init add_input_transformer(val) {
-    if(val is?(Person)) {
+    if(val is?("Person")) {
         val = val full_name
     }
 }
@@ -112,6 +108,8 @@ Person := Object {
     name set(val) := { value = val }
     name spy { "name changed!" print }
 }
+
+***
 
 ---------------
 
