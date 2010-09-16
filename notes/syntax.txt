@@ -3,6 +3,20 @@
 +++ New programming language +++
 ++++++++++++++++++++++++++++++++
 
+"Hello, World!" print
+
+Version orienté objet :
+
+Hello := Object {
+   init(@what: "World") := {}
+   say := { "Hello, #{what}!" print }
+}
+
+Hello() say // -> "Hello, World!"
+Hello("Manu") say // -> "Hello, Manu!"
+
+***
+
 Person := Object {
     modules << Archivable
 
@@ -58,22 +72,6 @@ map(&var: item) {code} -> result: [] := {
 
 ***
 
-PersonTest := Test {
-    initialization := {
-        p := Person()
-        test(p first_name == "")
-    }
-
-    full_name := {
-        p := Person("Manu", "Vila")
-        test(p full_name == "Manuel Vila")
-    }
- }
-
-PersonTest run
-
-***
-
 swith(letter) {
     'a':
         "This is a 'A'"
@@ -94,12 +92,6 @@ Person := Object {
     create(childs,...)
 }
 
-Text &init add_input_transformer(val) {
-    if(val is?("Person")) {
-        val = val full_name
-    }
-}
-
 ***
 
 Person := Object {
@@ -110,6 +102,34 @@ Person := Object {
 }
 
 ***
+
+Différence entre une méthode est une closure ?
+
+Person := Object {
+    a := 123
+    m1 := {
+        a = 125
+        b := 7
+        m2 := {
+            b = 9
+        }
+    }
+}
+
+Exécution d'une méthode :
+
+1) On fork la méthode pour simuler un contexte local
+2) On exécute
+3) On join si tout s'est bien passé
+
+p1 := Person()
+p1 m1
+
+m1' : m1 est cloné dans p1 pour servir de référence virtuelle
+m1" : m1' est cloné avant l'exécution pour créer un contexte local
+m1" modifie a :
+    p1 est cloné en p1'
+    a est cloné en a' et prend p1' pour père
 
 ---------------
 
@@ -128,75 +148,89 @@ Création d'un objet :
 Person = Object {
     modules << Archivable
 
-    first_name := Text
-    last_name := Text
+    first_name := Text()
+    last_name := Text()
 
-    full_name(capitalize: false) -> str := {
-        str = [first_name, last_name] join(" ")
-        if(capitalize) { str captitalize! }
+    full_name(capitalize: false) -> txt := {
+        txt = [first_name, last_name] join(" ")
+        if(capitalize) { txt captitalize! }
     }
 }
 
 Définition d'une méthode :
 
-meth(a: 0, b: 0, operation<Closure>: Nil) -> r = {
+meth(a: 0, b: 0) {operation: {}} -> r = {
     r = a + b
-    operation()
+    operation
 }
-
-Note à propos de Nil :
-
-Nil est un pseudo module descendant de tous les modules. Il signifie "n'importe quoi" et peut donc se substituer à n'importe quel module.
-
-~~~~~~~~~ à actualiser : ~~~~~~~~~
 
 Appel d'une méthode :
 
-meth { do_something } // le paramètre "operation" spécifiant un type, il récupère la closure
+meth1(1) { do_something }
 
-meth(1) { do_something } // équivalent à :
-meth(1, { do_something }) // ou :
-meth(1, closure { do_something })
+... délégation :
 
-Utilisation de keywords :
+meth1(a) {code} := {
+    meth2(a) {:code}
 
-meth(b: 1)
+    ...peut se traduire par :
+
+    message(tag: "meth2", inputs: [a], block: code)
+}
+
+meth(a, b, c: 0) := { do_something } se traduit par :
+
+message(":=", message("meth", ["a", "b", c: 0]), { do_something })
+
+meth(a, b: 0) {code} := { do_something } se traduit par :
+
+message(":=", message("meth", ["a", b: 0, "{code}"]), { do_something })
+
+meth(a, b: 0) {code: {}} := { do_something } se traduit par :
+
+message(":=", message("meth", ["a", b: 0, "{code}": {}]), { do_something })
+
+meth(a<Text>) := { do_something } se traduit par :
+
+message(":=", message("meth", ["a<Text>"]), { do_something })
+
+meth(a) -> r, e: 0 := { do_something } se traduit par :
+
+message(":=", message("meth", inputs: ["a"], outputs: ["r", e: 0]), { do_something })
+
+meth(a) {code} -> r := { do_something } se traduit par :
+
+message(":=", message("meth", inputs: ["a", "{code}"], outputs: ["r"]), { do_something })
 
 L'itérateur "each" peut être défini ainsi :
 
-each = method(&val: nil, &key: nil, limit: 0)
+each(&val: nil, &key: nil, offset: 0, limit: nil) {code} := { implementation de each }
 
 Et utilisé ainsi :
 
-authors each(auth) { auth println }
-authors each(val, key) { "#{key}: #{val}" println }
-authors each(auth, limit: 3) { auth println }
+authors each(auth) { auth print }
+authors each(val, key) { "#{key}: #{val}" print }
+authors each(auth, limit: 3) { auth print }
 
-Si l'identifiant "val" n'est pas spécifié, un identifiant générique peut-être utilisé :
+Si l'identifiant "val" n'est pas spécifié, un identifiant générique est généré :
 
-authors map { val capitalize } join(", ") println
-
-Définition d'une closure :
-
-x = 2
-exp = closure(e) { x^e }
-exp(8) // -> 256
-
-exp2 = &exp
-exp2(8) // -> 256
-
-Raccourci pour définir une closure sans paramètre :
-
-x = 2
-operation = { x^2 }
+authors map { val capitalize } join(", ") print
 
 Définition d'un tableau :
 
-arr = ["rouge", "vert", 3, nil, obj]
+arr := ["rouge", "vert", 3, nil, obj]
 
 Définition d'un hash :
 
-hsh = ["first_name" => "Manu", "last_name" => "Vila", "age" => 37]
+hsh := ["first_name": "Manu", "last_name": "Vila", "age": 37]
+
+... peut être abrégé ainsi :
+
+hsh := [first_name: "Manu", last_name: "Vila", age: 37]
+
+Mix d'un tableau et d'un hash :
+
+arrhsh := [22, 77.5, limit: 30, "Hello"]
 
 Indexation :
 
@@ -224,23 +258,66 @@ if(i > 0) { "bonjour" print } else { "au revoir" print }
 unless(val) { return }
 
 switch(i) {
-    case(5): do_something
-    case(9): do_something_else
+    5: do_something
+    9: do_something_else
     else: panic("arf")
 }
 
 loop { infinte_loop }
 
-x = 1
-while(x < 10) { x++ println }
+x := 1; while(x < 10) { x++ print }
 
-until(x > 10) { x++ println } // S'exécute au moins une fois, peu importe le résultat de la condition
+until(x > 10) { x++ print } // S'exécute au moins une fois, peu importe le résultat de la condition
 
-Constructeurs permettant de faire des conversions de type :
+Conversions de type :
 
-String(123)  // -> "123"
+Text(123)  // -> "123"
 Number("77") // -> 77
-Array(12)    // -> [12]
+
+Définition d'un convertisseur :
+
+Person := Object {
+    converters["Text"] := { full_name }
+}
+
+Une methode alert(msg<Text>) fera automatiquement appel au convertisseur si on passe autre chose que du Text en paramètre.
+
+L'initializer d'un objet peut spécifier l'objet lui-même en guise de convertisseur :
+
+Text := Object {
+    init(src<Text>: "") := {
+        implementation...
+    }
+}
+
+Ainsi, on peut très simplement convertir une Person en Text :
+
+mvila := Person("Manu", "Vila")
+str := Text(mvila) + " is happy!"
+
+Gestion des exceptions :
+
+meth := {
+    first := "Manu"
+    last := "Vila"
+    file := File("/tmp/image.jpg") open
+    defer(file close) // defer the close message at the end of the current method
+
+    <do something with the file...>
+
+    NotFoundException("file not found") raise
+    ...équivalent à :
+    jump("NotFoundException", [exception: NotFoundException("file not found")])
+
+    <never executed!>
+
+  NotFoundException:
+    "Not found!" log
+  DuplicateException:
+    "Duplicate!" log
+  Exception: // Catch all other exceptions
+    "#{exception name} intercepted!" log
+}
 
 ---------------
 
