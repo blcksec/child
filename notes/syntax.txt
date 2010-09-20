@@ -20,7 +20,7 @@ Hello("Manu") say // -> "Hello, Manu!"
 Person := Object {
     modules << Archivable
 
-    first_name := ""
+    first_name := "" // Pas nécessaire car initialisé par la méthode "init"
     last_name := ""
     age := 0
 
@@ -41,11 +41,18 @@ Person := Object {
             if(capitalize) { str captitalize } else { str }
         test:
             p := Person()
-            test(p full_name == "Manuel Vila")
+            assert(p full_name == "Manuel Vila")
     }
 
     converters["Text"] := { full_name }
 }
+
+Person full_name // est équivalent à :
+Person &full_name code
+
+Person &full_name doc print // affiche la documentation attachée à la méthode
+
+Person &full_name test // exécute la méthode de test
 
 Company := Object {
     name := ""
