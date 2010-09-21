@@ -223,6 +223,35 @@ Si l'identifiant "val" n'est pas spécifié, un identifiant générique est gén
 
 authors map { val capitalize } join(", ") print
 
+Une liste :
+
+lst := ["rouge", "vert", 3, nil, obj]
+
+Un hash n'est pas autre chose qu'une liste :
+
+hsh := ["first_name": "Manu", "last_name": "Vila", "age": 37]
+
+... peut être abrégé ainsi :
+
+hsh := [first_name: "Manu", last_name: "Vila", age: 37]
+
+Mix d'une liste et d'un hash :
+
+mix := [22, 77.5, 6: 34, limit: 30, "Hello"]
+
+... est équivalent à :
+
+mix := [0: 22, 1: 77.5, 6: 34, limit: 30, 7: "Hello"]
+
+Indexation :
+
+lst[0]
+lst[1]
+hsh["first_name"]
+hsh["age"]
+
+~~~ Approche plus classique : ~~~
+
 Définition d'un tableau :
 
 arr := ["rouge", "vert", 3, nil, obj]
@@ -249,6 +278,8 @@ arr[-1]    // Uniquement le dernier élément
 
 hsh["first_name"]
 hsh["age"]
+
+~~~
 
 Structures de contrôle :
 
