@@ -12,7 +12,7 @@ namespace Child {
         virtual Dictionary *fork() const { return(_fork(this)); }
     private:
         static Dictionary *_root;
-        ModuleHash _hash;
+//        ModuleHash _hash;
         ModuleList _keys;
     };
 }

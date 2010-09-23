@@ -28,19 +28,19 @@ namespace Child {
             Module *mod1 = new Module;
             Module *mod2 = new Module;
             Module *obj = new Module;
-            QCOMPARE(mod1->clones().size(), 0);
-            QCOMPARE(mod2->clones().size(), 0);
+            QCOMPARE(mod1->forks().size(), 0);
+            QCOMPARE(mod2->forks().size(), 0);
             QCOMPARE(obj->modules().size(), 0);
             QCATCH(obj->addModule(NULL), NullPointerException);
             obj->addModule(mod1);
-            QCOMPARE(mod1->clones().size(), 1);
-            QCOMPARE(mod1->clones()[0], obj);
+            QCOMPARE(mod1->forks().size(), 1);
+            QCOMPARE(mod1->forks()[0], obj);
             QCOMPARE(obj->modules().size(), 1);
             QCOMPARE(obj->modules()[0], mod1);
             QCATCH(obj->addModule(mod1), DuplicateException);
             obj->addModule(mod2);
-            QCOMPARE(mod2->clones().size(), 1);
-            QCOMPARE(mod2->clones()[0], obj);
+            QCOMPARE(mod2->forks().size(), 1);
+            QCOMPARE(mod2->forks()[0], obj);
             QCOMPARE(obj->modules().size(), 2);
             QCOMPARE(obj->modules()[1], mod2);
             QCATCH(obj->addModule(mod2), DuplicateException);
@@ -53,19 +53,19 @@ namespace Child {
             Module *mod1 = new Module;
             Module *mod2 = new Module;
             Module *obj = new Module;
-            QCOMPARE(mod1->clones().size(), 0);
-            QCOMPARE(mod2->clones().size(), 0);
+            QCOMPARE(mod1->forks().size(), 0);
+            QCOMPARE(mod2->forks().size(), 0);
             QCOMPARE(obj->modules().size(), 0);
             QCATCH(obj->prependModule(NULL), NullPointerException);
             obj->prependModule(mod1);
-            QCOMPARE(mod1->clones().size(), 1);
-            QCOMPARE(mod1->clones()[0], obj);
+            QCOMPARE(mod1->forks().size(), 1);
+            QCOMPARE(mod1->forks()[0], obj);
             QCOMPARE(obj->modules().size(), 1);
             QCOMPARE(obj->modules()[0], mod1);
             QCATCH(obj->prependModule(mod1), DuplicateException);
             obj->prependModule(mod2);
-            QCOMPARE(mod2->clones().size(), 1);
-            QCOMPARE(mod2->clones()[0], obj);
+            QCOMPARE(mod2->forks().size(), 1);
+            QCOMPARE(mod2->forks()[0], obj);
             QCOMPARE(obj->modules().size(), 2);
             QCOMPARE(obj->modules()[0], mod2);
             QCOMPARE(obj->modules()[1], mod1);
@@ -79,16 +79,16 @@ namespace Child {
             Module *mod1 = new Module;
             Module *mod2 = new Module;
             Module *obj = new Module;
-            QCOMPARE(mod1->clones().size(), 0);
-            QCOMPARE(mod2->clones().size(), 0);
+            QCOMPARE(mod1->forks().size(), 0);
+            QCOMPARE(mod2->forks().size(), 0);
             QCOMPARE(obj->modules().size(), 0);
             obj->addModule(mod1);
-            QCOMPARE(mod1->clones().size(), 1);
+            QCOMPARE(mod1->forks().size(), 1);
             QCOMPARE(obj->modules().size(), 1);
             QCATCH(obj->removeModule(NULL), NullPointerException);
             QCATCH(obj->removeModule(mod2), NotFoundException);
             obj->removeModule(mod1);
-            QCOMPARE(mod1->clones().size(), 0);
+            QCOMPARE(mod1->forks().size(), 0);
             QCOMPARE(obj->modules().size(), 0);
             obj->addModule(mod1);
             obj->addModule(mod2);
@@ -102,17 +102,17 @@ namespace Child {
             delete mod2;
         }
 
-        void clone() {
+        void fork() {
             Module *obj1 = new Module;
-            QCOMPARE(obj1->clones().size(), 0);
+            QCOMPARE(obj1->forks().size(), 0);
             Module *obj2 = obj1->fork();
-            QCOMPARE(obj1->clones().size(), 1);
-            QCOMPARE(obj1->clones()[0], obj2);
+            QCOMPARE(obj1->forks().size(), 1);
+            QCOMPARE(obj1->forks()[0], obj2);
             QCOMPARE(obj2->modules().size(), 1);
             QCOMPARE(obj2->modules()[0], obj1);
             Module *obj3 = obj1->fork();
-            QCOMPARE(obj1->clones().size(), 2);
-            QCOMPARE(obj1->clones()[1], obj3);
+            QCOMPARE(obj1->forks().size(), 2);
+            QCOMPARE(obj1->forks()[1], obj3);
             QCOMPARE(obj3->modules().size(), 1);
             QCOMPARE(obj3->modules()[0], obj1);
             delete obj3;
@@ -121,8 +121,8 @@ namespace Child {
 
             Text *txt1 = new Text;
             Text *txt2 = txt1->fork();
-            QCOMPARE(txt1->clones().size(), 1);
-            QCOMPARE(txt1->clones()[0], txt2);
+            QCOMPARE(txt1->forks().size(), 1);
+            QCOMPARE(txt1->forks()[0], txt2);
             QCOMPARE(txt2->modules().size(), 1);
             QCOMPARE(txt2->modules()[0], txt1);
             delete txt2;
@@ -271,11 +271,11 @@ namespace Child {
             QVERIFY(virtualClose->hasDirectModule(close));
             QCOMPARE(button->child("close"), virtualClose);
             Module *virtualButton = button->fork()->setIsVirtual(true);
-            QCOMPARE(window1->clones().size(), 0);
+            QCOMPARE(window1->forks().size(), 0);
             Module *virtualClose2 = virtualButton->child("close");
             QVERIFY(virtualClose2->hasDirectModule(virtualClose));
-            QCOMPARE(window1->clones().size(), 1);
-            QVERIFY(virtualClose2->hasDirectParent(window1->clones().first()));
+            QCOMPARE(window1->forks().size(), 1);
+            QVERIFY(virtualClose2->hasDirectParent(window1->forks().first()));
         }
 
         void setChild() {

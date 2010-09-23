@@ -18,7 +18,7 @@ Hello("Manu") say // -> "Hello, Manu!"
 ***
 
 Person := Object {
-    modules << Archivable
+    extensions << Archivable
 
     first_name := "" // Pas nécessaire car initialisé par la méthode "init"
     last_name := ""
@@ -143,17 +143,19 @@ m1" modifie a :
 Un Module définit :
 
     * Forks
+    * ExtendedModules
     * Childs
 
 Un Module est défini par :
 
-    * ForkedModules (ou simplement "Modules")
+    * Base
+    * Extensions
     * Parents
 
 Création d'un objet :
 
 Person = Object {
-    modules << Archivable
+    extensions << Archivable
 
     first_name := Text()
     last_name := Text()

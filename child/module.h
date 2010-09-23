@@ -50,7 +50,7 @@ namespace Child {
         Module *setIsVirtual(bool value) { _isVirtual = value; return(this); }
 
         const ModuleList modules() const { return(ModuleList(_modules)); }
-        const ModuleList clones() const { return(ModuleList(_clones)); }
+        const ModuleList forks() const { return(ModuleList(_forks)); }
         bool hasDirectModule(Module *mod) const;
         void addModule(Module *mod);
         void prependModule(Module *mod);
@@ -95,7 +95,7 @@ namespace Child {
         static long long int _moduleCount;
         static Module *_root;
         ModuleList _modules;
-        mutable ModuleList _clones; // cache
+        mutable ModuleList _forks; // cache
         TaggedModuleSet _parents;
         mutable ModuleHash _children; // cache
         bool _isVirtual : 1;

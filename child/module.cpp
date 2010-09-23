@@ -15,8 +15,8 @@ namespace Child {
         foreach(Module *mod, _modules) {
             removeModule(mod);
         }
-        foreach(Module *clone, _clones) {
-            delete clone;
+        foreach(Module *fork, _forks) {
+            delete fork;
         }
         foreach(TaggedModule value, _parents) {
             removeParent(value.tag, value.module, false);
@@ -44,21 +44,21 @@ namespace Child {
         if(!mod) { throw NullPointerException("NULL value passed to addModule()"); }
         if(_modules.contains(mod)) { throw DuplicateException("Duplicate module passed to addModule()"); }
         _modules.append(mod);
-        mod->_clones.append(this);
+        mod->_forks.append(this);
     }
 
     void Module::prependModule(Module *mod) {
         if(!mod) { throw NullPointerException("NULL value passed to prependModule()"); }
         if(_modules.contains(mod)) { throw DuplicateException("Duplicate module passed to prependModule()"); }
         _modules.prepend(mod);
-        mod->_clones.append(this);
+        mod->_forks.append(this);
     }
 
     void Module::removeModule(Module *mod) {
         if(!mod) { throw NullPointerException("NULL value passed to removeModule()"); }
         if(!_modules.contains(mod)) { throw NotFoundException("Missing module passed to removeModule()"); }
         _modules.removeOne(mod);
-        mod->_clones.removeOne(this);
+        mod->_forks.removeOne(this);
     }
 
     const ModuleMultiHash Module::parents() const {
@@ -168,7 +168,7 @@ namespace Child {
                 foreach(TaggedModule par, parentPath) {
                     if(!mustVirtualize && !parent->_parents.contains(par)) mustVirtualize = true;
                     if(mustVirtualize) {
-//                        p("Cloning parent " + par.module->inspect());
+//                        p("Forking parent " + par.module->inspect());
                         Module *virtualParent = par.module->fork()->setIsVirtual(true);
                         parent->addParent(par.tag, virtualParent);
                         parent = virtualParent;
