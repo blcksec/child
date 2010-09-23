@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     child/text.cpp \
     child/toolbox.cpp \
     child/object.cpp \
-    child/world.cpp
+    child/world.cpp \
+    child/dictionary.cpp
 
 HEADERS += \
     child/module.h \
@@ -37,7 +38,8 @@ HEADERS += \
     tests/testhelper.h \
     tests/objecttest.h \
     tests/worldtest.h \
-    tests/texttest.h
+    tests/texttest.h \
+    child/dictionary.h
 
 OTHER_FILES += \
     notes/ideas.txt \
