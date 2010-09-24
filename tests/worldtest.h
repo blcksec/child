@@ -21,7 +21,7 @@ namespace Child {
 
         void new_() {
             World w; World *world = &w;
-            QVERIFY(world->hasDirectModule(Module::root()->child("Object")));
+            QVERIFY(world->isBasedOn(Module::root()->child("Object")));
             QVERIFY(world->hasChild("NativeMethod"));
         }
     };

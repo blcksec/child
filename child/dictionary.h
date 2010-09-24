@@ -9,7 +9,7 @@ namespace Child {
     public:
         static Dictionary *root();
 
-        virtual Dictionary *fork() const { return(_fork(this)); }
+        virtual Dictionary *fork() { return(_fork(this)); }
     private:
         static Dictionary *_root;
 //        ModuleHash _hash;

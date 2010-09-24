@@ -7,7 +7,7 @@ namespace Child {
     class Object : public Module {
     public:
         static Object *root();
-        virtual Object *fork() const { return(_fork(this)); }
+        virtual Object *fork() { return(_fork(this)); }
     private:
         static Object *_root;
     };

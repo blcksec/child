@@ -6,7 +6,7 @@ namespace Child {
     NativeMethod *NativeMethod::root() {
         if(!_root) {
             _root = new NativeMethod;
-            _root->addModule(Module::root());
+            _root->setBaseModule(Module::root());
             _root->addParent("NativeMethod", Module::root());
         }
         return(_root);

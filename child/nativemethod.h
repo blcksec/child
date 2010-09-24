@@ -10,7 +10,7 @@ namespace Child {
     public:
         static NativeMethod *root();
 
-        virtual NativeMethod *fork() const { return(_fork(this)->setMethod(_method)); }
+        virtual NativeMethod *fork() { return(_fork(this)->setMethod(_method)); }
         virtual NativeMethod *fork(ModuleMethodPtr method) { return(_fork(this)->setMethod(method)); }
 
         ModuleMethodPtr method() const { return(_method); }

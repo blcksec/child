@@ -3,7 +3,6 @@
 
 #include "tests/testhelper.h"
 #include "child/module.h"
-#include "child/text.h"
 
 namespace Child {
     class ModuleTest : public QObject
@@ -24,79 +23,79 @@ namespace Child {
             QVERIFY(Module::root()->hasDirectParent(Module::root()));
         }
 
-        void addModule() {
+        void addExtension() {
             Module *mod1 = new Module;
             Module *mod2 = new Module;
             Module *obj = new Module;
-            QCOMPARE(mod1->forks().size(), 0);
-            QCOMPARE(mod2->forks().size(), 0);
-            QCOMPARE(obj->modules().size(), 0);
-            QCATCH(obj->addModule(NULL), NullPointerException);
-            obj->addModule(mod1);
-            QCOMPARE(mod1->forks().size(), 1);
-            QCOMPARE(mod1->forks()[0], obj);
-            QCOMPARE(obj->modules().size(), 1);
-            QCOMPARE(obj->modules()[0], mod1);
-            QCATCH(obj->addModule(mod1), DuplicateException);
-            obj->addModule(mod2);
-            QCOMPARE(mod2->forks().size(), 1);
-            QCOMPARE(mod2->forks()[0], obj);
-            QCOMPARE(obj->modules().size(), 2);
-            QCOMPARE(obj->modules()[1], mod2);
-            QCATCH(obj->addModule(mod2), DuplicateException);
+            QCOMPARE(mod1->extendedModules().size(), 0);
+            QCOMPARE(mod2->extendedModules().size(), 0);
+            QCOMPARE(obj->extensions().size(), 0);
+            QCATCH(obj->addExtension(NULL), NullPointerException);
+            obj->addExtension(mod1);
+            QCOMPARE(mod1->extendedModules().size(), 1);
+            QCOMPARE(mod1->extendedModules()[0], obj);
+            QCOMPARE(obj->extensions().size(), 1);
+            QCOMPARE(obj->extensions()[0], mod1);
+            QCATCH(obj->addExtension(mod1), DuplicateException);
+            obj->addExtension(mod2);
+            QCOMPARE(mod2->extendedModules().size(), 1);
+            QCOMPARE(mod2->extendedModules()[0], obj);
+            QCOMPARE(obj->extensions().size(), 2);
+            QCOMPARE(obj->extensions()[1], mod2);
+            QCATCH(obj->addExtension(mod2), DuplicateException);
             delete obj;
             delete mod1;
             delete mod2;
         }
 
-        void prependModule() {
+        void prependExtension() {
             Module *mod1 = new Module;
             Module *mod2 = new Module;
             Module *obj = new Module;
-            QCOMPARE(mod1->forks().size(), 0);
-            QCOMPARE(mod2->forks().size(), 0);
-            QCOMPARE(obj->modules().size(), 0);
-            QCATCH(obj->prependModule(NULL), NullPointerException);
-            obj->prependModule(mod1);
-            QCOMPARE(mod1->forks().size(), 1);
-            QCOMPARE(mod1->forks()[0], obj);
-            QCOMPARE(obj->modules().size(), 1);
-            QCOMPARE(obj->modules()[0], mod1);
-            QCATCH(obj->prependModule(mod1), DuplicateException);
-            obj->prependModule(mod2);
-            QCOMPARE(mod2->forks().size(), 1);
-            QCOMPARE(mod2->forks()[0], obj);
-            QCOMPARE(obj->modules().size(), 2);
-            QCOMPARE(obj->modules()[0], mod2);
-            QCOMPARE(obj->modules()[1], mod1);
-            QCATCH(obj->prependModule(mod2), DuplicateException);
+            QCOMPARE(mod1->extendedModules().size(), 0);
+            QCOMPARE(mod2->extendedModules().size(), 0);
+            QCOMPARE(obj->extensions().size(), 0);
+            QCATCH(obj->prependExtension(NULL), NullPointerException);
+            obj->prependExtension(mod1);
+            QCOMPARE(mod1->extendedModules().size(), 1);
+            QCOMPARE(mod1->extendedModules()[0], obj);
+            QCOMPARE(obj->extensions().size(), 1);
+            QCOMPARE(obj->extensions()[0], mod1);
+            QCATCH(obj->prependExtension(mod1), DuplicateException);
+            obj->prependExtension(mod2);
+            QCOMPARE(mod2->extendedModules().size(), 1);
+            QCOMPARE(mod2->extendedModules()[0], obj);
+            QCOMPARE(obj->extensions().size(), 2);
+            QCOMPARE(obj->extensions()[0], mod2);
+            QCOMPARE(obj->extensions()[1], mod1);
+            QCATCH(obj->prependExtension(mod2), DuplicateException);
             delete obj;
             delete mod1;
             delete mod2;
         }
 
-        void removeModule() {
+        void removeExtension() {
             Module *mod1 = new Module;
             Module *mod2 = new Module;
             Module *obj = new Module;
-            QCOMPARE(mod1->forks().size(), 0);
-            QCOMPARE(mod2->forks().size(), 0);
-            QCOMPARE(obj->modules().size(), 0);
-            obj->addModule(mod1);
-            QCOMPARE(mod1->forks().size(), 1);
-            QCOMPARE(obj->modules().size(), 1);
-            QCATCH(obj->removeModule(NULL), NullPointerException);
-            QCATCH(obj->removeModule(mod2), NotFoundException);
-            obj->removeModule(mod1);
-            QCOMPARE(mod1->forks().size(), 0);
-            QCOMPARE(obj->modules().size(), 0);
-            obj->addModule(mod1);
-            obj->addModule(mod2);
-            QCOMPARE(obj->modules().size(), 2);
-            obj->removeModule(mod1);
-            QCOMPARE(obj->modules().size(), 1);
-            obj->removeModule(mod2);
-            QCOMPARE(obj->modules().size(), 0);
+            QCOMPARE(mod1->extendedModules().size(), 0);
+            QCOMPARE(mod2->extendedModules().size(), 0);
+            QCOMPARE(obj->extensions().size(), 0);
+            obj->addExtension(mod1);
+            QCOMPARE(mod1->extendedModules().size(), 1);
+            QCOMPARE(obj->extensions().size(), 1);
+            QCATCH(obj->removeExtension(NULL), NullPointerException);
+            QCATCH(obj->removeExtension(mod2), NotFoundException);
+            obj->removeExtension(mod1);
+            QCOMPARE(mod1->extendedModules().size(), 0);
+            QCOMPARE(obj->extensions().size(), 0);
+            obj->addExtension(mod1);
+            obj->addExtension(mod2);
+            QCOMPARE(obj->extensions().size(), 2);
+            obj->removeExtension(mod1);
+            QCOMPARE(obj->extensions().size(), 1);
+            obj->removeExtension(mod2);
+            QCOMPARE(obj->extensions().size(), 0);
             delete obj;
             delete mod1;
             delete mod2;
@@ -108,25 +107,14 @@ namespace Child {
             Module *obj2 = obj1->fork();
             QCOMPARE(obj1->forks().size(), 1);
             QCOMPARE(obj1->forks()[0], obj2);
-            QCOMPARE(obj2->modules().size(), 1);
-            QCOMPARE(obj2->modules()[0], obj1);
+            QCOMPARE(obj2->baseModule(), obj1);
             Module *obj3 = obj1->fork();
             QCOMPARE(obj1->forks().size(), 2);
             QCOMPARE(obj1->forks()[1], obj3);
-            QCOMPARE(obj3->modules().size(), 1);
-            QCOMPARE(obj3->modules()[0], obj1);
+            QCOMPARE(obj3->baseModule(), obj1);
             delete obj3;
             delete obj2;
             delete obj1;
-
-            Text *txt1 = new Text;
-            Text *txt2 = txt1->fork();
-            QCOMPARE(txt1->forks().size(), 1);
-            QCOMPARE(txt1->forks()[0], txt2);
-            QCOMPARE(txt2->modules().size(), 1);
-            QCOMPARE(txt2->modules()[0], txt1);
-            delete txt2;
-            delete txt1;
         }
 
         void addParent() {
@@ -268,20 +256,20 @@ namespace Child {
             QCOMPARE(button->child("win2"), window2);
             Module *virtualClose = window1->child("close");
             QVERIFY(virtualClose->isVirtual());
-            QVERIFY(virtualClose->hasDirectModule(close));
+            QVERIFY(virtualClose->isBasedOn(close));
             QCOMPARE(button->child("close"), virtualClose);
-            Module *virtualButton = button->fork()->setIsVirtual(true);
-            QCOMPARE(window1->forks().size(), 0);
-            Module *virtualClose2 = virtualButton->child("close");
-            QVERIFY(virtualClose2->hasDirectModule(virtualClose));
-            QCOMPARE(window1->forks().size(), 1);
-            QVERIFY(virtualClose2->hasDirectParent(window1->forks().first()));
+//            Module *virtualButton = button->fork()->setIsVirtual(true);
+//            QCOMPARE(window1->forks().size(), 0);
+//            Module *virtualClose2 = virtualButton->child("close");
+//            QVERIFY(virtualClose2->isBasedOn(virtualClose));
+//            QCOMPARE(window1->forks().size(), 1);
+//            QVERIFY(virtualClose2->hasDirectParent(window1->forks().first()));
         }
 
         void setChild() {
             Module w; Module *world = &w;
             Module *Person = world->addDirectChild("Person", new Module);
-            Module *mvila = Person->fork();
+            Module *mvila = world->addDirectChild("mvila", Person->fork());
             Module *manu = new Module;
             Module *vila = new Module;
             QCATCH(mvila->setChild("", manu), ArgumentException);

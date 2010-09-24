@@ -21,7 +21,7 @@ namespace Child {
 
         void initialize() {
             QVERIFY(Module::root()->hasDirectChild("Object"));
-            QVERIFY(Module::root()->child("Object")->hasDirectModule(Module::root()));
+            QVERIFY(Module::root()->child("Object")->isBasedOn(Module::root()));
         }
     };
 }

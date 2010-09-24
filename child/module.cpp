@@ -12,18 +12,12 @@ namespace Child {
     Module *Module::_root = Module::root();
 
     Module::~Module() {
-        foreach(Module *mod, _modules) {
-            removeModule(mod);
-        }
-        foreach(Module *fork, _forks) {
-            delete fork;
-        }
-        foreach(TaggedModule value, _parents) {
-            removeParent(value.tag, value.module, false);
-        }
-        foreach(QString tag, _children.keys()) {
-            removeDirectChild(tag);
-        }
+        unsetBaseModule();
+        forgetAllForks();
+        removeAllExtensions();
+        forgetAllExtendedModules();
+        removeAllParents();
+        forgetAllDirectChildren();
         _moduleCount--;
     }
 
@@ -35,69 +29,128 @@ namespace Child {
         return(_root);
     }
 
-    bool Module::hasDirectModule(Module *mod) const {
-        if(!mod) { throw NullPointerException("NULL value passed to hasDirectModule()"); }
-        return(_modules.contains(mod));
+    void Module::setBaseModule(Module *mod) {
+        if(!mod) { throw NullPointerException("NULL value passed to setBase()"); }
+        if(_baseModule == mod) { return; }
+        if(_baseModule) { _baseModule->_forks->removeOne(this); }
+        _baseModule = mod;
+        if(!mod->_forks) { mod->_forks = new ModuleList; }
+        mod->_forks->append(this);
     }
 
-    void Module::addModule(Module *mod) {
-        if(!mod) { throw NullPointerException("NULL value passed to addModule()"); }
-        if(_modules.contains(mod)) { throw DuplicateException("Duplicate module passed to addModule()"); }
-        _modules.append(mod);
-        mod->_forks.append(this);
+    bool Module::isBasedOn(Module *mod) const {
+        if(!mod) { throw NullPointerException("NULL value passed to isForkedFrom()"); }
+        return(_baseModule == mod);
     }
 
-    void Module::prependModule(Module *mod) {
-        if(!mod) { throw NullPointerException("NULL value passed to prependModule()"); }
-        if(_modules.contains(mod)) { throw DuplicateException("Duplicate module passed to prependModule()"); }
-        _modules.prepend(mod);
-        mod->_forks.append(this);
+    void Module::forgetAllForks() {
+        if(!_forks) { return; }
+        foreach(Module *mod, *_forks) {
+            mod->_baseModule = NULL;
+        }
+        delete _forks;
+        _forks = NULL;
     }
 
-    void Module::removeModule(Module *mod) {
-        if(!mod) { throw NullPointerException("NULL value passed to removeModule()"); }
-        if(!_modules.contains(mod)) { throw NotFoundException("Missing module passed to removeModule()"); }
-        _modules.removeOne(mod);
-        mod->_forks.removeOne(this);
+    bool Module::hasExtension(Module *mod) const {
+        if(!mod) { throw NullPointerException("NULL value passed to hasExtension()"); }
+        return(_extensions ? _extensions->contains(mod) : false);
+    }
+
+    void Module::addExtension(Module *mod) {
+        if(!mod) { throw NullPointerException("NULL value passed to addExtension()"); }
+        if(!_extensions) { _extensions = new ModuleList; }
+        if(_extensions->contains(mod)) { throw DuplicateException("Duplicate module passed to addExtension()"); }
+        _extensions->append(mod);
+        if(!mod->_extendedModules) { mod->_extendedModules = new ModuleList; }
+        mod->_extendedModules->append(this);
+    }
+
+    void Module::prependExtension(Module *mod) {
+        if(!mod) { throw NullPointerException("NULL value passed to prependExtension()"); }
+        if(!_extensions) { _extensions = new ModuleList; }
+        if(_extensions->contains(mod)) { throw DuplicateException("Duplicate module passed to prependExtension()"); }
+        _extensions->prepend(mod);
+        if(!mod->_extendedModules) { mod->_extendedModules = new ModuleList; }
+        mod->_extendedModules->append(this);
+    }
+
+    void Module::removeExtension(Module *mod) {
+        if(!mod) { throw NullPointerException("NULL value passed to removeExtension()"); }
+        if(!_extensions || !_extensions->contains(mod)) { throw NotFoundException("Missing module passed to removeExtension()"); }
+        _extensions->removeOne(mod);
+        mod->_extendedModules->removeOne(this);
+    }
+
+    void Module::removeAllExtensions() {
+        if(!_extensions) { return; }
+        foreach(Module *mod, *_extensions) {
+            mod->_extendedModules->removeOne(this);
+        }
+        delete _extensions;
+        _extensions = NULL;
+    }
+
+    void Module::forgetAllExtendedModules() {
+        if(!_extendedModules) { return; }
+        foreach(Module *mod, *_extendedModules) {
+            mod->_extensions->removeOne(this);
+        }
+        delete _extendedModules;
+        _extendedModules = NULL;
     }
 
     const ModuleMultiHash Module::parents() const {
         ModuleMultiHash hash;
-        foreach(TaggedModule value, _parents) {
-            hash.insert(value.tag, value.module);
+        if(_parents) {
+            foreach(TaggedModule parent, *_parents) {
+                hash.insert(parent.tag, parent.module);
+            }
         }
         return(hash);
     }
 
     bool Module::hasDirectParent(Module *mod) const {
         if(!mod) { throw NullPointerException("NULL value passed to hasDirectParent()"); }
-        return(!mod->_children.key(const_cast<Module *>(this)).isEmpty());
+        return(mod->_children && !mod->_children->key(const_cast<Module *>(this)).isEmpty());
     }
 
     void Module::addParent(const QString &tag, Module *mod) {
         TaggedModule taggedModule = TaggedModule(tag, mod);
-        if(_parents.contains(taggedModule)) { throw DuplicateException("Duplicate module/tag passed to addParent()"); }
-        if(mod->_children.contains(tag)) { throw DuplicateException("Duplicate tag in parent passed to addParent()"); }
-        _parents.insert(taggedModule);
-        mod->_children.insert(tag, this);
+        if(!_parents) { _parents = new TaggedModuleSet; }
+        if(_parents->contains(taggedModule)) { throw DuplicateException("Duplicate module/tag passed to addParent()"); }
+        if(!mod->_children) { mod->_children = new ModuleHash; }
+        if(mod->_children->contains(tag)) { throw DuplicateException("Duplicate tag in parent passed to addParent()"); }
+        _parents->insert(taggedModule);
+        mod->_children->insert(tag, this);
     }
 
-    void Module::removeParent(const QString &tag, Module *mod, bool callDeleteIfOrphan) {
+    void Module::removeParent(const QString &tag, Module *mod) {
         TaggedModule taggedModule = TaggedModule(tag, mod);
-        if(!_parents.contains(taggedModule)) { throw NotFoundException("Missing module/tag passed to removeParent()"); }
-        _parents.remove(taggedModule);
-        mod->_children.remove(tag);
-        if(callDeleteIfOrphan) deleteIfOrphan();
+        if(!_parents || !_parents->contains(taggedModule)) { throw NotFoundException("Missing module/tag passed to removeParent()"); }
+        _parents->remove(taggedModule);
+        mod->_children->remove(tag);
+        deleteIfOrphan();
+    }
+
+    void Module::removeAllParents() {
+        if(!_parents) { return; }
+        foreach(TaggedModule parent, *_parents) {
+            parent.module->_children->remove(parent.tag);
+        }
+        delete _parents;
+        _parents = NULL;
     }
 
     bool Module::hasDirectChild(const QString &tag) const {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to hasDirectChild()"); }
-        return(_children.contains(tag));
+        return(_children && _children->contains(tag));
     }
 
     Module *Module::directChild(const QString &tag) const {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to directChild()"); }
-        Module *value = _children.value(tag);
+        if(!_children) { throw NotFoundException("Missing tag passed to directChild()"); }
+        Module *value = _children->value(tag);
         if(!value) { throw NotFoundException("Missing tag passed to directChild()"); }
         return(value);
     }
@@ -105,7 +158,7 @@ namespace Child {
     Module *Module::addDirectChild(const QString &tag, Module *mod) {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to addDirectChild()"); }
         if(!mod) { throw NullPointerException("NULL value passed to addDirectChild()"); }
-        if(_children.contains(tag)) { throw DuplicateException("Duplicate tag passed to addDirectChild()"); }
+        if(_children && _children->contains(tag)) { throw DuplicateException("Duplicate tag passed to addDirectChild()"); }
         mod->addParent(tag, this);
         return(mod);
     }
@@ -113,7 +166,7 @@ namespace Child {
     Module *Module::setDirectChild(const QString &tag, Module *mod) {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to setDirectChild()"); }
         if(!mod) { throw NullPointerException("NULL value passed to setDirectChild()"); }
-        if(!_children.contains(tag)) { throw NotFoundException("Missing tag passed to setDirectChild()"); }
+        if(!_children || !_children->contains(tag)) { throw NotFoundException("Missing tag passed to setDirectChild()"); }
         Module *currentChild = directChild(tag);
         if(currentChild != mod) {
             currentChild->removeParent(tag, this);
@@ -124,9 +177,22 @@ namespace Child {
 
     void Module::removeDirectChild(const QString &tag) {
         if(tag.isEmpty()) { throw ArgumentException("Empty tag passed to removeDirectChild()"); }
-        Module *mod = _children.value(tag);
+        if(!_children) { throw NotFoundException("Missing tag passed to removeDirectChild()"); }
+        Module *mod = _children->value(tag);
         if(!mod) { throw NotFoundException("Missing tag passed to removeDirectChild()"); }
         mod->removeParent(tag, this);
+    }
+
+    void Module::forgetAllDirectChildren() {
+        if(!_children) { return; }
+        ModuleHashIterator i(*_children);
+        while (i.hasNext()) {
+            i.next();
+            i.value()->_parents->remove(TaggedModule(i.key(), this));
+            i.value()->deleteIfOrphan();
+        }
+        delete _children;
+        _children = NULL;
     }
 
     Module *Module::_getOrSetChild(const QString &tag, Module *setValue, bool returnThisIfFound) {
@@ -143,16 +209,26 @@ namespace Child {
                 Module *module = moduleQueue.dequeue();
 //                p(module->inspect());
                 if(module->hasDirectChild(tag)) { child = module->directChild(tag); break; }
-                foreach(Module *mod, module->_modules) {
-                    if(!moduleSeen.contains(mod)) {
-                        moduleSeen.insert(mod);
-                        moduleQueue.enqueue(mod);
+                if(module->_baseModule) {
+                    if(!moduleSeen.contains(module->_baseModule)) {
+                        moduleSeen.insert(module->_baseModule);
+                        moduleQueue.enqueue(module->_baseModule);
                     }
                 }
-                foreach(TaggedModule par, module->_parents) {
-                    if(!parentTree.contains(par.module)) {
-                        parentTree.insert(par.module, TaggedModule(par.tag, parent));
-                        parentQueue.enqueue(par.module);
+                if(module->_extensions) {
+                    foreach(Module *mod, *(module->_extensions)) {
+                        if(!moduleSeen.contains(mod)) {
+                            moduleSeen.insert(mod);
+                            moduleQueue.enqueue(mod);
+                        }
+                    }
+                }
+                if(module->_parents) {
+                    foreach(TaggedModule par, *(module->_parents)) {
+                        if(!parentTree.contains(par.module)) {
+                            parentTree.insert(par.module, TaggedModule(par.tag, parent));
+                            parentQueue.enqueue(par.module);
+                        }
                     }
                 }
             }
@@ -166,7 +242,7 @@ namespace Child {
                 }
                 bool mustVirtualize = false;
                 foreach(TaggedModule par, parentPath) {
-                    if(!mustVirtualize && !parent->_parents.contains(par)) mustVirtualize = true;
+                    if(!mustVirtualize && (!parent->_parents || !parent->_parents->contains(par))) mustVirtualize = true;
                     if(mustVirtualize) {
 //                        p("Forking parent " + par.module->inspect());
                         Module *virtualParent = par.module->fork()->setIsVirtual(true);
@@ -176,7 +252,7 @@ namespace Child {
                         parent = par.module;
                     }
                 }
-                if(mustVirtualize || !child->_parents.contains(TaggedModule(tag, parent))) {
+                if(mustVirtualize || !child->_parents || !child->_parents->contains(TaggedModule(tag, parent))) {
                     if(setValue) {
                         child = setValue;
                     } else {

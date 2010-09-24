@@ -6,7 +6,7 @@ namespace Child {
     Text *Text::root() {
         if(!_root) {
             _root = new Text;
-            _root->addModule(Object::root());
+            _root->setBaseModule(Object::root());
             _root->addParent("Text", Object::root());
 
             NativeMethod *meth = NativeMethod::root()->fork(CMETHODPTR(Text::upcase));

@@ -11,7 +11,7 @@ namespace Child {
     public:
         static Text *root();
 
-        virtual Text *fork() const { return(_fork(this)->setValue(_value)); }
+        virtual Text *fork() { return(_fork(this)->setValue(_value)); }
         virtual Text *fork(const QString &value) { return(_fork(this)->setValue(value)); }
 
         const QString value() const { return(_value); }

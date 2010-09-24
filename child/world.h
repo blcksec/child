@@ -10,7 +10,7 @@ namespace Child {
     class World : public Object {
     public:
         World();
-        virtual Object *fork() const { return(_fork(this)); }
+        virtual World *fork() { return(_fork(this)); }
     };
 }
 
