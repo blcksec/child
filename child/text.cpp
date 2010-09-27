@@ -9,7 +9,7 @@ namespace Child {
             _root->setBaseModule(Object::root());
             _root->addParent("Text", Object::root());
 
-            NativeMethod *meth = NativeMethod::root()->fork(CMETHODPTR(Text::upcase));
+            NativeMethod *meth = NativeMethod::root()->fork(CHILD_METHODPTR(Text::upcase));
             _root->addDirectChild("upcase", meth);
         }
         return(_root);

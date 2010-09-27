@@ -4,7 +4,7 @@
 #include "child/nativemethod.h"
 #include "child/object.h"
 
-#define CTEXT(EXPRESSION) static_cast<Text *>(EXPRESSION)
+#define CHILD_TEXT(EXPRESSION) static_cast<Text *>(EXPRESSION)
 
 namespace Child {
     class Text : public Object {
@@ -19,7 +19,7 @@ namespace Child {
 
 //        Module *toText();
 
-        Module *upcase() { return(CTEXT(child("Text"))->fork(value().toUpper())); }
+        Module *upcase() { return(CHILD_TEXT(child("Text"))->fork(value().toUpper())); }
     private:
         static Text *_root;
         QString _value;

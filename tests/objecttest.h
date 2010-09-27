@@ -11,7 +11,7 @@ namespace Child {
     private:
         long long int _initialModuleCount;
     private slots:
-        void initTestCase() {
+        void init() {
             _initialModuleCount = Module::moduleCount();
         }
 
@@ -19,10 +19,7 @@ namespace Child {
             QVERIFY(Module::moduleCount() == _initialModuleCount);
         }
 
-        void initialize() {
-            QVERIFY(Module::root()->hasDirectChild("Object"));
-            QVERIFY(Module::root()->child("Object")->isBasedOn(Module::root()));
-        }
+        void initialize();
     };
 }
 

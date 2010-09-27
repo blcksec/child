@@ -3,11 +3,13 @@
 
 #include "child/module.h"
 
-#define CMETHODPTR(METH) static_cast<ModuleMethodPtr>(&METH)
+#define CHILD_METHODPTR(METH) static_cast<ModuleMethodPtr>(&METH)
 
 namespace Child {
     class NativeMethod : public Module {
     public:
+        NativeMethod() : _method(NULL) {}
+
         static NativeMethod *root();
 
         virtual NativeMethod *fork() { return(_fork(this)->setMethod(_method)); }

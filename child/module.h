@@ -66,7 +66,7 @@ namespace Child {
         }
     public:
         virtual Module *fork() { return(_fork(this)); }
-        void forgetAllForks();
+        void removeAllForks();
 
         ModuleList extensions() const { return(_extensions ? ModuleList(*_extensions) : ModuleList()); }
         ModuleList extendedModules() const { return(_extendedModules ? ModuleList(*_extendedModules) : ModuleList()); }
@@ -75,7 +75,7 @@ namespace Child {
         void prependExtension(Module *mod);
         void removeExtension(Module *mod);
         void removeAllExtensions();
-        void forgetAllExtendedModules();
+        void removeAllExtendedModules();
 
         const ModuleMultiHash parents() const;
         const ModuleHash children() const { return(_children ? ModuleHash(*_children) : ModuleHash()); }
@@ -87,8 +87,9 @@ namespace Child {
         Module *directChild(const QString &tag) const;
         Module *addDirectChild(const QString &tag, Module *mod);
         Module *setDirectChild(const QString &tag, Module *mod);
+        Module *addOrSetDirectChild(const QString &tag, Module *mod);
         void removeDirectChild(const QString &tag);
-        void forgetAllDirectChildren();
+        void removeAllDirectChildren();
         Module *_getOrSetChild(const QString &tag, Module *setValue = NULL, bool returnThisIfFound = false);
         bool hasChild(const QString &tag) const;
         Module *child(const QString &tag) const;

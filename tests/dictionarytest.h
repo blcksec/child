@@ -1,11 +1,13 @@
-#ifndef WORLDTEST_H
-#define WORLDTEST_H
+#ifndef DICTIONARYTEST_H
+#define DICTIONARYTEST_H
 
 #include "tests/testhelper.h"
+#include "child/text.h"
+#include "child/dictionary.h"
 #include "child/world.h"
 
 namespace Child {
-    class WorldTest : public QObject
+    class DictionaryTest : public QObject
     {
         Q_OBJECT
     private:
@@ -19,8 +21,9 @@ namespace Child {
             QVERIFY(Module::moduleCount() == _initialModuleCount);
         }
 
-        void new_();
+        void initialize();
+        void getAndSet();
     };
 }
 
-#endif // WORLDTEST_H
+#endif // DICTIONARYTEST_H
