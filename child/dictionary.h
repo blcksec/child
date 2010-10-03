@@ -78,9 +78,9 @@ namespace Child {
             QSet<QString> removedKeys;
             const Dictionary *dict = this;
             while(dict != root()) {
-                if(dict->_removedKeys) removedKeys.unite(dict->_removedKeys);
+                if(dict->_removedKeys) removedKeys.unite(*dict->_removedKeys);
                 if(dict->_addedKeys) {
-                    QListIterator<QString> i(dict->_addedKeys);
+                    QListIterator<QString> i(*dict->_addedKeys);
                     i.toBack();
                     while(i.hasPrevious()) {
                         QString key = i.previous();
