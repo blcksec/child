@@ -1,0 +1,17 @@
+*** FIXME ***
+
+- Problème quand on fork un élément qui a déjà été forké au travers d'un autre child.
+
+  Exemple :
+
+  mvila := Person("Manuel", "Vila")
+  kindalab := Object {
+    boss := mvila
+    founder := mvila
+  }
+
+  kindalab2 := kindalab()
+  kindalab2 boss // fork mvila
+  kindalab2 founder // fork mvila une seconde fois alors que le même objet devrait être utilisé !
+
+  Solution : lors d'un fork, tenir compte de tous les parents ?

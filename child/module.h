@@ -12,20 +12,20 @@
 namespace Child {
     class Module;
 
-    class TaggedModule {
+    class NamedModule {
     public:
-        TaggedModule() { throw RuntimeException("Cannot construct a NULL TaggedModule"); }
-        TaggedModule(const QString &t, Module *const m);
-        QString tag;
+        NamedModule() { throw RuntimeException("Cannot construct a NULL NamedModule"); }
+        NamedModule(const QString &t, Module *const m);
+        QString name;
         Module *module;
     };
 
-    inline bool operator==(const TaggedModule &a, const TaggedModule &b) {
-        return(a.module == b.module && a.tag == b.tag);
+    inline bool operator==(const NamedModule &a, const NamedModule &b) {
+        return(a.module == b.module && a.name == b.name);
     }
 
-    inline uint qHash(const TaggedModule &key) {
-        return qHash(key.tag) ^ ::qHash(key.module);
+    inline uint qHash(const NamedModule &key) {
+        return qHash(key.name) ^ ::qHash(key.module);
     }
 
     typedef QList<Module *> ModuleList;
@@ -34,8 +34,8 @@ namespace Child {
     typedef QMultiHash<QString, Module *> ModuleMultiHash;
     typedef QSet<Module *> ModuleSet;
     typedef QQueue<Module *> ModuleQueue;
-    typedef QList<TaggedModule> TaggedModuleList;
-    typedef QSet<TaggedModule> TaggedModuleSet;
+    typedef QList<NamedModule> NamedModuleList;
+    typedef QSet<NamedModule> NamedModuleSet;
     typedef Module *(Module::*ModuleMethodPtr)();
 
     class Module {
@@ -80,20 +80,20 @@ namespace Child {
         const ModuleMultiHash parents() const;
         const ModuleHash children() const { return(_children ? ModuleHash(*_children) : ModuleHash()); }
         bool hasDirectParent(Module *mod) const;
-        void addParent(const QString &tag, Module *mod);
-        void removeParent(const QString &tag, Module *mod);
+        void addParent(const QString &name, Module *mod);
+        void removeParent(const QString &name, Module *mod);
         void removeAllParents();
-        bool hasDirectChild(const QString &tag) const;
-        Module *directChild(const QString &tag) const;
-        Module *addDirectChild(const QString &tag, Module *mod);
-        Module *setDirectChild(const QString &tag, Module *mod);
-        Module *addOrSetDirectChild(const QString &tag, Module *mod);
-        void removeDirectChild(const QString &tag);
+        bool hasDirectChild(const QString &name) const;
+        Module *directChild(const QString &name) const;
+        Module *addDirectChild(const QString &name, Module *mod);
+        Module *setDirectChild(const QString &name, Module *mod);
+        Module *addOrSetDirectChild(const QString &name, Module *mod);
+        void removeDirectChild(const QString &name);
         void removeAllDirectChildren();
-        Module *_getOrSetChild(const QString &tag, Module *setValue = NULL, bool returnThisIfFound = false);
-        bool hasChild(const QString &tag) const;
-        Module *child(const QString &tag) const;
-        Module *setChild(const QString &tag, Module *mod);
+        Module *_getOrSetChild(const QString &name, Module *setValue = NULL, bool returnThisIfFound = false);
+        bool hasChild(const QString &name) const;
+        Module *child(const QString &name) const;
+        Module *setChild(const QString &name, Module *mod);
         void deleteIfOrphan() { if(!_parents || _parents->empty()) { delete this; } }
 
         const long long int uniqueID() const { return(reinterpret_cast<long long int>(this)); }
@@ -114,7 +114,7 @@ namespace Child {
         ModuleList *_forks; // backlink cache
         ModuleList *_extensions;
         ModuleList *_extendedModules; // backlink cache
-        TaggedModuleSet *_parents;
+        NamedModuleSet *_parents;
         ModuleHash *_children; // backlink cache
         bool _isVirtual : 1;
     };

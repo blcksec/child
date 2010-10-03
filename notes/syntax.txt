@@ -184,7 +184,7 @@ meth1(a) {code} := {
 
     ...peut se traduire par :
 
-    message(tag: "meth2", inputs: [a], block: code)
+    message(name: "meth2", inputs: [a], block: code)
 }
 
 meth(a, b, c: 0) := { do_something } se traduit par :

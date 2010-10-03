@@ -9,11 +9,11 @@
 namespace Child {
     class Dictionary : public Object {
     public:
-        Dictionary() : _hash(NULL), _keys(NULL), _size(0), _anonymousKeyCount(0) {}
+        Dictionary() : _hash(NULL), _addedKeys(NULL), _removedKeys(NULL), _size(0), _anonymousKeyCount(0) {}
 
         virtual ~Dictionary() {
             delete _hash;
-            delete _keys;
+            delete _addedKeys;
         }
 
         static Dictionary *root();
@@ -25,7 +25,7 @@ namespace Child {
             return(dict);
         }
 
-        Module *get(QString key) const {
+        Module *get(QString key) {
             if(key.isEmpty()) { throw ArgumentException("Empty key passed to Dictionary::get()"); }
             escapeKey(key);
             const Dictionary *dict = this;
@@ -38,6 +38,12 @@ namespace Child {
                 dict = static_cast<Dictionary *>(dict->baseModule());
             }
             if(!value) { throw NotFoundException("Key not found in Dictionary::get()"); }
+            if(dict != this) {
+                value = value->fork()->setIsVirtual(true);
+                if(!_hash) { _hash = new ModuleHash; }
+                _hash->insert(key, value);
+                addDirectChild(QString("\\[%1]").arg(key), value);
+            }
             return(value);
         }
 
@@ -51,8 +57,8 @@ namespace Child {
             if(!value) { throw NullPointerException("NULL value passed to Dictionary::set()"); }
             if(!_hasKey(key)) {
                 _size++;
-                if(!_keys) { _keys = new QList<QString>; }
-                _keys->append(key);
+                if(!_addedKeys) { _addedKeys = new QList<QString>; }
+                _addedKeys->append(key);
             }
             if(!_hash) { _hash = new ModuleHash; }
             _hash->insert(key, value);
@@ -61,10 +67,30 @@ namespace Child {
         }
 
         const QString &key(Module *value) const;
-        Module *value(const QString &key) const { return(get(key)); }
+        // cherche value ou ancètre de value ?
+
+        Module *value(const QString &key) { return(get(key)); }
         int size() const { return(_size); }
         bool isEmpty() const { return(_size == 0); }
-        QList<QString> keys() const;
+
+        QList<QString> keys() const { // *** TESTME ***
+            QList<QString> keys;
+            QSet<QString> removedKeys;
+            const Dictionary *dict = this;
+            while(dict != root()) {
+                if(dict->_removedKeys) removedKeys.unite(dict->_removedKeys);
+                if(dict->_addedKeys) {
+                    QListIterator<QString> i(dict->_addedKeys);
+                    i.toBack();
+                    while(i.hasPrevious()) {
+                        QString key = i.previous();
+                        if(!removedKeys.contains(key)) keys.prepend(key);
+                    }
+                }
+            }
+            return(keys);
+        }
+
         ModuleList values() const;
 
         bool hasKey(QString key) const {
@@ -97,7 +123,8 @@ namespace Child {
     private:
         static Dictionary *_root;
         ModuleHash *_hash;
-        QList<QString> *_keys;
+        QList<QString> *_addedKeys;
+        QSet<QString> *_removedKeys;
         int _size;
         int _anonymousKeyCount;
     };

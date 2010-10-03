@@ -51,4 +51,5 @@ OTHER_FILES += \
     notes/ideas.txt \
     notes/syntax.txt \
     notes/pseudocode.txt \
-    README.txt
+    README.txt \
+    notes/todo.txt
