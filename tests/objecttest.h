@@ -9,14 +9,14 @@ namespace Child {
     {
         Q_OBJECT
     private:
-        long long int _initialModuleCount;
+        long long int _initialNodeCount;
     private slots:
         void init() {
-            _initialModuleCount = Module::moduleCount();
+            _initialNodeCount = Node::nodeCount();
         }
 
         void cleanup() {
-            QVERIFY(Module::moduleCount() == _initialModuleCount);
+            QVERIFY(Node::nodeCount() == _initialNodeCount);
         }
 
         void initialize();

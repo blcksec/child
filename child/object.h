@@ -1,10 +1,10 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include "child/module.h"
+#include "child/node.h"
 
 namespace Child {
-    class Object : public Module {
+    class Object : public Node {
     public:
         static Object *root();
         virtual Object *fork() { return(_fork(this)); }

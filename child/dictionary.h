@@ -25,29 +25,29 @@ namespace Child {
             return(dict);
         }
 
-        Module *get(QString key) {
+        Node *get(QString key) {
             if(key.isEmpty()) { throw ArgumentException("Empty key passed to Dictionary::get()"); }
             escapeKey(key);
             const Dictionary *dict = this;
-            Module *value = NULL;
+            Node *value = NULL;
             while(dict != root()) {
                 if(dict->_hash && dict->_hash->contains(key)) {
                     value = dict->_hash->value(key);
                     break;
                 }
-                dict = static_cast<Dictionary *>(dict->baseModule());
+                dict = static_cast<Dictionary *>(dict->origin());
             }
             if(!value) { throw NotFoundException("Key not found in Dictionary::get()"); }
             if(dict != this) {
                 value = value->fork()->setIsVirtual(true);
-                if(!_hash) { _hash = new ModuleHash; }
+                if(!_hash) { _hash = new NodeHash; }
                 _hash->insert(key, value);
                 addDirectChild(QString("\\[%1]").arg(key), value);
             }
             return(value);
         }
 
-        Module *set(QString key, Module *value) {
+        Node *set(QString key, Node *value) {
             if(key.isEmpty()) {
                 key = QString("\%1").arg(_anonymousKeyCount);
                 _anonymousKeyCount++;
@@ -60,20 +60,20 @@ namespace Child {
                 if(!_addedKeys) { _addedKeys = new QList<QString>; }
                 _addedKeys->append(key);
             }
-            if(!_hash) { _hash = new ModuleHash; }
+            if(!_hash) { _hash = new NodeHash; }
             _hash->insert(key, value);
             addOrSetDirectChild(QString("\\[%1]").arg(key), value);
             return(value);
         }
 
-        const QString &key(Module *value) const;
+        const QString &key(Node *value) const;
         // cherche value ou ancètre de value ?
 
-        Module *value(const QString &key) { return(get(key)); }
+        Node *value(const QString &key) { return(get(key)); }
         int size() const { return(_size); }
         bool isEmpty() const { return(_size == 0); }
 
-        QList<QString> keys() const { // *** TESTME ***
+        QList<QString> keys() const {
             QList<QString> keys;
             QSet<QString> removedKeys;
             const Dictionary *dict = this;
@@ -87,11 +87,12 @@ namespace Child {
                         if(!removedKeys.contains(key)) keys.prepend(key);
                     }
                 }
+                dict = static_cast<Dictionary *>(dict->origin());
             }
             return(keys);
         }
 
-        ModuleList values() const;
+        NodeList values() const;
 
         bool hasKey(QString key) const {
             if(key.isEmpty()) { throw ArgumentException("Empty key passed to Dictionary::set()"); }
@@ -104,14 +105,42 @@ namespace Child {
             const Dictionary *dict = this;
             while(dict != root()) {
                 if(dict->_hash && dict->_hash->contains(key)) return(dict->_hash->value(key) != NULL);
-                dict = static_cast<Dictionary *>(dict->baseModule());
+                dict = static_cast<Dictionary *>(dict->origin());
             }
             return(false);
         }
 
-        bool hasValue(Module *value) const;
-        Module *remove(const QString &key);
-        Dictionary *clear();
+        bool hasValue(Node *value) const;
+
+        Dictionary *remove(QString key) { // TODO: to test
+            if(key.isEmpty()) { throw ArgumentException("Empty key passed to Dictionary::remove()"); }
+            escapeKey(key);
+            const Dictionary *dict = this;
+            bool found = false;
+            while(dict != root()) {
+                if(dict->_hash && dict->_hash->contains(key)) {
+                    if(!dict->_hash->value(key)) { throw RuntimeException("Alreay removed key passed to Dictionary::remove()"); }
+                    found = true;
+                    break;
+                }
+                dict = static_cast<Dictionary *>(dict->origin());
+            }
+            if(!found) { throw NotFoundException("Key not found in Dictionary::remove()"); }
+            _size--;
+            if(!_hash) { _hash = new NodeHash; }
+            _hash->insert(key, NULL);
+            if(!_removedKeys) { _removedKeys = new QSet<QString>; }
+            _removedKeys->insert(key);
+            if(dict == this) {
+                removeDirectChild(QString("\\[%1]").arg(key));
+            }
+            return(this);
+        }
+
+        Dictionary *clear() {
+            foreach(QString key, keys()) remove(key);
+            return(this);
+        }
 
         static void escapeKey(QString &key) {
             key.replace("\\", "\\\\");
@@ -122,7 +151,7 @@ namespace Child {
         }
     private:
         static Dictionary *_root;
-        ModuleHash *_hash;
+        NodeHash *_hash;
         QList<QString> *_addedKeys;
         QSet<QString> *_removedKeys;
         int _size;

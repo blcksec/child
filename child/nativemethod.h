@@ -1,25 +1,25 @@
 #ifndef NATIVEMETHOD_H
 #define NATIVEMETHOD_H
 
-#include "child/module.h"
+#include "child/node.h"
 
-#define CHILD_METHODPTR(METH) static_cast<ModuleMethodPtr>(&METH)
+#define CHILD_METHODPTR(METH) static_cast<NodeMethodPtr>(&METH)
 
 namespace Child {
-    class NativeMethod : public Module {
+    class NativeMethod : public Node {
     public:
         NativeMethod() : _method(NULL) {}
 
         static NativeMethod *root();
 
         virtual NativeMethod *fork() { return(_fork(this)->setMethod(_method)); }
-        virtual NativeMethod *fork(ModuleMethodPtr method) { return(_fork(this)->setMethod(method)); }
+        virtual NativeMethod *fork(NodeMethodPtr method) { return(_fork(this)->setMethod(method)); }
 
-        ModuleMethodPtr method() const { return(_method); }
-        NativeMethod *setMethod(ModuleMethodPtr method) { _method = method; return(this); }
+        NodeMethodPtr method() const { return(_method); }
+        NativeMethod *setMethod(NodeMethodPtr method) { _method = method; return(this); }
     private:
         static NativeMethod *_root;
-        ModuleMethodPtr _method;
+        NodeMethodPtr _method;
     };
 }
 

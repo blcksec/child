@@ -2,7 +2,7 @@
 
 namespace Child {
     void ObjectTest::initialize() {
-        QVERIFY(Module::root()->hasDirectChild("Object"));
-        QVERIFY(Module::root()->child("Object")->isBasedOn(Module::root()));
+        QVERIFY(Node::root()->hasDirectChild("Object"));
+        QVERIFY(Node::root()->child("Object")->directOriginIs(Node::root()));
     }
 }

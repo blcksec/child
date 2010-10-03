@@ -6,7 +6,7 @@ namespace Child {
     Text *Text::root() {
         if(!_root) {
             _root = new Text;
-            _root->setBaseModule(Object::root());
+            _root->setOrigin(Object::root());
             _root->addParent("Text", Object::root());
 
             NativeMethod *meth = NativeMethod::root()->fork(CHILD_METHODPTR(Text::upcase));
@@ -14,13 +14,4 @@ namespace Child {
         }
         return(_root);
     }
-//    Text *const Text::create(Module *const &world, const QString &value) {
-//        Text *txt = new Text(world->fatalSend("Text"));
-//        txt->setValue(value);
-//        return(txt);
-//    }
-
-//    Module *Text::toText() {
-//        return(this);
-//    }
 }

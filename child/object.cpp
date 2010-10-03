@@ -6,8 +6,8 @@ namespace Child {
     Object *Object::root() {
         if(!_root) {
             _root = new Object;
-            _root->setBaseModule(Module::root());
-            _root->addParent("Object", Module::root());
+            _root->setOrigin(Node::root());
+            _root->addParent("Object", Node::root());
         }
         return(_root);
     }

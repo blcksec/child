@@ -6,8 +6,8 @@ namespace Child {
     NativeMethod *NativeMethod::root() {
         if(!_root) {
             _root = new NativeMethod;
-            _root->setBaseModule(Module::root());
-            _root->addParent("NativeMethod", Module::root());
+            _root->setOrigin(Node::root());
+            _root->addParent("NativeMethod", Node::root());
         }
         return(_root);
     }

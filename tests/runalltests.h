@@ -2,7 +2,7 @@
 #define TEST_H
 
 #include "tests/testhelper.h"
-#include "tests/moduletest.h"
+#include "tests/nodetest.h"
 #include "tests/objecttest.h"
 #include "tests/worldtest.h"
 #include "tests/texttest.h"
@@ -30,7 +30,7 @@ namespace Child {
 
     static void runAllTests() {
         beginTests();
-        test(new ModuleTest);
+        test(new NodeTest);
         test(new ObjectTest);
         test(new WorldTest);
         test(new TextTest);

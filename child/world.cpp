@@ -2,7 +2,7 @@
 
 namespace Child {
     World::World() {
-        setBaseModule(Object::root());
+        setOrigin(Object::root());
         addParent("World", this);
     }
 }

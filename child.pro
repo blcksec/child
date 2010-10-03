@@ -16,30 +16,30 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    child/module.cpp \
+    child/node.cpp \
     child/nativemethod.cpp \
     child/text.cpp \
     child/toolbox.cpp \
     child/object.cpp \
     child/world.cpp \
     child/dictionary.cpp \
+    tests/nodetest.cpp \
     tests/texttest.cpp \
-    tests/moduletest.cpp \
     tests/objecttest.cpp \
     tests/worldtest.cpp \
     tests/dictionarytest.cpp
 
 HEADERS += \
-    child/module.h \
+    child/node.h \
     child/nativemethod.h \
     child/text.h \
     child/toolbox.h \
     child/exception.h \
     child/object.h \
     child/world.h \
+    tests/nodetest.h \
     tests/objecttest.h \
     tests/runalltests.h \
-    tests/moduletest.h \
     tests/testhelper.h \
     tests/objecttest.h \
     tests/worldtest.h \

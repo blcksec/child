@@ -140,15 +140,15 @@ m1" modifie a :
 
 ---------------
 
-Un Module définit :
+Un Node définit :
 
     * Forks
-    * ExtendedModules
+    * ExtendedNodes
     * Childs
 
-Un Module est défini par :
+Un Node est défini par :
 
-    * Base
+    * Origin
     * Extensions
     * Parents
 

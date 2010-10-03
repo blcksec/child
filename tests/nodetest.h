@@ -1,28 +1,28 @@
-#ifndef MODULETEST_H
-#define MODULETEST_H
+#ifndef CHILD_NODETEST_H
+#define CHILD_NODETEST_H
 
 #include "tests/testhelper.h"
-#include "child/module.h"
+#include "child/node.h"
 
 namespace Child {
-    class ModuleTest : public QObject
+    class NodeTest : public QObject
     {
         Q_OBJECT
     private:
-        long long int _initialModuleCount;
+        long long int _initialNodeCount;
     private slots:
         void init() {
-            _initialModuleCount = Module::moduleCount();
+            _initialNodeCount = Node::nodeCount();
         }
 
         void cleanup() {
-            QVERIFY(Module::moduleCount() == _initialModuleCount);
+            QVERIFY(Node::nodeCount() == _initialNodeCount);
         }
 
         void initialize();
-        void setBaseModule();
-        void unsetBaseModule();
-        void isBasedOn();
+        void setOrigin();
+        void unsetOrigin();
+        void directOriginIs();
         void fork();
         void addExtension();
         void prependExtension();
@@ -41,4 +41,4 @@ namespace Child {
     };
 }
 
-#endif // MODULETEST_H
+#endif // CHILD_NODETEST_H
