@@ -112,7 +112,7 @@ namespace Child {
 
         bool hasValue(Node *value) const;
 
-        Dictionary *remove(QString key) { // TODO: to test
+        Dictionary *remove(QString key) {
             if(key.isEmpty()) { throw ArgumentException("Empty key passed to Dictionary::remove()"); }
             escapeKey(key);
             const Dictionary *dict = this;
