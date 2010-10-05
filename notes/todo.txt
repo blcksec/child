@@ -1,6 +1,6 @@
 *** FIXME ***
 
-- Problème quand on fork un élément qui a déjà été forké au travers d'un autre child.
+- Problème quand on fork un élément qui a déjà été forké via un autre child.
 
   Exemple :
 
