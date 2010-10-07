@@ -9,7 +9,7 @@ Version orienté objet :
 
 Hello := Object {
    init(@what: "World") := {}
-   say := { "Hello, #{what}!" print }
+   say := { "Hello, {what}!" print }
 }
 
 Hello() say // -> "Hello, World!"
