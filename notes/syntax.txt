@@ -34,18 +34,19 @@ Person := Object {
     }
 
     full_name(capitalize: false) := {
-        doc:
-            "Return the concatenation of first_name and last_name"
-        code:
-            str := [first_name, last_name] join(" ")
-            if(capitalize) { str captitalize } else { str }
-        test:
-            p := Person()
-            assert(p full_name == "Manuel Vila")
+        "Return the concatenation of first_name and last_name"
+    code:
+        str := [first_name, last_name] join(" ")
+        if(capitalize) { str captitalize } else { str }
+    test:
+        p := Person("Manuel", "Vila")
+        assert(p full_name == "Manuel Vila")
     }
 
     converters["Text"] := { full_name }
 }
+
+Person &full_name doc print
 
 Person full_name // est équivalent à :
 Person &full_name code
@@ -138,8 +139,7 @@ m1" modifie a :
     p1 est cloné en p1'
     a est cloné en a' et prend p1' pour père
 
----------------
-
+------
 Un Node définit :
 
     * Forks
@@ -260,7 +260,7 @@ Structures de contrôle :
 
 if(i > 0) {
     "bonjour" print
-  else:
+else:
     "au revoir" print
 }
 
