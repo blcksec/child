@@ -28,7 +28,8 @@ SOURCES += main.cpp \
     tests/objecttest.cpp \
     tests/worldtest.cpp \
     tests/dictionarytest.cpp \
-    child/lexer.cpp
+    child/lexer.cpp \
+    child/token.cpp
 
 HEADERS += \
     child/node.h \
@@ -47,7 +48,8 @@ HEADERS += \
     tests/texttest.h \
     child/dictionary.h \
     tests/dictionarytest.h \
-    child/lexer.h
+    child/lexer.h \
+    child/token.h
 
 OTHER_FILES += \
     notes/ideas.txt \

@@ -6,8 +6,18 @@
 namespace Child {
     class Exception {
     public:
-        Exception(const QString &msg = "Undefined Exception") : message(msg) {}
+        Exception(const QString &msg = "Undefined Exception") : message(msg) { qDebug() << msg; }
         const QString message;
+    };
+
+    class LexerException : public Exception {
+    public:
+        LexerException(const QString &msg = "Undefined LexerException") : Exception(msg) {}
+    };
+
+    class ParserException : public Exception {
+    public:
+        ParserException(const QString &msg = "Undefined ParserException") : Exception(msg) {}
     };
 
     class RuntimeException : public Exception {
