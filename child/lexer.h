@@ -3,22 +3,17 @@
 
 #include "child/node.h"
 #include "child/token.h"
+#include "child/operator.h"
 
 namespace Child {
     class Lexer {
     public:
-        enum TokenType {
-            Eof,
-            Name,
-            Operator,
-            Number,
-            Text
-        };
-        static const char *tokenTypesName[];
         static const QString allowedCharsInNames;
-        static const QString firstCharsInOperators;
 
-        Lexer(const QString &src = "") { setSource(src); }
+        Lexer(const QString &src = "") {
+            setSource(src);
+            initOperators();
+        }
 
         void setSource(const QString &source) {
             _source = source;
@@ -28,23 +23,33 @@ namespace Child {
 
         const QString &source() const { return(_source); }
 
+        void initOperators() {
+            addOperator("=", Operator::Binary);
+            addOperator("//", Operator::LineComment);
+            addOperator("/*", Operator::BlockComment);
+        }
+
+        void addOperator(const QString &text, Operator::Type type) {
+            operators.insert(text, Operator(text, type));
+        }
+
         const Token nextToken() {
             while(!_currentChar.isNull()) {
                 if(_currentChar.isSpace()) {
                     consumeSpaces();
                 } else if(isName()) {
                     return(nameToken());
-                } else if(isOperator()) {
-                    return(operatorToken());
                 } else if(_currentChar.isNumber()) {
                     return(numberToken());
                 } else if(_currentChar == '"') {
                     return(textToken());
+                } else if(isOperator()) {
+                    return(operatorToken());
                 } else {
                     throw LexerException(QString("Invalid character: '%1'").arg(_currentChar));
                 }
             }
-            return(Token(Eof, "<EOF>"));
+            return(Token(Token::Eof, "<EOF>"));
         }
 
         void consume() {
@@ -70,24 +75,29 @@ namespace Child {
                 text.append(_currentChar);
                 consume();
             } while(_currentChar.isLetterOrNumber() || allowedCharsInNames.contains(_currentChar));
-            return(Token(Name, text));
+            return(Token(Token::Name, text));
         }
 
         bool isOperator() {
-            return(firstCharsInOperators.contains(_currentChar));
+            QHashIterator<QString, Operator> i(operators);
+            while (i.hasNext()) {
+                i.next();
+                if(i.key().startsWith(_currentChar)) return(true);
+            }
+            return(false);
         }
 
         const Token operatorToken() { // TODO: Add support for operators with more than one character
             QString text;
             text.append(_currentChar);
             consume();
-            return(Token(Operator, text));
+            return(Token(Token::Operator, text));
         }
 
         const Token numberToken() {
             QString text(_currentChar);
             consume();
-            bool dotFound = false;
+            bool pointFound = false;
             bool eFound = false;
             bool xFound = false;
             bool bFound = false;
@@ -101,13 +111,13 @@ namespace Child {
                         throw LexerException("An octal number can only contain digits from 0 to 7");
                     numberExpected = false;
                 } else if(_currentChar == '.') {
-                    if(dotFound) throw LexerException("A number cannot contain more than one dot");
-                    if(eFound) throw LexerException("The exponential part of a number cannot contain a dot");
-                    if(xFound) throw LexerException("An hexadecimal number cannot contain a dot");
-                    if(bFound) throw LexerException("A binary number cannot contain a dot");
+                    if(pointFound) throw LexerException("Too many decimal points in a number");
+                    if(eFound) throw LexerException("The exponential part of a number cannot contain a decimal point");
+                    if(xFound) throw LexerException("An hexadecimal number cannot contain a decimal point");
+                    if(bFound) throw LexerException("A binary number cannot contain a decimal point");
                     if(text == "0") oFound = false;
-                    if(oFound) throw LexerException("An octal number cannot contain a dot");
-                    dotFound = true;
+                    if(oFound) throw LexerException("An octal number cannot contain a decimal point");
+                    pointFound = true;
                     numberExpected = true;
                 } else if(!xFound && (_currentChar == 'e' || _currentChar == 'E')) {
                     if(eFound) throw LexerException("A number cannot contain more than one exponential part");
@@ -137,27 +147,73 @@ namespace Child {
                 consume();
             }
             if(numberExpected) throw LexerException(QString("Unexpected character found in a number: '%1'").arg(_currentChar));
-            return(Token(Number, text));
+            return(Token(Token::Number, text));
         }
 
-        const Token textToken() { // TODO: Add support for escape characters
+        const Token textToken() {
             QString text;
-            consume();
-            while(_currentChar != '"') {
+            consume(); // opening double quote
+            bool escapeSequence = false;
+            bool xFound;
+            QString number;
+            while(_currentChar != '"' || escapeSequence) {
                 if(_currentChar.isNull()) throw LexerException("Unexpected EOF found while reading a text literal");
-                text.append(_currentChar);
+                if(escapeSequence) {
+                    if(_currentChar == 'x' && number.isEmpty() && !xFound) {
+                        xFound = true;
+                    } else if(_currentChar >= '0' && _currentChar <= '7') {
+                        number.append(_currentChar);
+                    } else if(xFound && QString("89abcdef").contains(_currentChar, Qt::CaseInsensitive)) {
+                        number.append(_currentChar);
+                    } else if(!number.isEmpty() || xFound) {
+                        if(number.isEmpty()) throw LexerException("Invalid escape sequence syntax");
+                        bool ok;
+                        int code = xFound ? number.toInt(&ok, 16) : number.toInt(&ok, 8);
+                        if(!ok) throw LexerException("Invalid number in escape sequence");
+                        text.append(QChar(code));
+                        escapeSequence = false;
+                        continue; // Don't consume the current character
+                    } else {
+                        switch(_currentChar.toAscii()) {
+                        case 't':
+                            text.append('\t');
+                            break;
+                        case 'n':
+                            text.append('\n');
+                            break;
+                        case 'r':
+                            text.append('\r');
+                            break;
+                        case '"':
+                            text.append('"');
+                            break;
+                        case '\\':
+                            text.append('\\');
+                            break;
+                        default:
+                            throw LexerException(QString("Unknown escape sequence: '\\%1'").arg(_currentChar));
+                        }
+                        escapeSequence = false;
+                    }
+                } else if(_currentChar == '\\') {
+                    escapeSequence = true;
+                    number = "";
+                    xFound = false;
+                } else {
+                    text.append(_currentChar);
+                }
                 consume();
             };
-            consume();
-            return(Token(Text, text));
+            consume(); // closing double quote
+            return(Token(Token::Text, text));
         }
 
         void test() {
-            setSource("i = 123");
+            setSource("i = 2");
             while(true) {
                 Token token = nextToken();
-                p(QString("%1: '%2'").arg(tokenTypesName[token.type]).arg(token.text));
-                if(token.type == Eof) break;
+                p(token.toString());
+                if(token.type == Token::Eof) break;
             }
         }
 
@@ -165,6 +221,7 @@ namespace Child {
         QString _source;
         int _cursor;
         QChar _currentChar;
+        QHash<QString, Operator> operators;
     };
 }
 
