@@ -44,7 +44,7 @@ Person := Object {
             assert(p full_name == "Manuel Vila")
     }
 
-    converters["Text"] := { full_name }
+    <Text> := { full_name }
 }
 
 Person full_name // est équivalent à :
@@ -290,7 +290,7 @@ Number("77") // -> 77
 Définition d'un convertisseur :
 
 Person := Object {
-    converters["Text"] := { full_name }
+    <Text> := { full_name }
 }
 
 Une methode alert(msg<Text>) fera automatiquement appel au convertisseur si on passe autre chose que du Text en paramètre.

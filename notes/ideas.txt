@@ -1,1 +1,27 @@
 * "objets persistants" pour gérer les watchers sur des objets changeants
+
+Hello(@what: "World") := Object {
+   say := { "Hello, #{what}!" print }
+}
+
+Hello(@what: "World") := Object {
+    doc:
+        "A cool class"
+    init:
+        log write("...")
+    def:
+        say := { "Hello, #{what}!" print }
+}
+
+full_name(capitalize: false) := {
+    doc:
+        "Return the concatenation of first_name and last_name"
+    def:
+        inline!
+    run:
+        str := [first_name, last_name] join(" ")
+        if(capitalize) { str captitalize } else { str }
+    test:
+        p := Person()
+        assert(p full_name == "Manuel Vila")
+}
