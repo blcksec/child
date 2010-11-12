@@ -14,7 +14,6 @@ namespace Child {
             Number,
             Character,
             Text,
-            Comment,
             LeftParenthesis,
             RightParenthesis,
             LeftBracket,
@@ -22,7 +21,6 @@ namespace Child {
             LeftBrace,
             RightBrace,
             Comma,
-            Period,
             Semicolon,
             Colon
         };
@@ -32,7 +30,7 @@ namespace Child {
         Type type;
         QString text;
 
-        Token(const Type type, const QString &text) : type(type), text(text) {}
+        Token(const Type type = Eof, const QString &text = "") : type(type), text(text) {}
 
         const QString toString() { return(QString("%1: '%2'").arg(typesName[type]).arg(text)); }
     };

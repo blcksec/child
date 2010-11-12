@@ -1,0 +1,331 @@
+/********************************/
+/*** Child                    ***/
+/*** New programming language ***/
+/********************************/
+
+"Hello, World!" print
+
+Hello := Object {
+   init(@what: "World") := {}
+   say := { "Hello, {what}!" print }
+}
+
+Hello() say // -> "Hello, World!"
+Hello("Manu") say // -> "Hello, Manu!"
+
+// ***
+
+Person := Object {
+    extensions << Archivable
+
+    first_name := "" // Pas forcément nécessaire car initialisé par la méthode "init"
+    last_name := ""
+    age := 0
+
+    init(@first_name: "", @last_name: "") := {}
+
+    // ... est équivalent à :
+
+    init(first_name: "", last_name: "") := {
+        @first_name = first_name
+        @last_name = last_name
+    }
+
+    full_name(capitalize: false) := {
+        "Return the concatenation of first_name and last_name"
+    code:
+        str := [first_name, last_name] join(" ")
+        if(capitalize) { str captitalize } else { str }
+    test:
+        p := Person("Manuel", "Vila")
+        assert(p full_name == "Manuel Vila")
+    }
+
+    <Text> := { full_name }
+}
+
+// ***
+
+Person &full_name doc print
+
+Person full_name // est équivalent à :
+Person &full_name code
+
+Person &full_name doc print // affiche la documentation attachée à la méthode
+
+Person &full_name test // exécute la méthode de test
+
+Company := Object {
+    name := ""
+    boss := Person()
+
+    init(@name, @boss) := {}
+}
+
+p1 := Person()
+p2 := Person("Manu")
+p3 := Person("Manu", "Vila")
+
+c1 := Company(name: "Kindalab", boss: p3)
+
+each(&var: item) {code} := {
+
+}
+
+map(&var: item) {code} -> result: [] := {
+
+}
+
+// ***
+
+swith(letter) {
+    'a':
+        "This is a 'A'"
+    'b':
+        "This is a 'B'"
+    else:
+        "Unknown letter"
+} print
+
+// ***
+
+Person := Object {
+    create := { ... }
+    create(name<Text>, age<Number>) := { ... }
+    create(brother<Person>) := { ... }
+    create(company: Company())
+    create(name: "", age: -1)
+    create(childs,...)
+}
+
+// ***
+
+Person := Object {
+    name := Text()
+    name get := { value capitalize }
+    name set(val) := { value = val }
+    name spy { "name changed!" print }
+}
+
+// ***
+
+// Différence entre une méthode est une closure ?
+
+Person := Object {
+    a := 123
+    m1 := {
+        a = 125
+        b := 7
+        m2 := {
+            b = 9
+        }
+    }
+}
+
+// Exécution d'une méthode :
+
+// 1) On fork la méthode pour simuler un contexte local
+// 2) On exécute
+// 3) On join si tout s'est bien passé
+
+p1 := Person()
+p1 m1
+
+// m1' : m1 est cloné dans p1 pour servir de référence virtuelle
+// m1" : m1' est cloné avant l'exécution pour créer un contexte local
+// m1" modifie a :
+//     p1 est cloné en p1'
+//    a est cloné en a' et prend p1' pour père
+
+// Un Node définit :
+
+//     * Forks
+//     * ExtendedNodes
+//     * Childs
+
+// Un Node est défini par :
+
+//     * Origin
+//     * Extensions
+//     * Parents
+
+// Création d'un objet :
+
+Person = Object {
+    extensions << Archivable
+
+    first_name := Text()
+    last_name := Text()
+
+    full_name(capitalize: false) -> txt := {
+        txt = [first_name, last_name] join(" ")
+        if(capitalize) { txt captitalize! }
+    }
+}
+
+// Définition d'une méthode :
+
+meth(a: 0, b: 0) {operation: {}} -> r = {
+    r = a + b
+    operation
+}
+
+// Appel d'une méthode :
+
+meth1(1) { do_something }
+
+// ... délégation :
+
+meth1(a) {code} := {
+    meth2(a) {:code}
+
+    // ...peut se traduire par :
+
+    message(name: "meth2", inputs: [a], block: code)
+}
+
+meth(a, b, c: 0) := { do_something } // se traduit par :
+
+message(":=", message("meth", ["a", "b", c: 0]), { do_something })
+
+meth(a, b: 0) {code} := { do_something } // se traduit par :
+
+message(":=", message("meth", ["a", b: 0, "{code}"]), { do_something })
+
+meth(a, b: 0) {code: {}} := { do_something } // se traduit par :
+
+message(":=", message("meth", ["a", b: 0, "{code}": {}]), { do_something })
+
+meth(a<Text>) := { do_something } // se traduit par :
+
+message(":=", message("meth", ["a<Text>"]), { do_something })
+
+meth(a) -> r, e: 0 := { do_something } // se traduit par :
+
+message(":=", message("meth", inputs: ["a"], outputs: ["r", e: 0]), { do_something })
+
+meth(a) {code} -> r := { do_something } // se traduit par :
+
+message(":=", message("meth", inputs: ["a", "{code}"], outputs: ["r"]), { do_something })
+
+// L'itérateur "each" peut être défini ainsi :
+
+each(&val: nil, &key: nil, offset: 0, limit: nil) {code} := { implementation }
+
+// Et utilisé ainsi :
+
+authors each(auth) { auth print }
+authors each(val, key) { "#{key}: #{val}" print }
+authors each(auth, limit: 3) { auth print }
+
+// Si l'identifiant "val" n'est pas spécifié, un identifiant générique est généré :
+
+authors map { val capitalize } join(", ") print
+
+// Définition d'une liste :
+
+list := ["rouge", "vert", 3, nil, obj]
+
+// Définition d'un dictionnaire :
+
+dict := ["first_name": "Manu", "last_name": "Vila", "age": 37]
+
+// ... peut être abrégé ainsi :
+
+dict := [first_name: "Manu", last_name: "Vila", age: 37]
+
+// ... peut contenir des clés anonymes :
+
+dict := [action: "paint", "rouge", "vert", "bleu"]
+
+// ... est représenté en interne par :
+
+// [action: "paint", \0: "rouge", \1: "vert", \2: "bleu"]
+
+// Indexation :
+
+arr[0]
+arr[1]
+arr[1..-1] // Tous les éléments sauf le premier
+arr[0..-2] // Tous les éléments sauf le dernier
+arr[-1]    // Uniquement le dernier élément
+
+hsh["first_name"] // ou hsh[first_name:]
+hsh["age"]
+
+// Structures de contrôle :
+
+if(i > 0) {
+    "bonjour" print
+else:
+    "au revoir" print
+}
+
+// ... ou la version "Syntaxic Sugar" :
+
+if(i > 0) { "bonjour" print } else { "au revoir" print }
+
+unless(val) { return }
+
+switch(i) {
+    5: do_something
+    9: do_something_else
+    else: panic("arf")
+}
+
+loop { infinte_loop }
+
+x := 1; while(x < 10) { x++ print }
+
+until(x > 10) { x++ print } // S'exécute au moins une fois, peu importe le résultat de la condition
+
+// Conversions de type :
+
+Text(123)  // -> "123"
+Number("77") // -> 77
+
+// Définition d'un convertisseur :
+
+Person := Object {
+    <Text> := { full_name }
+}
+
+// Une methode alert(msg<Text>) fera automatiquement appel au convertisseur si on passe autre chose que du Text en paramètre.
+
+// L'initializer d'un objet peut spécifier l'objet lui-même en guise de convertisseur :
+
+Text := Object {
+    init(src<Text>: "") := {
+        implementation...
+    }
+}
+
+// Ainsi, on peut très simplement convertir une Person en Text :
+
+mvila := Person("Manu", "Vila")
+str := Text(mvila) + " is happy!"
+
+// Gestion des exceptions :
+
+meth := {
+    first := "Manu"
+    last := "Vila"
+    file := File("/tmp/image.jpg") open
+    defer(file close) // defer the close message at the end of the current method
+
+    <do something with the file...>
+
+    NotFoundException("file not found") raise
+    ...équivalent à :
+    jump("NotFoundException", [exception: NotFoundException("file not found")])
+
+    <never executed!>
+
+  NotFoundException:
+    "Not found!" log
+  DuplicateException:
+    "Duplicate!" log
+  Exception: // Catch all other exceptions
+    "#{exception name} intercepted!" log
+}
+*/

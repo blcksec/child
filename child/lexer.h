@@ -8,75 +8,20 @@
 namespace Child {
     class Lexer {
     public:
-        static const QString allowedCharsInNames;
-
         Lexer(const QString &src = "") {
             setSource(src);
-            initOperators();
         }
 
         void setSource(const QString &source) {
             _source = source;
-            _cursor = -1;
-            consume();
+            rewind();
         }
 
         const QString &source() const { return(_source); }
 
-        void initOperators() {
-            addOperator("+", Operator::Binary);
-            addOperator("-", Operator::Binary);
-            addOperator("*", Operator::Binary);
-            addOperator("/", Operator::Binary);
-            addOperator("%", Operator::Binary);
-
-            addOperator("&", Operator::Binary);
-            addOperator("|", Operator::Binary);
-            addOperator("^", Operator::Binary);
-            addOperator("<<", Operator::Binary);
-            addOperator(">>", Operator::Binary);
-
-            addOperator("!", Operator::Unary);
-            addOperator("&&", Operator::Binary);
-            addOperator("||", Operator::Binary);
-
-            addOperator("==", Operator::Binary);
-            addOperator("!=", Operator::Binary);
-            addOperator("<", Operator::Binary);
-            addOperator(">", Operator::Binary);
-            addOperator("<=", Operator::Binary);
-            addOperator(">=", Operator::Binary);
-
-            addOperator(":=", Operator::Binary);
-            addOperator("=", Operator::Binary);
-            addOperator("+=", Operator::Binary);
-            addOperator("-=", Operator::Binary);
-            addOperator("*=", Operator::Binary);
-            addOperator("/=", Operator::Binary);
-            addOperator("%=", Operator::Binary);
-            addOperator("&=", Operator::Binary);
-            addOperator("|=", Operator::Binary);
-            addOperator("^=", Operator::Binary);
-            addOperator("<<=", Operator::Binary);
-            addOperator(">>=", Operator::Binary);
-
-            addOperator("++", Operator::Unary);
-            addOperator("--", Operator::Unary);
-
-            addOperator("@", Operator::Unary);
-            addOperator("#", Operator::Unary);
-            addOperator("$", Operator::Unary);
-
-            addOperator("<-", Operator::Unary);
-            addOperator("->", Operator::Unary);
-
-            addOperator("//", Operator::LineComment);
-            addOperator("/*", Operator::BlockComment);
-            operators["/*"].rightOperatorText = "*/";
-        }
-
-        void addOperator(const QString &text, Operator::Type type) {
-            operators.insert(text, Operator(text, type));
+        void rewind() {
+            _cursor = -1;
+            consume();
         }
 
         const Token nextToken() {
@@ -91,15 +36,16 @@ namespace Child {
                 case '{': return(Token(Token::LeftBrace, consume()));
                 case '}': return(Token(Token::RightBrace, consume()));
                 case ',': return(Token(Token::Comma, consume()));
-                case '.': return(Token(Token::Period, consume()));
                 case ';': return(Token(Token::Semicolon, consume()));
-                case ':': return(Token(Token::Colon, consume()));
                 case '\0': consume(); return(Token(Token::Eof, "<EOF>"));
                 default:
-                    if(_currentChar.isSpace()) consumeSpaces();
+                    if(_currentChar == ':' && _nextChar != '=') return(Token(Token::Colon, consume()));
+                    else if(_currentChar == '/' && _nextChar == '/') consumeLineComment();
+                    else if(_currentChar == '/' && _nextChar == '*') consumeBlockComment();
+                    else if(_currentChar.isSpace()) consumeSpaces();
                     else if(isName()) return(nameToken());
                     else if(_currentChar.isNumber()) return(numberToken());
-                    else if(isOperator(_currentChar)) return(operatorToken());
+                    else if(isOperator()) return(operatorToken());
                     else throw LexerException(QString("Invalid character: '%1'").arg(_currentChar));
                 }
             }
@@ -110,8 +56,13 @@ namespace Child {
             _cursor++;
             if(_cursor < _source.length()) {
                 _currentChar = _source.at(_cursor);
+                if(_cursor + 1 < _source.length())
+                    _nextChar = _source.at(_cursor + 1);
+                else
+                    _nextChar = QChar::Null;
             } else {
                 _currentChar = QChar::Null;
+                _nextChar = QChar::Null;
             }
             return(previousChar);
         }
@@ -120,45 +71,48 @@ namespace Child {
             do { consume(); } while(_currentChar.isSpace());
         }
 
+        void consumeLineComment() {
+            consume(); // First slash
+            consume(); // Second slash
+            while(_currentChar != '\r' && _currentChar != '\n' && !_currentChar.isNull()) consume();
+        }
+
+        void consumeBlockComment() {
+            consume(); // Slash
+            consume(); // *
+            while(!(_currentChar == '*' && _nextChar == '/')) {
+                if(_currentChar.isNull()) throw LexerException("Unexpected EOF found before the end of a comment");
+                consume();
+            }
+            consume(); // *
+            consume(); // Slash
+        }
+
         bool isName() {
             return(_currentChar.isLetter() || _currentChar == '_');
         }
 
         const Token nameToken() {
-            QString text;
-            do {
+            QString text(_currentChar);
+            consume();
+            while(_currentChar.isLetterOrNumber() || _currentChar == '_' || _currentChar == '!' || _currentChar == '?') {
                 text.append(_currentChar);
                 consume();
-            } while(_currentChar.isLetterOrNumber() || allowedCharsInNames.contains(_currentChar));
+            }
             if(text == "true" || text == "false") return(booleanToken(text));
             return(Token(Token::Name, text));
         }
 
-        bool isOperator(const QString &text) {
-            QHashIterator<QString, Operator> i(operators);
-            while (i.hasNext()) {
-                i.next();
-                if(i.key().startsWith(text)) return(true);
-            }
-            return(false);
+        bool isOperator() {
+            return(Operator::allowedChars.contains(_currentChar));
         }
 
         const Token operatorToken() {
             QString text(_currentChar);
             consume();
-            while(isOperator(text + _currentChar)) {
+            while(isOperator()) {
                 text.append(_currentChar);
                 consume();
-            }
-            if(operators.contains(text)) {
-                switch(operators[text].type) {
-                case Operator::LineComment:
-                    return(lineCommentToken());
-                case Operator::BlockComment:
-                    return(blockCommentToken(operators[text].rightOperatorText));
-                default: // Suppress a warning about incomplete enum case
-                    break;
-                }
             }
             return(Token(Token::Operator, text));
         }
@@ -183,7 +137,7 @@ namespace Child {
                     if(oFound && !QString("01234567").contains(_currentChar))
                         throw LexerException("An octal number can only contain digits from 0 to 7");
                     numberExpected = false;
-                } else if(_currentChar == '.') {
+                } else if(_currentChar == '.' && !Operator::allowedChars.contains(_nextChar)) {
                     if(pointFound) throw LexerException("Too many decimal points in a number");
                     if(eFound) throw LexerException("The exponential part of a number cannot contain a decimal point");
                     if(xFound) throw LexerException("An hexadecimal number cannot contain a decimal point");
@@ -326,34 +280,6 @@ namespace Child {
             return(QChar(code));
         }
 
-        const Token lineCommentToken() {
-            QString text;
-            while(_currentChar != '\r' && _currentChar != '\n' && !_currentChar.isNull()) {
-                text.append(_currentChar);
-                consume();
-            };
-            return(Token(Token::Comment, text.trimmed()));
-        }
-
-        const Token blockCommentToken(const QString &rightOperator) {
-            QString text;
-            QString buffer;
-            while(buffer.size() < rightOperator.size()) {
-                if(_currentChar.isNull()) throw LexerException("Unexpected EOF found in a comment");
-                if(_currentChar == rightOperator[buffer.size()]) {
-                    buffer.append(_currentChar);
-                } else {
-                    if(!buffer.isEmpty()) {
-                        text.append(buffer);
-                        buffer.clear();
-                    }
-                    text.append(_currentChar);
-                }
-                consume();
-            };
-            return(Token(Token::Comment, text.trimmed()));
-        }
-
         const QString toString() {
             QString result;
             while(true) {
@@ -365,24 +291,29 @@ namespace Child {
             return("[" + result + "]");
         }
 
-        void test() {
-//            QFile file("test.child");
-//            if(!file.open(QIODevice::ReadOnly));
-//            QTextStream stream ( &file );
-//            QString line;
-//            while( !stream.eof() ) {
-//                 line = stream.readLine();
-//                 <process your line and repeat>
-//            }
-//            file.close(); // when your done.
-            setSource("i = (1 + 2);");
+        void test1() {
+            setSource("[1..3]");
             p(toString());
+        }
+
+        void test2() {
+            setSource(readTextFile("../child/examples/lexertest.child"));
+            p(toString());
+        }
+
+        void test() {
+            setSource(readTextFile("../child/examples/lexertest.child"));
+            for(int i = 0; i < 1000; i++) {
+                while(nextToken().type != Token::Eof) {}
+                rewind();
+            }
         }
 
     private:
         QString _source;
         int _cursor;
         QChar _currentChar;
+        QChar _nextChar;
         QHash<QString, Operator> operators;
     };
 }

@@ -59,4 +59,5 @@ OTHER_FILES += \
     notes/pseudocode.txt \
     README.txt \
     notes/todo.txt \
-    notes/old.txt
+    notes/old.txt \
+    examples/lexertest.child

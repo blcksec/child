@@ -9,7 +9,6 @@ namespace Child {
         "Number",
         "Character",
         "Text",
-        "Comment",
         "LeftParenthesis",
         "RightParenthesis",
         "LeftBracket",
