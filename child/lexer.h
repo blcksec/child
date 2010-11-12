@@ -24,9 +24,55 @@ namespace Child {
         const QString &source() const { return(_source); }
 
         void initOperators() {
+            addOperator("+", Operator::Binary);
+            addOperator("-", Operator::Binary);
+            addOperator("*", Operator::Binary);
+            addOperator("/", Operator::Binary);
+            addOperator("%", Operator::Binary);
+
+            addOperator("&", Operator::Binary);
+            addOperator("|", Operator::Binary);
+            addOperator("^", Operator::Binary);
+            addOperator("<<", Operator::Binary);
+            addOperator(">>", Operator::Binary);
+
+            addOperator("!", Operator::Unary);
+            addOperator("&&", Operator::Binary);
+            addOperator("||", Operator::Binary);
+
+            addOperator("==", Operator::Binary);
+            addOperator("!=", Operator::Binary);
+            addOperator("<", Operator::Binary);
+            addOperator(">", Operator::Binary);
+            addOperator("<=", Operator::Binary);
+            addOperator(">=", Operator::Binary);
+
+            addOperator(":=", Operator::Binary);
             addOperator("=", Operator::Binary);
+            addOperator("+=", Operator::Binary);
+            addOperator("-=", Operator::Binary);
+            addOperator("*=", Operator::Binary);
+            addOperator("/=", Operator::Binary);
+            addOperator("%=", Operator::Binary);
+            addOperator("&=", Operator::Binary);
+            addOperator("|=", Operator::Binary);
+            addOperator("^=", Operator::Binary);
+            addOperator("<<=", Operator::Binary);
+            addOperator(">>=", Operator::Binary);
+
+            addOperator("++", Operator::Unary);
+            addOperator("--", Operator::Unary);
+
+            addOperator("@", Operator::Unary);
+            addOperator("#", Operator::Unary);
+            addOperator("$", Operator::Unary);
+
+            addOperator("<-", Operator::Unary);
+            addOperator("->", Operator::Unary);
+
             addOperator("//", Operator::LineComment);
             addOperator("/*", Operator::BlockComment);
+            operators["/*"].rightOperatorText = "*/";
         }
 
         void addOperator(const QString &text, Operator::Type type) {
@@ -34,31 +80,40 @@ namespace Child {
         }
 
         const Token nextToken() {
-            while(!_currentChar.isNull()) {
-                if(_currentChar.isSpace()) {
-                    consumeSpaces();
-                } else if(isName()) {
-                    return(nameToken());
-                } else if(_currentChar.isNumber()) {
-                    return(numberToken());
-                } else if(_currentChar == '"') {
-                    return(textToken());
-                } else if(isOperator()) {
-                    return(operatorToken());
-                } else {
-                    throw LexerException(QString("Invalid character: '%1'").arg(_currentChar));
+            while(true) {
+                switch(_currentChar.toAscii()) {
+                case '\'': return(characterToken());
+                case '"': return(textToken());
+                case '(': return(Token(Token::LeftParenthesis, consume()));
+                case ')': return(Token(Token::RightParenthesis, consume()));
+                case '[': return(Token(Token::LeftBracket, consume()));
+                case ']': return(Token(Token::RightBracket, consume()));
+                case '{': return(Token(Token::LeftBrace, consume()));
+                case '}': return(Token(Token::RightBrace, consume()));
+                case ',': return(Token(Token::Comma, consume()));
+                case '.': return(Token(Token::Period, consume()));
+                case ';': return(Token(Token::Semicolon, consume()));
+                case ':': return(Token(Token::Colon, consume()));
+                case '\0': consume(); return(Token(Token::Eof, "<EOF>"));
+                default:
+                    if(_currentChar.isSpace()) consumeSpaces();
+                    else if(isName()) return(nameToken());
+                    else if(_currentChar.isNumber()) return(numberToken());
+                    else if(isOperator(_currentChar)) return(operatorToken());
+                    else throw LexerException(QString("Invalid character: '%1'").arg(_currentChar));
                 }
             }
-            return(Token(Token::Eof, "<EOF>"));
         }
 
-        void consume() {
+        const QChar consume() {
+            QChar previousChar(_currentChar);
             _cursor++;
             if(_cursor < _source.length()) {
                 _currentChar = _source.at(_cursor);
             } else {
                 _currentChar = QChar::Null;
             }
+            return(previousChar);
         }
 
         void consumeSpaces() {
@@ -75,23 +130,41 @@ namespace Child {
                 text.append(_currentChar);
                 consume();
             } while(_currentChar.isLetterOrNumber() || allowedCharsInNames.contains(_currentChar));
+            if(text == "true" || text == "false") return(booleanToken(text));
             return(Token(Token::Name, text));
         }
 
-        bool isOperator() {
+        bool isOperator(const QString &text) {
             QHashIterator<QString, Operator> i(operators);
             while (i.hasNext()) {
                 i.next();
-                if(i.key().startsWith(_currentChar)) return(true);
+                if(i.key().startsWith(text)) return(true);
             }
             return(false);
         }
 
-        const Token operatorToken() { // TODO: Add support for operators with more than one character
-            QString text;
-            text.append(_currentChar);
+        const Token operatorToken() {
+            QString text(_currentChar);
             consume();
+            while(isOperator(text + _currentChar)) {
+                text.append(_currentChar);
+                consume();
+            }
+            if(operators.contains(text)) {
+                switch(operators[text].type) {
+                case Operator::LineComment:
+                    return(lineCommentToken());
+                case Operator::BlockComment:
+                    return(blockCommentToken(operators[text].rightOperatorText));
+                default: // Suppress a warning about incomplete enum case
+                    break;
+                }
+            }
             return(Token(Token::Operator, text));
+        }
+
+        const Token booleanToken(const QString &text) {
+            return(Token(Token::Boolean, text));
         }
 
         const Token numberToken() {
@@ -150,71 +223,160 @@ namespace Child {
             return(Token(Token::Number, text));
         }
 
+        const Token characterToken() {
+            QString text;
+            consume(); // left single quote
+            if(_currentChar.isNull()) throw LexerException("Unexpected EOF found in a character literal");
+            if(_currentChar != '\'') {
+                if(_currentChar == '\\') {
+                    text = escapeSequence();
+                } else {
+                    text = _currentChar;
+                    consume();
+                }
+                if(_currentChar.isNull()) throw LexerException("Unexpected EOF found in a character literal");
+                if(_currentChar != '\'') throw LexerException("A character literal can't have more than one character");
+            }
+            consume(); // right single quote
+            return(Token(Token::Character, text));
+        }
+
         const Token textToken() {
             QString text;
-            consume(); // opening double quote
-            bool escapeSequence = false;
-            bool xFound;
-            QString number;
-            while(_currentChar != '"' || escapeSequence) {
-                if(_currentChar.isNull()) throw LexerException("Unexpected EOF found while reading a text literal");
-                if(escapeSequence) {
-                    if(_currentChar == 'x' && number.isEmpty() && !xFound) {
-                        xFound = true;
-                    } else if(_currentChar >= '0' && _currentChar <= '7') {
-                        number.append(_currentChar);
-                    } else if(xFound && QString("89abcdef").contains(_currentChar, Qt::CaseInsensitive)) {
-                        number.append(_currentChar);
-                    } else if(!number.isEmpty() || xFound) {
-                        if(number.isEmpty()) throw LexerException("Invalid escape sequence syntax");
-                        bool ok;
-                        int code = xFound ? number.toInt(&ok, 16) : number.toInt(&ok, 8);
-                        if(!ok) throw LexerException("Invalid number in escape sequence");
-                        text.append(QChar(code));
-                        escapeSequence = false;
-                        continue; // Don't consume the current character
-                    } else {
-                        switch(_currentChar.toAscii()) {
-                        case 't':
-                            text.append('\t');
-                            break;
-                        case 'n':
-                            text.append('\n');
-                            break;
-                        case 'r':
-                            text.append('\r');
-                            break;
-                        case '"':
-                            text.append('"');
-                            break;
-                        case '\\':
-                            text.append('\\');
-                            break;
-                        default:
-                            throw LexerException(QString("Unknown escape sequence: '\\%1'").arg(_currentChar));
-                        }
-                        escapeSequence = false;
-                    }
-                } else if(_currentChar == '\\') {
-                    escapeSequence = true;
-                    number = "";
-                    xFound = false;
+            consume(); // left double quote
+            while(_currentChar != '"') {
+                if(_currentChar.isNull()) throw LexerException("Unexpected EOF found in a text literal");
+                if(_currentChar == '\\') {
+                    text.append(escapeSequence());
                 } else {
+                    text.append(_currentChar);
+                    consume();
+                }
+            };
+            consume(); // right double quote
+            return(Token(Token::Text, text));
+        }
+
+        QChar escapeSequence() {
+            consume(); // anti-slash
+            QChar character;
+            switch(_currentChar.toAscii()) {
+            case 't':
+                character = '\t';
+                break;
+            case 'n':
+                character = '\n';
+                break;
+            case 'r':
+                character = '\r';
+                break;
+            case '"':
+                character = '"';
+                break;
+            case '\'':
+                character = '\'';
+                break;
+            case '\\':
+                character = '\\';
+                break;
+            case '\0':
+                throw LexerException("Unexpected EOF found in an escape sequence");
+            default:
+                if(QString("01234567xu").contains(_currentChar, Qt::CaseInsensitive)) {
+                    return(escapeSequenceNumber());
+                } else {
+                    throw LexerException(QString("Unknown escape sequence: '\\%1'").arg(_currentChar));
+                }
+            }
+            consume();
+            return(character);
+        }
+
+        QChar escapeSequenceNumber() {
+            char type;
+            QString allowedChars;
+            short maxSize;
+            if(_currentChar == 'x' || _currentChar == 'X') {
+                type = 'x';
+                allowedChars = "0123456789abcdef";
+                maxSize = 2;
+                consume();
+            } else if(_currentChar == 'u' || _currentChar == 'U') {
+                type = 'u';
+                allowedChars = "0123456789abcdef";
+                maxSize = 4;
+                consume();
+            } else {
+                type = 'o';
+                allowedChars = "01234567";
+                maxSize = 3;
+            }
+            QString number = "";
+            while(number.size() < maxSize) {
+                if(_currentChar.isNull()) throw LexerException("Unexpected EOF found in an escape sequence number");
+                if(!allowedChars.contains(_currentChar, Qt::CaseInsensitive)) break;
+                number.append(_currentChar);
+                consume();
+            }
+            if(number.isEmpty()) throw LexerException("Invalid escape sequence number");
+            bool ok;
+            ushort code = type == 'o' ? number.toUShort(&ok, 8) : number.toUShort(&ok, 16);
+            if(!ok) throw LexerException("Invalid number in escape sequence");
+            if(type != 'u' && code > 0xFF) throw LexerException("Invalid number in escape sequence");
+            return(QChar(code));
+        }
+
+        const Token lineCommentToken() {
+            QString text;
+            while(_currentChar != '\r' && _currentChar != '\n' && !_currentChar.isNull()) {
+                text.append(_currentChar);
+                consume();
+            };
+            return(Token(Token::Comment, text.trimmed()));
+        }
+
+        const Token blockCommentToken(const QString &rightOperator) {
+            QString text;
+            QString buffer;
+            while(buffer.size() < rightOperator.size()) {
+                if(_currentChar.isNull()) throw LexerException("Unexpected EOF found in a comment");
+                if(_currentChar == rightOperator[buffer.size()]) {
+                    buffer.append(_currentChar);
+                } else {
+                    if(!buffer.isEmpty()) {
+                        text.append(buffer);
+                        buffer.clear();
+                    }
                     text.append(_currentChar);
                 }
                 consume();
             };
-            consume(); // closing double quote
-            return(Token(Token::Text, text));
+            return(Token(Token::Comment, text.trimmed()));
+        }
+
+        const QString toString() {
+            QString result;
+            while(true) {
+                Token token = nextToken();
+                if(token.type == Token::Eof) break;
+                if(!result.isEmpty()) result.append(", ");
+                result.append(token.toString());
+            }
+            return("[" + result + "]");
         }
 
         void test() {
-            setSource("i = 2");
-            while(true) {
-                Token token = nextToken();
-                p(token.toString());
-                if(token.type == Token::Eof) break;
-            }
+//            QFile file("test.child");
+//            if(!file.open(QIODevice::ReadOnly));
+//            QTextStream stream ( &file );
+//            QString line;
+//            while( !stream.eof() ) {
+//                 line = stream.readLine();
+//                 <process your line and repeat>
+//            }
+//            file.close(); // when your done.
+            setSource("i = (1 + 2);");
+            p(toString());
         }
 
     private:

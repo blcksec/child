@@ -6,12 +6,12 @@
 namespace Child {
     class Operator {
     public:
-        enum Type { Unary, Binary, LineComment, BlockComment };
-
+        enum Type { Unknown, Unary, Binary, LineComment, BlockComment };
         QString text;
         Type type;
-
-        Operator(const QString &text, Type type) : text(text), type(type) {}
+        QString rightOperatorText;
+        Operator(const QString &text = "", Type type = Unknown) :
+                text(text), type(type) {}
     };
 }
 

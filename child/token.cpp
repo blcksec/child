@@ -5,7 +5,20 @@ namespace Child {
         "<EOF>",
         "Name",
         "Operator",
+        "Boolean",
         "Number",
-        "Text"
+        "Character",
+        "Text",
+        "Comment",
+        "LeftParenthesis",
+        "RightParenthesis",
+        "LeftBracket",
+        "RightBracket",
+        "LeftBrace",
+        "RightBrace",
+        "Comma",
+        "Period",
+        "Semicolon",
+        "Colon"
     };
 }
