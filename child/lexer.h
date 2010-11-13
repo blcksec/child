@@ -20,51 +20,64 @@ namespace Child {
         const QString &source() const { return(_source); }
 
         void rewind() {
-            _cursor = -1;
+            _previousChar = '\0';
+            _currentChar = '\0';
+            _nextChar = '\0';
+            _position = -1;
+            _column = 0;
+            _line = 1;
             consume();
         }
 
         const Token nextToken() {
             while(true) {
                 switch(_currentChar.toAscii()) {
-                case '\'': return(characterToken());
-                case '"': return(textToken());
-                case '(': return(Token(Token::LeftParenthesis, consume()));
-                case ')': return(Token(Token::RightParenthesis, consume()));
-                case '[': return(Token(Token::LeftBracket, consume()));
-                case ']': return(Token(Token::RightBracket, consume()));
-                case '{': return(Token(Token::LeftBrace, consume()));
-                case '}': return(Token(Token::RightBrace, consume()));
-                case ',': return(Token(Token::Comma, consume()));
-                case ';': return(Token(Token::Semicolon, consume()));
-                case '\0': consume(); return(Token(Token::Eof, "<EOF>"));
+                case '\'': return(scanCharacter());
+                case '"': return(scanText());
+                case '(': return(scan(Token::LeftParenthesis));
+                case ')': return(scan(Token::RightParenthesis));
+                case '[': return(scan(Token::LeftBracket));
+                case ']': return(scan(Token::RightBracket));
+                case '{': return(scan(Token::LeftBrace));
+                case '}': return(scan(Token::RightBrace));
+                case ',': return(scan(Token::Comma));
+                case ';': return(scan(Token::Semicolon));
+                case '\0': return(scan(Token::Eof));
                 default:
-                    if(_currentChar == ':' && _nextChar != '=') return(Token(Token::Colon, consume()));
+                    if(_currentChar == ':' && _nextChar != '=') return(scan(Token::Colon));
                     else if(_currentChar == '/' && _nextChar == '/') consumeLineComment();
                     else if(_currentChar == '/' && _nextChar == '*') consumeBlockComment();
                     else if(_currentChar.isSpace()) consumeSpaces();
-                    else if(isName()) return(nameToken());
-                    else if(_currentChar.isNumber()) return(numberToken());
-                    else if(isOperator()) return(operatorToken());
+                    else if(isName()) return(scanName());
+                    else if(_currentChar.isNumber()) return(scanNumber());
+                    else if(isOperator()) return(scanOperator());
                     else throw LexerException(QString("Invalid character: '%1'").arg(_currentChar));
                 }
             }
         }
 
         const QChar consume() {
-            QChar previousChar(_currentChar);
-            _cursor++;
-            if(_cursor < _source.length()) {
-                _currentChar = _source.at(_cursor);
-                if(_cursor + 1 < _source.length())
-                    _nextChar = _source.at(_cursor + 1);
+            if(_currentChar == '\r' || _currentChar == '\n') { // New line
+                if(!(_currentChar == '\n' && _previousChar == '\r')) { // Ignore LF after CR (Windows)
+                    _column = 1;
+                    _line++;
+                }
+            } else {
+                _column++;
+            }
+            _previousChar = _currentChar;
+            _position++;
+            if(_position < _source.length()) {
+                _currentChar = _source.at(_position);
+                if(_position + 1 < _source.length())
+                    _nextChar = _source.at(_position + 1);
                 else
                     _nextChar = QChar::Null;
             } else {
                 _currentChar = QChar::Null;
                 _nextChar = QChar::Null;
             }
-            return(previousChar);
+            return(_previousChar);
         }
 
         void consumeSpaces() {
@@ -88,40 +101,54 @@ namespace Child {
             consume(); // Slash
         }
 
+        void startToken() {
+            _tokenPosition = _position;
+            _tokenColumn = _column;
+            _tokenLine = _line;
+        }
+
+        const Token finishToken(const Token::Type type, const QString &text) {
+            return(Token(type, text, _tokenPosition, _tokenColumn, _tokenLine));
+        }
+
+        const Token scan(const Token::Type type) { // Simple one char tokens
+            startToken();
+            return(finishToken(type, consume()));
+        }
+
         bool isName() {
             return(_currentChar.isLetter() || _currentChar == '_');
         }
 
-        const Token nameToken() {
+        const Token scanName() {
+            startToken();
             QString text(_currentChar);
             consume();
             while(_currentChar.isLetterOrNumber() || _currentChar == '_' || _currentChar == '!' || _currentChar == '?') {
                 text.append(_currentChar);
                 consume();
             }
-            if(text == "true" || text == "false") return(booleanToken(text));
-            return(Token(Token::Name, text));
+            if(text == "true" || text == "false") return(finishToken(Token::Boolean, text));
+            return(finishToken(Token::Name, text));
         }
 
         bool isOperator() {
             return(Operator::allowedChars.contains(_currentChar));
         }
 
-        const Token operatorToken() {
+        const Token scanOperator() {
+            startToken();
             QString text(_currentChar);
             consume();
             while(isOperator()) {
                 text.append(_currentChar);
                 consume();
             }
-            return(Token(Token::Operator, text));
+            return(finishToken(Token::Operator, text));
         }
 
-        const Token booleanToken(const QString &text) {
-            return(Token(Token::Boolean, text));
-        }
-
-        const Token numberToken() {
+        const Token scanNumber() {
+            startToken();
             QString text(_currentChar);
             consume();
             bool pointFound = false;
@@ -174,10 +201,11 @@ namespace Child {
                 consume();
             }
             if(numberExpected) throw LexerException(QString("Unexpected character found in a number: '%1'").arg(_currentChar));
-            return(Token(Token::Number, text));
+            return(finishToken(Token::Number, text));
         }
 
-        const Token characterToken() {
+        const Token scanCharacter() {
+            startToken();
             QString text;
             consume(); // left single quote
             if(_currentChar.isNull()) throw LexerException("Unexpected EOF found in a character literal");
@@ -192,10 +220,11 @@ namespace Child {
                 if(_currentChar != '\'') throw LexerException("A character literal can't have more than one character");
             }
             consume(); // right single quote
-            return(Token(Token::Character, text));
+            return(finishToken(Token::Character, text));
         }
 
-        const Token textToken() {
+        const Token scanText() {
+            startToken();
             QString text;
             consume(); // left double quote
             while(_currentChar != '"') {
@@ -208,7 +237,7 @@ namespace Child {
                 }
             };
             consume(); // right double quote
-            return(Token(Token::Text, text));
+            return(finishToken(Token::Text, text));
         }
 
         QChar escapeSequence() {
@@ -286,13 +315,13 @@ namespace Child {
                 Token token = nextToken();
                 if(token.type == Token::Eof) break;
                 if(!result.isEmpty()) result.append(", ");
-                result.append(token.toString());
+                result.append(token.toString() + QString(" (%1,%2)").arg(token.column).arg(token.line));
             }
             return("[" + result + "]");
         }
 
         void test1() {
-            setSource("[1..3]");
+            setSource("abc + def\r\n(yo)");
             p(toString());
         }
 
@@ -311,10 +340,15 @@ namespace Child {
 
     private:
         QString _source;
-        int _cursor;
+        int _position;
+        int _column;
+        int _line;
+        QChar _previousChar;
         QChar _currentChar;
         QChar _nextChar;
-        QHash<QString, Operator> operators;
+        int _tokenPosition;
+        int _tokenColumn;
+        int _tokenLine;
     };
 }
 
