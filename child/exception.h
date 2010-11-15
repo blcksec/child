@@ -6,7 +6,7 @@
 namespace Child {
     class Exception {
     public:
-        Exception(const QString &msg = "Undefined Exception") : message(msg) { qDebug() << msg; }
+        Exception(const QString &msg = "Undefined Exception") : message(msg) { qDebug() << msg.toUtf8(); } // FIXME: What about local encoding?
         const QString message;
     };
 

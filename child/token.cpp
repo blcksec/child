@@ -16,8 +16,8 @@ namespace Child {
         "LeftBrace",
         "RightBrace",
         "Comma",
-        "Period",
         "Semicolon",
-        "Colon"
+        "Colon",
+        "Newline"
     };
 }

@@ -1,7 +1,7 @@
 * "objets persistants" pour gérer les watchers sur des objets changeants
 
 Hello(@what: "World") := Object {
-   say := { "Hello, #{what}!" print }
+   say := { "Hello, {what}!" print }
 }
 
 Hello(@what: "World") := Object {
@@ -10,7 +10,7 @@ Hello(@what: "World") := Object {
     init:
         log write("...")
     def:
-        say := { "Hello, #{what}!" print }
+        say := { "Hello, {what}!" print }
 }
 
 full_name(capitalize: false) := {
