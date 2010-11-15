@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "child/lexer.h"
 
 namespace Child {
     void Lexer::rewind() {
@@ -243,7 +243,7 @@ namespace Child {
             Token token = nextToken();
             if(token.type == Token::Eof) break;
             if(!result.isEmpty()) result.append(", ");
-            result.append(token.toString() + QString(" (%1,%2)").arg(token.column).arg(token.line));
+            result.append(token.toString()); // + QString(" (%1,%2)").arg(token.column).arg(token.line)
         }
         return("[" + result + "]");
     }

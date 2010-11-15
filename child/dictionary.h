@@ -26,7 +26,7 @@ namespace Child {
         }
 
         Node *get(QString key) {
-            if(key.isEmpty()) { throw ArgumentException("Empty key passed to Dictionary::get()"); }
+            if(key.isEmpty()) { throw(ArgumentException("empty key passed to Dictionary::get()")); }
             escapeKey(key);
             const Dictionary *dict = this;
             Node *value = NULL;
@@ -37,7 +37,7 @@ namespace Child {
                 }
                 dict = static_cast<Dictionary *>(dict->origin());
             }
-            if(!value) { throw NotFoundException("Key not found in Dictionary::get()"); }
+            if(!value) { throw(NotFoundException("key not found in Dictionary::get()")); }
             if(dict != this) {
                 value = value->fork()->setIsVirtual(true);
                 if(!_hash) { _hash = new NodeHash; }
@@ -54,7 +54,7 @@ namespace Child {
             } else {
                 escapeKey(key);
             }
-            if(!value) { throw NullPointerException("NULL value passed to Dictionary::set()"); }
+            if(!value) { throw(NullPointerException("NULL value passed to Dictionary::set()")); }
             if(!_hasKey(key)) {
                 _size++;
                 if(!_addedKeys) { _addedKeys = new QList<QString>; }
@@ -95,7 +95,7 @@ namespace Child {
         NodeList values() const;
 
         bool hasKey(QString key) const {
-            if(key.isEmpty()) { throw ArgumentException("Empty key passed to Dictionary::set()"); }
+            if(key.isEmpty()) { throw(ArgumentException("empty key passed to Dictionary::set()")); }
             escapeKey(key);
             return(_hasKey(key));
         }
@@ -113,19 +113,19 @@ namespace Child {
         bool hasValue(Node *value) const;
 
         Dictionary *remove(QString key) {
-            if(key.isEmpty()) { throw ArgumentException("Empty key passed to Dictionary::remove()"); }
+            if(key.isEmpty()) { throw(ArgumentException("empty key passed to Dictionary::remove()")); }
             escapeKey(key);
             const Dictionary *dict = this;
             bool found = false;
             while(dict != root()) {
                 if(dict->_hash && dict->_hash->contains(key)) {
-                    if(!dict->_hash->value(key)) { throw RuntimeException("Alreay removed key passed to Dictionary::remove()"); }
+                    if(!dict->_hash->value(key)) { throw(RuntimeException("alreay removed key passed to Dictionary::remove()")); }
                     found = true;
                     break;
                 }
                 dict = static_cast<Dictionary *>(dict->origin());
             }
-            if(!found) { throw NotFoundException("Key not found in Dictionary::remove()"); }
+            if(!found) { throw(NotFoundException("key not found in Dictionary::remove()")); }
             _size--;
             if(!_hash) { _hash = new NodeHash; }
             _hash->insert(key, NULL);

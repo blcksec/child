@@ -5,6 +5,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QHash>
 #include <QtCore/QQueue>
+#include <QtCore/QStack>
 
 #include "child/toolbox.h"
 #include "child/exception.h"
@@ -14,7 +15,7 @@ namespace Child {
 
     class NamedNode {
     public:
-        NamedNode() { throw RuntimeException("Cannot construct a NULL NamedNode"); }
+        NamedNode() { throw(RuntimeException("cannot construct a NULL NamedNode")); }
         NamedNode(const QString &t, Node *const n);
         QString name;
         Node *node;

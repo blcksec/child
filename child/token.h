@@ -36,9 +36,10 @@ namespace Child {
         Token(const Type type = Eof, const QStringRef &textRef = QStringRef(), const int column = 0,const int line = 0) :
                 type(type), textRef(textRef), column(column), line(line) {}
 
-        const QString text() { return(textRef.toString()); }
-
-        const QString toString() { return(QString("%1: '%2'").arg(typesName[type]).arg(text())); }
+        static const QString typeName(const Type type) { return(typesName[type]); }
+        const QString typeName() const { return(Token::typeName(type)); }
+        const QString text() const { return(textRef.toString()); }
+        const QString toString() const { return(QString("%1: '%2'").arg(typeName()).arg(text())); }
     };
 }
 

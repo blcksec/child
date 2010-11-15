@@ -21,7 +21,7 @@ namespace Child {
 
 //        QChar escapeSequence() { // Code saved from the Lexer class. Can be more useful here!
 //            consume(); // anti-slash
-//            if(_currentChar.isNull()) throw LexerException("Unexpected EOF found in an escape sequence");
+//            if(_currentChar.isNull()) throw(LexerException("unexpected EOF found in an escape sequence"));
 //            QChar character;
 //            switch(_currentChar.toAscii()) {
 //            case 't':
@@ -46,7 +46,7 @@ namespace Child {
 //                if(QString("01234567xu").contains(_currentChar, Qt::CaseInsensitive))
 //                    return(escapeSequenceNumber());
 //                else
-//                    throw LexerException(QString("Unknown escape sequence: '\\%1'").arg(_currentChar));
+//                    throw(LexerException(QString("unknown escape sequence: '\\%1'").arg(_currentChar)));
 //            }
 //            consume();
 //            return(character);
@@ -73,16 +73,16 @@ namespace Child {
 //            }
 //            QString number = "";
 //            while(number.size() < maxSize) {
-//                if(_currentChar.isNull()) throw LexerException("Unexpected EOF found in an escape sequence number");
+//                if(_currentChar.isNull()) throw(LexerException("unexpected EOF found in an escape sequence number"));
 //                if(!allowedChars.contains(_currentChar, Qt::CaseInsensitive)) break;
 //                number.append(_currentChar);
 //                consume();
 //            }
-//            if(number.isEmpty()) throw LexerException("Invalid escape sequence number");
+//            if(number.isEmpty()) throw(LexerException("invalid escape sequence number"));
 //            bool ok;
 //            ushort code = type == 'o' ? number.toUShort(&ok, 8) : number.toUShort(&ok, 16);
-//            if(!ok) throw LexerException("Invalid number in escape sequence");
-//            if(type != 'u' && code > 0xFF) throw LexerException("Invalid number in escape sequence");
+//            if(!ok) throw(LexerException("invalid number in escape sequence"));
+//            if(type != 'u' && code > 0xFF) throw(LexerException("invalid number in escape sequence"));
 //            return(QChar(code));
 //        }
     private:

@@ -1,4 +1,4 @@
-#include "token.h"
+#include "child/token.h"
 
 namespace Child {
     const char *Token::typesName[] = {

@@ -1,4 +1,4 @@
-#include "operator.h"
+#include "child/operator.h"
 
 namespace Child {
     const QString Operator::allowedChars = "+-*/%&|^<>!=.:@#$";

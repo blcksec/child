@@ -68,10 +68,10 @@ namespace Child {
 
         const QString toString();
 
-//        void test() {
-//            setSource("0xf3");
-//            p(escapeTabsAndNewlines(toString()).toUtf8());
-//        }
+        void test() {
+            setSource("[a, b] = [c, d]");
+            p(escapeTabsAndNewlines(toString()).toUtf8());
+        }
 
 //        void test() {
 //            setSource(readTextFile("../child/examples/lexertest.child"));
@@ -79,14 +79,14 @@ namespace Child {
 //            p(escapeTabsAndNewlines(toString()).toUtf8());
 //        }
 
-        void test() {
-            setSource(readTextFile("../child/examples/lexertest.child"));
-            setFilename("lexertest.child");
-            for(int i = 0; i < 1000; i++) {
-                while(nextToken().type != Token::Eof) {}
-                rewind();
-            }
-        }
+//        void test() {
+//            setSource(readTextFile("../child/examples/lexertest.child"));
+//            setFilename("lexertest.child");
+//            for(int i = 0; i < 1000; i++) {
+//                while(nextToken().type != Token::Eof) {}
+//                rewind();
+//            }
+//        }
 
     private:
         QString _source;

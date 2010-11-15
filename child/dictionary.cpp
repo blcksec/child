@@ -1,4 +1,4 @@
-#include "dictionary.h"
+#include "child/dictionary.h"
 
 namespace Child {
     Dictionary *Dictionary::_root = Dictionary::root();
