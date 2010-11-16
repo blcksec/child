@@ -62,4 +62,5 @@ OTHER_FILES += \
     README.txt \
     notes/todo.txt \
     notes/old.txt \
-    examples/lexertest.child
+    examples/lexertest.child \
+    notes/specification.txt

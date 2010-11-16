@@ -7,6 +7,10 @@
 namespace Child {
     class Parser {
     public:
+        enum Rule {
+            ListRule
+        };
+
         Parser() : _position(0) {}
 
         const Token &token(const int i = 0) {
@@ -38,7 +42,7 @@ namespace Child {
             if(_position == _lookahead.size() && !isSpeculating()) {
                 _position = 0;
                 _lookahead.clear();
-                clearMemos();
+                clearRulesMemos();
             }
             loadToken(0);
         }
@@ -59,21 +63,23 @@ namespace Child {
             return(!_positions.isEmpty());
         }
 
-        void memoize(QHash<int, int> &memo, const int startPosition, const bool failed) {
+        void memoize(const Rule rule, const int startPosition, const bool failed) {
             int stopPosition = failed ? -1 : _position;
-            memo.insert(startPosition, stopPosition);
+            _rulesMemos[rule].insert(startPosition, stopPosition);
         }
 
-        const bool isMemoized(const QHash<int, int> &memo) {
-            if(!memo.contains(_position)) return(false);
-            int stopPosition = memo[_position];
+        const bool isMemoized(const Rule rule) {
+            if(!_rulesMemos.contains(rule)) return(false);
+            _MemoHash &memos = _rulesMemos[rule];
+            if(!memos.contains(_position)) return(false);
+            int stopPosition = memos[_position];
             if(stopPosition == -1) throw(ParserException());
             seek(stopPosition);
             return(true);
         }
 
-        void clearMemos() {
-            _listMemo.clear();
+        void clearRulesMemos() {
+            _rulesMemos.clear();
         }
 
         const bool is(const Token::Type type, const QString &text = QString()) {
@@ -114,10 +120,10 @@ namespace Child {
             bool failed = false;
             QString exceptionMessage;
             int startPosition = _position;
-            if(isSpeculating() && isMemoized(_listMemo)) return;
+            if(isSpeculating() && isMemoized(ListRule)) return;
             try { _matchList(); }
             catch(ParserException e) { failed = true; exceptionMessage = e.message; }
-            if(isSpeculating()) memoize(_listMemo, startPosition, failed);
+            if(isSpeculating()) memoize(ListRule, startPosition, failed);
             if(failed) throw(ParserException(exceptionMessage));
         }
 
@@ -171,10 +177,9 @@ namespace Child {
         QStack<int> _positions;
         QList<Token> _lookahead;
         int _position;
-        QHash<int, int> _listMemo;
-        typedef void (*_FunctionPtr)();
+//        QHash<int, int> _listMemo;
         typedef QHash<int, int> _MemoHash;
-        QHash<_FunctionPtr, _MemoHash> _essai;
+        QHash<Rule, _MemoHash> _rulesMemos;
     };
 }
 

@@ -1,0 +1,7 @@
+Block = { BlockPart }
+BlockPart = [ Label ] MessageChain
+Label = name ":"
+MessageChain = { Message } (semicolon | newline | eof)
+Message = CompositeMessage | Literal | operator
+CompositeMessage = name [ "(" MessageChain { "," MessageChain } ")" [ "{" Block "}" ] ]
+Literal = boolean | number | character | text
