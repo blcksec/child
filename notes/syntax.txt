@@ -9,7 +9,7 @@ Version orienté objet :
 
 Hello := Object {
    init(@what: "World") := {}
-   say := { "Hello, {what}!" print }
+   say := { "Hello, \{what}!" print }
 }
 
 Hello() say // -> "Hello, World!"
@@ -46,14 +46,12 @@ Person := Object {
     <Text> := { full_name }
 }
 
-Person #full_name doc print
-
 Person full_name // est équivalent à :
-Person #full_name code
+Person \full_name code
 
-Person #full_name doc print // affiche la documentation attachée à la méthode
+Person \full_name doc print // affiche la documentation attachée à la méthode
 
-Person #full_name test // exécute la méthode de test
+Person \full_name test // exécute la méthode de test
 
 Company := Object {
     name := ""
@@ -70,11 +68,11 @@ c1 := Company(name: "Kindalab", boss: p3)
 
 ***
 
-each(#var: item) {code} := {
+each(\var: item) {code} := {
 
 }
 
-map(#var: item) {code} -> result: [] := {
+map(\var: item) {code} -> result: [] := {
 
 }
 
@@ -219,12 +217,12 @@ message(":=", message("meth", inputs: ["a", "{code}"], outputs: ["r"]), { do_som
 
 L'itérateur "each" peut être défini ainsi :
 
-each(#val: nil, #key: nil, offset: 0, limit: nil) {code} := { implementation de each }
+each(\val: nil, \key: nil, offset: 0, limit: nil) {code} := { implementation de each }
 
 Et utilisé ainsi :
 
 authors each(auth) { auth print }
-authors each(val, key) { "{key}: {val}" print }
+authors each(val, key) { "\{key}: \{val}" print }
 authors each(auth, limit: 3) { auth print }
 
 Si l'identifiant "val" n'est pas spécifié, un identifiant générique est généré :
