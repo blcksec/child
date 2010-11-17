@@ -10,7 +10,7 @@ Assignment               = ExpressionList assign_operator ExpressionList
 Expression               = UnaryExpression | Expression binary_operator UnaryExpression
 ExpressionList           = Expression { "," Expression }
 UnaryExpression          = PrimaryExpression | unary_operator UnaryExpression
-PrimaryExpression        = Operand | Conversion | PrimaryExpression Index | PrimaryExpression Call
+PrimaryExpression        = Operand | Conversion | PrimaryExpression Call | PrimaryExpression Index
 Operand                  = Literal | identifier | "(" Expression ")"
 Literal                  = BasicLiteral | CompositeLiteral
 BasicLiteral             = boolean | number | character | text
@@ -25,3 +25,7 @@ Index                    = "[" Expression "]"
 Call                     = "(" [ ArgumentList [ "," ] ] ")" [ Block ]
 ArgumentList             = LabeledExpressionList [ "..." ]
 Label                    = identifier
+
+Expression = { unary_operator } Operand { binary_operator Expression }
+
+Expression = { Message | "(" Expression ")" }
