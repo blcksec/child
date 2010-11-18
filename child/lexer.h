@@ -9,9 +9,16 @@ namespace Child {
     class Lexer {
     public:
         Lexer(const QString &src = "", const QString &filename = "") {
+            initOperators();
             setSource(src);
             setFilename(filename);
         }
+
+        void initOperators();
+        void addOperator(const QString &text, Operator::Type type, short precedence,
+                         Operator::Associativity associativity = Operator::LeftAssociative,
+                         const QString &name = "");
+        Operator findOperator(const QString &text, const Operator::Type type) ;
 
         void setSource(const QString &source) { _source = source; rewind(); }
         const QString &source() const { return(_source); }
@@ -56,7 +63,7 @@ namespace Child {
         const Token scanName();
 
         bool isOperator() const {
-            return(Operator::allowedChars.contains(_currentChar));
+            return(_operatorStartChars.contains(_currentChar));
         }
 
         const Token scanOperator();
@@ -100,6 +107,8 @@ namespace Child {
         int _tokenPosition;
         int _tokenColumn;
         int _tokenLine;
+        QMultiHash<QString, Operator> _operators;
+        QString _operatorStartChars;
     };
 }
 

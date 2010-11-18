@@ -11,7 +11,7 @@ namespace Child {
             ListRule
         };
 
-        Parser() : _position(0) {}
+        Parser() : _position(0) { }
 
         const Token &token(const int i = 0) {
             loadToken(i);
@@ -59,7 +59,7 @@ namespace Child {
             seek(_positions.pop());
         }
 
-        const bool isSpeculating() {
+        const bool isSpeculating() const {
             return(!_positions.isEmpty());
         }
 
@@ -82,6 +82,14 @@ namespace Child {
             _rulesMemos.clear();
         }
 
+        void openToken() {
+            _openedTokens.push(token());
+        }
+
+        void closeToken() {
+            _openedTokens.pop();
+        }
+
         const bool is(const Token::Type type, const QString &text = QString()) {
             if(text.isNull())
                 return(tokenType() == type);
@@ -89,87 +97,202 @@ namespace Child {
                 return(tokenType() == type && tokenText() == text);
         }
 
-        void match(const Token::Type type, const QString &text = QString()) {
+        const QString match(const Token::Type type, const QString &text = QString()) {
             if(is(type, text)) {
-//                if(!isSpeculating()) p(token().toString());
+                QString text(tokenText());
                 consume();
+                consumeUselessNewline();
+                return(text);
             } else {
                 const QString optionalText = text.isNull() ? "" : "'" + text + "' ";
                 throw(ParserException("expecting " + optionalText + Token::typeName(type) + ", found " + tokenTypeName()));
             }
         }
 
-        void matchElement() {
-            if(is(Token::Name))
-                match(Token::Name);
-            else if(is(Token::LeftBracket))
-                matchList();
-            else
-                throw(ParserException("expecting Name or List, found " + tokenTypeName()));
+        void consumeNewline() {
+             while(is(Token::Newline)) consume();
         }
 
-        void matchElements() {
-            matchElement();
-            while(is(Token::Comma)) {
-                match(Token::Comma);
-                matchElement();
+        void consumeUselessNewline() {
+            if(!is(Token::Newline)) return;
+            if(_openedTokens.empty()) return;
+            Token::Type type = _openedTokens.top().type;
+            if(type == Token::LeftParenthesis || type == Token::LeftBracket)
+               do consume(); while(is(Token::Newline));
+        }
+
+        const QString scanBody() {
+            QString result;
+            while(true) {
+                consumeNewline();
+                if(is(Token::Eof)) break;
+                QString expression = scanExpression();
+                if(!expression.isEmpty()) result.append(expression).append('\n');
+            }
+            return(result);
+        }
+
+        const QString scanExpression() {
+            QString unary = scanUnaryExpressionChain();
+            Operator op;
+            if(isBinaryOperator(&op))
+                return(scanBinaryOperator(unary, op, 0));
+            else
+                return(unary);
+        }
+
+        const QString scanUnaryExpressionChain() {
+            QString result;
+            while(isUnaryExpression()) {
+                result.append(scanUnaryExpression());
+                if(isBinaryOperator()) break;
+            }
+            if(result.isEmpty()) throw(ParserException("expecting UnaryExpression, found " + tokenTypeName()));
+            return(result);
+        }
+
+        const bool isUnaryExpression() {
+            return(isPrefixOperator() || isPrimaryExpression());
+        }
+
+        const QString scanUnaryExpression() {
+            Operator op;
+            if(isPrefixOperator(&op))
+                return(scanPrefixOperator(op));
+            else
+                return(scanPrimaryExpression());
+        }
+
+        const bool isPrimaryExpression() {
+            return(isOperand());
+        }
+
+        const QString scanPrimaryExpression() {
+            QString result = scanOperand();
+            if(is(Token::LeftParenthesis)) {
+                openToken();
+                consume();
+                consumeNewline();
+                result.append("(");
+                if(!is(Token::RightParenthesis))
+                    result.append(scanExpression());
+                result.append(")");
+                match(Token::RightParenthesis);
+                closeToken();
+            }
+            Operator op;
+            while(isPostfixOperator(&op))
+                result.append(scanPostfixOperator(op));
+            return(result);
+        }
+
+        const bool isOperand() {
+            return(isName() || isLiteral() || isSubexpression());
+        }
+
+        const QString scanOperand() {
+            if(isName()) {
+                return(scanName());
+            } else if(isLiteral()) {
+                return(scanLiteral());
+            } else {
+                return(scanSubexpression());
             }
         }
 
-        void matchList() {
-            bool failed = false;
-            QString exceptionMessage;
-            int startPosition = _position;
-            if(isSpeculating() && isMemoized(ListRule)) return;
-            try { _matchList(); }
-            catch(ParserException e) { failed = true; exceptionMessage = e.message; }
-            if(isSpeculating()) memoize(ListRule, startPosition, failed);
-            if(failed) throw(ParserException(exceptionMessage));
+        const bool isName() {
+            return(is(Token::Name));
         }
 
-        void _matchList() {
-            p("parse list at: " + QString::number(_position));
-            match(Token::LeftBracket);
-            matchElements();
-            match(Token::RightBracket);
+        const QString scanName() {
+            QString result = tokenText();
+            consume();
+            consumeUselessNewline();
+            return(result);
         }
 
-        void matchAssignment() {
-            matchList();
-            match(Token::Operator, "=");
-            matchList();
+        const bool isLiteral() {
+            Token::Type type = tokenType();
+            return(type == Token::Boolean || type == Token::Number ||
+                   type == Token::Character || type == Token::Text);
         }
 
-        void matchStatement() {
-            if(speculateList()) {
-                matchList(); match(Token::Eof);
-            } else if(speculateAssignment()) {
-                matchAssignment(); match(Token::Eof);
-            } else
-                throw(ParserException("expecting Statement, found " + tokenTypeName()));
+        const QString scanLiteral() {
+            QString result = tokenText();
+            consume();
+            consumeUselessNewline();
+            return(result);
         }
 
-        const bool speculateList() {
-            bool success = true;
-            pushPosition();
-            try { matchList(); match(Token::Eof); }
-            catch(ParserException e) { success = false; }
-            popPosition();
-            return(success);
+        const bool isSubexpression() {
+            return(is(Token::LeftParenthesis));
         }
 
-        const bool speculateAssignment() {
-            bool success = true;
-            pushPosition();
-            try { matchAssignment(); match(Token::Eof); }
-            catch(ParserException e) { success = false; }
-            popPosition();
-            return(success);
+        const QString scanSubexpression() {
+            openToken();
+            consume(); // Left parenthesis
+            consumeNewline();
+            QString result = scanExpression();
+            match(Token::RightParenthesis);
+            closeToken();
+            return(result);
+        }
+
+        const bool isOperator(Operator::Type type = Operator::Null, Operator *foundOperator = NULL) {
+            if(!is(Token::Operator)) return(false);
+            if(type == Operator::Null) return(true);
+            Operator op = _lexer.findOperator(tokenText(), type);
+            if(op.isNull()) return(false);
+            if(foundOperator) *foundOperator = op;
+            return(true);
+        }
+
+        const bool isPrefixOperator(Operator *foundOperator = NULL) {
+            return(isOperator(Operator::Prefix, foundOperator));
+        }
+
+        const QString scanPrefixOperator(const Operator &currentOp) {
+            consume();
+            consumeNewline();
+            return(currentOp.name + "(" + scanUnaryExpression() + ")");
+        }
+
+        const bool isPostfixOperator(Operator *foundOperator = NULL) {
+            return(isOperator(Operator::Postfix, foundOperator));
+        }
+
+        const QString scanPostfixOperator(const Operator &currentOp) {
+            consume();
+            consumeUselessNewline();
+            return(currentOp.name);
+        }
+
+        const bool isBinaryOperator(Operator *foundOperator = NULL) {
+            return(isOperator(Operator::Binary, foundOperator));
+        }
+
+        const QString scanBinaryOperator(QString leftHandSide, Operator currentOp, const short minPrecedence) {
+            do {
+                consume();
+                consumeNewline();
+                QString rightHandSide = scanUnaryExpressionChain();
+                Operator nextOp;
+                while(isBinaryOperator(&nextOp)) {
+                    if(nextOp.associativity == Operator::NonAssociative && nextOp.precedence == currentOp.precedence)
+                        qFatal("syntax error: chained non-associative operators with same precedence");
+                    if(nextOp.precedence <= currentOp.precedence) break;
+                    if(nextOp.associativity == Operator::RightAssociative && nextOp.precedence != currentOp.precedence) break;
+                    rightHandSide = scanBinaryOperator(rightHandSide, nextOp, nextOp.precedence);
+                }
+                leftHandSide = "(" + leftHandSide + currentOp.name + rightHandSide + ")";
+            } while(isBinaryOperator(&currentOp) && currentOp.precedence >= minPrecedence);
+            return(leftHandSide);
         }
 
         void test() {
-            _lexer = Lexer("[a] = [b]");
-            matchStatement();
+            _lexer = Lexer("a, b = b, a");
+//            p(escapeTabsAndNewlines(_lexer.toString()).toUtf8());
+            p(scanBody());
         }
 
     private:
@@ -177,7 +300,7 @@ namespace Child {
         QStack<int> _positions;
         QList<Token> _lookahead;
         int _position;
-//        QHash<int, int> _listMemo;
+        QStack<Token> _openedTokens;
         typedef QHash<int, int> _MemoHash;
         QHash<Rule, _MemoHash> _rulesMemos;
     };
@@ -185,3 +308,70 @@ namespace Child {
 
 #endif // PARSER_H
 
+//        void matchElement() {
+//            if(is(Token::Name))
+//                match(Token::Name);
+//            else if(is(Token::LeftBracket))
+//                matchList();
+//            else
+//                throw(ParserException("expecting Name or List, found " + tokenTypeName()));
+//        }
+
+//        void matchElements() {
+//            matchElement();
+//            while(is(Token::Comma)) {
+//                match(Token::Comma);
+//                matchElement();
+//            }
+//        }
+
+//        void matchList() {
+//            bool failed = false;
+//            QString exceptionMessage;
+//            int startPosition = _position;
+//            if(isSpeculating() && isMemoized(ListRule)) return;
+//            try { _matchList(); }
+//            catch(ParserException e) { failed = true; exceptionMessage = e.message; }
+//            if(isSpeculating()) memoize(ListRule, startPosition, failed);
+//            if(failed) throw(ParserException(exceptionMessage));
+//        }
+
+//        void _matchList() {
+//            p("parse list at: " + QString::number(_position));
+//            match(Token::LeftBracket);
+//            matchElements();
+//            match(Token::RightBracket);
+//        }
+
+//        void matchAssignment() {
+//            matchList();
+//            match(Token::Operator, "=");
+//            matchList();
+//        }
+
+//        void matchStatement() {
+//            if(speculateList()) {
+//                matchList(); match(Token::Eof);
+//            } else if(speculateAssignment()) {
+//                matchAssignment(); match(Token::Eof);
+//            } else
+//                throw(ParserException("expecting Statement, found " + tokenTypeName()));
+//        }
+
+//        const bool speculateList() {
+//            bool success = true;
+//            pushPosition();
+//            try { matchList(); match(Token::Eof); }
+//            catch(ParserException e) { success = false; }
+//            popPosition();
+//            return(success);
+//        }
+
+//        const bool speculateAssignment() {
+//            bool success = true;
+//            pushPosition();
+//            try { matchAssignment(); match(Token::Eof); }
+//            catch(ParserException e) { success = false; }
+//            popPosition();
+//            return(success);
+//        }

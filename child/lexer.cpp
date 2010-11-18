@@ -1,6 +1,70 @@
 #include "child/lexer.h"
 
 namespace Child {
+    void Lexer::initOperators() {
+        addOperator("++", Operator::Postfix, Operator::namePrecedence); // 511
+        addOperator("--", Operator::Postfix, Operator::namePrecedence); // 511
+
+        addOperator("+", Operator::Prefix, 411, Operator::RightAssociative, "unary_plus");
+        addOperator("-", Operator::Prefix, 411, Operator::RightAssociative, "unary_minus");
+        addOperator("!", Operator::Prefix, 411, Operator::RightAssociative);
+
+        addOperator("\\", Operator::Prefix, 421);
+        addOperator("@", Operator::Prefix, 431);
+        addOperator("#", Operator::Prefix, 411);
+        addOperator("$", Operator::Prefix, 411);
+
+        addOperator("+", Operator::Binary, 341);
+        addOperator("-", Operator::Binary, 341);
+        addOperator("*", Operator::Binary, 351);
+        addOperator("/", Operator::Binary, 351);
+        addOperator("%", Operator::Binary, 351);
+
+        addOperator("&", Operator::Binary, 351);
+        addOperator("|", Operator::Binary, 341);
+        addOperator("^", Operator::Binary, 341);
+        addOperator("<<", Operator::Binary, 351);
+        addOperator(">>", Operator::Binary, 351);
+
+        addOperator("&&", Operator::Binary, 321);
+        addOperator("||", Operator::Binary, 311);
+
+        addOperator("==", Operator::Binary, 331, Operator::NonAssociative);
+        addOperator("!=", Operator::Binary, 331, Operator::NonAssociative);
+        addOperator("<", Operator::Binary, 331, Operator::NonAssociative);
+        addOperator(">", Operator::Binary, 331, Operator::NonAssociative);
+        addOperator("<=", Operator::Binary, 331, Operator::NonAssociative);
+        addOperator(">=", Operator::Binary, 331, Operator::NonAssociative);
+
+        addOperator(",", Operator::Binary, 221);
+        addOperator("->", Operator::Binary, 211);
+
+        addOperator(":=", Operator::Binary, 111, Operator::RightAssociative);
+        addOperator("=", Operator::Binary, 121, Operator::RightAssociative);
+        addOperator("+=", Operator::Binary, 151, Operator::RightAssociative);
+        addOperator("-=", Operator::Binary, 151, Operator::RightAssociative);
+        addOperator("*=", Operator::Binary, 161, Operator::RightAssociative);
+        addOperator("/=", Operator::Binary, 161, Operator::RightAssociative);
+        addOperator("%=", Operator::Binary, 161, Operator::RightAssociative);
+        addOperator("&=", Operator::Binary, 141, Operator::RightAssociative);
+        addOperator("|=", Operator::Binary, 131, Operator::RightAssociative);
+        addOperator("^=", Operator::Binary, 151, Operator::RightAssociative);
+        addOperator("<<=", Operator::Binary, 161, Operator::RightAssociative);
+        addOperator(">>=", Operator::Binary, 161, Operator::RightAssociative);
+    }
+
+    void Lexer::addOperator(const QString &text, Operator::Type type, short precedence,
+                     Operator::Associativity associativity, const QString &name) {
+        _operators.insert(text, Operator(text, type, precedence, associativity, name));
+        if(!_operatorStartChars.contains(text.at(0))) _operatorStartChars.append(text.at(0));
+    }
+
+    Operator Lexer::findOperator(const QString &text, const Operator::Type type) {
+        QList<Operator> operators = _operators.values(text);
+        foreach(Operator op, operators) if(op.type == type) return(op);
+        return(Operator());
+    }
+
     void Lexer::rewind() {
         _previousChar = '\0';
         _currentChar = '\0';
@@ -22,11 +86,9 @@ namespace Child {
             case ']': return(scan(Token::RightBracket));
             case '{': return(scan(Token::LeftBrace));
             case '}': return(scan(Token::RightBrace));
-            case ',': return(scan(Token::Comma));
             case ';': return(scan(Token::Semicolon));
             default:
                 if(_currentChar.isNull()) return(scan(Token::Eof));
-                else if(_currentChar == ':' && !Operator::allowedChars.contains(_nextChar)) return(scan(Token::Colon));
                 else if(_currentChar == '/' && _nextChar == '/') consumeLineComment();
                 else if(_currentChar == '/' && _nextChar == '*') consumeBlockComment();
                 else if(_currentChar.isSpace()) {
@@ -136,13 +198,20 @@ namespace Child {
             consume();
         const QStringRef text(tokenTextRef());
         if(text == "true" || text == "false") return(finishToken(Token::Boolean));
+        if(_currentChar == ':' && _nextChar != '=') {
+            consume();
+            return(finishToken(Token::Label));
+        }
         return(finishToken(Token::Name));
     }
 
     const Token Lexer::scanOperator() {
         startToken();
-        consume();
-        while(isOperator()) consume();
+        QString text(_currentChar);
+        do {
+            consume();
+            text.append(_currentChar);
+        } while(_operators.contains(text));
         return(finishToken(Token::Operator));
     }
 
@@ -176,7 +245,7 @@ namespace Child {
                 oneMoreDigitExpected = false;
             } else if(base == 16 && QString("abcdef").contains(_currentChar, Qt::CaseInsensitive)) {
                 oneMoreDigitExpected = false;
-            } else if(_currentChar == '.' && !Operator::allowedChars.contains(_nextChar)) {
+            } else if(_currentChar == '.' && _nextChar.isNumber()) {
                 if(decimalPointFound) throwError("too many decimal points in a number");
                 if(eFound) throwError("the exponential part of a number cannot contain a decimal point");
                 if(base == 16) throwError("an hexadecimal number cannot contain a decimal point");

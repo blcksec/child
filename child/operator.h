@@ -6,66 +6,23 @@
 namespace Child {
     class Operator {
     public:
-        enum Type { Unknown, Unary, Binary };
-        static const QString allowedChars;
+        enum Type { Null, Prefix, Postfix, Binary };
+        enum Associativity { LeftAssociative, RightAssociative, NonAssociative };
+        static const short namePrecedence = 511;
 
         QString text;
         Type type;
+        short precedence;
+        Associativity associativity;
+        QString name;
 
-        Operator(const QString &text = "", Type type = Unknown) :
-                text(text), type(type) {}
+        Operator(const QString &text = "", Type type = Null, short precedence = 0,
+                 Associativity associativity = LeftAssociative, const QString &name = "")
+                     : text(text), type(type), precedence(precedence), associativity(associativity), name(name) {
+            if(name.isEmpty()) this->name = text;
+        }
 
-//        void initOperators() {
-//            addOperator("+", Operator::Binary);
-//            addOperator("-", Operator::Binary);
-//            addOperator("*", Operator::Binary);
-//            addOperator("/", Operator::Binary);
-//            addOperator("%", Operator::Binary);
-
-//            addOperator("&", Operator::Binary);
-//            addOperator("|", Operator::Binary);
-//            addOperator("^", Operator::Binary);
-//            addOperator("<<", Operator::Binary);
-//            addOperator(">>", Operator::Binary);
-
-//            addOperator("!", Operator::Unary);
-//            addOperator("&&", Operator::Binary);
-//            addOperator("||", Operator::Binary);
-
-//            addOperator("==", Operator::Binary);
-//            addOperator("!=", Operator::Binary);
-//            addOperator("<", Operator::Binary);
-//            addOperator(">", Operator::Binary);
-//            addOperator("<=", Operator::Binary);
-//            addOperator(">=", Operator::Binary);
-
-//            addOperator(":=", Operator::Binary);
-//            addOperator("=", Operator::Binary);
-//            addOperator("+=", Operator::Binary);
-//            addOperator("-=", Operator::Binary);
-//            addOperator("*=", Operator::Binary);
-//            addOperator("/=", Operator::Binary);
-//            addOperator("%=", Operator::Binary);
-//            addOperator("&=", Operator::Binary);
-//            addOperator("|=", Operator::Binary);
-//            addOperator("^=", Operator::Binary);
-//            addOperator("<<=", Operator::Binary);
-//            addOperator(">>=", Operator::Binary);
-
-//            addOperator("++", Operator::Unary);
-//            addOperator("--", Operator::Unary);
-
-//            addOperator("@", Operator::Unary);
-//            addOperator("#", Operator::Unary);
-//            addOperator("$", Operator::Unary);
-
-//            addOperator("<-", Operator::Binary);
-//            addOperator("->", Operator::Binary);
-//        }
-
-//        void addOperator(const QString &text, Operator::Type type) {
-//            operators.insert(text, Operator(text, type));
-//        }
+        const bool isNull() const { return(type == Null); }
     };
 }
 

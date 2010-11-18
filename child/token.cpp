@@ -4,6 +4,7 @@ namespace Child {
     const char *Token::typesName[] = {
         "<EOF>",
         "Name",
+        "Label",
         "Operator",
         "Boolean",
         "Number",
@@ -15,9 +16,7 @@ namespace Child {
         "RightBracket",
         "LeftBrace",
         "RightBrace",
-        "Comma",
         "Semicolon",
-        "Colon",
         "Newline"
     };
 }

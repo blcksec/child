@@ -9,6 +9,7 @@ namespace Child {
         enum Type {
             Eof,
             Name,
+            Label,
             Operator,
             Boolean,
             Number,
@@ -20,9 +21,7 @@ namespace Child {
             RightBracket,
             LeftBrace,
             RightBrace,
-            Comma,
             Semicolon,
-            Colon,
             Newline
         };
 
