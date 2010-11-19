@@ -1,5 +1,5 @@
-#ifndef TEXTTEST_H
-#define TEXTTEST_H
+#ifndef CHILD_TEXTTEST_H
+#define CHILD_TEXTTEST_H
 
 #include "tests/testhelper.h"
 #include "child/text.h"
@@ -25,4 +25,4 @@ namespace Child {
     };
 }
 
-#endif // TEXTTEST_H
+#endif // CHILD_TEXTTEST_H

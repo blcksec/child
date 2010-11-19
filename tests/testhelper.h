@@ -1,5 +1,5 @@
-#ifndef TESTHELPER_H
-#define TESTHELPER_H
+#ifndef CHILD_TESTHELPER_H
+#define CHILD_TESTHELPER_H
 
 #include <QtTest/QtTest>
 
@@ -12,4 +12,4 @@ do { \
     if(!exceptionThrown) { QFAIL("'" #EXCEPTION "' has not been thrown"); } \
 } while(false)
 
-#endif // TESTHELPER_H
+#endif // CHILD_TESTHELPER_H

@@ -1,5 +1,5 @@
-#ifndef OPERATOR_H
-#define OPERATOR_H
+#ifndef CHILD_OPERATOR_H
+#define CHILD_OPERATOR_H
 
 #include <QtCore/QString>
 
@@ -26,4 +26,4 @@ namespace Child {
     };
 }
 
-#endif // OPERATOR_H
+#endif // CHILD_OPERATOR_H

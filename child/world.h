@@ -1,5 +1,5 @@
-#ifndef WORLD_H
-#define WORLD_H
+#ifndef CHILD_WORLD_H
+#define CHILD_WORLD_H
 
 #include "child/object.h"
 
@@ -11,4 +11,4 @@ namespace Child {
     };
 }
 
-#endif // WORLD_H
+#endif // CHILD_WORLD_H

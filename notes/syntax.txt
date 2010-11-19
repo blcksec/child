@@ -335,3 +335,32 @@ meth := {
   Exception: // Catch all other exceptions
     "{exception name} intercepted!" log
 }
+
+***
+
+Application
+    blockList
+    operators
+
+Block
+    sectionDictionary
+    sourceCode
+    filePath
+
+Section
+    primitiveChainList
+
+PrimitiveChain
+    primitiveList
+
+Primitive
+    value (Message, Boolean, Number, Character, Text, PrimitiveChain, Block)
+    sourceCodeRef
+
+Message
+    name
+    inputDictionary (Dictionary of PrimitiveChain)
+    hasVariadicInput
+    outputDictionary (Dictionary of PrimitiveChain)
+    hasVariadicOutput
+    block

@@ -1,5 +1,5 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef CHILD_OBJECT_H
+#define CHILD_OBJECT_H
 
 #include "child/node.h"
 
@@ -13,4 +13,4 @@ namespace Child {
     };
 }
 
-#endif // OBJECT_H
+#endif // CHILD_OBJECT_H

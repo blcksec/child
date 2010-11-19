@@ -31,7 +31,13 @@ SOURCES += main.cpp \
     child/lexer.cpp \
     child/token.cpp \
     child/operator.cpp \
-    child/parser.cpp
+    child/parser.cpp \
+    child/application.cpp \
+    child/block.cpp \
+    child/section.cpp \
+    child/primitivechain.cpp \
+    child/primitive.cpp \
+    child/message.cpp
 
 HEADERS += \
     child/node.h \
@@ -53,7 +59,13 @@ HEADERS += \
     child/lexer.h \
     child/token.h \
     child/operator.h \
-    child/parser.h
+    child/parser.h \
+    child/application.h \
+    child/block.h \
+    child/section.h \
+    child/primitivechain.h \
+    child/primitive.h \
+    child/message.h
 
 OTHER_FILES += \
     notes/ideas.txt \

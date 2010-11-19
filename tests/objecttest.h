@@ -1,5 +1,5 @@
-#ifndef OBJECTTEST_H
-#define OBJECTTEST_H
+#ifndef CHILD_OBJECTTEST_H
+#define CHILD_OBJECTTEST_H
 
 #include "tests/testhelper.h"
 #include "child/object.h"
@@ -23,4 +23,4 @@ namespace Child {
     };
 }
 
-#endif // OBJECTTEST_H
+#endif // CHILD_OBJECTTEST_H

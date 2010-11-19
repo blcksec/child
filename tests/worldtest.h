@@ -1,5 +1,5 @@
-#ifndef WORLDTEST_H
-#define WORLDTEST_H
+#ifndef CHILD_WORLDTEST_H
+#define CHILD_WORLDTEST_H
 
 #include "tests/testhelper.h"
 #include "child/world.h"
@@ -23,4 +23,4 @@ namespace Child {
     };
 }
 
-#endif // WORLDTEST_H
+#endif // CHILD_WORLDTEST_H

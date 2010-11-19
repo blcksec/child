@@ -1,5 +1,5 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef CHILD_PARSER_H
+#define CHILD_PARSER_H
 
 #include "child/node.h"
 #include "child/lexer.h"
@@ -105,7 +105,8 @@ namespace Child {
                 return(text);
             } else {
                 const QString optionalText = text.isNull() ? "" : "'" + text + "' ";
-                throw(ParserException("expecting " + optionalText + Token::typeName(type) + ", found " + tokenTypeName()));
+                throwError("expecting " + optionalText + Token::typeName(type) + ", found " + tokenTypeName());
+                return(""); // deadcode avoiding "control reaches end of non-void function" warning
             }
         }
 
@@ -121,12 +122,26 @@ namespace Child {
                do consume(); while(is(Token::Newline));
         }
 
-        const QString scanBody() {
+        const QString scanBlock() {
             QString result;
-            while(true) {
+            consumeNewline();
+            while(!is(Token::Eof)) {
+                result.append(scanSection());
+            }
+            return(result);
+        }
+
+        const QString scanSection() {
+            QString result;
+            if(is(Token::Label)) {
+                result = tokenText();
+                result.append('\n');
+                consume();
                 consumeNewline();
-                if(is(Token::Eof)) break;
+            }
+            while(!(is(Token::Label) || is(Token::Eof))) {
                 QString expression = scanExpression();
+                consumeNewline();
                 if(!expression.isEmpty()) result.append(expression).append('\n');
             }
             return(result);
@@ -147,7 +162,7 @@ namespace Child {
                 result.append(scanUnaryExpression());
                 if(isBinaryOperator()) break;
             }
-            if(result.isEmpty()) throw(ParserException("expecting UnaryExpression, found " + tokenTypeName()));
+            if(result.isEmpty()) throwError("expecting UnaryExpression, found " + tokenTypeName());
             return(result);
         }
 
@@ -289,10 +304,24 @@ namespace Child {
             return(leftHandSide);
         }
 
+        void throwError(const QString &message) {
+            QString report;
+            if(!_lexer.filename().isEmpty()) report.append(QString("%1:").arg(_lexer.filename()));
+            int column, line;
+            computeColumnAndLineForPosition(_lexer.source(), token().sourceCodeRef.position(), column, line);
+            report.append(QString("%1: %2").arg(line).arg(message));
+            QString text = extractLine(_lexer.source(), line);
+            if(!text.isEmpty()) {
+                QString cursor = QString(" ").repeated(column - 1).append("^");
+                report.append(QString("\n%1\n%2").arg(text).arg(cursor));
+            }
+            throw(LexerException(report));
+        }
+
         void test() {
-            _lexer = Lexer("a, b = b, a");
+            _lexer = Lexer("body: a + b c + d e\ntest:\nf g h\n");
 //            p(escapeTabsAndNewlines(_lexer.toString()).toUtf8());
-            p(scanBody());
+            p(scanBlock());
         }
 
     private:
@@ -306,7 +335,7 @@ namespace Child {
     };
 }
 
-#endif // PARSER_H
+#endif // CHILD_PARSER_H
 
 //        void matchElement() {
 //            if(is(Token::Name))

@@ -1,5 +1,5 @@
-#ifndef DICTIONARYTEST_H
-#define DICTIONARYTEST_H
+#ifndef CHILD_DICTIONARYTEST_H
+#define CHILD_DICTIONARYTEST_H
 
 #include "tests/testhelper.h"
 #include "child/text.h"
@@ -29,4 +29,4 @@ namespace Child {
     };
 }
 
-#endif // DICTIONARYTEST_H
+#endif // CHILD_DICTIONARYTEST_H

@@ -70,8 +70,6 @@ namespace Child {
         _currentChar = '\0';
         _nextChar = '\0';
         _position = -1;
-        _column = 0;
-        _line = 1;
         consume();
     }
 
@@ -88,16 +86,13 @@ namespace Child {
             case '}': return(scan(Token::RightBrace));
             case ';': return(scan(Token::Semicolon));
             default:
-                if(_currentChar.isNull()) return(scan(Token::Eof));
-                else if(_currentChar == '/' && _nextChar == '/') consumeLineComment();
-                else if(_currentChar == '/' && _nextChar == '*') consumeBlockComment();
-                else if(_currentChar.isSpace()) {
-                    startToken();
-                    int currentLine = _line;
-                    consumeSpaces();
-                    if(currentLine != _line) return(finishToken(Token::Newline));
-                } else if(isName()) return(scanName());
-                else if(_currentChar.isNumber()) return(scanNumber());
+                if(isEof()) return(scan(Token::Eof));
+                else if(isLineComment()) consumeLineComment();
+                else if(isBlockComment()) consumeBlockComment();
+                else if(isNewline()) return(scanNewline());
+                else if(isSpace()) consumeSpaces();
+                else if(isName()) return(scanName());
+                else if(isNumber()) return(scanNumber());
                 else if(isOperator()) return(scanOperator());
                 else throwError(QString("invalid character: '%1'").arg(_currentChar));
             }
@@ -105,14 +100,6 @@ namespace Child {
     }
 
     void Lexer::consume() {
-        if(_currentChar == '\r' || _currentChar == '\n') { // New line
-            if(!(_currentChar == '\n' && _previousChar == '\r')) { // Ignore LF after CR (Windows)
-                _column = 1;
-                _line++;
-            }
-        } else {
-            _column++;
-        }
         _previousChar = _currentChar;
         _position++;
         if(_position < _source.length()) {
@@ -127,68 +114,21 @@ namespace Child {
         }
     }
 
-    void Lexer::consumeSpaces() {
-        do consume(); while(_currentChar.isSpace());
-    }
-
     void Lexer::consumeLineComment() {
         consume(); // First slash
         consume(); // Second slash
-        while(_currentChar != '\r' && _currentChar != '\n' && !_currentChar.isNull()) consume();
+        while(!(isNewline() || isEof())) consume();
     }
 
     void Lexer::consumeBlockComment() {
         consume(); // Slash
         consume(); // *
         while(!(_currentChar == '*' && _nextChar == '/')) {
-            if(_currentChar.isNull()) throwError("unexpected EOF found before the end of a comment");
+            if(isEof()) throwError("unexpected EOF found before the end of a comment");
             consume();
         }
         consume(); // *
         consume(); // Slash
-    }
-
-    void Lexer::consumeEscapeSequence() {
-        consume(); // anti-slash
-        if(_currentChar.isNull()) throwError("unexpected EOF found in an escape sequence");
-        if(QString("trn\"'\\").contains(_currentChar))
-            consume();
-        else if(QString("01234567xu").contains(_currentChar, Qt::CaseInsensitive))
-            consumeEscapeSequenceNumber();
-        else throwError(QString("unknown escape sequence: '\\%1'").arg(_currentChar));
-    }
-
-    void Lexer::consumeEscapeSequenceNumber() {
-        char type;
-        QString allowedChars;
-        short maxSize;
-        if(_currentChar == 'x' || _currentChar == 'X') {
-            type = 'x';
-            allowedChars = "0123456789abcdef";
-            maxSize = 2;
-            consume();
-        } else if(_currentChar == 'u' || _currentChar == 'U') {
-            type = 'u';
-            allowedChars = "0123456789abcdef";
-            maxSize = 4;
-            consume();
-        } else {
-            type = 'o';
-            allowedChars = "01234567";
-            maxSize = 3;
-        }
-        QString number = "";
-        while(number.size() < maxSize) {
-            if(_currentChar.isNull()) throwError("unexpected EOF found in an escape sequence number");
-            if(!allowedChars.contains(_currentChar, Qt::CaseInsensitive)) break;
-            number.append(_currentChar);
-            consume();
-        }
-        if(number.isEmpty()) throwError("invalid escape sequence number");
-        bool ok;
-        ushort code = type == 'o' ? number.toUShort(&ok, 8) : number.toUShort(&ok, 16);
-        if(!ok) throwError("invalid number in escape sequence");
-        if(type != 'u' && code > 0xFF) throwError("invalid number in escape sequence");
     }
 
     const Token Lexer::scanName() {
@@ -227,7 +167,7 @@ namespace Child {
                 base = 16;
                 consume();
                 oneMoreDigitExpected = true;
-            } else if(_currentChar.isDigit()) {
+            } else if(_currentChar.isNumber()) {
                 base = 8;
                 oneMoreDigitExpected = true;
             } else if(_currentChar == 'b' || _currentChar == 'B') {
@@ -273,10 +213,10 @@ namespace Child {
     const Token Lexer::scanCharacter() {
         startToken();
         consume(); // left single quote
-        if(_currentChar.isNull()) throwError("unexpected EOF found in a character literal");
+        if(isEof()) throwError("unexpected EOF found in a character literal");
         if(_currentChar != '\'') {
             if(_currentChar == '\\') consumeEscapeSequence(); else consume();
-            if(_currentChar.isNull()) throwError("unexpected EOF found in a character literal");
+            if(isEof()) throwError("unexpected EOF found in a character literal");
             if(_currentChar != '\'') throwError("a character literal can't have more than one character");
         }
         consume(); // right single quote
@@ -287,20 +227,65 @@ namespace Child {
         startToken();
         consume(); // left double quote
         while(_currentChar != '"') {
-            if(_currentChar.isNull()) throwError("unexpected EOF found in a text literal");
+            if(isEof()) throwError("unexpected EOF found in a text literal");
             if(_currentChar == '\\') consumeEscapeSequence(); else consume();
         };
         consume(); // right double quote
         return(finishToken(Token::Text));
     }
 
+    void Lexer::consumeEscapeSequence() {
+        consume(); // anti-slash
+        if(isEof()) throwError("unexpected EOF found in an escape sequence");
+        if(QString("trn\"'\\").contains(_currentChar))
+            consume();
+        else if(QString("01234567xu").contains(_currentChar, Qt::CaseInsensitive))
+            consumeEscapeSequenceNumber();
+        else throwError(QString("unknown escape sequence: '\\%1'").arg(_currentChar));
+    }
+
+    void Lexer::consumeEscapeSequenceNumber() {
+        char type;
+        QString allowedChars;
+        short maxSize;
+        if(_currentChar == 'x' || _currentChar == 'X') {
+            type = 'x';
+            allowedChars = "0123456789abcdef";
+            maxSize = 2;
+            consume();
+        } else if(_currentChar == 'u' || _currentChar == 'U') {
+            type = 'u';
+            allowedChars = "0123456789abcdef";
+            maxSize = 4;
+            consume();
+        } else {
+            type = 'o';
+            allowedChars = "01234567";
+            maxSize = 3;
+        }
+        QString number = "";
+        while(number.size() < maxSize) {
+            if(isEof()) throwError("unexpected EOF found in an escape sequence number");
+            if(!allowedChars.contains(_currentChar, Qt::CaseInsensitive)) break;
+            number.append(_currentChar);
+            consume();
+        }
+        if(number.isEmpty()) throwError("invalid escape sequence number");
+        bool ok;
+        ushort code = type == 'o' ? number.toUShort(&ok, 8) : number.toUShort(&ok, 16);
+        if(!ok) throwError("invalid number in escape sequence");
+        if(type != 'u' && code > 0xFF) throwError("invalid number in escape sequence");
+    }
+
     void Lexer::throwError(const QString &message) {
         QString report;
         if(!_filename.isEmpty()) report.append(QString("%1:").arg(_filename));
-        report.append(QString("%1: %2").arg(_line).arg(message));
-        QString text = extractLine(_source, _line);
+        int column, line;
+        computeColumnAndLineForPosition(_source, _position, column, line);
+        report.append(QString("%1: %2").arg(line).arg(message));
+        QString text = extractLine(_source, line);
         if(!text.isEmpty()) {
-            QString cursor = QString(" ").repeated(_column - 1).append("^");
+            QString cursor = QString(" ").repeated(column - 1).append("^");
             report.append(QString("\n%1\n%2").arg(text).arg(cursor));
         }
         throw(LexerException(report));
@@ -312,7 +297,7 @@ namespace Child {
             Token token = nextToken();
             if(token.type == Token::Eof) break;
             if(!result.isEmpty()) result.append(", ");
-            result.append(token.toString()); // + QString(" (%1,%2)").arg(token.column).arg(token.line)
+            result.append(token.toString());
         }
         return("[" + result + "]");
     }

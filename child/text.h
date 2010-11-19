@@ -1,5 +1,5 @@
-#ifndef STRING_H
-#define STRING_H
+#ifndef CHILD_TEXT_H
+#define CHILD_TEXT_H
 
 #include "child/nativemethod.h"
 #include "child/object.h"
@@ -91,4 +91,4 @@ namespace Child {
     };
 }
 
-#endif // STRING_H
+#endif // CHILD_TEXT_H

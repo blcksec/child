@@ -1,5 +1,5 @@
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#ifndef CHILD_EXCEPTION_H
+#define CHILD_EXCEPTION_H
 
 #include <QtCore/QString>
 
@@ -51,4 +51,4 @@ namespace Child {
     };
 }
 
-#endif // EXCEPTION_H
+#endif // CHILD_EXCEPTION_H

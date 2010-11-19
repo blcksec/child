@@ -1,5 +1,5 @@
-#ifndef TEST_H
-#define TEST_H
+#ifndef CHILD_RUNALLTESTS_H
+#define CHILD_RUNALLTESTS_H
 
 #include "tests/testhelper.h"
 #include "tests/nodetest.h"
@@ -39,4 +39,4 @@ namespace Child {
     }
 }
 
-#endif // TEST_H
+#endif // CHILD_RUNALLTESTS_H

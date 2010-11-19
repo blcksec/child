@@ -1,5 +1,5 @@
-#ifndef LEXER_H
-#define LEXER_H
+#ifndef CHILD_LEXER_H
+#define CHILD_LEXER_H
 
 #include "child/node.h"
 #include "child/token.h"
@@ -30,20 +30,13 @@ namespace Child {
         const Token nextToken();
 
         void consume();
-        void consumeSpaces();
-        void consumeLineComment();
-        void consumeBlockComment();
-        void consumeEscapeSequence();
-        void consumeEscapeSequenceNumber();
 
         void startToken() {
             _tokenPosition = _position;
-            _tokenColumn = _column;
-            _tokenLine = _line;
         }
 
         const Token finishToken(const Token::Type type) const {
-            return(Token(type, tokenTextRef(), _tokenColumn, _tokenLine));
+            return(Token(type, tokenTextRef()));
         }
 
         const QStringRef tokenTextRef() const {
@@ -56,6 +49,40 @@ namespace Child {
             return(finishToken(type));
         }
 
+        bool isEof() const {
+            return(_currentChar.isNull());
+        }
+
+        bool isSpace() const {
+            return(_currentChar == ' ' || _currentChar == '\t');
+        }
+
+        void consumeSpaces() {
+            do consume(); while(isSpace());
+        }
+
+        bool isNewline() const {
+            return(_currentChar == '\r' || _currentChar == '\n');
+        }
+
+        const Token scanNewline() {
+            startToken();
+            do consume(); while(isNewline() || isSpace());
+            return(finishToken(Token::Newline));
+        }
+
+        bool isLineComment() const {
+            return(_currentChar == '/' && _nextChar == '/');
+        }
+
+        void consumeLineComment();
+
+        bool isBlockComment() const {
+            return(_currentChar == '/' && _nextChar == '*');
+        }
+
+        void consumeBlockComment();
+
         bool isName() const {
             return(_currentChar.isLetter() || _currentChar == '_');
         }
@@ -67,9 +94,18 @@ namespace Child {
         }
 
         const Token scanOperator();
+
+        bool isNumber() const {
+            return(_currentChar.isNumber());
+        }
+
         const Token scanNumber();
+
         const Token scanCharacter();
         const Token scanText();
+
+        void consumeEscapeSequence();
+        void consumeEscapeSequenceNumber();
 
         void throwError(const QString &message);
 
@@ -99,17 +135,13 @@ namespace Child {
         QString _source;
         QString _filename;
         int _position;
-        int _column;
-        int _line;
         QChar _previousChar;
         QChar _currentChar;
         QChar _nextChar;
         int _tokenPosition;
-        int _tokenColumn;
-        int _tokenLine;
         QMultiHash<QString, Operator> _operators;
         QString _operatorStartChars;
     };
 }
 
-#endif // LEXER_H
+#endif // CHILD_LEXER_H

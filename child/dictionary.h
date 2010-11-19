@@ -1,5 +1,5 @@
-#ifndef DICTIONARY_H
-#define DICTIONARY_H
+#ifndef CHILD_DICTIONARY_H
+#define CHILD_DICTIONARY_H
 
 #include "child/nativemethod.h"
 #include "child/object.h"
@@ -159,4 +159,4 @@ namespace Child {
     };
 }
 
-#endif // DICTIONARY_H
+#endif // CHILD_DICTIONARY_H

@@ -1,5 +1,5 @@
-#ifndef NATIVEMETHOD_H
-#define NATIVEMETHOD_H
+#ifndef CHILD_NATIVEMETHOD_H
+#define CHILD_NATIVEMETHOD_H
 
 #include "child/node.h"
 
@@ -23,4 +23,4 @@ namespace Child {
     };
 }
 
-#endif // NATIVEMETHOD_H
+#endif // CHILD_NATIVEMETHOD_H
