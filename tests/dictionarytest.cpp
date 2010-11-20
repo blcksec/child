@@ -7,36 +7,36 @@ namespace Child {
 
     void DictionaryTest::getAndSet() { // TODO: more tests with fork and/or removed key
         World w; World *world = &w;
-        Dictionary *dict = CHILD_DICTIONARY(world->child("Dictionary"))->fork();
+        Dictionary *dict = Dictionary::fork(world);
         QCOMPARE(dict->size(), 0);
         QVERIFY(dict->isEmpty());
         QCATCH(dict->get(""), ArgumentException);
         QCATCH(dict->get("missing"), NotFoundException);
         QCATCH(dict->set("a", NULL), NullPointerException);
-        Text *t1 = CHILD_TEXT(world->child("Text"))->fork("val1");
+        Text *t1 = Text::fork(world, "val1");
         world->addDirectChild("t1", t1);
         dict->set("a", t1);
         QCOMPARE(dict->size(), 1);
-        QVERIFY(!dict->isEmpty());
+        QVERIFY(dict->isNotEmpty());
         QCOMPARE(dict->get("a"), t1);
         QVERIFY(t1->hasDirectParent(dict));
-        Text *t2 = CHILD_TEXT(world->child("Text"))->fork("val2");
+        Text *t2 = Text::fork(world, "val2");
         world->addDirectChild("t2", t2);
         dict->set("a", t2);
         QCOMPARE(dict->size(), 1);
         QCOMPARE(dict->get("a"), t2);
         QVERIFY(!t1->hasDirectParent(dict));
         QVERIFY(t2->hasDirectParent(dict));
-        Text *t3 = CHILD_TEXT(world->child("Text"))->fork("val3");
+        Text *t3 = Text::fork(world, "val3");
         world->addDirectChild("t3", t3);
         dict->set("b", t3);
         QCOMPARE(dict->size(), 2);
         QCOMPARE(dict->get("b"), t3);
-        Text *t4 = CHILD_TEXT(world->child("Text"))->fork("val4");
+        Text *t4 = Text::fork(world, "val4");
         world->addDirectChild("t4", t4);
         dict->set("", t4); // anonymous key
         QCOMPARE(dict->size(), 3);
-        Text *t5 = CHILD_TEXT(world->child("Text"))->fork("val5");
+        Text *t5 = Text::fork(world, "val5");
         world->addDirectChild("t5", t5);
         dict->set("", t5); // anonymous key
         QCOMPARE(dict->size(), 4);
@@ -49,12 +49,12 @@ namespace Child {
 
     void DictionaryTest::keys() { // TODO: test with fork and/or removed key
         World w; World *world = &w;
-        Dictionary *dict = CHILD_DICTIONARY(world->child("Dictionary"))->fork();
+        Dictionary *dict = Dictionary::fork(world);
         QList<QString> keys = dict->keys();
         QVERIFY(keys.isEmpty());
-        Text *t1 = CHILD_TEXT(world->child("Text"))->fork("val1");
-        Text *t2 = CHILD_TEXT(world->child("Text"))->fork("val2");
-        Text *t3 = CHILD_TEXT(world->child("Text"))->fork("val3");
+        Text *t1 = Text::fork(world, "val1");
+        Text *t2 = Text::fork(world, "val2");
+        Text *t3 = Text::fork(world, "val3");
         dict->set("t1", t1);
         dict->set("t2", t2);
         dict->set("t3", t3);
@@ -65,10 +65,10 @@ namespace Child {
 
     void DictionaryTest::remove() { // TODO: test with fork
         World w; World *world = &w;
-        Dictionary *dict = CHILD_DICTIONARY(world->child("Dictionary"))->fork();
-        Text *t1 = CHILD_TEXT(world->child("Text"))->fork("val1");
-        Text *t2 = CHILD_TEXT(world->child("Text"))->fork("val2");
-        Text *t3 = CHILD_TEXT(world->child("Text"))->fork("val3");
+        Dictionary *dict = Dictionary::fork(world);
+        Text *t1 = Text::fork(world, "val1");
+        Text *t2 = Text::fork(world, "val2");
+        Text *t3 = Text::fork(world, "val3");
         dict->set("t1", t1);
         dict->set("t2", t2);
         dict->set("t3", t3);
@@ -92,10 +92,10 @@ namespace Child {
 
     void DictionaryTest::clear() {
         World w; World *world = &w;
-        Dictionary *dict = CHILD_DICTIONARY(world->child("Dictionary"))->fork();
-        Text *t1 = CHILD_TEXT(world->child("Text"))->fork("val1");
-        Text *t2 = CHILD_TEXT(world->child("Text"))->fork("val2");
-        Text *t3 = CHILD_TEXT(world->child("Text"))->fork("val3");
+        Dictionary *dict = Dictionary::fork(world);
+        Text *t1 = Text::fork(world, "val1");
+        Text *t2 = Text::fork(world, "val2");
+        Text *t3 = Text::fork(world, "val3");
         dict->set("t1", t1);
         dict->set("t2", t2);
         dict->set("t3", t3);

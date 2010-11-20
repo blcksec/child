@@ -13,5 +13,6 @@ QString readTextFile(const QString &name);
 QString escapeTabsAndNewlines(QString text);
 QString extractLine(const QString &text, int requestedLine);
 const bool computeColumnAndLineForPosition(const QString &text, const int position, int &column, int &line);
+void notYetImplemented();
 
 #endif // CHILD_TOOLBOX_H

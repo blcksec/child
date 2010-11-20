@@ -1,68 +1,15 @@
 #include "child/lexer.h"
 
 namespace Child {
-    void Lexer::initOperators() {
-        addOperator("++", Operator::Postfix, Operator::namePrecedence); // 511
-        addOperator("--", Operator::Postfix, Operator::namePrecedence); // 511
+    Lexer *Lexer::_root = Lexer::root();
 
-        addOperator("+", Operator::Prefix, 411, Operator::RightAssociative, "unary_plus");
-        addOperator("-", Operator::Prefix, 411, Operator::RightAssociative, "unary_minus");
-        addOperator("!", Operator::Prefix, 411, Operator::RightAssociative);
-
-        addOperator("\\", Operator::Prefix, 421);
-        addOperator("@", Operator::Prefix, 431);
-        addOperator("#", Operator::Prefix, 411);
-        addOperator("$", Operator::Prefix, 411);
-
-        addOperator("+", Operator::Binary, 341);
-        addOperator("-", Operator::Binary, 341);
-        addOperator("*", Operator::Binary, 351);
-        addOperator("/", Operator::Binary, 351);
-        addOperator("%", Operator::Binary, 351);
-
-        addOperator("&", Operator::Binary, 351);
-        addOperator("|", Operator::Binary, 341);
-        addOperator("^", Operator::Binary, 341);
-        addOperator("<<", Operator::Binary, 351);
-        addOperator(">>", Operator::Binary, 351);
-
-        addOperator("&&", Operator::Binary, 321);
-        addOperator("||", Operator::Binary, 311);
-
-        addOperator("==", Operator::Binary, 331, Operator::NonAssociative);
-        addOperator("!=", Operator::Binary, 331, Operator::NonAssociative);
-        addOperator("<", Operator::Binary, 331, Operator::NonAssociative);
-        addOperator(">", Operator::Binary, 331, Operator::NonAssociative);
-        addOperator("<=", Operator::Binary, 331, Operator::NonAssociative);
-        addOperator(">=", Operator::Binary, 331, Operator::NonAssociative);
-
-        addOperator(",", Operator::Binary, 221);
-        addOperator("->", Operator::Binary, 211);
-
-        addOperator(":=", Operator::Binary, 111, Operator::RightAssociative);
-        addOperator("=", Operator::Binary, 121, Operator::RightAssociative);
-        addOperator("+=", Operator::Binary, 151, Operator::RightAssociative);
-        addOperator("-=", Operator::Binary, 151, Operator::RightAssociative);
-        addOperator("*=", Operator::Binary, 161, Operator::RightAssociative);
-        addOperator("/=", Operator::Binary, 161, Operator::RightAssociative);
-        addOperator("%=", Operator::Binary, 161, Operator::RightAssociative);
-        addOperator("&=", Operator::Binary, 141, Operator::RightAssociative);
-        addOperator("|=", Operator::Binary, 131, Operator::RightAssociative);
-        addOperator("^=", Operator::Binary, 151, Operator::RightAssociative);
-        addOperator("<<=", Operator::Binary, 161, Operator::RightAssociative);
-        addOperator(">>=", Operator::Binary, 161, Operator::RightAssociative);
-    }
-
-    void Lexer::addOperator(const QString &text, Operator::Type type, short precedence,
-                     Operator::Associativity associativity, const QString &name) {
-        _operators.insert(text, Operator(text, type, precedence, associativity, name));
-        if(!_operatorStartChars.contains(text.at(0))) _operatorStartChars.append(text.at(0));
-    }
-
-    Operator Lexer::findOperator(const QString &text, const Operator::Type type) {
-        QList<Operator> operators = _operators.values(text);
-        foreach(Operator op, operators) if(op.type == type) return(op);
-        return(Operator());
+    Lexer *Lexer::root() {
+        if(!_root) {
+            _root = new Lexer;
+            _root->setOrigin(Object::root());
+            _root->addParent("Lexer", Object::root());
+        }
+        return(_root);
     }
 
     void Lexer::rewind() {
@@ -73,7 +20,7 @@ namespace Child {
         consume();
     }
 
-    const Token Lexer::nextToken() {
+    const Token *Lexer::nextToken() {
         while(true) {
             switch(_currentChar.toAscii()) {
             case '\'': return(scanCharacter());
@@ -102,10 +49,10 @@ namespace Child {
     void Lexer::consume() {
         _previousChar = _currentChar;
         _position++;
-        if(_position < _source.length()) {
-            _currentChar = _source.at(_position);
-            if(_position + 1 < _source.length())
-                _nextChar = _source.at(_position + 1);
+        if(_position < _source->length()) {
+            _currentChar = _source->at(_position);
+            if(_position + 1 < _source->length())
+                _nextChar = _source->at(_position + 1);
             else
                 _nextChar = QChar::Null;
         } else {
@@ -131,7 +78,7 @@ namespace Child {
         consume(); // Slash
     }
 
-    const Token Lexer::scanName() {
+    const Token *Lexer::scanName() {
         startToken();
         consume();
         while(_currentChar.isLetterOrNumber() || _currentChar == '_' || _currentChar == '!' || _currentChar == '?')
@@ -145,17 +92,17 @@ namespace Child {
         return(finishToken(Token::Name));
     }
 
-    const Token Lexer::scanOperator() {
+    const Token *Lexer::scanOperator() {
         startToken();
         QString text(_currentChar);
         do {
             consume();
             text.append(_currentChar);
-        } while(_operators.contains(text));
+        } while(operatorTable()->operators()->hasKey(text));
         return(finishToken(Token::Operator));
     }
 
-    const Token Lexer::scanNumber() {
+    const Token *Lexer::scanNumber() {
         startToken();
         consume();
         short base = 10;
@@ -210,7 +157,7 @@ namespace Child {
         return(finishToken(Token::Number));
     }
 
-    const Token Lexer::scanCharacter() {
+    const Token *Lexer::scanCharacter() {
         startToken();
         consume(); // left single quote
         if(isEof()) throwError("unexpected EOF found in a character literal");
@@ -223,7 +170,7 @@ namespace Child {
         return(finishToken(Token::Character));
     }
 
-    const Token Lexer::scanText() {
+    const Token *Lexer::scanText() {
         startToken();
         consume(); // left double quote
         while(_currentChar != '"') {
@@ -281,9 +228,9 @@ namespace Child {
         QString report;
         if(!_filename.isEmpty()) report.append(QString("%1:").arg(_filename));
         int column, line;
-        computeColumnAndLineForPosition(_source, _position, column, line);
+        computeColumnAndLineForPosition(*_source, _position, column, line);
         report.append(QString("%1: %2").arg(line).arg(message));
-        QString text = extractLine(_source, line);
+        QString text = extractLine(*_source, line);
         if(!text.isEmpty()) {
             QString cursor = QString(" ").repeated(column - 1).append("^");
             report.append(QString("\n%1\n%2").arg(text).arg(cursor));
@@ -294,10 +241,11 @@ namespace Child {
     const QString Lexer::toString() {
         QString result;
         while(true) {
-            Token token = nextToken();
-            if(token.type == Token::Eof) break;
+            const Token *token = nextToken();
+            if(token->type == Token::Eof) break;
             if(!result.isEmpty()) result.append(", ");
-            result.append(token.toString());
+            result.append(token->inspect());
+            delete token;
         }
         return("[" + result + "]");
     }

@@ -3,14 +3,17 @@
 
 #include "child/node.h"
 
+#define CHILD_NATIVEMETHOD(EXPRESSION) static_cast<NativeMethod *>(EXPRESSION)
 #define CHILD_METHODPTR(METH) static_cast<NodeMethodPtr>(&METH)
 
 namespace Child {
     class NativeMethod : public Node {
     public:
-        NativeMethod() : _method(NULL) {}
-
         static NativeMethod *root();
+        static NativeMethod *fork(Node *world) { return(CHILD_NATIVEMETHOD(world->child("NativeMethod"))->fork()); }
+        static NativeMethod *fork(Node *world, NodeMethodPtr method) { return(CHILD_NATIVEMETHOD(world->child("NativeMethod"))->fork(method)); }
+
+        NativeMethod() : _method(NULL) {}
 
         virtual NativeMethod *fork() { return(_fork(this)->setMethod(_method)); }
         virtual NativeMethod *fork(NodeMethodPtr method) { return(_fork(this)->setMethod(method)); }

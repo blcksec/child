@@ -6,6 +6,7 @@
 #include "tests/objecttest.h"
 #include "tests/worldtest.h"
 #include "tests/texttest.h"
+#include "tests/listtest.h"
 #include "tests/dictionarytest.h"
 
 namespace Child {
@@ -34,6 +35,7 @@ namespace Child {
         test(new ObjectTest);
         test(new WorldTest);
         test(new TextTest);
+        test(new ListTest);
         test(new DictionaryTest);
         endTests();
     }

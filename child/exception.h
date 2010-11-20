@@ -6,48 +6,58 @@
 namespace Child {
     class Exception {
     public:
-        Exception(const QString &msg = "Undefined Exception") : message(msg) {}
-        const QString message;
+        Exception(const QString &msg = "???") : _message(msg) {}
+        virtual const QString message() const { return("Exception: " + _message); }
+    protected:
+        const QString _message;
     };
 
     class LexerException : public Exception {
     public:
-        LexerException(const QString &msg = "Undefined LexerException") : Exception(msg) {}
+        LexerException(const QString &msg = "???") : Exception(msg) {}
+        virtual const QString message() const { return("LexerException: " + _message); }
     };
 
     class ParserException : public Exception {
     public:
-        ParserException(const QString &msg = "Undefined ParserException") : Exception(msg) {}
+        ParserException(const QString &msg = "???") : Exception(msg) {}
+        virtual const QString message() const { return("ParserException: " + _message); }
     };
 
     class RuntimeException : public Exception {
     public:
-        RuntimeException(const QString &msg = "Undefined RuntimeException") : Exception(msg) {}
+        RuntimeException(const QString &msg = "???") : Exception(msg) {}
+        virtual const QString message() const { return("RuntimeException: " + _message); }
     };
 
     class ArgumentException : public RuntimeException {
     public:
-        ArgumentException(const QString &msg = "Undefined ArgumentException") : RuntimeException(msg) {}
+        ArgumentException(const QString &msg = "???") : RuntimeException(msg) {}
+        virtual const QString message() const { return("ArgumentException: " + _message); }
     };
 
     class NullPointerException : public RuntimeException {
     public:
-        NullPointerException(const QString &msg = "Undefined NullPointerException") : RuntimeException(msg) {}
+        NullPointerException(const QString &msg = "???") : RuntimeException(msg) {}
+        virtual const QString message() const { return("NullPointerException: " + _message); }
     };
 
     class IndexOutOfBoundsException : public RuntimeException {
     public:
-        IndexOutOfBoundsException(const QString &msg = "Undefined IndexOutOfBoundsException") : RuntimeException(msg) {}
+        IndexOutOfBoundsException(const QString &msg = "???") : RuntimeException(msg) {}
+        virtual const QString message() const { return("IndexOutOfBoundsException: " + _message); }
     };
 
     class NotFoundException : public RuntimeException {
     public:
-        NotFoundException(const QString &msg = "Undefined NotFoundException") : RuntimeException(msg) {}
+        NotFoundException(const QString &msg = "???") : RuntimeException(msg) {}
+        virtual const QString message() const { return("NotFoundException: " + _message); }
     };
 
     class DuplicateException : public RuntimeException {
     public:
-        DuplicateException(const QString &msg = "Undefined DuplicateException") : RuntimeException(msg) {}
+        DuplicateException(const QString &msg = "???") : RuntimeException(msg) {}
+        virtual const QString message() const { return("DuplicateException: " + _message); }
     };
 }
 

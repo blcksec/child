@@ -16,7 +16,7 @@ Hello(@what: "World") := Object {
 
 Hello(@what: "World") := Object {
     "A cool class"
-ext:
+extension(s):
     [Archivable, Runnable]
 init:
     log write("...")
@@ -26,7 +26,7 @@ body:
 
 full_name(capitalize<Boolean>: false) -> result: "", ok: true := {
     "Return the concatenation of first_name and last_name"
-opt:
+option(s):
     inline!
     no_autorun!
 body:

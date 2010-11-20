@@ -37,7 +37,10 @@ SOURCES += main.cpp \
     child/section.cpp \
     child/primitivechain.cpp \
     child/primitive.cpp \
-    child/message.cpp
+    child/message.cpp \
+    child/list.cpp \
+    tests/listtest.cpp \
+    child/operatortable.cpp
 
 HEADERS += \
     child/node.h \
@@ -65,7 +68,10 @@ HEADERS += \
     child/section.h \
     child/primitivechain.h \
     child/primitive.h \
-    child/message.h
+    child/message.h \
+    child/list.h \
+    tests/listtest.h \
+    child/operatortable.h
 
 OTHER_FILES += \
     notes/ideas.txt \

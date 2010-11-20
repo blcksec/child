@@ -13,10 +13,26 @@
 namespace Child {
     class Node;
 
+    class NumberedNode {
+    public:
+        NumberedNode() { throw(RuntimeException("cannot construct a NULL NumberedNode")); }
+        NumberedNode(const int number, Node *const node);
+        int number;
+        Node *node;
+    };
+
+    inline bool operator==(const NumberedNode &a, const NumberedNode &b) {
+        return(a.node == b.node && a.number == b.number);
+    }
+
+    inline uint qHash(const NumberedNode &key) {
+        return ::qHash(key.number) ^ ::qHash(key.node);
+    }
+
     class NamedNode {
     public:
         NamedNode() { throw(RuntimeException("cannot construct a NULL NamedNode")); }
-        NamedNode(const QString &t, Node *const n);
+        NamedNode(const QString &name, Node *const node);
         QString name;
         Node *node;
     };
@@ -30,11 +46,14 @@ namespace Child {
     }
 
     typedef QList<Node *> NodeList;
+    typedef QList<Node *> NodeLinkedList;
     typedef QHash<QString, Node *> NodeHash;
     typedef QHashIterator<QString, Node *> NodeHashIterator;
     typedef QMultiHash<QString, Node *> NodeMultiHash;
     typedef QSet<Node *> NodeSet;
     typedef QQueue<Node *> NodeQueue;
+    typedef QList<NumberedNode> NumberedNodeList;
+    typedef QSet<NumberedNode> NumberedNodeSet;
     typedef QList<NamedNode> NamedNodeList;
     typedef QSet<NamedNode> NamedNodeSet;
     typedef Node *(Node::*NodeMethodPtr)();
@@ -99,7 +118,7 @@ namespace Child {
 
         const long long int uniqueID() const { return(reinterpret_cast<long long int>(this)); }
         const QString uniqueHexID() const { return(QString("0x%1").arg(uniqueID(), 0, 16)); }
-        const QString inspect() const;
+        virtual const QString inspect() const;
     private:
         static long long int _nodeCount;
         static Node *_root;
@@ -110,6 +129,14 @@ namespace Child {
         NamedNodeSet *_parents;
         NodeHash *_children; // backlink cache
         bool _isVirtual : 1;
+
+        void _checkName(const QString &name) const {
+            if(name.isEmpty()) throw(ArgumentException("child name is empty"));
+        }
+
+        void _checkNode(Node *node) const {
+            if(!node) throw(NullPointerException("node pointer is NULL"));
+        }
     };
 }
 

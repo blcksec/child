@@ -7,8 +7,8 @@
 do { \
     bool exceptionThrown = false; \
     try { EXPRESSION; } \
-    catch(EXCEPTION) { exceptionThrown = true; } \
-    catch(Exception &e) { QWARN(qPrintable(e.message)); } \
+    catch(EXCEPTION &e) { qDebug() << e.message(); exceptionThrown = true; } \
+    catch(Exception &e) { QWARN(qPrintable(e.message())); } \
     if(!exceptionThrown) { QFAIL("'" #EXCEPTION "' has not been thrown"); } \
 } while(false)
 

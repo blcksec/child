@@ -10,6 +10,8 @@ namespace Child {
     class Text : public Object {
     public:
         static Text *root();
+        static Text *fork(Node *world) { return(CHILD_TEXT(world->child("Text"))->fork()); }
+        static Text *fork(Node *world, const QString &value) { return(CHILD_TEXT(world->child("Text"))->fork(value)); }
 
         virtual Text *fork() { return(_fork(this)->setValue(_value)); }
         virtual Text *fork(const QString &value) { return(_fork(this)->setValue(value)); }
@@ -17,7 +19,7 @@ namespace Child {
         const QString value() const { return(_value); }
         Text *setValue(const QString &value) { _value = value; return(this); }
 
-        Node *upcase() { return(CHILD_TEXT(child("Text"))->fork(value().toUpper())); }
+        Node *upcase() { return(Text::fork(this, value().toUpper())); }
 
 //        QChar escapeSequence() { // Code saved from the Lexer class. Can be more useful here!
 //            consume(); // anti-slash
@@ -85,6 +87,8 @@ namespace Child {
 //            if(type != 'u' && code > 0xFF) throw(LexerException("invalid number in escape sequence"));
 //            return(QChar(code));
 //        }
+
+        virtual const QString inspect() const { return(QString("\"%1\"").arg(value())); }
     private:
         static Text *_root;
         QString _value;

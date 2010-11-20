@@ -9,6 +9,9 @@ namespace Child {
     class Block : public Object {
     public:
         static Block *root();
+        static Block *fork(Node *world) { return(CHILD_BLOCK(world->child("Block"))->fork()); }
+
+        virtual Block *fork() { notYetImplemented(); return(NULL); }
     private:
         static Block *_root;
     };

@@ -3,9 +3,13 @@
 #include "child/text.h"
 
 namespace Child {
-    NamedNode::NamedNode(const QString &t, Node *const n) : name(t), node(n) {
-        if(t.isEmpty()) { throw(ArgumentException("empty name passed to NamedNode constructor()")); }
-        if(!n) { throw(NullPointerException("NULL node passed to NamedNode constructor()")); }
+    NumberedNode::NumberedNode(const int number, Node *const node) : number(number), node(node) {
+        if(!node) throw(NullPointerException("NULL node passed to NumberedNode constructor()"));
+    }
+
+    NamedNode::NamedNode(const QString &name, Node *const node) : name(name), node(node) {
+        if(name.isEmpty()) throw(ArgumentException("empty child name passed to NamedNode constructor()"));
+        if(!node) throw(NullPointerException("NULL node passed to NamedNode constructor()"));
     }
 
     long long int Node::_nodeCount = 0;
@@ -30,7 +34,7 @@ namespace Child {
     }
 
     void Node::setOrigin(Node *node) {
-        if(!node) { throw(NullPointerException("NULL value passed to Node::setBase()")); }
+        _checkNode(node);
         if(_origin == node) { return; }
         if(_origin) { _origin->_forks->removeOne(this); }
         _origin = node;
@@ -39,7 +43,7 @@ namespace Child {
     }
 
     bool Node::directOriginIs(Node *node) const {
-        if(!node) { throw(NullPointerException("NULL value passed to Node::isForkedFrom()")); }
+        _checkNode(node);
         return(_origin == node);
     }
 
@@ -53,31 +57,31 @@ namespace Child {
     }
 
     bool Node::hasExtension(Node *node) const {
-        if(!node) { throw(NullPointerException("NULL value passed to Node::hasExtension()")); }
+        _checkNode(node);
         return(_extensions ? _extensions->contains(node) : false);
     }
 
     void Node::addExtension(Node *node) {
-        if(!node) { throw(NullPointerException("NULL value passed to Node::addExtension()")); }
+        _checkNode(node);
         if(!_extensions) { _extensions = new NodeList; }
-        if(_extensions->contains(node)) { throw(DuplicateException("duplicate node passed to Node::addExtension()")); }
+        if(_extensions->contains(node)) throw(DuplicateException("cannont add an extension which is already there"));
         _extensions->append(node);
         if(!node->_extendedNodes) { node->_extendedNodes = new NodeList; }
         node->_extendedNodes->append(this);
     }
 
     void Node::prependExtension(Node *node) {
-        if(!node) { throw(NullPointerException("NULL value passed to Node::prependExtension()")); }
+        _checkNode(node);
         if(!_extensions) { _extensions = new NodeList; }
-        if(_extensions->contains(node)) { throw(DuplicateException("duplicate node passed to Node::prependExtension()")); }
+        if(_extensions->contains(node)) throw(DuplicateException("cannont add an extension which is already there"));
         _extensions->prepend(node);
         if(!node->_extendedNodes) { node->_extendedNodes = new NodeList; }
         node->_extendedNodes->append(this);
     }
 
     void Node::removeExtension(Node *node) {
-        if(!node) { throw(NullPointerException("NULL value passed to Node::removeExtension()")); }
-        if(!_extensions || !_extensions->contains(node)) { throw(NotFoundException("missing node passed to Node::removeExtension()")); }
+        _checkNode(node);
+        if(!_extensions || !_extensions->contains(node)) throw(NotFoundException("cannot remove an extension which is not there"));
         _extensions->removeOne(node);
         node->_extendedNodes->removeOne(this);
     }
@@ -111,23 +115,23 @@ namespace Child {
     }
 
     bool Node::hasDirectParent(Node *node) const {
-        if(!node) { throw(NullPointerException("NULL value passed to Node::hasDirectParent()")); }
+        _checkNode(node);
         return(node->_children && !node->_children->key(const_cast<Node *>(this)).isEmpty());
     }
 
     void Node::addParent(const QString &name, Node *node) {
         NamedNode namedNode = NamedNode(name, node);
         if(!_parents) { _parents = new NamedNodeSet; }
-        if(_parents->contains(namedNode)) { throw(DuplicateException("duplicate node/name passed to Node::addParent()")); }
+        if(_parents->contains(namedNode)) throw(DuplicateException("duplicate node/child name"));
         if(!node->_children) { node->_children = new NodeHash; }
-        if(node->_children->contains(name)) { throw(DuplicateException("duplicate name in parent passed to Node::addParent()")); }
+        if(node->_children->contains(name)) throw(DuplicateException("duplicate child name in parent"));
         _parents->insert(namedNode);
         node->_children->insert(name, this);
     }
 
     void Node::removeParent(const QString &name, Node *node) {
         NamedNode namedNode = NamedNode(name, node);
-        if(!_parents || !_parents->contains(namedNode)) { throw(NotFoundException("missing node/name passed to Node::removeParent()")); }
+        if(!_parents || !_parents->contains(namedNode)) throw(NotFoundException("child not found"));
         _parents->remove(namedNode);
         node->_children->remove(name);
         deleteIfOrphan();
@@ -143,30 +147,30 @@ namespace Child {
     }
 
     bool Node::hasDirectChild(const QString &name) const {
-        if(name.isEmpty()) { throw(ArgumentException("empty name passed to Node::hasDirectChild()")); }
+        _checkName(name);
         return(_children && _children->contains(name));
     }
 
     Node *Node::directChild(const QString &name) const {
-        if(name.isEmpty()) { throw(ArgumentException("empty name passed to Node::directChild()")); }
-        if(!_children) { throw(NotFoundException("missing name passed to Node::directChild()")); }
+        _checkName(name);
+        if(!_children) throw(NotFoundException("child not found"));
         Node *value = _children->value(name);
-        if(!value) { throw(NotFoundException("missing name passed to Node::directChild()")); }
+        if(!value) throw(NotFoundException("child not found"));
         return(value);
     }
 
     Node *Node::addDirectChild(const QString &name, Node *node) {
-        if(name.isEmpty()) { throw(ArgumentException("empty name passed to Node::addDirectChild()")); }
-        if(!node) { throw(NullPointerException("NULL value passed to Node::addDirectChild()")); }
-        if(_children && _children->contains(name)) { throw(DuplicateException("duplicate name passed to Node::addDirectChild()")); }
+        _checkName(name);
+        _checkNode(node);
+        if(_children && _children->contains(name)) throw(DuplicateException("duplicate child name"));
         node->addParent(name, this);
         return(node);
     }
 
     Node *Node::setDirectChild(const QString &name, Node *node) {
-        if(name.isEmpty()) { throw(ArgumentException("empty name passed to Node::setDirectChild()")); }
-        if(!node) { throw(NullPointerException("NULL value passed to Node::setDirectChild()")); }
-        if(!_children || !_children->contains(name)) { throw(NotFoundException("missing name passed to Node::setDirectChild()")); }
+        _checkName(name);
+        _checkNode(node);
+        if(!_children || !_children->contains(name)) throw(NotFoundException("child not found"));
         Node *currentChild = directChild(name);
         if(currentChild != node) {
             currentChild->removeParent(name, this);
@@ -176,8 +180,8 @@ namespace Child {
     }
 
     Node *Node::addOrSetDirectChild(const QString &name, Node *node) {
-        if(name.isEmpty()) { throw(ArgumentException("empty name passed to Node::addOrSetDirectChild()")); }
-        if(!node) { throw(NullPointerException("NULL value passed to Node::addOrSetDirectChild()")); }
+        _checkName(name);
+        _checkNode(node);
         if(!_children || !_children->contains(name)) {
             node->addParent(name, this);
         } else {
@@ -191,10 +195,10 @@ namespace Child {
     }
 
     void Node::removeDirectChild(const QString &name) {
-        if(name.isEmpty()) { throw(ArgumentException("empty name passed to Node::removeDirectChild()")); }
-        if(!_children) { throw(NotFoundException("missing name passed to Node::removeDirectChild()")); }
+        _checkName(name);
+        if(!_children) throw(NotFoundException("child not found"));
         Node *node = _children->value(name);
-        if(!node) { throw(NotFoundException("missing name passed to Node::removeDirectChild()")); }
+        if(!node) throw(NotFoundException("child not found"));
         node->removeParent(name, this);
     }
 
@@ -295,22 +299,23 @@ namespace Child {
     }
 
     bool Node::hasChild(const QString &name) const {
-        if(name.isEmpty()) { throw(ArgumentException("empty name passed to Node::hasChild()")); }
+        _checkName(name);
         return(const_cast<Node *>(this)->_getOrSetChild(name, NULL, true));
     }
 
     Node *Node::child(const QString &name) const {
-        if(name.isEmpty()) { throw(ArgumentException("empty name passed to Node::child()")); }
+        _checkName(name);
+        if(hasDirectChild(name)) return(directChild(name));
         Node *child = const_cast<Node *>(this)->_getOrSetChild(name);
-        if(!child) { throw(NotFoundException("child not found in child()")); }
+        if(!child) throw(NotFoundException("child not found"));
         return(child);
     }
 
     Node *Node::setChild(const QString &name, Node *node) {
-        if(name.isEmpty()) { throw(ArgumentException("empty name passed to Node::setChild()")); }
-        if(!node) { throw(NullPointerException("NULL value passed to Node::setChild()")); }
+        _checkName(name);
+        _checkNode(node);
         Node *child = _getOrSetChild(name, node);
-        if(!child) { throw(NotFoundException("child not found in Node::setChild()")); }
+        if(!child) throw(NotFoundException("child not found"));
         return(child);
     }
 
@@ -322,6 +327,6 @@ namespace Child {
         str.append("] => [");
         str.append(QStringList(children().keys()).join(", "));
         str.append("]");
-        return str;
+        return(str);
     }
 }

@@ -9,6 +9,9 @@ namespace Child {
     class Message : public Object {
     public:
         static Message *root();
+        static Message *fork(Node *world) { return(CHILD_MESSAGE(world->child("Message"))->fork()); }
+
+        virtual Message *fork() { notYetImplemented(); return(NULL); }
     private:
         static Message *_root;
     };

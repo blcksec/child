@@ -1,89 +1,56 @@
 #ifndef CHILD_PARSER_H
 #define CHILD_PARSER_H
 
-#include "child/node.h"
+#include "child/object.h"
 #include "child/lexer.h"
 
+#define CHILD_PARSER(EXPRESSION) static_cast<Parser *>(EXPRESSION)
+
 namespace Child {
-    class Parser {
+    class Parser : public Object {
     public:
-        enum Rule {
-            ListRule
-        };
+        static Parser *root();
+        static Parser *fork(Node *world) { return(CHILD_PARSER(world->child("Parser"))->fork()); }
 
-        Parser() : _position(0) { }
+        Parser() : _lexer(NULL), _currentToken(NULL) {}
 
-        const Token &token(const int i = 0) {
-            loadToken(i);
-            return(_lookahead.at(_position + i));
+        virtual ~Parser() {
+            delete _currentToken;
         }
 
-        const Token::Type tokenType(const int i = 0) {
-            return(token(i).type);
+        virtual Parser *fork() { return(_fork(this)); }
+
+        Lexer *lexer() const { return(_lexer); }
+        void setLexer(Lexer *lexer) { _lexer = lexer; }
+
+        const QString run() {
+            consume();
+            return(scanBlock());
         }
 
-        const QString tokenTypeName(const int i = 0) {
-            return(token(i).typeName());
+        const Token *token() const {
+            return(_currentToken);
         }
 
-        const QString tokenText(const int i = 0) {
-            return(token(i).text());
+        const Token::Type tokenType() const {
+            return(_currentToken->type);
         }
 
-        void loadToken(const int i) {
-            int n = (_position + i) - (_lookahead.size() - 1);
-            if(n > 0) // out of tokens?
-                for(int i = 1; i <= n; i++)
-                    _lookahead.append(_lexer.nextToken());
+        const QString tokenTypeName() const {
+            return(_currentToken->typeName());
+        }
+
+        const QString tokenText() const {
+            return(_currentToken->text());
         }
 
         void consume() {
-            _position++;
-            if(_position == _lookahead.size() && !isSpeculating()) {
-                _position = 0;
-                _lookahead.clear();
-                clearRulesMemos();
-            }
-            loadToken(0);
-        }
-
-        void seek(const int position) {
-            _position = position;
-        }
-
-        void pushPosition() {
-            _positions.push(_position);
-        }
-
-        void popPosition() {
-            seek(_positions.pop());
-        }
-
-        const bool isSpeculating() const {
-            return(!_positions.isEmpty());
-        }
-
-        void memoize(const Rule rule, const int startPosition, const bool failed) {
-            int stopPosition = failed ? -1 : _position;
-            _rulesMemos[rule].insert(startPosition, stopPosition);
-        }
-
-        const bool isMemoized(const Rule rule) {
-            if(!_rulesMemos.contains(rule)) return(false);
-            _MemoHash &memos = _rulesMemos[rule];
-            if(!memos.contains(_position)) return(false);
-            int stopPosition = memos[_position];
-            if(stopPosition == -1) throw(ParserException());
-            seek(stopPosition);
-            return(true);
-        }
-
-        void clearRulesMemos() {
-            _rulesMemos.clear();
+            if(_currentToken) delete _currentToken;
+            _currentToken = lexer()->nextToken();
         }
 
         void openToken() {
-            _openedTokens.push(token());
+            _openedTokens.push(tokenType());
         }
 
         void closeToken() {
@@ -117,7 +84,7 @@ namespace Child {
         void consumeUselessNewline() {
             if(!is(Token::Newline)) return;
             if(_openedTokens.empty()) return;
-            Token::Type type = _openedTokens.top().type;
+            Token::Type type = _openedTokens.top();
             if(type == Token::LeftParenthesis || type == Token::LeftBracket)
                do consume(); while(is(Token::Newline));
         }
@@ -149,8 +116,7 @@ namespace Child {
 
         const QString scanExpression() {
             QString unary = scanUnaryExpressionChain();
-            Operator op;
-            if(isBinaryOperator(&op))
+            if(Operator *op = isBinaryOperator())
                 return(scanBinaryOperator(unary, op, 0));
             else
                 return(unary);
@@ -171,8 +137,7 @@ namespace Child {
         }
 
         const QString scanUnaryExpression() {
-            Operator op;
-            if(isPrefixOperator(&op))
+            if(Operator *op = isPrefixOperator())
                 return(scanPrefixOperator(op));
             else
                 return(scanPrimaryExpression());
@@ -195,8 +160,7 @@ namespace Child {
                 match(Token::RightParenthesis);
                 closeToken();
             }
-            Operator op;
-            while(isPostfixOperator(&op))
+            while(Operator *op = isPostfixOperator())
                 result.append(scanPostfixOperator(op));
             return(result);
         }
@@ -253,64 +217,59 @@ namespace Child {
             return(result);
         }
 
-        const bool isOperator(Operator::Type type = Operator::Null, Operator *foundOperator = NULL) {
-            if(!is(Token::Operator)) return(false);
-            if(type == Operator::Null) return(true);
-            Operator op = _lexer.findOperator(tokenText(), type);
-            if(op.isNull()) return(false);
-            if(foundOperator) *foundOperator = op;
-            return(true);
+        Operator *isOperator(Operator::Type type) {
+            if(!is(Token::Operator)) return(NULL);
+            return(lexer()->operatorTable()->findOperator(tokenText(), type));
         }
 
-        const bool isPrefixOperator(Operator *foundOperator = NULL) {
-            return(isOperator(Operator::Prefix, foundOperator));
+        Operator *isPrefixOperator() {
+            return(isOperator(Operator::Prefix));
         }
 
-        const QString scanPrefixOperator(const Operator &currentOp) {
+        const QString scanPrefixOperator(Operator *currentOp) {
             consume();
             consumeNewline();
-            return(currentOp.name + "(" + scanUnaryExpression() + ")");
+            return(currentOp->name + "(" + scanUnaryExpression() + ")");
         }
 
-        const bool isPostfixOperator(Operator *foundOperator = NULL) {
-            return(isOperator(Operator::Postfix, foundOperator));
+        Operator *isPostfixOperator() {
+            return(isOperator(Operator::Postfix));
         }
 
-        const QString scanPostfixOperator(const Operator &currentOp) {
+        const QString scanPostfixOperator(Operator *currentOp) {
             consume();
             consumeUselessNewline();
-            return(currentOp.name);
+            return(currentOp->name);
         }
 
-        const bool isBinaryOperator(Operator *foundOperator = NULL) {
-            return(isOperator(Operator::Binary, foundOperator));
+        Operator *isBinaryOperator() {
+            return(isOperator(Operator::Binary));
         }
 
-        const QString scanBinaryOperator(QString leftHandSide, Operator currentOp, const short minPrecedence) {
+        const QString scanBinaryOperator(QString leftHandSide, Operator *currentOp, const short minPrecedence) {
             do {
                 consume();
                 consumeNewline();
                 QString rightHandSide = scanUnaryExpressionChain();
-                Operator nextOp;
-                while(isBinaryOperator(&nextOp)) {
-                    if(nextOp.associativity == Operator::NonAssociative && nextOp.precedence == currentOp.precedence)
+                while(Operator *nextOp = isBinaryOperator()) {
+                    if(nextOp->associativity == Operator::NonAssociative && nextOp->precedence == currentOp->precedence)
                         qFatal("syntax error: chained non-associative operators with same precedence");
-                    if(nextOp.precedence <= currentOp.precedence) break;
-                    if(nextOp.associativity == Operator::RightAssociative && nextOp.precedence != currentOp.precedence) break;
-                    rightHandSide = scanBinaryOperator(rightHandSide, nextOp, nextOp.precedence);
+                    if(nextOp->precedence <= currentOp->precedence) break;
+                    if(nextOp->associativity == Operator::RightAssociative && nextOp->precedence != currentOp->precedence) break;
+                    rightHandSide = scanBinaryOperator(rightHandSide, nextOp, nextOp->precedence);
                 }
-                leftHandSide = "(" + leftHandSide + currentOp.name + rightHandSide + ")";
-            } while(isBinaryOperator(&currentOp) && currentOp.precedence >= minPrecedence);
+                leftHandSide = "(" + leftHandSide + currentOp->name + rightHandSide + ")";
+            } while((currentOp = isBinaryOperator()) && currentOp->precedence >= minPrecedence);
             return(leftHandSide);
         }
 
         void throwError(const QString &message) {
             QString report;
-            if(!_lexer.filename().isEmpty()) report.append(QString("%1:").arg(_lexer.filename()));
+            if(!lexer()->filename().isEmpty()) report.append(QString("%1:").arg(lexer()->filename()));
             int column, line;
-            computeColumnAndLineForPosition(_lexer.source(), token().sourceCodeRef.position(), column, line);
+            computeColumnAndLineForPosition(*lexer()->source(), token()->sourceCodeRef.position(), column, line);
             report.append(QString("%1: %2").arg(line).arg(message));
-            QString text = extractLine(_lexer.source(), line);
+            QString text = extractLine(*lexer()->source(), line);
             if(!text.isEmpty()) {
                 QString cursor = QString(" ").repeated(column - 1).append("^");
                 report.append(QString("\n%1\n%2").arg(text).arg(cursor));
@@ -318,89 +277,12 @@ namespace Child {
             throw(LexerException(report));
         }
 
-        void test() {
-            _lexer = Lexer("body: a + b c + d e\ntest:\nf g h\n");
-//            p(escapeTabsAndNewlines(_lexer.toString()).toUtf8());
-            p(scanBlock());
-        }
-
     private:
-        Lexer _lexer;
-        QStack<int> _positions;
-        QList<Token> _lookahead;
-        int _position;
-        QStack<Token> _openedTokens;
-        typedef QHash<int, int> _MemoHash;
-        QHash<Rule, _MemoHash> _rulesMemos;
+        static Parser *_root;
+        Lexer *_lexer;
+        const Token *_currentToken;
+        QStack<Token::Type> _openedTokens;
     };
 }
 
 #endif // CHILD_PARSER_H
-
-//        void matchElement() {
-//            if(is(Token::Name))
-//                match(Token::Name);
-//            else if(is(Token::LeftBracket))
-//                matchList();
-//            else
-//                throw(ParserException("expecting Name or List, found " + tokenTypeName()));
-//        }
-
-//        void matchElements() {
-//            matchElement();
-//            while(is(Token::Comma)) {
-//                match(Token::Comma);
-//                matchElement();
-//            }
-//        }
-
-//        void matchList() {
-//            bool failed = false;
-//            QString exceptionMessage;
-//            int startPosition = _position;
-//            if(isSpeculating() && isMemoized(ListRule)) return;
-//            try { _matchList(); }
-//            catch(ParserException e) { failed = true; exceptionMessage = e.message; }
-//            if(isSpeculating()) memoize(ListRule, startPosition, failed);
-//            if(failed) throw(ParserException(exceptionMessage));
-//        }
-
-//        void _matchList() {
-//            p("parse list at: " + QString::number(_position));
-//            match(Token::LeftBracket);
-//            matchElements();
-//            match(Token::RightBracket);
-//        }
-
-//        void matchAssignment() {
-//            matchList();
-//            match(Token::Operator, "=");
-//            matchList();
-//        }
-
-//        void matchStatement() {
-//            if(speculateList()) {
-//                matchList(); match(Token::Eof);
-//            } else if(speculateAssignment()) {
-//                matchAssignment(); match(Token::Eof);
-//            } else
-//                throw(ParserException("expecting Statement, found " + tokenTypeName()));
-//        }
-
-//        const bool speculateList() {
-//            bool success = true;
-//            pushPosition();
-//            try { matchList(); match(Token::Eof); }
-//            catch(ParserException e) { success = false; }
-//            popPosition();
-//            return(success);
-//        }
-
-//        const bool speculateAssignment() {
-//            bool success = true;
-//            pushPosition();
-//            try { matchAssignment(); match(Token::Eof); }
-//            catch(ParserException e) { success = false; }
-//            popPosition();
-//            return(success);
-//        }

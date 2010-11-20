@@ -65,3 +65,5 @@ const bool computeColumnAndLineForPosition(const QString &text, const int positi
     }
     return(false);
 }
+
+void notYetImplemented() { qFatal("Not yet implemented!"); }

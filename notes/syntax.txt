@@ -7,9 +7,8 @@
 
 Version orienté objet :
 
-Hello := Object {
-   init(@what: "World") := {}
-   say := { "Hello, \{what}!" print }
+Hello(@what: "World") := Object {
+    say := { "Hello, \{what capitalized}!" print }
 }
 
 Hello() say // -> "Hello, World!"

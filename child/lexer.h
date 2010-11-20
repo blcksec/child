@@ -1,33 +1,33 @@
 #ifndef CHILD_LEXER_H
 #define CHILD_LEXER_H
 
-#include "child/node.h"
+#include "child/object.h"
 #include "child/token.h"
-#include "child/operator.h"
+#include "child/operatortable.h"
+
+#define CHILD_LEXER(EXPRESSION) static_cast<Lexer *>(EXPRESSION)
 
 namespace Child {
-    class Lexer {
+    class Lexer : public Object {
     public:
-        Lexer(const QString &src = "", const QString &filename = "") {
-            initOperators();
-            setSource(src);
-            setFilename(filename);
-        }
+        static Lexer *root();
+        static Lexer *fork(Node *world) { return(CHILD_LEXER(world->child("Lexer"))->fork()); }
 
-        void initOperators();
-        void addOperator(const QString &text, Operator::Type type, short precedence,
-                         Operator::Associativity associativity = Operator::LeftAssociative,
-                         const QString &name = "");
-        Operator findOperator(const QString &text, const Operator::Type type) ;
+        Lexer() : _operatorTable(0), _source(0) {}
 
-        void setSource(const QString &source) { _source = source; rewind(); }
-        const QString &source() const { return(_source); }
+        virtual Lexer *fork() { return(_fork(this)); }
+
+        OperatorTable *operatorTable() const { return(_operatorTable); }
+        void setOperatorTable(OperatorTable *table) { _operatorTable = table; }
+
+        void setSource(QString *source) { _source = source; rewind(); }
+        QString *source() const { return(_source); }
 
         void setFilename(const QString &filename) { _filename = filename;}
         const QString &filename() const { return(_filename); }
 
         void rewind();
-        const Token nextToken();
+        const Token *nextToken();
 
         void consume();
 
@@ -35,15 +35,15 @@ namespace Child {
             _tokenPosition = _position;
         }
 
-        const Token finishToken(const Token::Type type) const {
-            return(Token(type, tokenTextRef()));
+        const Token *finishToken(const Token::Type type) {
+            return(Token::fork(this, type, tokenTextRef()));
         }
 
         const QStringRef tokenTextRef() const {
-            return(_source.midRef(_tokenPosition, _position - _tokenPosition));
+            return(_source->midRef(_tokenPosition, _position - _tokenPosition));
         }
 
-        const Token scan(const Token::Type type) { // Simple one char tokens
+        const Token *scan(const Token::Type type) { // Simple one char tokens
             startToken();
             consume();
             return(finishToken(type));
@@ -65,7 +65,7 @@ namespace Child {
             return(_currentChar == '\r' || _currentChar == '\n');
         }
 
-        const Token scanNewline() {
+        const Token *scanNewline() {
             startToken();
             do consume(); while(isNewline() || isSpace());
             return(finishToken(Token::Newline));
@@ -87,22 +87,22 @@ namespace Child {
             return(_currentChar.isLetter() || _currentChar == '_');
         }
 
-        const Token scanName();
+        const Token *scanName();
 
         bool isOperator() const {
-            return(_operatorStartChars.contains(_currentChar));
+            return(operatorTable()->startChars().contains(_currentChar));
         }
 
-        const Token scanOperator();
+        const Token *scanOperator();
 
         bool isNumber() const {
             return(_currentChar.isNumber());
         }
 
-        const Token scanNumber();
+        const Token *scanNumber();
 
-        const Token scanCharacter();
-        const Token scanText();
+        const Token *scanCharacter();
+        const Token *scanText();
 
         void consumeEscapeSequence();
         void consumeEscapeSequenceNumber();
@@ -112,8 +112,8 @@ namespace Child {
         const QString toString();
 
         void test() {
-            setSource("[a, b] = [c, d]");
-            p(escapeTabsAndNewlines(toString()).toUtf8());
+//            setSource("[a, b] = [c, d]");
+//            p(escapeTabsAndNewlines(toString()).toUtf8());
         }
 
 //        void test() {
@@ -132,15 +132,15 @@ namespace Child {
 //        }
 
     private:
-        QString _source;
+        static Lexer *_root;
+        OperatorTable *_operatorTable;
+        QString *_source;
         QString _filename;
         int _position;
         QChar _previousChar;
         QChar _currentChar;
         QChar _nextChar;
         int _tokenPosition;
-        QMultiHash<QString, Operator> _operators;
-        QString _operatorStartChars;
     };
 }
 

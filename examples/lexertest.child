@@ -112,7 +112,7 @@ Person := Object {
 // Différence entre une méthode est une closure ?
 
 Person := Object {
-    a := 123
+    a := 123.2
     m1 := {
         a = 125
         b := 7

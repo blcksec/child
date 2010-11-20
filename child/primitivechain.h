@@ -9,6 +9,9 @@ namespace Child {
     class PrimitiveChain : public Object {
     public:
         static PrimitiveChain *root();
+        static PrimitiveChain *fork(Node *world) { return(CHILD_PRIMITIVECHAIN(world->child("PrimitiveChain"))->fork()); }
+
+        virtual PrimitiveChain *fork() { notYetImplemented(); return(NULL); }
     private:
         static PrimitiveChain *_root;
     };
