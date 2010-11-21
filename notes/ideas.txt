@@ -16,7 +16,7 @@ Hello(@what: "World") := Object {
 
 Hello(@what: "World") := Object {
     "A cool class"
-extension(s):
+use:
     [Archivable, Runnable]
 init:
     log write("...")
@@ -26,13 +26,13 @@ body:
 
 full_name(capitalize<Boolean>: false) -> result: "", ok: true := {
     "Return the concatenation of first_name and last_name"
-option(s):
+meta:
     inline!
     no_autorun!
 body:
     str := [first_name, last_name] join(" ")
     if(capitalize) { str captitalize } else { str }
-ensure:
+end:
     everyting clean!
 test:
     p := Person()

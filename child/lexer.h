@@ -20,11 +20,11 @@ namespace Child {
         OperatorTable *operatorTable() const { return(_operatorTable); }
         void setOperatorTable(OperatorTable *table) { _operatorTable = table; }
 
-        void setSource(QString *source) { _source = source; rewind(); }
-        QString *source() const { return(_source); }
+        void setSource(const QString *source) { _source = source; rewind(); }
+        const QString *source() const { return(_source); }
 
-        void setFilename(const QString &filename) { _filename = filename;}
-        const QString &filename() const { return(_filename); }
+        void setResourceName(const QString &name) { _resourceName = name;}
+        const QString &resourceName() const { return(_resourceName); }
 
         void rewind();
         const Token *nextToken();
@@ -90,7 +90,7 @@ namespace Child {
         const Token *scanName();
 
         bool isOperator() const {
-            return(operatorTable()->startChars().contains(_currentChar));
+            return(operatorTable()->hasOperatorStartingWith(_currentChar));
         }
 
         const Token *scanOperator();
@@ -134,8 +134,8 @@ namespace Child {
     private:
         static Lexer *_root;
         OperatorTable *_operatorTable;
-        QString *_source;
-        QString _filename;
+        const QString *_source;
+        QString _resourceName;
         int _position;
         QChar _previousChar;
         QChar _currentChar;

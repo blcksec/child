@@ -40,7 +40,9 @@ SOURCES += main.cpp \
     child/message.cpp \
     child/list.cpp \
     tests/listtest.cpp \
-    child/operatortable.cpp
+    child/operatortable.cpp \
+    child/sourcecode.cpp \
+    child/number.cpp
 
 HEADERS += \
     child/node.h \
@@ -71,7 +73,9 @@ HEADERS += \
     child/message.h \
     child/list.h \
     tests/listtest.h \
-    child/operatortable.h
+    child/operatortable.h \
+    child/sourcecode.h \
+    child/number.h
 
 OTHER_FILES += \
     notes/ideas.txt \
@@ -81,4 +85,5 @@ OTHER_FILES += \
     notes/todo.txt \
     notes/old.txt \
     examples/lexertest.child \
-    notes/specification.txt
+    notes/specification.txt \
+    examples/test.child

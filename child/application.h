@@ -5,6 +5,7 @@
 #include "child/operatortable.h"
 #include "child/lexer.h"
 #include "child/parser.h"
+#include "child/sourcecode.h"
 
 #define CHILD_APPLICATION(EXPRESSION) static_cast<Application *>(EXPRESSION)
 
@@ -37,12 +38,35 @@ namespace Child {
         OperatorTable *operatorTable() const { return(_operatorTable); }
         Lexer *lexer() const { return(_lexer); }
         Parser *parser() const { return(_parser); }
+
+
+        Dictionary *sourceCodes() const { return(_sourceCodes); }
+
+        SourceCode *loadSourceCode(QString url) {
+            url = QFileInfo(url).absoluteFilePath();
+            if(sourceCodeIsAlreadyLoaded(url)) return(CHILD_SOURCECODE(sourceCodes()->get(url)));
+            SourceCode *source = SourceCode::fork(this);
+            source->load(url);
+            source->parse(parser());
+            if(!sourceCodes()) _sourceCodes = Dictionary::fork(this);
+            sourceCodes()->set(url, source);
+            return(source);
+        }
+
+        const bool sourceCodeIsAlreadyLoaded(QString URL) {
+            URL = QFileInfo(URL).absoluteFilePath();
+            if(!sourceCodes()) return(false);
+            return(sourceCodes()->hasKey(URL));
+        }
+
     private:
         static Application *_root;
 
         OperatorTable *_operatorTable;
         Lexer *_lexer;
         Parser *_parser;
+
+        Dictionary *_sourceCodes;
     };
 }
 

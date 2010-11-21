@@ -8,7 +8,6 @@
 #include <QtCore/QStack>
 
 #include "child/toolbox.h"
-#include "child/exception.h"
 
 namespace Child {
     class Node;
@@ -135,7 +134,7 @@ namespace Child {
         }
 
         void _checkNode(Node *node) const {
-            if(!node) throw(NullPointerException("node pointer is NULL"));
+            if(!node) throw(NullPointerException("Node pointer is NULL"));
         }
     };
 }

@@ -338,15 +338,21 @@ meth := {
 ***
 
 Application
-    blockList
+    sourceCodeList
+    lexer
+    parser
     operators
+
+SourceCode
+    block
+    text
+    filePath
 
 Block
     sectionDictionary
-    sourceCode
-    filePath
 
 Section
+    name
     primitiveChainList
 
 PrimitiveChain

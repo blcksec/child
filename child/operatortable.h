@@ -22,22 +22,29 @@ namespace Child {
 
         virtual OperatorTable *fork() { return(_fork(this)); }
 
-        Dictionary *operators() {
-            if(!_operators) _operators = Dictionary::fork(this);
+        Dictionary *operators() const {
             return(_operators);
         }
 
-        const QString &startChars() const { return(_startChars); }
-        void addOperator(const QString &text, Operator::Type type, short precedence,
+        void append(const QString &text, Operator::Type type, short precedence,
                          Operator::Associativity associativity = Operator::LeftAssociative,
                          const QString &name = "");
-        Operator *findOperator(const QString &text, const Operator::Type type);
 
-        virtual const QString inspect() const { return(const_cast<OperatorTable *>(this)->operators()->inspect()); }
+        Operator *find(const QString &text, const Operator::Type type) const;
+
+        bool hasOperator(const QString &text) const {
+            return(operators()->hasKey(text));
+        }
+
+        bool hasOperatorStartingWith(const QChar c) const {
+            return(_firstChars.contains(c));
+        }
+
+        virtual const QString inspect() const { return(operators()->inspect()); }
     private:
         static OperatorTable *_root;
         Dictionary *_operators;
-        QString _startChars;
+        QString _firstChars;
     };
 }
 

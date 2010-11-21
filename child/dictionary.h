@@ -51,7 +51,7 @@ namespace Child {
 
         Node *set(QString key, Node *value) {
             if(key.isEmpty()) {
-                key = QString("\%1").arg(_anonymousKeyCount);
+                key = QString("\\%1").arg(_anonymousKeyCount);
                 _anonymousKeyCount++;
             } else {
                 escapeKey(key);
@@ -75,6 +75,34 @@ namespace Child {
         int size() const { return(_size); }
         bool isEmpty() const { return(_size == 0); }
         bool isNotEmpty() const { return(_size > 0); }
+
+        QList<NamedNode> namedNodes() const {
+            QList<NamedNode> namedNodes;
+            QSet<QString> removedKeys;
+            const Dictionary *dict = this;
+            while(dict != root()) {
+                if(dict->_removedKeys) removedKeys.unite(*dict->_removedKeys);
+                if(dict->_addedKeys) {
+                    QListIterator<QString> i(*dict->_addedKeys);
+                    i.toBack();
+                    while(i.hasPrevious()) {
+                        QString key = i.previous();
+                        if(!removedKeys.contains(key)) {
+                            Node *value = dict->_hash->value(key);
+                            if(dict != this) {
+                                value = value->fork()->setIsVirtual(true);
+                                if(!_hash) { _hash = new NodeHash; }
+                                _hash->insert(key, value);
+                                const_cast<Dictionary *>(this)->addDirectChild(_keyToName(key), value);
+                            }
+                            namedNodes.prepend(NamedNode(key, value));
+                        }
+                    }
+                }
+                dict = static_cast<Dictionary *>(dict->origin());
+            }
+            return(namedNodes);
+        }
 
         QList<QString> keys() const {
             QList<QString> keys;
@@ -154,6 +182,10 @@ namespace Child {
             return(key);
         }
 
+        static const bool keyIsAnonymous(const QString &key) {
+            return(key.at(0) == '\\' && key.size()>1 && key.at(1) != '\\');
+        }
+
         virtual const QString inspect() const {
             QString str = "[";
             bool first = true;
@@ -164,10 +196,9 @@ namespace Child {
             str.append("]");
             return(str);
         }
-
     private:
         static Dictionary *_root;
-        NodeHash *_hash;
+        mutable NodeHash *_hash;
         QList<QString> *_addedKeys;
         QSet<QString> *_removedKeys;
         int _size;
@@ -178,7 +209,7 @@ namespace Child {
         }
 
         void _checkValue(Node *value) const {
-            if(!value) throw(NullPointerException("value pointer is NULL"));
+            if(!value) throw(NullPointerException("Node pointer is NULL"));
         }
 
         const QString _keyToName(const QString &key) const { return(QString("\\[%1:]").arg(key)); }

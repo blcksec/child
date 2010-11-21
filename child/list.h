@@ -24,18 +24,29 @@ namespace Child {
             return(list);
         }
 
-        Node *insert(int i, Node *value) {
+        List *insert(int i, Node *value) {
             _checkIndex(i, true);
             _checkValue(value);
             if(!_list) { _list = new NumberedNodeList; }
             _list->insert(i, NumberedNode(_uniqueNumber, value));
             addDirectChild(_numberToName(_uniqueNumber), value);
             _uniqueNumber++;
-            return(value);
+            return(this);
         }
 
-        Node *append(Node *value) { return(insert(size(), value)); }
-        Node *prepend(Node *value) { return(insert(0, value)); }
+        List *insert(int i, List *otherList) {
+            _checkIndex(i, true);
+            if(!otherList) throw(NullPointerException("List pointer is NULL"));
+            for(int j = 0; j < otherList->size(); j++) {
+                insert(i + j, otherList->get(j));
+            }
+            return(this);
+        }
+
+        List *append(Node *value) { return(insert(size(), value)); }
+        List *append(List *otherList) { return(insert(size(), otherList)); }
+        List *prepend(Node *value) { return(insert(0, value)); }
+        List *prepend(List *otherList) { return(insert(0, otherList)); }
 
         Node *get(int i) {
             _checkIndex(i);
@@ -99,7 +110,7 @@ namespace Child {
         }
 
         void _checkValue(Node *value) const {
-            if(!value) throw(NullPointerException("value pointer is NULL"));
+            if(!value) throw(NullPointerException("Node pointer is NULL"));
         }
 
         const QString _numberToName(int number) const { return(QString("\\[%1]").arg(number)); }

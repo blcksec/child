@@ -3,6 +3,13 @@
 
 #include "child/object.h"
 #include "child/lexer.h"
+#include "child/block.h"
+#include "child/section.h"
+#include "child/primitivechain.h"
+#include "child/primitive.h"
+#include "child/message.h"
+#include "child/text.h"
+#include "child/number.h"
 
 #define CHILD_PARSER(EXPRESSION) static_cast<Parser *>(EXPRESSION)
 
@@ -23,7 +30,9 @@ namespace Child {
         Lexer *lexer() const { return(_lexer); }
         void setLexer(Lexer *lexer) { _lexer = lexer; }
 
-        const QString run() {
+        Block *parse(const QString &source, const QString &resourceName = "") {
+            lexer()->setSource(&source);
+            lexer()->setResourceName(resourceName);
             consume();
             return(scanBlock());
         }
@@ -57,7 +66,7 @@ namespace Child {
             _openedTokens.pop();
         }
 
-        const bool is(const Token::Type type, const QString &text = QString()) {
+        const bool is(const Token::Type type, const QString &text = QString()) const {
             if(text.isNull())
                 return(tokenType() == type);
             else
@@ -89,87 +98,71 @@ namespace Child {
                do consume(); while(is(Token::Newline));
         }
 
-        const QString scanBlock() {
-            QString result;
+        Block *scanBlock() {
+            _currentBlock = Block::fork(this);
             consumeNewline();
-            while(!is(Token::Eof)) {
-                result.append(scanSection());
-            }
-            return(result);
+            while(!is(Token::Eof))
+                _currentBlock->appendSection(scanSection());
+            return(_currentBlock);
         }
 
-        const QString scanSection() {
-            QString result;
+        Section *scanSection() {
+            _currentSection = Section::fork(this);
             if(is(Token::Label)) {
-                result = tokenText();
-                result.append('\n');
+                _currentSection->setName(tokenText());
                 consume();
                 consumeNewline();
             }
             while(!(is(Token::Label) || is(Token::Eof))) {
-                QString expression = scanExpression();
+                _currentSection->appendPrimitiveChain(scanExpression());
                 consumeNewline();
-                if(!expression.isEmpty()) result.append(expression).append('\n');
             }
-            return(result);
+            return(_currentSection);
         }
 
-        const QString scanExpression() {
-            QString unary = scanUnaryExpressionChain();
+        PrimitiveChain *scanExpression() {
+            PrimitiveChain *primitiveChain = scanUnaryExpressionChain();
             if(Operator *op = isBinaryOperator())
-                return(scanBinaryOperator(unary, op, 0));
-            else
-                return(unary);
+                return(scanBinaryOperator(primitiveChain, op, 0));
+            return(primitiveChain);
         }
 
-        const QString scanUnaryExpressionChain() {
-            QString result;
+        PrimitiveChain *scanUnaryExpressionChain() {
+            PrimitiveChain *primitiveChain = PrimitiveChain::fork(this);
             while(isUnaryExpression()) {
-                result.append(scanUnaryExpression());
+                scanUnaryExpression(primitiveChain);
                 if(isBinaryOperator()) break;
             }
-            if(result.isEmpty()) throwError("expecting UnaryExpression, found " + tokenTypeName());
-            return(result);
+            if(primitiveChain->primitives()->isEmpty()) throwError("expecting UnaryExpression, found " + tokenTypeName());
+            return(primitiveChain);
         }
 
-        const bool isUnaryExpression() {
+        const bool isUnaryExpression() const {
             return(isPrefixOperator() || isPrimaryExpression());
         }
 
-        const QString scanUnaryExpression() {
+        void scanUnaryExpression(PrimitiveChain *primitiveChain) {
             if(Operator *op = isPrefixOperator())
-                return(scanPrefixOperator(op));
+                scanPrefixOperator(primitiveChain, op);
             else
-                return(scanPrimaryExpression());
+                scanPrimaryExpression(primitiveChain);
         }
 
-        const bool isPrimaryExpression() {
+        const bool isPrimaryExpression() const {
             return(isOperand());
         }
 
-        const QString scanPrimaryExpression() {
-            QString result = scanOperand();
-            if(is(Token::LeftParenthesis)) {
-                openToken();
-                consume();
-                consumeNewline();
-                result.append("(");
-                if(!is(Token::RightParenthesis))
-                    result.append(scanExpression());
-                result.append(")");
-                match(Token::RightParenthesis);
-                closeToken();
-            }
+        void scanPrimaryExpression(PrimitiveChain *primitiveChain) {
+            primitiveChain->append(scanOperand());
             while(Operator *op = isPostfixOperator())
-                result.append(scanPostfixOperator(op));
-            return(result);
+                primitiveChain->append(scanPostfixOperator(op));
         }
 
-        const bool isOperand() {
+        const bool isOperand() const {
             return(isName() || isLiteral() || isSubexpression());
         }
 
-        const QString scanOperand() {
+        Primitive *scanOperand() {
             if(isName()) {
                 return(scanName());
             } else if(isLiteral()) {
@@ -179,93 +172,171 @@ namespace Child {
             }
         }
 
-        const bool isName() {
+        const bool isName() const {
             return(is(Token::Name));
         }
 
-        const QString scanName() {
-            QString result = tokenText();
+        Primitive *scanName() {
+            Primitive *primitive = Primitive::fork(this);
+            Message *message = Message::fork(this);
+            primitive->setValue(message);
+            message->setName(tokenText());
+            int begin = token()->sourceCodeRef.position();
             consume();
+            if(is(Token::LeftParenthesis)) {
+                openToken();
+                consume();
+                consumeNewline();
+                if(!is(Token::RightParenthesis)) {
+                    PrimitiveChain *chain = scanExpression();
+                    List *list = pairToList(chain);
+                    message->appendInput(list);
+                }
+                closeToken();
+                match(Token::RightParenthesis);
+            }
+            int end = token()->sourceCodeRef.position();
+            primitive->setSourceCodeRef(lexer()->source()->midRef(begin, end - begin));
             consumeUselessNewline();
-            return(result);
+            return(primitive);
         }
 
-        const bool isLiteral() {
+        List *pairToList(PrimitiveChain *chain) { // TODO: simplify this code
+            List *list = List::fork(this);
+            if(chain->primitives()->isNotEmpty()) {
+                Primitive *prim = CHILD_PRIMITIVE(chain->primitives()->get(0));
+                Message *msg = dynamic_cast<Message *>(prim->value());
+                if(msg && msg->name() == ",") {
+                    QList<NamedNode> inputs = msg->inputs()->namedNodes();
+                    PrimitiveChain *chain2 = CHILD_PRIMITIVECHAIN(inputs.at(0).node);
+                    Primitive *prim2 = CHILD_PRIMITIVE(chain2->primitives()->get(0));
+                    Message *msg2 = dynamic_cast<Message *>(prim2->value());
+                    if(msg2 && msg2->name() == ",") {
+                        List *list2 = pairToList(chain2);
+                        list->append(list2);
+                        delete list2;
+                    } else
+                        list->append(chain2);
+                    PrimitiveChain *chain3 = CHILD_PRIMITIVECHAIN(inputs.at(1).node);
+                    list->append(chain3);
+                } else
+                    list->append(chain);
+            }
+            return(list);
+        }
+
+        const bool isLiteral() const {
             Token::Type type = tokenType();
             return(type == Token::Boolean || type == Token::Number ||
                    type == Token::Character || type == Token::Text);
         }
 
-        const QString scanLiteral() {
-            QString result = tokenText();
+        Primitive *scanLiteral() {
+            Primitive *primitive = Primitive::fork(this);
+            primitive->setSourceCodeRef(token()->sourceCodeRef);
+            switch(tokenType()) {
+            case Token::Text:
+                primitive->setValue(Text::fork(this, tokenText().mid(1, tokenText().size() - 2)));
+                break;
+            case Token::Number:
+                primitive->setValue(Number::fork(this, tokenText().toDouble()));
+                break;
+            default:
+                throwError("unimplemented token!");
+            }
             consume();
             consumeUselessNewline();
-            return(result);
+            return(primitive);
         }
 
-        const bool isSubexpression() {
+        const bool isSubexpression() const {
             return(is(Token::LeftParenthesis));
         }
 
-        const QString scanSubexpression() {
+        Primitive *scanSubexpression() {
+            Primitive *primitive = Primitive::fork(this);
+            int begin = token()->sourceCodeRef.position();
             openToken();
             consume(); // Left parenthesis
             consumeNewline();
-            QString result = scanExpression();
-            match(Token::RightParenthesis);
+            primitive->setValue(scanExpression());
+            int end = token()->sourceCodeRef.position() + 1;
             closeToken();
-            return(result);
+            match(Token::RightParenthesis);
+            primitive->setSourceCodeRef(lexer()->source()->midRef(begin, end - begin));
+            return(primitive);
         }
 
-        Operator *isOperator(Operator::Type type) {
+        Operator *isOperator(Operator::Type type) const {
             if(!is(Token::Operator)) return(NULL);
-            return(lexer()->operatorTable()->findOperator(tokenText(), type));
+            return(lexer()->operatorTable()->find(tokenText(), type));
         }
 
-        Operator *isPrefixOperator() {
+        Operator *isPrefixOperator() const {
             return(isOperator(Operator::Prefix));
         }
 
-        const QString scanPrefixOperator(Operator *currentOp) {
+        void scanPrefixOperator(PrimitiveChain *primitiveChain, Operator *currentOp) {
+            Primitive *primitive = Primitive::fork(this);
+            Message *message = Message::fork(this);
+            primitive->setValue(message);
+            primitive->setSourceCodeRef(token()->sourceCodeRef);
+            message->setName(currentOp->name);
             consume();
             consumeNewline();
-            return(currentOp->name + "(" + scanUnaryExpression() + ")");
+            PrimitiveChain *unary = PrimitiveChain::fork(this);
+            scanUnaryExpression(unary);
+            message->appendInput("", unary);
+            primitiveChain->append(primitive);
         }
 
-        Operator *isPostfixOperator() {
+        Operator *isPostfixOperator() const {
             return(isOperator(Operator::Postfix));
         }
 
-        const QString scanPostfixOperator(Operator *currentOp) {
+        Primitive *scanPostfixOperator(Operator *currentOp) {
+            Primitive *primitive = Primitive::fork(this);
+            Message *message = Message::fork(this);
+            primitive->setValue(message);
+            primitive->setSourceCodeRef(token()->sourceCodeRef);
+            message->setName(currentOp->name);
             consume();
             consumeUselessNewline();
-            return(currentOp->name);
+            return(primitive);
         }
 
-        Operator *isBinaryOperator() {
+        Operator *isBinaryOperator() const {
             return(isOperator(Operator::Binary));
         }
 
-        const QString scanBinaryOperator(QString leftHandSide, Operator *currentOp, const short minPrecedence) {
+        PrimitiveChain *scanBinaryOperator(PrimitiveChain *leftHandSide, Operator *currentOp, const short minPrecedence) {
             do {
+                Primitive *primitive = Primitive::fork(this);
+                Message *message = Message::fork(this);
+                primitive->setValue(message);
+                primitive->setSourceCodeRef(token()->sourceCodeRef);
+                message->setName(currentOp->name);
                 consume();
                 consumeNewline();
-                QString rightHandSide = scanUnaryExpressionChain();
+                PrimitiveChain *rightHandSide = scanUnaryExpressionChain();
                 while(Operator *nextOp = isBinaryOperator()) {
                     if(nextOp->associativity == Operator::NonAssociative && nextOp->precedence == currentOp->precedence)
                         qFatal("syntax error: chained non-associative operators with same precedence");
-                    if(nextOp->precedence <= currentOp->precedence) break;
+                    if(nextOp->associativity != Operator::RightAssociative && nextOp->precedence <= currentOp->precedence) break;
                     if(nextOp->associativity == Operator::RightAssociative && nextOp->precedence != currentOp->precedence) break;
                     rightHandSide = scanBinaryOperator(rightHandSide, nextOp, nextOp->precedence);
                 }
-                leftHandSide = "(" + leftHandSide + currentOp->name + rightHandSide + ")";
+                message->appendInput("", leftHandSide);
+                message->appendInput("", rightHandSide);
+                leftHandSide = PrimitiveChain::fork(this);
+                leftHandSide->append(primitive);
             } while((currentOp = isBinaryOperator()) && currentOp->precedence >= minPrecedence);
             return(leftHandSide);
         }
 
-        void throwError(const QString &message) {
+        void throwError(const QString &message) const {
             QString report;
-            if(!lexer()->filename().isEmpty()) report.append(QString("%1:").arg(lexer()->filename()));
+            if(!lexer()->resourceName().isEmpty()) report.append(QString("%1:").arg(lexer()->resourceName()));
             int column, line;
             computeColumnAndLineForPosition(*lexer()->source(), token()->sourceCodeRef.position(), column, line);
             report.append(QString("%1: %2").arg(line).arg(message));
@@ -282,6 +353,10 @@ namespace Child {
         Lexer *_lexer;
         const Token *_currentToken;
         QStack<Token::Type> _openedTokens;
+        Block *_currentBlock;
+        Section *_currentSection;
+        Primitive *_currentPrimitive;
+        Message *_currentMessage;
     };
 }
 

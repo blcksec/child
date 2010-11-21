@@ -59,6 +59,18 @@ namespace Child {
         DuplicateException(const QString &msg = "???") : RuntimeException(msg) {}
         virtual const QString message() const { return("DuplicateException: " + _message); }
     };
+
+    class OperatingSystemException : public Exception {
+    public:
+        OperatingSystemException(const QString &msg = "???") : Exception(msg) {}
+        virtual const QString message() const { return("OperatingSystemException: " + _message); }
+    };
+
+    class FileSystemException : public OperatingSystemException {
+    public:
+        FileSystemException(const QString &msg = "???") : OperatingSystemException(msg) {}
+        virtual const QString message() const { return("FileSystemException: " + _message); }
+    };
 }
 
 #endif // CHILD_EXCEPTION_H

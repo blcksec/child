@@ -98,7 +98,7 @@ namespace Child {
         do {
             consume();
             text.append(_currentChar);
-        } while(operatorTable()->operators()->hasKey(text));
+        } while(operatorTable()->hasOperator(text));
         return(finishToken(Token::Operator));
     }
 
@@ -226,7 +226,7 @@ namespace Child {
 
     void Lexer::throwError(const QString &message) {
         QString report;
-        if(!_filename.isEmpty()) report.append(QString("%1:").arg(_filename));
+        if(!_resourceName.isEmpty()) report.append(QString("%1:").arg(_resourceName));
         int column, line;
         computeColumnAndLineForPosition(*_source, _position, column, line);
         report.append(QString("%1: %2").arg(line).arg(message));

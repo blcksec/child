@@ -12,8 +12,9 @@ namespace Child {
         return(_root);
     }
 
-    void OperatorTable::addOperator(const QString &text, Operator::Type type, short precedence,
+    void OperatorTable::append(const QString &text, Operator::Type type, short precedence,
                      Operator::Associativity associativity, const QString &name) {
+        if(!_operators) _operators = Dictionary::fork(this);
         List *list;
         if(operators()->hasKey(text))
             list = CHILD_LIST(operators()->get(text));
@@ -22,10 +23,10 @@ namespace Child {
             operators()->set(text, list);
         }
         list->append(Operator::fork(this, text, type, precedence, associativity, name));
-        if(!_startChars.contains(text.at(0))) _startChars.append(text.at(0));
+        if(!_firstChars.contains(text.at(0))) _firstChars.append(text.at(0));
     }
 
-    Operator *OperatorTable::findOperator(const QString &text, const Operator::Type type) {
+    Operator *OperatorTable::find(const QString &text, const Operator::Type type) const {
         if(!operators()->hasKey(text)) return(NULL);
         List *list = CHILD_LIST(operators()->get(text));
         for(int i = 0; i < list->size(); i++) {
