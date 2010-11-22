@@ -10,7 +10,6 @@ int main() { // int argc, char *argv[]
         app->init();
         SourceCode *source = app->loadSourceCode("../child/examples/test.child");
         p(source->inspect());
-        p(Application::root()->className());
 //        p(app->blocks()->inspect());
 //        app->lexer()->setSource(&source);
 //        app->lexer()->setFilename("lexertest.child");

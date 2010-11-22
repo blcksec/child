@@ -15,10 +15,8 @@ namespace Child {
 
         NativeMethod() : _method(NULL) {}
 
-        virtual NativeMethod *initFork() {
-            NativeMethod *orig = NativeMethod::as(origin());
-            setMethod(orig->_method);
-            return(this);
+        virtual void initFork() {
+            setMethod(NativeMethod::as(origin())->_method);
         }
 
         NodeMethodPtr method() const { return(_method); }

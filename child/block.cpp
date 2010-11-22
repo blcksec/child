@@ -2,4 +2,8 @@
 
 namespace Child {
     CHILD_IMPLEMENTATION(Block, Object);
+
+    void Block::initRoot() {
+        // TODO
+    }
 }

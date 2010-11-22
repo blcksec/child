@@ -6,8 +6,6 @@
 #include "child/dictionary.h"
 #include "child/operator.h"
 
-#define CHILD_OPERATORTABLE(EXPRESSION) static_cast<OperatorTable *>(EXPRESSION)
-
 namespace Child {
     class OperatorTable : public Object {
         CHILD_DECLARATION(OperatorTable);

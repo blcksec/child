@@ -16,11 +16,10 @@ namespace Child {
             delete _removedKeys;
         }
 
-        virtual Dictionary *initFork() {
+        virtual void initFork() {
             Dictionary *orig = Dictionary::as(origin());
             _size = orig->_size;
             _anonymousKeyCount = orig->_anonymousKeyCount;
-            return(this);
         }
 
         Node *get(QString key) {

@@ -3,8 +3,6 @@
 
 #include "child/object.h"
 
-#define CHILD_NUMBER(EXPRESSION) static_cast<Number *>(EXPRESSION)
-
 namespace Child {
     class Number : public Object {
         CHILD_DECLARATION(Number);
@@ -13,11 +11,7 @@ namespace Child {
             return(Number::fork(world)->setValue(value));
         }
 
-        virtual Number *initFork() {
-            Number *orig = Number::as(origin());
-            setValue(orig->_value);
-            return(this);
-        }
+        virtual void initFork() { setValue(Number::as(origin())->_value); }
 
         double value() const { return(_value); }
         Number *setValue(double value) { _value = value; return(this); }

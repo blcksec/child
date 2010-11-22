@@ -3,11 +3,9 @@
 
 #include "child/object.h"
 
-#define CHILD_TOKEN(EXPRESSION) static_cast<Token *>(EXPRESSION)
-
 namespace Child {
     class Token : public Object {
-//        CHILD_DECLARATION(Application);
+        CHILD_DECLARATION(Token);
     public:
         enum Type {
             Null,
@@ -31,10 +29,11 @@ namespace Child {
 
         static const char *typesName[];
 
-        static Token *root();
-        static Token *fork(Node *world) { return(CHILD_TOKEN(world->child("Token"))->fork()); }
         static Token *fork(Node *world, const Type type, const QStringRef &sourceCodeRef) {
-            return(CHILD_TOKEN(world->child("Token"))->fork(type, sourceCodeRef));
+            Token *f = Token::fork(world);
+            f->type = type;
+            f->sourceCodeRef = sourceCodeRef;
+            return(f);
         }
 
         Type type;
@@ -43,18 +42,10 @@ namespace Child {
         Token(const Type type = Null, const QStringRef &sourceCodeRef = QStringRef()) :
                 type(type), sourceCodeRef(sourceCodeRef) {}
 
-        virtual Token *fork() {
-            Token *tk = _fork(this);
-            tk->type = type;
-            tk->sourceCodeRef = sourceCodeRef;
-            return(tk);
-        }
-
-        virtual Token *fork(const Type type, const QStringRef &sourceCodeRef) {
-            Token *tk = _fork(this);
-            tk->type = type;
-            tk->sourceCodeRef = sourceCodeRef;
-            return(tk);
+        virtual void initFork() {
+            Token *orig = Token::as(origin());
+            type = orig->type;
+            sourceCodeRef = orig->sourceCodeRef;
         }
 
         static const QString typeName(const Type type) { return(typesName[type]); }
@@ -62,7 +53,6 @@ namespace Child {
         const QString text() const { return(sourceCodeRef.toString()); }
         virtual const QString inspect() const { return(QString("%1: '%2'").arg(typeName()).arg(text())); }
     private:
-        static Token *_root;
     };
 }
 

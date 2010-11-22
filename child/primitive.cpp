@@ -2,4 +2,8 @@
 
 namespace Child {
     CHILD_IMPLEMENTATION(Primitive, Object);
+
+    void Primitive::initRoot() {
+        // TODO
+    }
 }

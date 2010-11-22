@@ -8,8 +8,10 @@
 #include "child/primitivechain.h"
 #include "child/primitive.h"
 #include "child/message.h"
-#include "child/text.h"
+#include "child/boolean.h"
 #include "child/number.h"
+#include "child/character.h"
+#include "child/text.h"
 
 namespace Child {
     class Parser : public Object {
@@ -240,12 +242,22 @@ namespace Child {
         Primitive *scanLiteral() {
             Primitive *primitive = Primitive::fork(this);
             primitive->setSourceCodeRef(token()->sourceCodeRef);
+            QChar c;
+            QString s;
             switch(tokenType()) {
-            case Token::Text:
-                primitive->setValue(Text::fork(this, tokenText().mid(1, tokenText().size() - 2)));
+            case Token::Boolean:
+                primitive->setValue(Boolean::fork(this, tokenText() == "true"));
                 break;
             case Token::Number:
                 primitive->setValue(Number::fork(this, tokenText().toDouble()));
+                break;
+            case Token::Character:
+                c = Text::unescapeSequence(tokenText().mid(1, tokenText().size() - 2)).at(0);
+                primitive->setValue(Character::fork(this, c));
+                break;
+            case Token::Text:
+                s = Text::unescapeSequence(tokenText().mid(1, tokenText().size() - 2));
+                primitive->setValue(Text::fork(this, s));
                 break;
             default:
                 throwError("unimplemented token!");

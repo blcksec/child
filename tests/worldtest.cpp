@@ -7,4 +7,3 @@ namespace Child {
         QVERIFY(world->hasChild("NativeMethod"));
     }
 }
-

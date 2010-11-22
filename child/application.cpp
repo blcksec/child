@@ -3,6 +3,10 @@
 namespace Child {
     CHILD_IMPLEMENTATION(Application, Object);
 
+    void Application::initRoot() {
+        // TODO
+    }
+
     void Application::initOperatorTable() {
         OperatorTable *opTable = OperatorTable::fork(this);
 

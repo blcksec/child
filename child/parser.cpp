@@ -2,6 +2,10 @@
 
 namespace Child {
     CHILD_IMPLEMENTATION(Parser, Object);
+
+    void Parser::initRoot() {
+        // TODO
+    }
 }
 
 //        enum Rule {

@@ -23,14 +23,13 @@ namespace Child {
             if(name.isEmpty()) this->name = text;
         }
 
-        virtual Operator *initFork() {
+        virtual void initFork() {
             Operator *orig = Operator::as(origin());
             text = orig->text;
             type = orig->type;
             precedence = orig->precedence;
             associativity = orig->associativity;
             name = orig->name;
-            return(this);
         }
 
         const bool isNull() const { return(type == Null); }

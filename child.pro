@@ -42,7 +42,9 @@ SOURCES += main.cpp \
     tests/listtest.cpp \
     child/operatortable.cpp \
     child/sourcecode.cpp \
-    child/number.cpp
+    child/number.cpp \
+    child/boolean.cpp \
+    child/character.cpp
 
 HEADERS += \
     child/node.h \
@@ -75,7 +77,9 @@ HEADERS += \
     tests/listtest.h \
     child/operatortable.h \
     child/sourcecode.h \
-    child/number.h
+    child/number.h \
+    child/boolean.h \
+    child/character.h
 
 OTHER_FILES += \
     notes/ideas.txt \

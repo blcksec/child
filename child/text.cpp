@@ -1,18 +1,74 @@
 #include "child/text.h"
 
 namespace Child {
-//    CHILD_IMPLEMENTATION(Text, Object);
-    Text *Text::_root = Text::root();
+    CHILD_IMPLEMENTATION(Text, Object);
 
-    Text *Text::root() {
-        if(!_root) {
-            _root = new Text;
-            _root->setOrigin(Object::root());
-            _root->addParent("Text", Object::root());
+    void Text::initRoot() {
+        NativeMethod *meth = NativeMethod::fork(_root, CHILD_METHODPTR(Text::upcase));
+        _root->addDirectChild("upcase", meth);
+    }
 
-            NativeMethod *meth = NativeMethod::fork(_root, CHILD_METHODPTR(Text::upcase));
-            _root->addDirectChild("upcase", meth);
+    QString Text::unescapeSequence(const QString &source) {
+        QString result;
+        int i = 0;
+        QChar c;
+        while(i < source.size()) {
+            c = source.at(i);
+            if(c == '\\') {
+                i++;
+                if(i == source.size()) throw(RuntimeException("invalid escape sequence: '\\'"));
+                c = source.at(i);
+                switch(c.toAscii()) {
+                case 't': c = '\t';  break;
+                case 'n': c = '\n'; break;
+                case 'r': c = '\r'; break;
+                case '"': c = '"'; break;
+                case '\'': c = '\''; break;
+                case '\\': c = '\\'; break;
+                default:
+                    if(QString("01234567xu").contains(c, Qt::CaseInsensitive))
+                        c = Text::unescapeSequenceNumber(source, i);
+                    else
+                        throw(RuntimeException(QString("unknown escape sequence: '\\%1'").arg(c)));
+                }
+            }
+            result += c;
+            i++;
         }
-        return(_root);
+        return(result);
+    }
+
+    QChar Text::unescapeSequenceNumber(const QString &source, int &i) {
+        char type;
+        QString allowedChars;
+        short maxSize;
+        QChar c = source.at(i);
+        if(c == 'x' || c == 'X') {
+            type = 'x';
+            allowedChars = "0123456789abcdef";
+            maxSize = 2;
+        } else if(c == 'u' || c == 'U') {
+            type = 'u';
+            allowedChars = "0123456789abcdef";
+            maxSize = 4;
+        } else {
+            type = 'o';
+            allowedChars = "01234567";
+            maxSize = 3;
+            i--;
+        }
+        QString number = "";
+        do {
+            i++;
+            if(i == source.size()) throw(RuntimeException("invalid escape sequence number"));
+            c = source.at(i);
+            if(!allowedChars.contains(c, Qt::CaseInsensitive)) { i--; break; }
+            number += c;
+        } while(number.size() < maxSize);
+        if(number.isEmpty()) throw(RuntimeException("invalid escape sequence number"));
+        bool ok;
+        ushort code = type == 'o' ? number.toUShort(&ok, 8) : number.toUShort(&ok, 16);
+        if(!ok || (type != 'u' && code > 0xFF)) throw(RuntimeException("invalid number in escape sequence"));
+        return(QChar(code));
     }
 }

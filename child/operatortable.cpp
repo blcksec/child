@@ -3,6 +3,10 @@
 namespace Child {
     CHILD_IMPLEMENTATION(OperatorTable, Object);
 
+    void OperatorTable::initRoot() {
+        // TODO
+    }
+
     void OperatorTable::append(const QString &text, Operator::Type type, short precedence,
                      Operator::Associativity associativity, const QString &name) {
         if(!_operators) _operators = Dictionary::fork(this);

@@ -2,4 +2,8 @@
 
 namespace Child {
     CHILD_IMPLEMENTATION(Message, Object);
+
+    void Message::initRoot() {
+        // TODO
+    }
 }

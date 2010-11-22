@@ -13,11 +13,10 @@ namespace Child {
             delete _list;
         }
 
-        virtual List *initFork() {
+        virtual void initFork() {
             List *orig = List::as(origin());
             if(orig->_list) _list = new NumberedNodeList(*orig->_list); // TODO: optimized fork!
             _uniqueNumber = orig->_uniqueNumber;
-            return(this);
         }
 
         Node *insert(int i, Node *value) {

@@ -40,3 +40,11 @@ test:
 }
 
 Person("Manu") \full_name test
+
+***
+
+"7" <Number>
+
+("5" + "8") <Number>
+
+f(str<Number>)

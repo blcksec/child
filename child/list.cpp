@@ -2,4 +2,8 @@
 
 namespace Child {
     CHILD_IMPLEMENTATION(List, Object);
+
+    void List::initRoot() {
+        // TODO
+    }
 }

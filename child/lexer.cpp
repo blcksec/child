@@ -3,6 +3,10 @@
 namespace Child {
     CHILD_IMPLEMENTATION(Lexer, Object);
 
+    void Lexer::initRoot() {
+        // TODO
+    }
+
     void Lexer::rewind() {
         _previousChar = '\0';
         _currentChar = '\0';

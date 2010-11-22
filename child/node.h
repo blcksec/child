@@ -13,6 +13,7 @@
 public: \
     static const QString &className() { return(NAME::_className); } \
     static NAME *root(); \
+    static void initRoot(); \
     static NAME *fork(Node *world) { return(static_cast<NAME *>(world->child(#NAME))->fork()); } \
     virtual NAME *fork() { \
         NAME *f = new NAME; \
@@ -34,6 +35,7 @@ NAME *NAME::root() { \
         _root = new NAME; \
         _root->setOrigin(PARENT::root()); \
         _root->addParent(#NAME, PARENT::root()); \
+        NAME::initRoot(); \
     } \
     return(_root); \
 }
@@ -99,6 +101,8 @@ namespace Child {
 
         virtual ~Node();
 
+        virtual void initFork() {}
+
         bool isVirtual() const { return(_isVirtual); }
         Node *setIsVirtual(bool value) { _isVirtual = value; return(this); }
 
@@ -107,14 +111,6 @@ namespace Child {
         void unsetOrigin() { if(_origin) { _origin->_forks->removeOne(this); _origin = NULL; } }
         NodeList forks() const { return(_forks ? NodeList(*_forks) : NodeList()); }
         bool directOriginIs(Node *node) const;
-    protected:
-        template<typename T> static T *_fork(T *node) {
-            T *fork = new T;
-            fork->setOrigin(node);
-            return(fork);
-        }
-    public:
-        virtual Node *initFork() { return(this); }
         void removeAllForks();
 
         NodeList extensions() const { return(_extensions ? NodeList(*_extensions) : NodeList()); }

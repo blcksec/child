@@ -5,6 +5,10 @@
 namespace Child {
     CHILD_IMPLEMENTATION(Node, Node);
 
+    void Node::initRoot() {
+        // TODO
+    }
+
     NumberedNode::NumberedNode(const int number, Node *const node) : number(number), node(node) {
         if(!node) throw(NullPointerException("NULL node passed to NumberedNode constructor()"));
     }

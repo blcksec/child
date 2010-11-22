@@ -2,4 +2,8 @@
 
 namespace Child {
     CHILD_IMPLEMENTATION(Section, Object);
+
+    void Section::initRoot() {
+        // TODO
+    }
 }

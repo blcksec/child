@@ -1,16 +1,10 @@
 #include "child/token.h"
 
 namespace Child {
-//    CHILD_IMPLEMENTATION(Application, Object);
-    Token *Token::_root = Token::root();
+    CHILD_IMPLEMENTATION(Token, Object);
 
-    Token *Token::root() {
-        if(!_root) {
-            _root = new Token;
-            _root->setOrigin(Object::root());
-            _root->addParent("Token", Object::root());
-        }
-        return(_root);
+    void Token::initRoot() {
+        // TODO
     }
 
     const char *Token::typesName[] = {
