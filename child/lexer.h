@@ -5,17 +5,11 @@
 #include "child/token.h"
 #include "child/operatortable.h"
 
-#define CHILD_LEXER(EXPRESSION) static_cast<Lexer *>(EXPRESSION)
-
 namespace Child {
     class Lexer : public Object {
+        CHILD_DECLARATION(Lexer);
     public:
-        static Lexer *root();
-        static Lexer *fork(Node *world) { return(CHILD_LEXER(world->child("Lexer"))->fork()); }
-
         Lexer() : _operatorTable(0), _source(0) {}
-
-        virtual Lexer *fork() { return(_fork(this)); }
 
         OperatorTable *operatorTable() const { return(_operatorTable); }
         void setOperatorTable(OperatorTable *table) { _operatorTable = table; }
@@ -130,9 +124,7 @@ namespace Child {
 //                rewind();
 //            }
 //        }
-
     private:
-        static Lexer *_root;
         OperatorTable *_operatorTable;
         const QString *_source;
         QString _resourceName;

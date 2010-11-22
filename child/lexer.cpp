@@ -1,16 +1,7 @@
 #include "child/lexer.h"
 
 namespace Child {
-    Lexer *Lexer::_root = Lexer::root();
-
-    Lexer *Lexer::root() {
-        if(!_root) {
-            _root = new Lexer;
-            _root->setOrigin(Object::root());
-            _root->addParent("Lexer", Object::root());
-        }
-        return(_root);
-    }
+    CHILD_IMPLEMENTATION(Lexer, Object);
 
     void Lexer::rewind() {
         _previousChar = '\0';

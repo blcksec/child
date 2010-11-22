@@ -1,15 +1,16 @@
-//#include "tests/runalltests.h"
-//#include "child/parser.h"
+#include "tests/runalltests.h"
 #include "child/application.h"
 
 using namespace Child;
 
 int main() { // int argc, char *argv[]
+    runAllTests();
     try {
         Application *app = Application::root();
         app->init();
         SourceCode *source = app->loadSourceCode("../child/examples/test.child");
         p(source->inspect());
+        p(Application::root()->className());
 //        p(app->blocks()->inspect());
 //        app->lexer()->setSource(&source);
 //        app->lexer()->setFilename("lexertest.child");
@@ -43,6 +44,4 @@ int main() { // int argc, char *argv[]
     } catch(Exception e) {
         qDebug() << e.message().toUtf8();
     }
-
-//    runAllTests();
 }

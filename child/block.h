@@ -5,21 +5,15 @@
 #include "child/dictionary.h"
 #include "child/section.h"
 
-#define CHILD_BLOCK(EXPRESSION) static_cast<Block *>(EXPRESSION)
-
 namespace Child {
     class Block : public Object {
+        CHILD_DECLARATION(Block);
     public:
-        static Block *root();
-        static Block *fork(Node *world) { return(CHILD_BLOCK(world->child("Block"))->fork()); }
-
         Block() : _sections(NULL) {}
 
         virtual ~Block() {
             delete _sections;
         }
-
-        virtual Block *fork() { return(_fork(this)); }
 
         Dictionary *sections() const { return(_sections); }
 
@@ -40,7 +34,6 @@ namespace Child {
             return(str);
         }
     private:
-        static Block *_root;
         Dictionary *_sections;
     };
 }

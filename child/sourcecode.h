@@ -5,21 +5,15 @@
 #include "child/parser.h"
 #include "child/block.h"
 
-#define CHILD_SOURCECODE(EXPRESSION) static_cast<SourceCode *>(EXPRESSION)
-
 namespace Child {
     class SourceCode : public Object {
+        CHILD_DECLARATION(SourceCode);
     public:
-        static SourceCode *root();
-        static SourceCode *fork(Node *world) { return(CHILD_SOURCECODE(world->child("SourceCode"))->fork()); }
-
         SourceCode() : _block(NULL) {}
 
         virtual ~SourceCode() {
             delete _block;
         }
-
-        virtual SourceCode *fork() { return(_fork(this)); }
 
         Block *block() const { return(_block); }
         void setBlock(Block *block) {
@@ -50,7 +44,6 @@ namespace Child {
             return(str);
         }
     private:
-        static SourceCode *_root;
         Block *_block;
         QString _text;
         QString _url;

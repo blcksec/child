@@ -5,21 +5,15 @@
 #include "child/list.h"
 #include "child/primitivechain.h"
 
-#define CHILD_SECTION(EXPRESSION) static_cast<Section *>(EXPRESSION)
-
 namespace Child {
     class Section : public Object {
+        CHILD_DECLARATION(Section);
     public:
-        static Section *root();
-        static Section *fork(Node *world) { return(CHILD_SECTION(world->child("Section"))->fork()); }
-
         Section() : _primitiveChains(NULL) {}
 
         virtual ~Section() {
             delete _primitiveChains;
         }
-
-        virtual Section *fork() { return(_fork(this)); }
 
         const QString &name() const { return(_name); }
         void setName(const QString &name) { _name = name; }
@@ -47,7 +41,6 @@ namespace Child {
             return(str);
         }
     private:
-        static Section *_root;
         QString _name;
         List *_primitiveChains;
     };

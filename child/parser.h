@@ -11,21 +11,15 @@
 #include "child/text.h"
 #include "child/number.h"
 
-#define CHILD_PARSER(EXPRESSION) static_cast<Parser *>(EXPRESSION)
-
 namespace Child {
     class Parser : public Object {
+        CHILD_DECLARATION(Parser);
     public:
-        static Parser *root();
-        static Parser *fork(Node *world) { return(CHILD_PARSER(world->child("Parser"))->fork()); }
-
         Parser() : _lexer(NULL), _currentToken(NULL) {}
 
         virtual ~Parser() {
             delete _currentToken;
         }
-
-        virtual Parser *fork() { return(_fork(this)); }
 
         Lexer *lexer() const { return(_lexer); }
         void setLexer(Lexer *lexer) { _lexer = lexer; }
@@ -33,6 +27,7 @@ namespace Child {
         Block *parse(const QString &source, const QString &resourceName = "") {
             lexer()->setSource(&source);
             lexer()->setResourceName(resourceName);
+            clearOpenedTokens();
             consume();
             return(scanBlock());
         }
@@ -66,6 +61,17 @@ namespace Child {
             _openedTokens.pop();
         }
 
+        const Token::Type topToken() const {
+            if(_openedTokens.empty())
+                return(Token::Null);
+            else
+                return(_openedTokens.top());
+        }
+
+        void clearOpenedTokens() {
+            _openedTokens.clear();
+        }
+
         const bool is(const Token::Type type, const QString &text = QString()) const {
             if(text.isNull())
                 return(tokenType() == type);
@@ -92,32 +98,31 @@ namespace Child {
 
         void consumeUselessNewline() {
             if(!is(Token::Newline)) return;
-            if(_openedTokens.empty()) return;
-            Token::Type type = _openedTokens.top();
-            if(type == Token::LeftParenthesis || type == Token::LeftBracket)
+            Token::Type type = topToken();
+            if(type == Token::LeftParenthesis || type == Token::LeftBracket || type == Token::Label)
                do consume(); while(is(Token::Newline));
         }
 
         Block *scanBlock() {
-            _currentBlock = Block::fork(this);
+            Block *block = Block::fork(this);
             consumeNewline();
             while(!is(Token::Eof))
-                _currentBlock->appendSection(scanSection());
-            return(_currentBlock);
+                block->appendSection(scanSection());
+            return(block);
         }
 
         Section *scanSection() {
-            _currentSection = Section::fork(this);
+            Section *section = Section::fork(this);
             if(is(Token::Label)) {
-                _currentSection->setName(tokenText());
+                section->setName(tokenText());
                 consume();
                 consumeNewline();
             }
             while(!(is(Token::Label) || is(Token::Eof))) {
-                _currentSection->appendPrimitiveChain(scanExpression());
+                section->appendPrimitiveChain(scanExpression());
                 consumeNewline();
             }
-            return(_currentSection);
+            return(section);
         }
 
         PrimitiveChain *scanExpression() {
@@ -129,11 +134,24 @@ namespace Child {
 
         PrimitiveChain *scanUnaryExpressionChain() {
             PrimitiveChain *primitiveChain = PrimitiveChain::fork(this);
+            if(is(Token::Label)) {
+                Primitive *primitive = Primitive::fork(this);
+                Message *message = Message::fork(this);
+                primitive->setValue(message);
+                primitive->setSourceCodeRef(token()->sourceCodeRef);
+                message->setName(tokenText());
+                openToken();
+                consume();
+                consumeNewline();
+                message->appendInput("", scanExpression());
+                closeToken();
+                primitiveChain->append(primitive);
+            }
             while(isUnaryExpression()) {
                 scanUnaryExpression(primitiveChain);
                 if(isBinaryOperator()) break;
             }
-            if(primitiveChain->primitives()->isEmpty()) throwError("expecting UnaryExpression, found " + tokenTypeName());
+            if(primitiveChain->isEmpty()) throwError("expecting UnaryExpression, found " + tokenTypeName());
             return(primitiveChain);
         }
 
@@ -203,22 +221,10 @@ namespace Child {
 
         List *pairToList(PrimitiveChain *chain) { // TODO: simplify this code
             List *list = List::fork(this);
-            if(chain->primitives()->isNotEmpty()) {
-                Primitive *prim = CHILD_PRIMITIVE(chain->primitives()->get(0));
-                Message *msg = dynamic_cast<Message *>(prim->value());
-                if(msg && msg->name() == ",") {
-                    QList<NamedNode> inputs = msg->inputs()->namedNodes();
-                    PrimitiveChain *chain2 = CHILD_PRIMITIVECHAIN(inputs.at(0).node);
-                    Primitive *prim2 = CHILD_PRIMITIVE(chain2->primitives()->get(0));
-                    Message *msg2 = dynamic_cast<Message *>(prim2->value());
-                    if(msg2 && msg2->name() == ",") {
-                        List *list2 = pairToList(chain2);
-                        list->append(list2);
-                        delete list2;
-                    } else
-                        list->append(chain2);
-                    PrimitiveChain *chain3 = CHILD_PRIMITIVECHAIN(inputs.at(1).node);
-                    list->append(chain3);
+            if(chain->isNotEmpty()) {
+                if(Message *msg = Message::is(chain->first(), ",")) {
+                    delete list->append(pairToList(msg->firstInput()));
+                    list->append(msg->secondInput());
                 } else
                     list->append(chain);
             }
@@ -306,7 +312,11 @@ namespace Child {
         }
 
         Operator *isBinaryOperator() const {
-            return(isOperator(Operator::Binary));
+            Operator *op = isOperator(Operator::Binary);
+            if(op && op->name == "," && topToken() == Token::Label)
+                return(NULL);
+            else
+                return(op);
         }
 
         PrimitiveChain *scanBinaryOperator(PrimitiveChain *leftHandSide, Operator *currentOp, const short minPrecedence) {
@@ -347,16 +357,10 @@ namespace Child {
             }
             throw(LexerException(report));
         }
-
     private:
-        static Parser *_root;
         Lexer *_lexer;
         const Token *_currentToken;
         QStack<Token::Type> _openedTokens;
-        Block *_currentBlock;
-        Section *_currentSection;
-        Primitive *_currentPrimitive;
-        Message *_currentMessage;
     };
 }
 

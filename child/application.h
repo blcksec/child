@@ -7,14 +7,10 @@
 #include "child/parser.h"
 #include "child/sourcecode.h"
 
-#define CHILD_APPLICATION(EXPRESSION) static_cast<Application *>(EXPRESSION)
-
 namespace Child {
     class Application : public Object {
+        CHILD_DECLARATION(Application);
     public:
-        static Application *root();
-        static Application *fork(Node *world) { return(CHILD_APPLICATION(world->child("Application"))->fork()); }
-
         Application() : _operatorTable(NULL), _lexer(NULL), _parser(NULL) {}
 
         virtual ~Application() {
@@ -22,8 +18,6 @@ namespace Child {
             delete _lexer;
             delete _parser;
         }
-
-        virtual Application *fork() { notYetImplemented(); return(NULL); }
 
         void init() {
             initOperatorTable();
@@ -44,7 +38,7 @@ namespace Child {
 
         SourceCode *loadSourceCode(QString url) {
             url = QFileInfo(url).absoluteFilePath();
-            if(sourceCodeIsAlreadyLoaded(url)) return(CHILD_SOURCECODE(sourceCodes()->get(url)));
+            if(sourceCodeIsAlreadyLoaded(url)) return(SourceCode::as(sourceCodes()->get(url)));
             SourceCode *source = SourceCode::fork(this);
             source->load(url);
             source->parse(parser());
@@ -58,14 +52,10 @@ namespace Child {
             if(!sourceCodes()) return(false);
             return(sourceCodes()->hasKey(URL));
         }
-
     private:
-        static Application *_root;
-
         OperatorTable *_operatorTable;
         Lexer *_lexer;
         Parser *_parser;
-
         Dictionary *_sourceCodes;
     };
 }

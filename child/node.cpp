@@ -3,6 +3,8 @@
 #include "child/text.h"
 
 namespace Child {
+    CHILD_IMPLEMENTATION(Node, Node);
+
     NumberedNode::NumberedNode(const int number, Node *const node) : number(number), node(node) {
         if(!node) throw(NullPointerException("NULL node passed to NumberedNode constructor()"));
     }
@@ -13,7 +15,6 @@ namespace Child {
     }
 
     long long int Node::_nodeCount = 0;
-    Node *Node::_root = Node::root();
 
     Node::~Node() {
         unsetOrigin();
@@ -25,25 +26,18 @@ namespace Child {
         _nodeCount--;
     }
 
-    Node *Node::root() {
-        if(!_root) {
-            _root = new Node;
-            _root->addParent("Node", _root);
-        }
-        return(_root);
-    }
-
-    void Node::setOrigin(Node *node) {
-        _checkNode(node);
-        if(_origin == node) { return; }
+    Node *Node::setOrigin(Node *node) {
+        checkNode(node);
+        if(_origin == node) { return(this); }
         if(_origin) { _origin->_forks->removeOne(this); }
         _origin = node;
         if(!node->_forks) { node->_forks = new NodeList; }
         node->_forks->append(this);
+        return(this);
     }
 
     bool Node::directOriginIs(Node *node) const {
-        _checkNode(node);
+        checkNode(node);
         return(_origin == node);
     }
 
@@ -57,12 +51,12 @@ namespace Child {
     }
 
     bool Node::hasExtension(Node *node) const {
-        _checkNode(node);
+        checkNode(node);
         return(_extensions ? _extensions->contains(node) : false);
     }
 
     void Node::addExtension(Node *node) {
-        _checkNode(node);
+        checkNode(node);
         if(!_extensions) { _extensions = new NodeList; }
         if(_extensions->contains(node)) throw(DuplicateException("cannont add an extension which is already there"));
         _extensions->append(node);
@@ -71,7 +65,7 @@ namespace Child {
     }
 
     void Node::prependExtension(Node *node) {
-        _checkNode(node);
+        checkNode(node);
         if(!_extensions) { _extensions = new NodeList; }
         if(_extensions->contains(node)) throw(DuplicateException("cannont add an extension which is already there"));
         _extensions->prepend(node);
@@ -80,7 +74,7 @@ namespace Child {
     }
 
     void Node::removeExtension(Node *node) {
-        _checkNode(node);
+        checkNode(node);
         if(!_extensions || !_extensions->contains(node)) throw(NotFoundException("cannot remove an extension which is not there"));
         _extensions->removeOne(node);
         node->_extendedNodes->removeOne(this);
@@ -115,7 +109,7 @@ namespace Child {
     }
 
     bool Node::hasDirectParent(Node *node) const {
-        _checkNode(node);
+        checkNode(node);
         return(node->_children && !node->_children->key(const_cast<Node *>(this)).isEmpty());
     }
 
@@ -147,12 +141,12 @@ namespace Child {
     }
 
     bool Node::hasDirectChild(const QString &name) const {
-        _checkName(name);
+        checkName(name);
         return(_children && _children->contains(name));
     }
 
     Node *Node::directChild(const QString &name) const {
-        _checkName(name);
+        checkName(name);
         if(!_children) throw(NotFoundException("child not found"));
         Node *value = _children->value(name);
         if(!value) throw(NotFoundException("child not found"));
@@ -160,16 +154,16 @@ namespace Child {
     }
 
     Node *Node::addDirectChild(const QString &name, Node *node) {
-        _checkName(name);
-        _checkNode(node);
+        checkName(name);
+        checkNode(node);
         if(_children && _children->contains(name)) throw(DuplicateException("duplicate child name"));
         node->addParent(name, this);
         return(node);
     }
 
     Node *Node::setDirectChild(const QString &name, Node *node) {
-        _checkName(name);
-        _checkNode(node);
+        checkName(name);
+        checkNode(node);
         if(!_children || !_children->contains(name)) throw(NotFoundException("child not found"));
         Node *currentChild = directChild(name);
         if(currentChild != node) {
@@ -180,8 +174,8 @@ namespace Child {
     }
 
     Node *Node::addOrSetDirectChild(const QString &name, Node *node) {
-        _checkName(name);
-        _checkNode(node);
+        checkName(name);
+        checkNode(node);
         if(!_children || !_children->contains(name)) {
             node->addParent(name, this);
         } else {
@@ -195,7 +189,7 @@ namespace Child {
     }
 
     void Node::removeDirectChild(const QString &name) {
-        _checkName(name);
+        checkName(name);
         if(!_children) throw(NotFoundException("child not found"));
         Node *node = _children->value(name);
         if(!node) throw(NotFoundException("child not found"));
@@ -299,12 +293,12 @@ namespace Child {
     }
 
     bool Node::hasChild(const QString &name) const {
-        _checkName(name);
+        checkName(name);
         return(const_cast<Node *>(this)->_getOrSetChild(name, NULL, true));
     }
 
     Node *Node::child(const QString &name) const {
-        _checkName(name);
+        checkName(name);
         if(hasDirectChild(name)) return(directChild(name));
         Node *child = const_cast<Node *>(this)->_getOrSetChild(name);
         if(!child) throw(NotFoundException("child not found"));
@@ -312,8 +306,8 @@ namespace Child {
     }
 
     Node *Node::setChild(const QString &name, Node *node) {
-        _checkName(name);
-        _checkNode(node);
+        checkName(name);
+        checkNode(node);
         Node *child = _getOrSetChild(name, node);
         if(!child) throw(NotFoundException("child not found"));
         return(child);

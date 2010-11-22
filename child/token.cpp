@@ -1,6 +1,7 @@
 #include "child/token.h"
 
 namespace Child {
+//    CHILD_IMPLEMENTATION(Application, Object);
     Token *Token::_root = Token::root();
 
     Token *Token::root() {
@@ -13,6 +14,7 @@ namespace Child {
     }
 
     const char *Token::typesName[] = {
+        "<NULL>",
         "<EOF>",
         "Name",
         "Label",

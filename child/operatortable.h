@@ -10,17 +10,13 @@
 
 namespace Child {
     class OperatorTable : public Object {
+        CHILD_DECLARATION(OperatorTable);
     public:
-        static OperatorTable *root();
-        static OperatorTable *fork(Node *world) { return(CHILD_OPERATORTABLE(world->child("OperatorTable"))->fork()); }
-
         OperatorTable() : _operators(NULL) {}
 
         virtual ~OperatorTable() {
             delete _operators;
         }
-
-        virtual OperatorTable *fork() { return(_fork(this)); }
 
         Dictionary *operators() const {
             return(_operators);
@@ -42,7 +38,6 @@ namespace Child {
 
         virtual const QString inspect() const { return(operators()->inspect()); }
     private:
-        static OperatorTable *_root;
         Dictionary *_operators;
         QString _firstChars;
     };

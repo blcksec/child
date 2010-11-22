@@ -5,44 +5,49 @@
 #include "child/list.h"
 #include "child/primitive.h"
 
-#define CHILD_PRIMITIVECHAIN(EXPRESSION) static_cast<PrimitiveChain *>(EXPRESSION)
-
 namespace Child {
     class PrimitiveChain : public Object {
+        CHILD_DECLARATION(PrimitiveChain);
     public:
-        static PrimitiveChain *root();
-        static PrimitiveChain *fork(Node *world) { return(CHILD_PRIMITIVECHAIN(world->child("PrimitiveChain"))->fork()); }
-
         PrimitiveChain() : _primitives(NULL) {}
 
         virtual ~PrimitiveChain() {
             delete _primitives;
         }
 
-        virtual PrimitiveChain *fork() { return(_fork(this)); }
-
-        List *primitives() const { return(_primitives); }
+        List *primitives(bool createIfNull = false) const {
+            if(_primitives) return(_primitives);
+            if(createIfNull)
+                return(const_cast<PrimitiveChain *>(this)->_primitives =
+                       List::fork(const_cast<PrimitiveChain *>(this)));
+            else
+                return(List::root());
+        }
 
         void append(Primitive *primitive) {
             if(!primitive) throw(NullPointerException("Primitive pointer is NULL"));
-            if(!_primitives) _primitives = List::fork(this);
-            _primitives->append(primitive);
+            primitives(true)->append(primitive);
         }
+
+        Node *get(int i) const { return(Primitive::as(primitives()->get(i))->value()); }
+        Node *first() const { return(get(0)); }
+        Node *second() const { return(get(1)); }
+        Node *last() const { return(get(size()-1)); }
+        const bool isEmpty() const { return(primitives()->isEmpty()); }
+        const bool isNotEmpty() const { return(primitives()->isNotEmpty()); }
+        int size() const { return(primitives()->size()); }
 
         virtual const QString inspect() const {
             QString str;
             str.append("(");
-            if(primitives()) {
-                for(int i = 0; i < primitives()->size(); i++) {
-                    if(i > 0) str.append(" ");
-                    str.append(CHILD_PRIMITIVE(primitives()->get(i))->inspect());
-                }
+            for(int i = 0; i < primitives()->size(); i++) {
+                if(i > 0) str.append(" ");
+                str.append(Primitive::as(primitives()->get(i))->inspect());
             }
             str.append(")");
             return(str);
         }
     private:
-        static PrimitiveChain *_root;
         List *_primitives;
     };
 }

@@ -7,6 +7,7 @@
 
 namespace Child {
     class World : public Object {
+//        CHILD_DECLARATION(Application);
     public:
         static World *fork(Node *world) { return(CHILD_WORLD(world->child("World"))->fork()); }
 

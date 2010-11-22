@@ -3,59 +3,55 @@
 
 #include "child/object.h"
 
-#define CHILD_LIST(EXPRESSION) static_cast<List *>(EXPRESSION)
-
 namespace Child {
     class List : public Object {
+        CHILD_DECLARATION(List);
     public:
-        static List *root();
-        static List *fork(Node *world) { return(CHILD_LIST(world->child("List"))->fork()); }
-
         List() : _list(NULL), _uniqueNumber(0) {}
 
         virtual ~List() {
             delete _list;
         }
 
-        virtual List *fork() {
-            List *list = _fork(this);
-            if(_list) list->_list = new NumberedNodeList(*_list); // TODO: optimized fork!
-            list->_uniqueNumber = _uniqueNumber;
-            return(list);
+        virtual List *initFork() {
+            List *orig = List::as(origin());
+            if(orig->_list) _list = new NumberedNodeList(*orig->_list); // TODO: optimized fork!
+            _uniqueNumber = orig->_uniqueNumber;
+            return(this);
         }
 
-        List *insert(int i, Node *value) {
-            _checkIndex(i, true);
-            _checkValue(value);
+        Node *insert(int i, Node *value) {
+            checkIndex(i, true);
+            checkValue(value);
             if(!_list) { _list = new NumberedNodeList; }
             _list->insert(i, NumberedNode(_uniqueNumber, value));
             addDirectChild(_numberToName(_uniqueNumber), value);
             _uniqueNumber++;
-            return(this);
+            return(value);
         }
 
         List *insert(int i, List *otherList) {
-            _checkIndex(i, true);
+            checkIndex(i, true);
             if(!otherList) throw(NullPointerException("List pointer is NULL"));
             for(int j = 0; j < otherList->size(); j++) {
                 insert(i + j, otherList->get(j));
             }
-            return(this);
+            return(otherList);
         }
 
-        List *append(Node *value) { return(insert(size(), value)); }
+        Node *append(Node *value) { return(insert(size(), value)); }
         List *append(List *otherList) { return(insert(size(), otherList)); }
-        List *prepend(Node *value) { return(insert(0, value)); }
+        Node *prepend(Node *value) { return(insert(0, value)); }
         List *prepend(List *otherList) { return(insert(0, otherList)); }
 
         Node *get(int i) {
-            _checkIndex(i);
+            checkIndex(i);
             return(_list->at(i).node);
         }
 
         Node *set(int i, Node *value) {
-            _checkIndex(i);
-            _checkValue(value);
+            checkIndex(i);
+            checkValue(value);
             int number = _list->at(i).number;
             _list->replace(i, NumberedNode(number, value));
             setDirectChild(_numberToName(number), value);
@@ -63,7 +59,7 @@ namespace Child {
         }
 
         void remove(int i) {
-            _checkIndex(i);
+            checkIndex(i);
             int number = _list->at(i).number;
             _list->removeAt(i);
             removeDirectChild(_numberToName(number));
@@ -82,22 +78,7 @@ namespace Child {
         bool isEmpty() const { return(size() == 0); }
         bool isNotEmpty() const { return(size() > 0); }
 
-        virtual const QString inspect() const {
-            QString str = "[";
-            bool first = true;
-            for(int i = 0; i < size(); i++) {
-                if(!first) str.append(", "); else first = false;
-                str.append(const_cast<List *>(this)->get(i)->inspect());
-            }
-            str.append("]");
-            return(str);
-        }
-    private:
-        static List *_root;
-        NumberedNodeList *_list;
-        int _uniqueNumber;
-
-        void _checkIndex(int i, bool insertMode = false) const {
+        void checkIndex(int i, bool insertMode = false) const {
             int max = size();
             if(!insertMode) max--;
             if(i < 0) throw(IndexOutOfBoundsException("index is less than zero"));
@@ -109,7 +90,21 @@ namespace Child {
             }
         }
 
-        void _checkValue(Node *value) const {
+        virtual const QString inspect() const {
+            QString str = "[";
+            bool first = true;
+            for(int i = 0; i < size(); i++) {
+                if(!first) str.append(", "); else first = false;
+                str.append(const_cast<List *>(this)->get(i)->inspect());
+            }
+            str.append("]");
+            return(str);
+        }
+    private:
+        NumberedNodeList *_list;
+        int _uniqueNumber;
+
+        void checkValue(Node *value) const {
             if(!value) throw(NullPointerException("Node pointer is NULL"));
         }
 

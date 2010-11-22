@@ -5,13 +5,14 @@
 #include "child/dictionary.h"
 #include "child/block.h"
 
-#define CHILD_MESSAGE(EXPRESSION) static_cast<Message *>(EXPRESSION)
-
 namespace Child {
     class Message : public Object {
+        CHILD_DECLARATION(Message);
     public:
-        static Message *root();
-        static Message *fork(Node *world) { return(CHILD_MESSAGE(world->child("Message"))->fork()); }
+        static Message *is(Node *node, const QString &name) {
+            Message *message = Message::is(node);
+            return(message && message->name() == name ? message : NULL);
+        }
 
         Message() : _inputs(NULL), _outputs(NULL), _block(NULL) {}
 
@@ -21,29 +22,40 @@ namespace Child {
             delete _block;
         }
 
-        virtual Message *fork() { return(_fork(this)); }
-
         const QString &name() const { return(_name); }
         void setName(const QString &name) { _name = name; }
 
-        Dictionary *inputs() const { return(_inputs); }
+        Dictionary *inputs(bool createIfNull = false) const {
+            if(_inputs) return(_inputs);
+            if(createIfNull)
+                return(const_cast<Message *>(this)->_inputs =
+                       Dictionary::fork(const_cast<Message *>(this)));
+            else
+                return(Dictionary::root());
+        }
 
         void appendInput(const QString &key, PrimitiveChain *input) {
-            if(!_inputs) _inputs = Dictionary::fork(this);
-            _inputs->set(key, input);
+            inputs(true)->set(key, input);
         }
 
         void appendInput(List *inputs) {
             if(!inputs) throw(NullPointerException("List pointer is NULL"));
             for(int i = 0; i < inputs->size(); i++) {
-                appendInput("", CHILD_PRIMITIVECHAIN(inputs->get(i)));
+                appendInput("", PrimitiveChain::as(inputs->get(i)));
             }
         }
+
+        PrimitiveChain *input(int i) const { return(PrimitiveChain::as(inputs()->get(i))); }
+        PrimitiveChain *firstInput() const { return(input(0)); }
+        PrimitiveChain *secondInput() const { return(input(1)); }
+        PrimitiveChain *lastInput() const { return(input(inputCount()-1)); }
+
+        int inputCount() const { return(inputs()->size()); }
 
         virtual const QString inspect() const {
             QString str;
             str.append(name());
-            if(inputs()) {
+            if(inputs()->isNotEmpty()) {
                 str.append("(");
                 bool first = true;
                 foreach(NamedNode namedNode, inputs()->namedNodes()) {
@@ -62,7 +74,6 @@ namespace Child {
             return(str);
         }
     private:
-        static Message *_root;
         QString _name;
         Dictionary *_inputs;
         bool _hasVariadicInputs;

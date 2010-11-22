@@ -9,6 +9,35 @@
 
 #include "child/toolbox.h"
 
+#define CHILD_DECLARATION(NAME) \
+public: \
+    static const QString &className() { return(NAME::_className); } \
+    static NAME *root(); \
+    static NAME *fork(Node *world) { return(static_cast<NAME *>(world->child(#NAME))->fork()); } \
+    virtual NAME *fork() { \
+        NAME *f = new NAME; \
+        f->setOrigin(this); \
+        f->initFork(); \
+        return(f); \
+    } \
+    static NAME *as(Node *node) { return(static_cast<NAME *>(node)); } \
+    static NAME *is(Node *node) { return(dynamic_cast<NAME *>(node)); } \
+private: \
+    static QString _className; \
+    static NAME *_root;
+
+#define CHILD_IMPLEMENTATION(NAME, PARENT) \
+QString NAME::_className = #NAME; \
+NAME *NAME::_root = NAME::root(); \
+NAME *NAME::root() { \
+    if(!_root) { \
+        _root = new NAME; \
+        _root->setOrigin(PARENT::root()); \
+        _root->addParent(#NAME, PARENT::root()); \
+    } \
+    return(_root); \
+}
+
 namespace Child {
     class Node;
 
@@ -58,22 +87,23 @@ namespace Child {
     typedef Node *(Node::*NodeMethodPtr)();
 
     class Node {
+        CHILD_DECLARATION(Node);
     public:
+        static const long long int nodeCount() { return(_nodeCount); }
+
         Node() :
             _origin(NULL), _forks(NULL), _extensions(NULL), _extendedNodes(NULL),
             _parents(NULL), _children(NULL), _isVirtual(false) {
             _nodeCount++;
         }
-        virtual ~Node();
-        static const long long int nodeCount() { return(_nodeCount); }
 
-        static Node *root();
+        virtual ~Node();
 
         bool isVirtual() const { return(_isVirtual); }
         Node *setIsVirtual(bool value) { _isVirtual = value; return(this); }
 
         Node *origin() const { return(_origin); }
-        void setOrigin(Node *node);
+        Node *setOrigin(Node *node);
         void unsetOrigin() { if(_origin) { _origin->_forks->removeOne(this); _origin = NULL; } }
         NodeList forks() const { return(_forks ? NodeList(*_forks) : NodeList()); }
         bool directOriginIs(Node *node) const;
@@ -84,7 +114,7 @@ namespace Child {
             return(fork);
         }
     public:
-        virtual Node *fork() { return(_fork(this)); }
+        virtual Node *initFork() { return(this); }
         void removeAllForks();
 
         NodeList extensions() const { return(_extensions ? NodeList(*_extensions) : NodeList()); }
@@ -120,7 +150,6 @@ namespace Child {
         virtual const QString inspect() const;
     private:
         static long long int _nodeCount;
-        static Node *_root;
         Node *_origin;
         NodeList *_forks; // backlink cache
         NodeList *_extensions;
@@ -129,11 +158,11 @@ namespace Child {
         NodeHash *_children; // backlink cache
         bool _isVirtual : 1;
 
-        void _checkName(const QString &name) const {
+        void checkName(const QString &name) const {
             if(name.isEmpty()) throw(ArgumentException("child name is empty"));
         }
 
-        void _checkNode(Node *node) const {
+        void checkNode(Node *node) const {
             if(!node) throw(NullPointerException("Node pointer is NULL"));
         }
     };

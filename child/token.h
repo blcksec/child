@@ -7,8 +7,10 @@
 
 namespace Child {
     class Token : public Object {
+//        CHILD_DECLARATION(Application);
     public:
         enum Type {
+            Null,
             Eof,
             Name,
             Label,
@@ -38,7 +40,7 @@ namespace Child {
         Type type;
         QStringRef sourceCodeRef;
 
-        Token(const Type type = Eof, const QStringRef &sourceCodeRef = QStringRef()) :
+        Token(const Type type = Null, const QStringRef &sourceCodeRef = QStringRef()) :
                 type(type), sourceCodeRef(sourceCodeRef) {}
 
         virtual Token *fork() {

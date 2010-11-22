@@ -1,16 +1,7 @@
 #include "child/parser.h"
 
 namespace Child {
-    Parser *Parser::_root = Parser::root();
-
-    Parser *Parser::root() {
-        if(!_root) {
-            _root = new Parser;
-            _root->setOrigin(Object::root());
-            _root->addParent("Parser", Object::root());
-        }
-        return(_root);
-    }
+    CHILD_IMPLEMENTATION(Parser, Object);
 }
 
 //        enum Rule {

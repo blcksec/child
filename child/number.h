@@ -7,20 +7,23 @@
 
 namespace Child {
     class Number : public Object {
+        CHILD_DECLARATION(Number);
     public:
-        static Number *root();
-        static Number *fork(Node *world) { return(CHILD_NUMBER(world->child("Number"))->fork()); }
-        static Number *fork(Node *world, double value) { return(CHILD_NUMBER(world->child("Number"))->fork(value)); }
+        static Number *fork(Node *world, double value) {
+            return(Number::fork(world)->setValue(value));
+        }
 
-        virtual Number *fork() { return(_fork(this)->setValue(_value)); }
-        virtual Number *fork(double value) { return(_fork(this)->setValue(value)); }
+        virtual Number *initFork() {
+            Number *orig = Number::as(origin());
+            setValue(orig->_value);
+            return(this);
+        }
 
         double value() const { return(_value); }
         Number *setValue(double value) { _value = value; return(this); }
 
         virtual const QString inspect() const { return(QString("%1").arg(value())); }
     private:
-        static Number *_root;
         double _value;
     };
 }

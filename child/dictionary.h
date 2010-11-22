@@ -4,14 +4,10 @@
 #include "child/nativemethod.h"
 #include "child/object.h"
 
-#define CHILD_DICTIONARY(EXPRESSION) static_cast<Dictionary *>(EXPRESSION)
-
 namespace Child {
     class Dictionary : public Object {
+        CHILD_DECLARATION(Dictionary);
     public:
-        static Dictionary *root();
-        static Dictionary *fork(Node *world) { return(CHILD_DICTIONARY(world->child("Dictionary"))->fork()); }
-
         Dictionary() : _hash(NULL), _addedKeys(NULL), _removedKeys(NULL), _size(0), _anonymousKeyCount(0) {}
 
         virtual ~Dictionary() {
@@ -20,15 +16,15 @@ namespace Child {
             delete _removedKeys;
         }
 
-        virtual Dictionary *fork() {
-            Dictionary *dict = _fork(this);
-            dict->_size = _size;
-            dict->_anonymousKeyCount = _anonymousKeyCount;
-            return(dict);
+        virtual Dictionary *initFork() {
+            Dictionary *orig = Dictionary::as(origin());
+            _size = orig->_size;
+            _anonymousKeyCount = orig->_anonymousKeyCount;
+            return(this);
         }
 
         Node *get(QString key) {
-            _checkKey(key);
+            checkKey(key);
             escapeKey(key);
             const Dictionary *dict = this;
             Node *value = NULL;
@@ -49,6 +45,12 @@ namespace Child {
             return(value);
         }
 
+        Node *get(int i) { // TODO: optimize
+            if(i < 0) throw(IndexOutOfBoundsException("index is less than zero"));
+            if(i >= size()) throw(IndexOutOfBoundsException("index is greater than size-1"));
+            return(namedNodes().at(i).node);
+        }
+
         Node *set(QString key, Node *value) {
             if(key.isEmpty()) {
                 key = QString("\\%1").arg(_anonymousKeyCount);
@@ -56,7 +58,7 @@ namespace Child {
             } else {
                 escapeKey(key);
             }
-            _checkValue(value);
+            checkValue(value);
             if(!_hasKey(key)) {
                 _size++;
                 if(!_addedKeys) { _addedKeys = new QList<QString>; }
@@ -126,7 +128,7 @@ namespace Child {
         NodeList values() const;
 
         bool hasKey(QString key) const {
-            _checkKey(key);
+            checkKey(key);
             escapeKey(key);
             return(_hasKey(key));
         }
@@ -144,7 +146,7 @@ namespace Child {
         bool hasValue(Node *value) const;
 
         Dictionary *remove(QString key) {
-            _checkKey(key);
+            checkKey(key);
             escapeKey(key);
             const Dictionary *dict = this;
             bool found = false;
@@ -197,18 +199,17 @@ namespace Child {
             return(str);
         }
     private:
-        static Dictionary *_root;
         mutable NodeHash *_hash;
         QList<QString> *_addedKeys;
         QSet<QString> *_removedKeys;
         int _size;
         int _anonymousKeyCount;
 
-        void _checkKey(const QString &key) const {
+        void checkKey(const QString &key) const {
             if(key.isEmpty()) throw(ArgumentException("key is empty"));
         }
 
-        void _checkValue(Node *value) const {
+        void checkValue(Node *value) const {
             if(!value) throw(NullPointerException("Node pointer is NULL"));
         }
 

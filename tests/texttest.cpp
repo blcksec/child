@@ -10,7 +10,7 @@ namespace Child {
         Text *t1 = Text::fork(world, "Hello");
         QVERIFY(t1->directOriginIs(world->child("Text")));
         QCOMPARE(t1->value(), QString("Hello"));
-        QCOMPARE(CHILD_TEXT(t1->child("upcase"))->value(), QString("HELLO"));
+        QCOMPARE(Text::as(t1->child("upcase"))->value(), QString("HELLO"));
         Text *t2 = t1->fork();
         QVERIFY(t2->directOriginIs(t1));
         QCOMPARE(t2->value(), QString("Hello"));
