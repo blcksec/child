@@ -78,12 +78,12 @@ map(\var: item) {code} -> result: [] := {
 ***
 
 swith(letter) {
-    'a':
-        "This is a 'A'"
-    'b':
-        "This is a 'B'"
-    else:
-        "Unknown letter"
+'a':
+    "This is a 'A'"
+'b':
+    "This is a 'B'"
+else:
+    "Unknown letter"
 } print
 
 ***
@@ -327,12 +327,14 @@ meth := {
 
     <never executed!>
 
-  NotFoundException:
+NotFoundException:
     "Not found!" log
-  DuplicateException:
+DuplicateException:
     "Duplicate!" log
-  Exception: // Catch all other exceptions
-    "{exception name} intercepted!" log
+Exception(e): // Catch all other exceptions
+    "\{e name} intercepted!" log
+end:
+    clean everything...
 }
 
 ***

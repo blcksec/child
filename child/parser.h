@@ -221,6 +221,7 @@ namespace Child {
             return(primitive);
         }
 
+        // flattenTuples
         List *pairToList(PrimitiveChain *chain) { // TODO: simplify this code
             List *list = List::fork(this);
             if(chain->isNotEmpty()) {

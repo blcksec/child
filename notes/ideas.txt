@@ -48,3 +48,94 @@ Person("Manu") \full_name test
 ("5" + "8") <Number>
 
 f(str<Number>)
+
+***
+
+meth(a<Text>:
+
+***
+
+message(name<Text>, \inputs:, \outputs:)
+
+message("meth", inputs: (x: default_x, y: default_y), outputs: r)
+
+l := list(1, 2, 3, 4) \\ [1, 2, 3, 4] ou (1, 2, 3, 4)
+d := hash(a: 3, b: 4, c: 5) \\ [a: 3, b: 4, c: 5]
+
+items,... = load_items // items est une énumération
+
+save_items(items)
+
+catch_all(inputs,...) := {
+    resend(inputs)
+}
+
+On peut transformer un tableau en énumération :
+
+a = [1, 2, 3]
+
+meth(a<Enumeration>)
+
+Le moyen le plus simple pour créer une énumération est de placer les éléments entre parenthèses :
+
+(1, 2, 3) // Enumeration
+
+Paire :
+
+label: 1 + 1
+
+Seule la partie droite d'une paire est évaluée à la création :
+
+a = label: 2 * 3
+
+... est équivalent à :
+
+a = Pair(Message("label"), 6)
+
+Remarquez qu'une paire peut contenir n'importe quoi :
+
+Pair("Yo", "Ya")
+Pair(1, 2)
+
+Mais lorsquelle elle est créée à partir d'une litérale dans un code source,
+la Key n'est pas évaluée, elle reste une Primitive ou une PrimitiveChain. Par exemple,
+
+"Text": 23.22
+4: "Four"
+a b c: "Arf"
+Exception(e): { ... }
+Name<Text>: ""
+else: { ... }
+false : { ... }
+
+Un block est constitué d'une liste de Pair.
+
+class Block : public List<Section>;
+class Section : public Pair<PrimitiveChain, PrimitiveChainList>;
+class PrimitiveChainList : public List<PrimitiveChain>;
+class PrimitiveChain : public List<Primitive>
+
+Message:
+    name
+    inputs (Pair<PrimitiveChain, PrimitiveChain>Enumeration ?)
+    outputs (Pair<PrimitiveChain, PrimitiveChain>Enumeration ?)
+    block
+
+(result: value, ok: succeeded) = meth(1, 2)
+
+full_name(first: "", last: "", items..., error: 0} = {}
+
+full_name(f: "M", l: "V")
+
+Language
+    Interpreter
+    Lexer
+    Operator
+    OperatorTable
+    Parser
+    Primitive
+    PrimitiveChain
+    PrimitiveChainList
+    Section
+    SourceCode
+    Token

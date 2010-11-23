@@ -99,6 +99,29 @@ namespace Child {
             str.append("]");
             return(str);
         }
+
+        class const_iterator {
+        public:
+            List *list;
+            int i;
+            const_iterator() : list(NULL), i(0) {}
+            const Node *operator*() const { return(list->get(i)); }
+            const_iterator &operator++() { ++i; return(*this); }
+            bool operator!=(const const_iterator &o) const { return i != o.i; }
+        };
+
+        const_iterator begin() const {
+            List::const_iterator i;
+            i.list = const_cast<List *>(this);
+            return i;
+        }
+
+        const_iterator end() const {
+            List::const_iterator i;
+            i.list = const_cast<List *>(this);
+            i.i = size();
+            return i;
+        }
     private:
         NumberedNodeList *_list;
         int _uniqueNumber;
