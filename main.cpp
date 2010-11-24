@@ -20,7 +20,7 @@ int main() { // int argc, char *argv[]
         l->append(t2);
         List::const_iterator i;
         i.list = l;
-        foreach(const Node *n, *l) {
+        foreach(Node *const n, *l) {
             p(n->inspect());
         }
 

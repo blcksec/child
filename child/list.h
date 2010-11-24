@@ -105,7 +105,7 @@ namespace Child {
             List *list;
             int i;
             const_iterator() : list(NULL), i(0) {}
-            const Node *operator*() const { return(list->get(i)); }
+            Node *const operator*() const { return(list->get(i)); }
             const_iterator &operator++() { ++i; return(*this); }
             bool operator!=(const const_iterator &o) const { return i != o.i; }
         };
