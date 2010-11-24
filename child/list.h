@@ -5,7 +5,7 @@
 
 namespace Child {
     class List : public Object {
-        CHILD_DECLARATION(List);
+        CHILD_DECLARATION(List, Object, Object);
     public:
         List() : _list(NULL), _uniqueNumber(0) {}
 
@@ -26,26 +26,26 @@ namespace Child {
             _list->insert(i, NumberedNode(_uniqueNumber, value));
             addDirectChild(_numberToName(_uniqueNumber), value);
             _uniqueNumber++;
-            return(value);
+            return value;
         }
 
         List *insert(int i, List *otherList) {
             checkIndex(i, true);
-            if(!otherList) throw(NullPointerException("List pointer is NULL"));
+            if(!otherList) throw NullPointerException("List pointer is NULL");
             for(int j = 0; j < otherList->size(); j++) {
                 insert(i + j, otherList->get(j));
             }
-            return(otherList);
+            return otherList;
         }
 
-        Node *append(Node *value) { return(insert(size(), value)); }
-        List *append(List *otherList) { return(insert(size(), otherList)); }
-        Node *prepend(Node *value) { return(insert(0, value)); }
-        List *prepend(List *otherList) { return(insert(0, otherList)); }
+        Node *append(Node *value) { return insert(size(), value); }
+        List *append(List *otherList) { return insert(size(), otherList); }
+        Node *prepend(Node *value) { return insert(0, value); }
+        List *prepend(List *otherList) { return insert(0, otherList); }
 
-        Node *get(int i) {
+        Node *get(int i) const {
             checkIndex(i);
-            return(_list->at(i).node);
+            return _list->at(i).node;
         }
 
         Node *set(int i, Node *value) {
@@ -54,7 +54,7 @@ namespace Child {
             int number = _list->at(i).number;
             _list->replace(i, NumberedNode(number, value));
             setDirectChild(_numberToName(number), value);
-            return(value);
+            return value;
         }
 
         void remove(int i) {
@@ -70,22 +70,22 @@ namespace Child {
                     removeDirectChild(_numberToName(numNode.number));
                 _list->clear();
             }
-            return(this);
+            return this;
         }
 
-        int size() const { return(_list ? _list->size() : 0); }
-        bool isEmpty() const { return(size() == 0); }
-        bool isNotEmpty() const { return(size() > 0); }
+        int size() const { return _list ? _list->size() : 0; }
+        bool isEmpty() const { return size() == 0; }
+        bool isNotEmpty() const { return size() > 0; }
 
         void checkIndex(int i, bool insertMode = false) const {
             int max = size();
             if(!insertMode) max--;
-            if(i < 0) throw(IndexOutOfBoundsException("index is less than zero"));
+            if(i < 0) throw IndexOutOfBoundsException("index is less than zero");
             if(i > max) {
                 if(insertMode)
-                    throw(IndexOutOfBoundsException("index is greater than size"));
+                    throw IndexOutOfBoundsException("index is greater than size");
                 else
-                    throw(IndexOutOfBoundsException("index is greater than size-1"));
+                    throw IndexOutOfBoundsException("index is greater than size-1");
             }
         }
 
@@ -97,40 +97,31 @@ namespace Child {
                 str.append(const_cast<List *>(this)->get(i)->inspect());
             }
             str.append("]");
-            return(str);
+            return str;
         }
 
         class const_iterator {
         public:
-            List *list;
-            int i;
-            const_iterator() : list(NULL), i(0) {}
-            Node *const operator*() const { return(list->get(i)); }
-            const_iterator &operator++() { ++i; return(*this); }
-            bool operator!=(const const_iterator &o) const { return i != o.i; }
+            const_iterator(const List *list, int i = 0) : _list(list), _i(i) {}
+            Node *const operator*() const { return _list->get(_i); }
+            const_iterator &operator++() { ++_i; return *this; }
+            bool operator!=(const const_iterator &o) const { return _i != o._i; }
+        private:
+            const List *_list;
+            int _i;
         };
 
-        const_iterator begin() const {
-            List::const_iterator i;
-            i.list = const_cast<List *>(this);
-            return i;
-        }
-
-        const_iterator end() const {
-            List::const_iterator i;
-            i.list = const_cast<List *>(this);
-            i.i = size();
-            return i;
-        }
+        const_iterator begin() const { return const_iterator(this); }
+        const_iterator end() const { return const_iterator(this, size()); }
     private:
         NumberedNodeList *_list;
         int _uniqueNumber;
 
         void checkValue(Node *value) const {
-            if(!value) throw(NullPointerException("Node pointer is NULL"));
+            if(!value) throw NullPointerException("Node pointer is NULL");
         }
 
-        const QString _numberToName(int number) const { return(QString("\\[%1]").arg(number)); }
+        const QString _numberToName(int number) const { return QString("\\[%1]").arg(number); }
     };
 }
 

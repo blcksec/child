@@ -1,7 +1,7 @@
 #include "child/list.h"
 
 namespace Child {
-    CHILD_IMPLEMENTATION(List, Object);
+    CHILD_DEFINITION(List, Object, Object);
 
     void List::initRoot() {
         // TODO

@@ -1,7 +1,7 @@
 #include "child/block.h"
 
 namespace Child {
-    CHILD_IMPLEMENTATION(Block, Object);
+    CHILD_DEFINITION(Block, Object, Object);
 
     void Block::initRoot() {
         // TODO

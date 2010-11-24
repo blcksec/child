@@ -1,13 +1,15 @@
 #include "child/application.h"
 
 namespace Child {
-    CHILD_IMPLEMENTATION(Application, Object);
+    CHILD_DEFINITION(Application, Object, Object);
 
     void Application::initRoot() {
         // TODO
     }
 
     void Application::initOperatorTable() {
+        using namespace Language;
+
         OperatorTable *opTable = OperatorTable::fork(this);
 
         opTable->append("++", Operator::Postfix, Operator::namePrecedence);

@@ -24,17 +24,17 @@ findChildInSelfAndParents(tag) {
                 child = child.clone().setIsVirtual(true)
                 currentParent.addChild(tag, child)
             }
-            return(child)
+            return child
         }
     }
-    return(NULL)
+    return NULL
 }
 
 findChildInSelfAndModules(tag, &moduleSeen, &parentQueue, &parentTree) {
     moduleQueue = [this]
     for(i = 0; i++; i < moduleQueue.size()) {
         module = moduleQueue[i]
-        if(module.hasDirectChild(tag)) return(module.directChild(tag))
+        if(module.hasDirectChild(tag)) return module.directChild(tag)
         foreach(mod, module.modules()) {
             if(!moduleSeen.contains(mod)) {
                 moduleSeen.insert(mod)
@@ -48,5 +48,5 @@ findChildInSelfAndModules(tag, &moduleSeen, &parentQueue, &parentTree) {
             }
         }
     }
-    return(NULL)
+    return NULL
 }

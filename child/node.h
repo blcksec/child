@@ -9,35 +9,35 @@
 
 #include "child/toolbox.h"
 
-#define CHILD_DECLARATION(NAME) \
+#define CHILD_DECLARATION(NAME, ORIGIN, PARENT) \
 public: \
-    static const QString &className() { return(NAME::_className); } \
+    inline static const QString className() { return #NAME; } \
     static NAME *root(); \
     static void initRoot(); \
-    static NAME *fork(Node *world) { return(static_cast<NAME *>(world->child(#NAME))->fork()); } \
-    virtual NAME *fork() { \
+    inline static NAME *fork(Node *world) { \
+        NAME::root(); /* ensure initialization of root class */ \
+        return static_cast<NAME *>(world->child(#PARENT)->child(#NAME))->fork(); \
+    } \
+    inline virtual NAME *fork() { \
         NAME *f = new NAME; \
         f->setOrigin(this); \
         f->initFork(); \
-        return(f); \
+        return f; \
     } \
-    static NAME *as(Node *node) { return(static_cast<NAME *>(node)); } \
-    static NAME *is(Node *node) { return(dynamic_cast<NAME *>(node)); } \
-private: \
-    static QString _className; \
-    static NAME *_root;
+    inline static NAME *as(Node *node) { return static_cast<NAME *>(node); } \
+    inline static NAME *is(Node *node) { return dynamic_cast<NAME *>(node); } \
+private:
 
-#define CHILD_IMPLEMENTATION(NAME, PARENT) \
-QString NAME::_className = #NAME; \
-NAME *NAME::_root = NAME::root(); \
+#define CHILD_DEFINITION(NAME, ORIGIN, PARENT) \
 NAME *NAME::root() { \
+    static NAME *_root; \
     if(!_root) { \
         _root = new NAME; \
-        _root->setOrigin(PARENT::root()); \
+        _root->setOrigin(ORIGIN::root()); \
         _root->addParent(#NAME, PARENT::root()); \
         NAME::initRoot(); \
     } \
-    return(_root); \
+    return _root; \
 }
 
 namespace Child {
@@ -45,14 +45,14 @@ namespace Child {
 
     class NumberedNode {
     public:
-        NumberedNode() { throw(RuntimeException("cannot construct a NULL NumberedNode")); }
+        NumberedNode() { throw RuntimeException("cannot construct a NULL NumberedNode"); }
         NumberedNode(const int number, Node *const node);
         int number;
         Node *node;
     };
 
     inline bool operator==(const NumberedNode &a, const NumberedNode &b) {
-        return(a.node == b.node && a.number == b.number);
+        return a.node == b.node && a.number == b.number;
     }
 
     inline uint qHash(const NumberedNode &key) {
@@ -61,14 +61,14 @@ namespace Child {
 
     class NamedNode {
     public:
-        NamedNode() { throw(RuntimeException("cannot construct a NULL NamedNode")); }
+        NamedNode() { throw RuntimeException("cannot construct a NULL NamedNode"); }
         NamedNode(const QString &name, Node *const node);
         QString name;
         Node *node;
     };
 
     inline bool operator==(const NamedNode &a, const NamedNode &b) {
-        return(a.node == b.node && a.name == b.name);
+        return a.node == b.node && a.name == b.name;
     }
 
     inline uint qHash(const NamedNode &key) {
@@ -89,9 +89,9 @@ namespace Child {
     typedef Node *(Node::*NodeMethodPtr)();
 
     class Node {
-        CHILD_DECLARATION(Node);
+        CHILD_DECLARATION(Node, Node, Node);
     public:
-        static const long long int nodeCount() { return(_nodeCount); }
+        static const long long int nodeCount() { return _nodeCount; }
 
         Node() :
             _origin(NULL), _forks(NULL), _extensions(NULL), _extendedNodes(NULL),
@@ -103,18 +103,18 @@ namespace Child {
 
         virtual void initFork() {}
 
-        bool isVirtual() const { return(_isVirtual); }
-        Node *setIsVirtual(bool value) { _isVirtual = value; return(this); }
+        bool isVirtual() const { return _isVirtual; }
+        Node *setIsVirtual(bool value) { _isVirtual = value; return this; }
 
-        Node *origin() const { return(_origin); }
+        Node *origin() const { return _origin; }
         Node *setOrigin(Node *node);
         void unsetOrigin() { if(_origin) { _origin->_forks->removeOne(this); _origin = NULL; } }
-        NodeList forks() const { return(_forks ? NodeList(*_forks) : NodeList()); }
+        NodeList forks() const { return _forks ? NodeList(*_forks) : NodeList(); }
         bool directOriginIs(Node *node) const;
         void removeAllForks();
 
-        NodeList extensions() const { return(_extensions ? NodeList(*_extensions) : NodeList()); }
-        NodeList extendedNodes() const { return(_extendedNodes ? NodeList(*_extendedNodes) : NodeList()); }
+        NodeList extensions() const { return _extensions ? NodeList(*_extensions) : NodeList(); }
+        NodeList extendedNodes() const { return _extendedNodes ? NodeList(*_extendedNodes) : NodeList(); }
         bool hasExtension(Node *node) const;
         void addExtension(Node *node);
         void prependExtension(Node *node);
@@ -123,7 +123,7 @@ namespace Child {
         void removeAllExtendedNodes();
 
         const NodeMultiHash parents() const;
-        const NodeHash children() const { return(_children ? NodeHash(*_children) : NodeHash()); }
+        const NodeHash children() const { return _children ? NodeHash(*_children) : NodeHash(); }
         bool hasDirectParent(Node *node) const;
         void addParent(const QString &name, Node *node);
         void removeParent(const QString &name, Node *node);
@@ -141,8 +141,8 @@ namespace Child {
         Node *setChild(const QString &name, Node *node);
         void deleteIfOrphan() { if(!_parents || _parents->empty()) { delete this; } }
 
-        const long long int uniqueID() const { return(reinterpret_cast<long long int>(this)); }
-        const QString uniqueHexID() const { return(QString("0x%1").arg(uniqueID(), 0, 16)); }
+        const long long int uniqueID() const { return reinterpret_cast<long long int>(this); }
+        const QString uniqueHexID() const { return QString("0x%1").arg(uniqueID(), 0, 16); }
         virtual const QString inspect() const;
     private:
         static long long int _nodeCount;
@@ -155,11 +155,11 @@ namespace Child {
         bool _isVirtual : 1;
 
         void checkName(const QString &name) const {
-            if(name.isEmpty()) throw(ArgumentException("child name is empty"));
+            if(name.isEmpty()) throw ArgumentException("child name is empty");
         }
 
         void checkNode(Node *node) const {
-            if(!node) throw(NullPointerException("Node pointer is NULL"));
+            if(!node) throw NullPointerException("Node pointer is NULL");
         }
     };
 }

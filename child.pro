@@ -28,23 +28,24 @@ SOURCES += main.cpp \
     tests/objecttest.cpp \
     tests/worldtest.cpp \
     tests/dictionarytest.cpp \
-    child/token.cpp \
-    child/operator.cpp \
-    child/parser.cpp \
     child/application.cpp \
     child/block.cpp \
-    child/section.cpp \
-    child/primitivechain.cpp \
-    child/primitive.cpp \
     child/message.cpp \
     child/list.cpp \
     tests/listtest.cpp \
-    child/operatortable.cpp \
-    child/sourcecode.cpp \
     child/number.cpp \
     child/boolean.cpp \
     child/character.cpp \
-    child/language/lexer.cpp
+    child/language/lexer.cpp \
+    child/language/token.cpp \
+    child/language/sourcecode.cpp \
+    child/language/section.cpp \
+    child/language/primitivechain.cpp \
+    child/language/primitive.cpp \
+    child/language/parser.cpp \
+    child/language/operatortable.cpp \
+    child/language/operator.cpp \
+    child/language.cpp
 
 HEADERS += \
     child/node.h \
@@ -63,23 +64,24 @@ HEADERS += \
     tests/texttest.h \
     child/dictionary.h \
     tests/dictionarytest.h \
-    child/token.h \
-    child/operator.h \
-    child/parser.h \
     child/application.h \
     child/block.h \
-    child/section.h \
-    child/primitivechain.h \
-    child/primitive.h \
     child/message.h \
     child/list.h \
     tests/listtest.h \
-    child/operatortable.h \
-    child/sourcecode.h \
     child/number.h \
     child/boolean.h \
     child/character.h \
-    child/language/lexer.h
+    child/language/lexer.h \
+    child/language/token.h \
+    child/language/sourcecode.h \
+    child/language/section.h \
+    child/language/primitivechain.h \
+    child/language/primitive.h \
+    child/language/parser.h \
+    child/language/operatortable.h \
+    child/language/operator.h \
+    child/language.h
 
 OTHER_FILES += \
     notes/ideas.txt \

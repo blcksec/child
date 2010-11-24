@@ -5,7 +5,7 @@
 
 namespace Child {
     class Object : public Node {
-        CHILD_DECLARATION(Object);
+        CHILD_DECLARATION(Object, Node, Node);
     public:
     private:
     };

@@ -3,17 +3,17 @@
 namespace Child {
     QString readTextFile(const QString &name) {
         QFile file(name);
-        if(!file.open(QIODevice::ReadOnly)) throw(FileSystemException("file not found"));
+        if(!file.open(QIODevice::ReadOnly)) throw FileSystemException("file not found");
         QString text = QTextStream(&file).readAll();
         file.close();
-        return(text);
+        return text;
     }
 
     QString escapeTabsAndNewlines(QString text) {
         text.replace('\r', "\\r");
         text.replace('\n', "\\n");
         text.replace('\t', "\\t");
-        return(text);
+        return text;
     }
 
     QString extractLine(const QString &text, int requestedLine) {
@@ -24,9 +24,9 @@ namespace Child {
                 int end = text.indexOf('\r', pos);
                 if(end == -1) end = text.indexOf('\n', pos);
                 if(end != -1)
-                    return(text.mid(pos, end - pos));
+                    return text.mid(pos, end - pos);
                 else
-                    return(text.mid(pos) + ""); // Force non-null string
+                    return text.mid(pos) + ""; // Force non-null string
             }
             int pos2 = text.indexOf('\r', pos);
             if(pos2 != -1) {
@@ -41,7 +41,7 @@ namespace Child {
                 }
             }
         }
-        return(QString());
+        return QString();
     }
 
     const bool computeColumnAndLineForPosition(const QString &text, const int position, int &column, int &line) {
@@ -56,7 +56,7 @@ namespace Child {
             if(pos == -1) pos = text.size();
             if(pos >= position) {
                 column = position - previousPos + 1;
-                return(true);
+                return true;
             } else if(pos < text.size()) {
                 line++;
                 pos++;
@@ -64,8 +64,8 @@ namespace Child {
                 previousPos = pos;
             } else break;
         }
-        return(false);
+        return false;
     }
 
-    void notYetImplemented() { throw(RuntimeException("not yet implemented!")); }
+    void notYetImplemented() { throw RuntimeException("not yet implemented!"); }
 }

@@ -7,11 +7,11 @@
 
 namespace Child {
     class Message : public Object {
-        CHILD_DECLARATION(Message);
+        CHILD_DECLARATION(Message, Object, Object);
     public:
         static Message *is(Node *node, const QString &name) {
             Message *message = Message::is(node);
-            return(message && message->name() == name ? message : NULL);
+            return message && message->name() == name ? message : NULL;
         }
 
         Message() : _inputs(NULL), _outputs(NULL), _block(NULL) {}
@@ -22,35 +22,35 @@ namespace Child {
             delete _block;
         }
 
-        const QString &name() const { return(_name); }
+        const QString &name() const { return _name; }
         void setName(const QString &name) { _name = name; }
 
         Dictionary *inputs(bool createIfNull = false) const {
-            if(_inputs) return(_inputs);
+            if(_inputs) return _inputs;
             if(createIfNull)
-                return(const_cast<Message *>(this)->_inputs =
-                       Dictionary::fork(const_cast<Message *>(this)));
+                return const_cast<Message *>(this)->_inputs =
+                       Dictionary::fork(const_cast<Message *>(this));
             else
-                return(Dictionary::root());
+                return Dictionary::root();
         }
 
-        void appendInput(const QString &key, PrimitiveChain *input) {
+        void appendInput(const QString &key, Language::PrimitiveChain *input) {
             inputs(true)->set(key, input);
         }
 
         void appendInput(List *inputs) {
-            if(!inputs) throw(NullPointerException("List pointer is NULL"));
+            if(!inputs) throw NullPointerException("List pointer is NULL");
             for(int i = 0; i < inputs->size(); i++) {
-                appendInput("", PrimitiveChain::as(inputs->get(i)));
+                appendInput("", Language::PrimitiveChain::as(inputs->get(i)));
             }
         }
 
-        PrimitiveChain *input(int i) const { return(PrimitiveChain::as(inputs()->get(i))); }
-        PrimitiveChain *firstInput() const { return(input(0)); }
-        PrimitiveChain *secondInput() const { return(input(1)); }
-        PrimitiveChain *lastInput() const { return(input(inputCount()-1)); }
+        Language::PrimitiveChain *input(int i) const { return Language::PrimitiveChain::as(inputs()->get(i)); }
+        Language::PrimitiveChain *firstInput() const { return input(0); }
+        Language::PrimitiveChain *secondInput() const { return input(1); }
+        Language::PrimitiveChain *lastInput() const { return input(inputCount()-1); }
 
-        int inputCount() const { return(inputs()->size()); }
+        int inputCount() const { return inputs()->size(); }
 
         virtual const QString inspect() const {
             QString str;
@@ -71,7 +71,7 @@ namespace Child {
                 }
                 str.append(")");
             }
-            return(str);
+            return str;
         }
     private:
         QString _name;

@@ -1,7 +1,7 @@
 #include "child/object.h"
 
 namespace Child {
-    CHILD_IMPLEMENTATION(Object, Node);
+    CHILD_DEFINITION(Object, Node, Node);
 
     void Object::initRoot() {
         // TODO

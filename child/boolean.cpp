@@ -1,7 +1,7 @@
 #include "child/boolean.h"
 
 namespace Child {
-    CHILD_IMPLEMENTATION(Boolean, Object);
+    CHILD_DEFINITION(Boolean, Object, Object);
 
     void Boolean::initRoot() {
         // TODO

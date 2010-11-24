@@ -1,10 +1,12 @@
-#include "child/parser.h"
+#include "child/language/parser.h"
 
 namespace Child {
-    CHILD_IMPLEMENTATION(Parser, Object);
+    namespace Language {
+        CHILD_DEFINITION(Parser, Object, Language);
 
-    void Parser::initRoot() {
-        // TODO
+        void Parser::initRoot() {
+            // TODO
+        }
     }
 }
 
@@ -14,19 +16,19 @@ namespace Child {
 
 //        const Token &token(const int i = 0) {
 //            loadToken(i);
-//            return(_lookahead.at(_position + i));
+//            return _lookahead.at(_position + i);
 //        }
 
 //        const Token::Type tokenType(const int i = 0) {
-//            return(token(i).type);
+//            return token(i).type;
 //        }
 
 //        const QString tokenTypeName(const int i = 0) {
-//            return(token(i).typeName());
+//            return token(i).typeName();
 //        }
 
 //        const QString tokenText(const int i = 0) {
-//            return(token(i).text());
+//            return token(i).text();
 //        }
 
 //        void loadToken(const int i) {
@@ -67,7 +69,7 @@ namespace Child {
 //        }
 
 //        const bool isSpeculating() const {
-//            return(!_positions.isEmpty());
+//            return !_positions.isEmpty();
 //        }
 
 //        void memoize(const Rule rule, const int startPosition, const bool failed) {
@@ -76,13 +78,13 @@ namespace Child {
 //        }
 
 //        const bool isMemoized(const Rule rule) {
-//            if(!_rulesMemos.contains(rule)) return(false);
+//            if(!_rulesMemos.contains(rule)) return false;
 //            _MemoHash &memos = _rulesMemos[rule];
-//            if(!memos.contains(_position)) return(false);
+//            if(!memos.contains(_position)) return false;
 //            int stopPosition = memos[_position];
-//            if(stopPosition == -1) throw(ParserException());
+//            if(stopPosition == -1) throw ParserException();
 //            seek(stopPosition);
-//            return(true);
+//            return true;
 //        }
 
 //        void clearRulesMemos() {
@@ -102,7 +104,7 @@ namespace Child {
 //            else if(is(Token::LeftBracket))
 //                matchList();
 //            else
-//                throw(ParserException("expecting Name or List, found " + tokenTypeName()));
+//                throw ParserException("expecting Name or List, found " + tokenTypeName());
 //        }
 
 //        void matchElements() {
@@ -121,7 +123,7 @@ namespace Child {
 //            try { _matchList(); }
 //            catch(ParserException e) { failed = true; exceptionMessage = e.message; }
 //            if(isSpeculating()) memoize(ListRule, startPosition, failed);
-//            if(failed) throw(ParserException(exceptionMessage));
+//            if(failed) throw ParserException(exceptionMessage);
 //        }
 
 //        void _matchList() {
@@ -143,7 +145,7 @@ namespace Child {
 //            } else if(speculateAssignment()) {
 //                matchAssignment(); match(Token::Eof);
 //            } else
-//                throw(ParserException("expecting Statement, found " + tokenTypeName()));
+//                throw ParserException("expecting Statement, found " + tokenTypeName());
 //        }
 
 //        const bool speculateList() {
@@ -152,7 +154,7 @@ namespace Child {
 //            try { matchList(); match(Token::Eof); }
 //            catch(ParserException e) { success = false; }
 //            popPosition();
-//            return(success);
+//            return success;
 //        }
 
 //        const bool speculateAssignment() {
@@ -161,5 +163,5 @@ namespace Child {
 //            try { matchAssignment(); match(Token::Eof); }
 //            catch(ParserException e) { success = false; }
 //            popPosition();
-//            return(success);
+//            return success;
 //        }

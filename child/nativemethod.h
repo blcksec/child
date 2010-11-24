@@ -7,10 +7,10 @@
 
 namespace Child {
     class NativeMethod : public Node {
-        CHILD_DECLARATION(NativeMethod);
+        CHILD_DECLARATION(NativeMethod, Node, Node);
     public:
         static NativeMethod *fork(Node *world, NodeMethodPtr method) {
-            return(NativeMethod::fork(world)->setMethod(method));
+            return NativeMethod::fork(world)->setMethod(method);
         }
 
         NativeMethod() : _method(NULL) {}
@@ -19,8 +19,8 @@ namespace Child {
             setMethod(NativeMethod::as(origin())->_method);
         }
 
-        NodeMethodPtr method() const { return(_method); }
-        NativeMethod *setMethod(NodeMethodPtr method) { _method = method; return(this); }
+        NodeMethodPtr method() const { return _method; }
+        NativeMethod *setMethod(NodeMethodPtr method) { _method = method; return this; }
     private:
         NodeMethodPtr _method;
     };

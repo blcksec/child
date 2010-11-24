@@ -6,7 +6,7 @@
 
 namespace Child {
     class Dictionary : public Object {
-        CHILD_DECLARATION(Dictionary);
+        CHILD_DECLARATION(Dictionary, Object, Object);
     public:
         Dictionary() : _hash(NULL), _addedKeys(NULL), _removedKeys(NULL), _size(0), _anonymousKeyCount(0) {}
 
@@ -34,20 +34,20 @@ namespace Child {
                 }
                 dict = static_cast<Dictionary *>(dict->origin());
             }
-            if(!value) throw(NotFoundException("key not found"));
+            if(!value) throw NotFoundException("key not found");
             if(dict != this) {
                 value = value->fork()->setIsVirtual(true);
                 if(!_hash) { _hash = new NodeHash; }
                 _hash->insert(key, value);
                 addDirectChild(_keyToName(key), value);
             }
-            return(value);
+            return value;
         }
 
         Node *get(int i) { // TODO: optimize
-            if(i < 0) throw(IndexOutOfBoundsException("index is less than zero"));
-            if(i >= size()) throw(IndexOutOfBoundsException("index is greater than size-1"));
-            return(namedNodes().at(i).node);
+            if(i < 0) throw IndexOutOfBoundsException("index is less than zero");
+            if(i >= size()) throw IndexOutOfBoundsException("index is greater than size-1");
+            return namedNodes().at(i).node;
         }
 
         Node *set(QString key, Node *value) {
@@ -66,16 +66,16 @@ namespace Child {
             if(!_hash) { _hash = new NodeHash; }
             _hash->insert(key, value);
             addOrSetDirectChild(_keyToName(key), value);
-            return(value);
+            return value;
         }
 
         const QString &key(Node *value) const;
         // cherche value ou ancètre de value ?
 
-        Node *value(const QString &key) { return(get(key)); }
-        int size() const { return(_size); }
-        bool isEmpty() const { return(_size == 0); }
-        bool isNotEmpty() const { return(_size > 0); }
+        Node *value(const QString &key) { return get(key); }
+        int size() const { return _size; }
+        bool isEmpty() const { return _size == 0; }
+        bool isNotEmpty() const { return _size > 0; }
 
         QList<NamedNode> namedNodes() const {
             QList<NamedNode> namedNodes;
@@ -102,7 +102,7 @@ namespace Child {
                 }
                 dict = static_cast<Dictionary *>(dict->origin());
             }
-            return(namedNodes);
+            return namedNodes;
         }
 
         QList<QString> keys() const {
@@ -121,7 +121,7 @@ namespace Child {
                 }
                 dict = static_cast<Dictionary *>(dict->origin());
             }
-            return(keys);
+            return keys;
         }
 
         NodeList values() const;
@@ -129,17 +129,17 @@ namespace Child {
         bool hasKey(QString key) const {
             checkKey(key);
             escapeKey(key);
-            return(_hasKey(key));
+            return _hasKey(key);
         }
 
         bool _hasKey(const QString &key) const {
-            if(isEmpty()) return(false);
+            if(isEmpty()) return false;
             const Dictionary *dict = this;
             while(dict != root()) {
-                if(dict->_hash && dict->_hash->contains(key)) return(dict->_hash->value(key) != NULL);
+                if(dict->_hash && dict->_hash->contains(key)) return dict->_hash->value(key) != NULL;
                 dict = static_cast<Dictionary *>(dict->origin());
             }
-            return(false);
+            return false;
         }
 
         bool hasValue(Node *value) const;
@@ -151,13 +151,13 @@ namespace Child {
             bool found = false;
             while(dict != root()) {
                 if(dict->_hash && dict->_hash->contains(key)) {
-                    if(!dict->_hash->value(key)) throw(RuntimeException("alreay removed key"));
+                    if(!dict->_hash->value(key)) throw RuntimeException("alreay removed key");
                     found = true;
                     break;
                 }
                 dict = static_cast<Dictionary *>(dict->origin());
             }
-            if(!found) throw(NotFoundException("key not found"));
+            if(!found) throw NotFoundException("key not found");
             _size--;
             if(!_hash) { _hash = new NodeHash; }
             _hash->insert(key, NULL);
@@ -166,12 +166,12 @@ namespace Child {
             if(dict == this) {
                 removeDirectChild(_keyToName(key));
             }
-            return(this);
+            return this;
         }
 
         Dictionary *clear() {
             foreach(QString key, keys()) remove(key);
-            return(this);
+            return this;
         }
 
         static void escapeKey(QString &key) {
@@ -180,11 +180,11 @@ namespace Child {
 
         static QString unescapedKey(QString key) {
             key.replace("\\\\", "\\");
-            return(key);
+            return key;
         }
 
         static const bool keyIsAnonymous(const QString &key) {
-            return(key.at(0) == '\\' && key.size()>1 && key.at(1) != '\\');
+            return key.at(0) == '\\' && key.size()>1 && key.at(1) != '\\';
         }
 
         virtual const QString inspect() const {
@@ -195,7 +195,7 @@ namespace Child {
                 str.append(QString("%1: %2").arg(key).arg(const_cast<Dictionary *>(this)->get(key)->inspect()));
             }
             str.append("]");
-            return(str);
+            return str;
         }
     private:
         mutable NodeHash *_hash;
@@ -205,14 +205,14 @@ namespace Child {
         int _anonymousKeyCount;
 
         void checkKey(const QString &key) const {
-            if(key.isEmpty()) throw(ArgumentException("key is empty"));
+            if(key.isEmpty()) throw ArgumentException("key is empty");
         }
 
         void checkValue(Node *value) const {
-            if(!value) throw(NullPointerException("Node pointer is NULL"));
+            if(!value) throw NullPointerException("Node pointer is NULL");
         }
 
-        const QString _keyToName(const QString &key) const { return(QString("\\[%1:]").arg(key)); }
+        const QString _keyToName(const QString &key) const { return QString("\\[%1:]").arg(key); }
     };
 }
 

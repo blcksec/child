@@ -1,7 +1,7 @@
 #include "child/nativemethod.h"
 
 namespace Child {
-    CHILD_IMPLEMENTATION(NativeMethod, Node);
+    CHILD_DEFINITION(NativeMethod, Node, Node);
 
     void NativeMethod::initRoot() {
         // TODO

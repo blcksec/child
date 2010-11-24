@@ -12,6 +12,10 @@ namespace Child {
     private:
         long long int _initialNodeCount;
     private slots:
+        void initTestCase() {
+            Text::root();
+        }
+
         void init() {
             _initialNodeCount = Node::nodeCount();
         }
