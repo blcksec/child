@@ -2,7 +2,7 @@
 #define CHILD_PARSER_H
 
 #include "child/object.h"
-#include "child/lexer.h"
+#include "child/language/lexer.h"
 #include "child/block.h"
 #include "child/section.h"
 #include "child/primitivechain.h"

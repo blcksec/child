@@ -1,4 +1,4 @@
-#include "tests/runalltests.h"
+//#include "tests/runalltests.h"
 #include "child/application.h"
 #include "QStringList"
 

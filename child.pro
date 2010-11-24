@@ -28,7 +28,6 @@ SOURCES += main.cpp \
     tests/objecttest.cpp \
     tests/worldtest.cpp \
     tests/dictionarytest.cpp \
-    child/lexer.cpp \
     child/token.cpp \
     child/operator.cpp \
     child/parser.cpp \
@@ -44,7 +43,8 @@ SOURCES += main.cpp \
     child/sourcecode.cpp \
     child/number.cpp \
     child/boolean.cpp \
-    child/character.cpp
+    child/character.cpp \
+    child/language/lexer.cpp
 
 HEADERS += \
     child/node.h \
@@ -63,7 +63,6 @@ HEADERS += \
     tests/texttest.h \
     child/dictionary.h \
     tests/dictionarytest.h \
-    child/lexer.h \
     child/token.h \
     child/operator.h \
     child/parser.h \
@@ -79,7 +78,8 @@ HEADERS += \
     child/sourcecode.h \
     child/number.h \
     child/boolean.h \
-    child/character.h
+    child/character.h \
+    child/language/lexer.h
 
 OTHER_FILES += \
     notes/ideas.txt \

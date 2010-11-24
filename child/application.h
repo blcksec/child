@@ -3,7 +3,7 @@
 
 #include "child/object.h"
 #include "child/operatortable.h"
-#include "child/lexer.h"
+#include "child/language/lexer.h"
 #include "child/parser.h"
 #include "child/sourcecode.h"
 
