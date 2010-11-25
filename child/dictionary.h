@@ -5,6 +5,103 @@
 #include "child/object.h"
 
 namespace Child {
+    class NewDictionary : public Object {
+        CHILD_DECLARATION(NewDictionary, Object, Object);
+    public:
+        NewDictionary() : _hash(NULL), _nextNumberId(firstNumberId) {}
+
+        virtual ~NewDictionary() {
+            delete _hash;
+        }
+
+        virtual void initFork() {
+            NewDictionary *orig = NewDictionary::as(origin());
+            if(orig->_hash) _hash = new NumberIdHash(*orig->_hash); // TODO: optimized fork!
+            _nextNumberId = orig->_nextNumberId;
+        }
+
+        Node *get(Node *key) const {
+            NumberId id = getNumberId(key);
+            if(id == nullNumberId) throw NotFoundException("key not found");
+            return child(numberIdToName(id));
+        }
+
+        Node *set(Node *key, Node *value) {
+            checkValue(value);
+            NumberId id = getNumberId(key);
+            if(id == nullNumberId)
+                addDirectChild(numberIdToName(id = nextNumberId()), value);
+            else
+                setChild(numberIdToName(id), value);
+            if(!_hash) { _hash = new NumberIdHash; }
+            _hash->insert(key, id);
+            return value;
+        }
+
+//        Node *key(Node *value) const;
+        Node *value(Node *key) const { return get(key); }
+        int size() const { return _hash ? _hash->size() : 0; }
+        bool isEmpty() const { return size() == 0; }
+        bool isNotEmpty() const { return size() > 0; }
+
+        NodeList keys() const {
+            NodeList list;
+            if(_hash) foreach(NodeRef nodeRef, _hash->keys()) list.append(nodeRef.node);
+            return(list);
+        }
+//        NodeList values() const;
+        bool hasKey(Node *key) const { return getNumberId(key) != nullNumberId; }
+//        bool hasValue(Node *value) const;
+
+        NewDictionary *remove(Node *key) {
+            NumberId id = getNumberId(key);
+            if(id == nullNumberId) NotFoundException("key not found");
+            removeDirectChild(numberIdToName(id)); // FIXME: should use RemoveChild
+            // FIXME: what about the key? Memory leak?
+            return this;
+        }
+
+        NewDictionary *clear() {
+            foreach(Node *key, keys()) remove(key);
+            return this;
+        }
+
+        virtual const QString inspect() const {
+            QString str = "[";
+            bool first = true;
+            foreach(Node *key, keys()) {
+                if(!first) str.append(", "); else first = false;
+                str.append(QString("%1: %2").arg(key->inspect(), get(key)->inspect()));
+            }
+            str.append("]");
+            return str;
+        }
+    private:
+        NumberIdHash *_hash;
+        NumberId _nextNumberId;
+
+        NumberId getNumberId(Node *key) const {
+            checkKey(key);
+            return _hash ? _hash->value(key, nullNumberId) : nullNumberId;
+        }
+
+        const NumberId nextNumberId() { return(_nextNumberId++); }
+
+        void checkKey(Node *key) const {
+            if(!key) throw NullPointerException("key pointer is NULL");
+        }
+
+        void checkValue(Node *value) const {
+            if(!value) throw NullPointerException("value pointer is NULL");
+        }
+    };
+
+
+
+ ///////////// /////////////   /////////////   /////////////   /////////////   /////////////   /////////////
+
+
+
     class Dictionary : public Object {
         CHILD_DECLARATION(Dictionary, Object, Object);
     public:

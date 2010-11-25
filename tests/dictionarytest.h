@@ -15,6 +15,7 @@ namespace Child {
     private slots:
         void initTestCase() {
             Dictionary::root();
+            NewDictionary::root();
         }
 
         void init() {
@@ -27,9 +28,9 @@ namespace Child {
 
         void initialize();
         void getAndSet();
-        void keys();
-        void remove();
-        void clear();
+//        void keys();
+//        void remove();
+//        void clear();
     };
 }
 

@@ -25,7 +25,9 @@ public: \
         return f; \
     } \
     inline static NAME *as(Node *node) { return static_cast<NAME *>(node); } \
+    inline static const NAME *as(const Node *node) { return static_cast<const NAME *>(node); } \
     inline static NAME *is(Node *node) { return dynamic_cast<NAME *>(node); } \
+    inline static const NAME *is(const Node *node) { return dynamic_cast<const NAME *>(node); } \
 private:
 
 #define CHILD_DEFINITION(NAME, ORIGIN, PARENT) \
@@ -42,38 +44,9 @@ NAME *NAME::root() { \
 
 namespace Child {
     class Node;
-
-    class NumberedNode {
-    public:
-        NumberedNode() { throw RuntimeException("cannot construct a NULL NumberedNode"); }
-        NumberedNode(const int number, Node *const node);
-        int number;
-        Node *node;
-    };
-
-    inline bool operator==(const NumberedNode &a, const NumberedNode &b) {
-        return a.node == b.node && a.number == b.number;
-    }
-
-    inline uint qHash(const NumberedNode &key) {
-        return ::qHash(key.number) ^ ::qHash(key.node);
-    }
-
-    class NamedNode {
-    public:
-        NamedNode() { throw RuntimeException("cannot construct a NULL NamedNode"); }
-        NamedNode(const QString &name, Node *const node);
-        QString name;
-        Node *node;
-    };
-
-    inline bool operator==(const NamedNode &a, const NamedNode &b) {
-        return a.node == b.node && a.name == b.name;
-    }
-
-    inline uint qHash(const NamedNode &key) {
-        return qHash(key.name) ^ ::qHash(key.node);
-    }
+    class NumberedNode;
+    class NamedNode;
+    class NodeRef;
 
     typedef QList<Node *> NodeList;
     typedef QList<Node *> NodeLinkedList;
@@ -82,26 +55,41 @@ namespace Child {
     typedef QMultiHash<QString, Node *> NodeMultiHash;
     typedef QSet<Node *> NodeSet;
     typedef QQueue<Node *> NodeQueue;
+
     typedef QList<NumberedNode> NumberedNodeList;
     typedef QSet<NumberedNode> NumberedNodeSet;
+
     typedef QList<NamedNode> NamedNodeList;
     typedef QSet<NamedNode> NamedNodeSet;
+
     typedef Node *(Node::*NodeMethodPtr)();
+
+    typedef uint NumberId;
+    static const NumberId nullNumberId = 0;
+    static const NumberId firstNumberId = 1;
+    typedef QList<NumberId> NumberIdList;
+    typedef QHash<NodeRef, NumberId> NumberIdHash;
+    typedef QSet<NumberId> NumberIdSet;
 
     class Node {
         CHILD_DECLARATION(Node, Node, Node);
     public:
-        static const long long int nodeCount() { return _nodeCount; }
+        enum Comparison { Smaller = -2, SmallerOrEqual, Equal, GreaterOrEqual, Greater, Different };
 
         Node() :
             _origin(NULL), _forks(NULL), _extensions(NULL), _extendedNodes(NULL),
             _parents(NULL), _children(NULL), _isVirtual(false) {
-            _nodeCount++;
+            nodeCount()++;
         }
 
         virtual ~Node();
 
         virtual void initFork() {}
+
+        static long long int &nodeCount() {
+            static long long int _nodeCount = 0;
+            return _nodeCount;
+        }
 
         bool isVirtual() const { return _isVirtual; }
         Node *setIsVirtual(bool value) { _isVirtual = value; return this; }
@@ -141,11 +129,15 @@ namespace Child {
         Node *setChild(const QString &name, Node *node);
         void deleteIfOrphan() { if(!_parents || _parents->empty()) { delete this; } }
 
-        const long long int uniqueID() const { return reinterpret_cast<long long int>(this); }
-        const QString uniqueHexID() const { return QString("0x%1").arg(uniqueID(), 0, 16); }
+        virtual Comparison compare(const Node *other) const { return this == other ? Equal : Different; }
+        virtual uint hash() const { return ::qHash(this); }
+
+        const QString numberIdToName(const NumberId id) const { return QString("\\%1").arg(id); }
+
+        const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
+        const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
         virtual const QString inspect() const;
     private:
-        static long long int _nodeCount;
         Node *_origin;
         NodeList *_forks; // backlink cache
         NodeList *_extensions;
@@ -153,6 +145,8 @@ namespace Child {
         NamedNodeSet *_parents;
         NodeHash *_children; // backlink cache
         bool _isVirtual : 1;
+
+        Node(const Node &node); // disabled copy constructor
 
         void checkName(const QString &name) const {
             if(name.isEmpty()) throw ArgumentException("child name is empty");
@@ -162,6 +156,60 @@ namespace Child {
             if(!node) throw NullPointerException("Node pointer is NULL");
         }
     };
+
+    inline bool operator==(const Node &a, const Node &b) { return(a.compare(&b) == Node::Equal); }
+    inline uint qHash(const Node &node) { return node.hash(); }
+
+    class NumberedNode {
+    public:
+        NumberedNode(const int number, Node *const node) : number(number), node(node) {
+            if(!node) throw NullPointerException("NULL node passed to NumberedNode constructor");
+        }
+        int number;
+        Node *node;
+    };
+
+    inline bool operator==(const NumberedNode &a, const NumberedNode &b) {
+        return a.node == b.node && a.number == b.number;
+    }
+
+    inline uint qHash(const NumberedNode &key) {
+        return ::qHash(key.number) ^ ::qHash(key.node);
+    }
+
+    class NamedNode {
+    public:
+        NamedNode(const QString &name = "", Node *const node = NULL) : name(name), node(node) {
+            if(name.isEmpty()) throw ArgumentException("empty child name passed to NamedNode constructor");
+            if(!node) throw NullPointerException("NULL node passed to NamedNode constructor");
+        }
+        QString name;
+        Node *node;
+    };
+
+    inline bool operator==(const NamedNode &a, const NamedNode &b) {
+        return a.node == b.node && a.name == b.name;
+    }
+
+    inline uint qHash(const NamedNode &key) {
+        return qHash(key.name) ^ ::qHash(key.node);
+    }
+
+    class NodeRef {
+    public:
+        Node *node;
+
+        NodeRef(Node *const node) : node(node) {
+            if(!node) throw NullPointerException("NULL node passed to NodeRef constructor");
+        }
+
+        Node &operator*() const { return *node; }
+    };
+
+    inline bool operator==(const NodeRef &a, const NodeRef &b) {
+        return &a == &b || a.node->compare(b.node) == Node::Equal;
+    }
+    inline uint qHash(const NodeRef &ref) { return ref.node->hash(); }
 }
 
 #endif // CHILD_NODE_H

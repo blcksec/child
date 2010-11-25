@@ -338,6 +338,6 @@ namespace Child {
         Node *last = new Node;
         person->addDirectChild("first_name", first);
         person->addDirectChild("last_name", last);
-        QCOMPARE(person->inspect(), person->uniqueHexID() + ": [person1, person2] => [last_name, first_name]");
+        QCOMPARE(person->inspect(), person->hexMemoryAddress() + ": [person1, person2] => [last_name, first_name]");
     }
 }

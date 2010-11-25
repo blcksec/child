@@ -4,13 +4,24 @@
 using namespace Child;
 
 int main() { // int argc, char *argv[]
-    Text::root();
     runAllTests();
     try {
-        Application *app = Application::root();
-        app->init();
-        Language::SourceCode *source = app->loadSourceCode("../child/examples/test.child");
-        p(source->inspect());
+//        Application *app = Application::root();
+//        app->init();
+//        Language::SourceCode *source = app->loadSourceCode("../child/examples/test.child");
+//        p(source->inspect());
+
+//        Application *app = Application::root();
+//        Text *k1 = Text::fork(app, "k");
+//        Text *k2 = Text::fork(app, "k");
+//        QHash<NodeRef, int> hash;
+//        NodeRef r1(k1);
+//        NodeRef r2(k2);
+//        hash[r1] = 123;
+//        hash[r2] = 125;
+//        p(hash[r1]);
+//        p(hash[r2]);
+//        p(r1 == r2);
 
 //        Application *app = Application::root();
 //        List *l = List::fork(app);

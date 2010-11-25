@@ -19,6 +19,17 @@ namespace Child {
 
         Node *upcase() { return Text::fork(this, value().toUpper()); }
 
+        virtual Comparison compare(const Node *other) const {
+            const Text *otherText = Text::is(other);
+            if(!otherText) return(Different);
+            int result = value().compare(otherText->value());
+            if(result > 0) return Greater;
+            else if(result < 0) return Smaller;
+            else return Equal;
+        }
+
+        virtual uint hash() const { return qHash(value()); }
+
         static QString unescapeSequence(const QString &source);
         static QChar unescapeSequenceNumber(const QString &source, int &i);
 

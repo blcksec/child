@@ -5,21 +5,6 @@
 namespace Child {
     CHILD_DEFINITION(Node, Node, Node);
 
-    void Node::initRoot() {
-        // TODO
-    }
-
-    NumberedNode::NumberedNode(const int number, Node *const node) : number(number), node(node) {
-        if(!node) throw NullPointerException("NULL node passed to NumberedNode constructor()");
-    }
-
-    NamedNode::NamedNode(const QString &name, Node *const node) : name(name), node(node) {
-        if(name.isEmpty()) throw ArgumentException("empty child name passed to NamedNode constructor()");
-        if(!node) throw NullPointerException("NULL node passed to NamedNode constructor()");
-    }
-
-    long long int Node::_nodeCount = 0;
-
     Node::~Node() {
         unsetOrigin();
         removeAllForks();
@@ -27,7 +12,11 @@ namespace Child {
         removeAllExtendedNodes();
         removeAllParents();
         removeAllDirectChildren();
-        _nodeCount--;
+        nodeCount()--;
+    }
+
+    void Node::initRoot() {
+        // TODO
     }
 
     Node *Node::setOrigin(Node *node) {
@@ -253,7 +242,7 @@ namespace Child {
                 if(returnThisIfFound) { return this; }
                 NamedNodeList parentPath;
                 while(parent != this) {
-                    NamedNode par = parentTree.value(parent);
+                    NamedNode par(parentTree.value(parent));
                     parentPath.prepend(NamedNode(par.name, parent));
                     parent = par.node;
                 }
@@ -319,7 +308,7 @@ namespace Child {
 
     const QString Node::inspect() const {
         QString str;
-        str = uniqueHexID();
+        str = hexMemoryAddress();
         str.append(": [");
         str.append(QStringList(parents().keys()).join(", "));
         str.append("] => [");
