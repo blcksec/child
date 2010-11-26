@@ -55,9 +55,9 @@ namespace Child {
 
         NewDictionary *remove(Node *key) {
             NumberId id = getNumberId(key);
-            if(id == nullNumberId) NotFoundException("key not found");
+            if(id == nullNumberId) throw NotFoundException("key not found");
+            _hash->remove(key); // FIXME: what about the key? Memory leak?
             removeDirectChild(numberIdToName(id)); // FIXME: should use RemoveChild
-            // FIXME: what about the key? Memory leak?
             return this;
         }
 

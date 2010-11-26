@@ -1,3 +1,63 @@
+NodeData
+    Node _origin
+    QList<Node> *_extensions;
+    QHash<QString, Node> *_children;
+    QHash<NodePtr, uint> *_parents;
+    uint _refCount;
+
+    const Node &appendChild(const QString &name, const Node &node);
+    const Node &child(const QString &name) const;
+
+app.appendChild("name", "Kindasoft"); // est équivalent à :
+app.appendChild("name", Text("Kindasoft"));
+
+"Text" est en réalité un "TextRef", la classe réelle est nommée "TextData".
+
+Text() renvoie une référence vers un fork de TextData dans le context courant.
+Text("Yoyo") renvoie un fork avec le texte initialisé à "Yoyo".
+
+class Node {
+public:
+    NodeData *node;
+
+    const Node &appendChild(const QString &name, const Node &node);
+    const Node &child(const QString &name) const;
+}
+
+class Text : public Node {
+    Text() {
+           node = new TextData();
+           node->_refCount++;
+    }
+    Text(const QString &text) {
+           node = new TextData(text);
+           node->_refCount++;
+    }
+    Text(const Node &other) {
+           node = static_cast<TextData *>(other.node);
+           node->_refCount++;
+    }
+}
+
+app.appendChild("lexer", Lexer());
+app.appendChild("parser", Parser());
+app.appendChild("operators", OperatorTable());
+
+// Si le parser a besoin d'un lexer, il peut faire :
+Lexer(child("lexer"));
+
+OperatorTable ops = OperatorTable(child("operators"));
+ops.append("+");
+
+
+Dictionary
+    QHash<NodeRef, NodeRef> *_items;
+
+List
+    QList<NodeRef> *_items;
+
+***
+
 * "objets persistants" pour gérer les watchers sur des objets changeants
 
 if(name == "Vila") { "Yo there!" else: "Too bad..." } print

@@ -157,7 +157,8 @@ namespace Child {
         }
     };
 
-    inline bool operator==(const Node &a, const Node &b) { return(a.compare(&b) == Node::Equal); }
+    inline bool operator==(const Node &a, const Node &b) { return a.compare(&b) == Node::Equal; }
+    inline bool operator!=(const Node &a, const Node &b) { return a.compare(&b) != Node::Equal; }
     inline uint qHash(const Node &node) { return node.hash(); }
 
     class NumberedNode {
@@ -209,6 +210,11 @@ namespace Child {
     inline bool operator==(const NodeRef &a, const NodeRef &b) {
         return &a == &b || a.node->compare(b.node) == Node::Equal;
     }
+
+    inline bool operator!=(const NodeRef &a, const NodeRef &b) {
+        return &a != &b && a.node->compare(b.node) != Node::Equal;
+    }
+
     inline uint qHash(const NodeRef &ref) { return ref.node->hash(); }
 }
 

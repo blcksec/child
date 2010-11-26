@@ -26,6 +26,7 @@ namespace Child {
 
         void initialize();
         void fork();
+        void compare();
     };
 }
 

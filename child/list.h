@@ -13,6 +13,12 @@ namespace Child {
             delete _list;
         }
 
+        static List *fork(Node *world, const NodeList &other) {
+            List *list = List::fork(world);
+            foreach(Node *node, other) list->append(node);
+            return list;
+        }
+
         virtual void initFork() {
             List *orig = List::as(origin());
             if(orig->_list) _list = new NumberedNodeList(*orig->_list); // TODO: optimized fork!
@@ -62,6 +68,13 @@ namespace Child {
             int number = _list->at(i).number;
             _list->removeAt(i);
             removeDirectChild(_numberToName(number));
+        }
+
+        bool hasValue(Node *value) const {
+            if(_list)
+                foreach(NumberedNode numNode, *_list)
+                    if(numNode.node->compare(value) == Equal) return true;
+            return false;
         }
 
         List *clear() {

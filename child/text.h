@@ -20,8 +20,9 @@ namespace Child {
         Node *upcase() { return Text::fork(this, value().toUpper()); }
 
         virtual Comparison compare(const Node *other) const {
+            if(this == other) return Equal;
             const Text *otherText = Text::is(other);
-            if(!otherText) return(Different);
+            if(!otherText) return Different;
             int result = value().compare(otherText->value());
             if(result > 0) return Greater;
             else if(result < 0) return Smaller;

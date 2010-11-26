@@ -4,6 +4,7 @@
 #include "tests/testhelper.h"
 #include "child/text.h"
 #include "child/dictionary.h"
+#include "child/list.h"
 #include "child/world.h"
 
 namespace Child {
@@ -28,9 +29,9 @@ namespace Child {
 
         void initialize();
         void getAndSet();
-//        void keys();
-//        void remove();
-//        void clear();
+        void keys();
+        void remove();
+        void clear();
     };
 }
 
