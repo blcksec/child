@@ -1,15 +1,13 @@
-#include "child/node.h"
+#include "child.h"
 
 namespace Child {
 
 NodePtr::NodePtr() : _data(NULL) {}
-NodePtr::NodePtr(Node *data) : _data(NULL) { setData(data); }
+NodePtr::NodePtr(const Node *data) : _data(NULL) { setData(data); }
 NodePtr::NodePtr(const NodePtr &other) : _data(NULL) { setData(other._data); }
 NodePtr::~NodePtr() { if(_data) _data->release(); }
 
-Node *NodePtr::initData() { return setData(new Node); }
-
-Node *NodePtr::setData(Node *data) {
+const Node *NodePtr::setData(const Node *data) {
     if(_data != data) {
         if(_data) _data->release();
         if(data) data->retain();
@@ -18,6 +16,9 @@ Node *NodePtr::setData(Node *data) {
     return data;
 }
 
+NodePtr Node::_root = Node::root();
+HugeUnsignedInteger Node::_nodeCount = 0;
+
 Node::~Node() {
 //    unsetOrigin();
 //    removeAllForks();
@@ -25,7 +26,25 @@ Node::~Node() {
 //    removeAllExtendedNodes();
 //    removeAllParents();
 //    removeAllDirectChildren();
-    nodeCount()--;
+    _nodeCount--;
+}
+
+const NodePtr &Node::root() {
+    if(!_root) {
+        _root = new Node;
+        _root->setOrigin(Node::root());
+        _root->setChild("Node", Node::root());
+        Node::initRoot();
+    }
+    return _root;
+}
+
+void Node::initRoot() {}
+
+NodePtr Node::make() {
+    Node *f = new Node;
+    f->_origin = context()->child("Node");
+    return f;
 }
 
 void Node::addExtension(const NodePtr &node) {
@@ -50,6 +69,15 @@ void Node::removeExtension(const NodePtr &node)  {
 
 void Node::removeAllExtensions() {
     _extensions->clear();
+}
+
+const QString Node::inspect() const {
+    QString str;
+    str = hexMemoryAddress();
+    str.append(": [");
+    str.append(QStringList(children().keys()).join(", "));
+    str.append("]");
+    return str;
 }
 
 } // namespace Child

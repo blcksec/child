@@ -15,14 +15,15 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
+    child.cpp \
     child/toolbox.cpp \
-    child/node.cpp
+    child/node.cpp \
+    tests/nodetest.cpp
 #    child/nativemethod.cpp \
 #    child/text.cpp \
 #    child/object.cpp \
 #    child/world.cpp \
 #    child/dictionary.cpp \
-#    tests/nodetest.cpp \
 #    tests/texttest.cpp \
 #    tests/objecttest.cpp \
 #    tests/worldtest.cpp \
@@ -47,17 +48,17 @@ SOURCES += main.cpp \
 #    child/language.cpp
 
 HEADERS += \
+    child.h \
     child/toolbox.h \
-    child/node.h
+    child/node.h \
+    tests/testhelper.h \
+    tests/nodetest.h \
+    tests/runalltests.h
 #    child/nativemethod.h \
 #    child/text.h \
 #    child/exception.h \
 #    child/object.h \
 #    child/world.h \
-#    tests/nodetest.h \
-#    tests/objecttest.h \
-#    tests/runalltests.h \
-#    tests/testhelper.h \
 #    tests/objecttest.h \
 #    tests/worldtest.h \
 #    tests/texttest.h \
@@ -71,6 +72,7 @@ HEADERS += \
 #    child/number.h \
 #    child/boolean.h \
 #    child/character.h \
+#    child/language.h \
 #    child/language/lexer.h \
 #    child/language/token.h \
 #    child/language/sourcecode.h \
@@ -79,8 +81,7 @@ HEADERS += \
 #    child/language/primitive.h \
 #    child/language/parser.h \
 #    child/language/operatortable.h \
-#    child/language/operator.h \
-#    child/language.h
+#    child/language/operator.h
 
 OTHER_FILES += \
     notes/ideas.txt \

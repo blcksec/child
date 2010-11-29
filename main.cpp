@@ -1,11 +1,12 @@
-//#include "tests/runalltests.h"
+#include "child.h"
+#include "tests/runalltests.h"
 //#include "child/application.h"
-#include "child/node.h"
 
 using namespace Child;
 
 int main() { // int argc, char *argv[]
-//    runAllTests();
+    init();
+    runAllTests();
 //    try {
 ////        Application *app = Application::root();
 ////        app->init();

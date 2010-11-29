@@ -11,6 +11,8 @@
 #include "child/exception.h"
 
 namespace Child {
+    typedef unsigned long long int HugeUnsignedInteger;
+
     template<typename T>
     void p(T const &value) { QTextStream(stdout) << value << '\n'; }
 

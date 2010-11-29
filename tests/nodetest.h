@@ -9,12 +9,8 @@ namespace Child {
     {
         Q_OBJECT
     private:
-        long long int _initialNodeCount;
+        HugeUnsignedInteger _initialNodeCount;
     private slots:
-        void initTestCase() {
-            Node::root();
-        }
-
         void init() {
             _initialNodeCount = Node::nodeCount();
         }
