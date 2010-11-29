@@ -56,7 +56,7 @@ public:
 
     virtual NodePtr fork() const {
         Node *f = new Node;
-        f->setOrigin(const_cast<Node *>(this));
+        f->setOrigin(this);
         f->initFork();
         return f;
     }
