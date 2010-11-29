@@ -14,74 +14,73 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-
 SOURCES += main.cpp \
-    child/node.cpp \
-    child/nativemethod.cpp \
-    child/text.cpp \
     child/toolbox.cpp \
-    child/object.cpp \
-    child/world.cpp \
-    child/dictionary.cpp \
-    tests/nodetest.cpp \
-    tests/texttest.cpp \
-    tests/objecttest.cpp \
-    tests/worldtest.cpp \
-    tests/dictionarytest.cpp \
-    child/application.cpp \
-    child/block.cpp \
-    child/message.cpp \
-    child/list.cpp \
-    tests/listtest.cpp \
-    child/number.cpp \
-    child/boolean.cpp \
-    child/character.cpp \
-    child/language/lexer.cpp \
-    child/language/token.cpp \
-    child/language/sourcecode.cpp \
-    child/language/section.cpp \
-    child/language/primitivechain.cpp \
-    child/language/primitive.cpp \
-    child/language/parser.cpp \
-    child/language/operatortable.cpp \
-    child/language/operator.cpp \
-    child/language.cpp
+    child/node.cpp
+#    child/nativemethod.cpp \
+#    child/text.cpp \
+#    child/object.cpp \
+#    child/world.cpp \
+#    child/dictionary.cpp \
+#    tests/nodetest.cpp \
+#    tests/texttest.cpp \
+#    tests/objecttest.cpp \
+#    tests/worldtest.cpp \
+#    tests/dictionarytest.cpp \
+#    child/application.cpp \
+#    child/block.cpp \
+#    child/message.cpp \
+#    child/list.cpp \
+#    tests/listtest.cpp \
+#    child/number.cpp \
+#    child/boolean.cpp \
+#    child/character.cpp \
+#    child/language/lexer.cpp \
+#    child/language/token.cpp \
+#    child/language/sourcecode.cpp \
+#    child/language/section.cpp \
+#    child/language/primitivechain.cpp \
+#    child/language/primitive.cpp \
+#    child/language/parser.cpp \
+#    child/language/operatortable.cpp \
+#    child/language/operator.cpp \
+#    child/language.cpp
 
 HEADERS += \
-    child/node.h \
-    child/nativemethod.h \
-    child/text.h \
     child/toolbox.h \
-    child/exception.h \
-    child/object.h \
-    child/world.h \
-    tests/nodetest.h \
-    tests/objecttest.h \
-    tests/runalltests.h \
-    tests/testhelper.h \
-    tests/objecttest.h \
-    tests/worldtest.h \
-    tests/texttest.h \
-    child/dictionary.h \
-    tests/dictionarytest.h \
-    child/application.h \
-    child/block.h \
-    child/message.h \
-    child/list.h \
-    tests/listtest.h \
-    child/number.h \
-    child/boolean.h \
-    child/character.h \
-    child/language/lexer.h \
-    child/language/token.h \
-    child/language/sourcecode.h \
-    child/language/section.h \
-    child/language/primitivechain.h \
-    child/language/primitive.h \
-    child/language/parser.h \
-    child/language/operatortable.h \
-    child/language/operator.h \
-    child/language.h
+    child/node.h
+#    child/nativemethod.h \
+#    child/text.h \
+#    child/exception.h \
+#    child/object.h \
+#    child/world.h \
+#    tests/nodetest.h \
+#    tests/objecttest.h \
+#    tests/runalltests.h \
+#    tests/testhelper.h \
+#    tests/objecttest.h \
+#    tests/worldtest.h \
+#    tests/texttest.h \
+#    child/dictionary.h \
+#    tests/dictionarytest.h \
+#    child/application.h \
+#    child/block.h \
+#    child/message.h \
+#    child/list.h \
+#    tests/listtest.h \
+#    child/number.h \
+#    child/boolean.h \
+#    child/character.h \
+#    child/language/lexer.h \
+#    child/language/token.h \
+#    child/language/sourcecode.h \
+#    child/language/section.h \
+#    child/language/primitivechain.h \
+#    child/language/primitive.h \
+#    child/language/parser.h \
+#    child/language/operatortable.h \
+#    child/language/operator.h \
+#    child/language.h
 
 OTHER_FILES += \
     notes/ideas.txt \

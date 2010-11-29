@@ -1,7 +1,60 @@
 #include "child/node.h"
-#include "child/nativemethod.h"
-#include "child/text.h"
 
+namespace Child {
+
+NodePtr::NodePtr() : _data(NULL) {}
+NodePtr::NodePtr(Node *data) : _data(NULL) { setData(data); }
+NodePtr::NodePtr(const NodePtr &other) : _data(NULL) { setData(other._data); }
+NodePtr::~NodePtr() { if(_data) _data->release(); }
+
+Node *NodePtr::initData() { return setData(new Node); }
+
+Node *NodePtr::setData(Node *data) {
+    if(_data != data) {
+        if(_data) _data->release();
+        if(data) data->retain();
+        _data = data;
+    }
+    return data;
+}
+
+Node::~Node() {
+//    unsetOrigin();
+//    removeAllForks();
+//    removeAllExtensions();
+//    removeAllExtendedNodes();
+//    removeAllParents();
+//    removeAllDirectChildren();
+    nodeCount()--;
+}
+
+void Node::addExtension(const NodePtr &node) {
+    checkNodePtr(node);
+    if(!_extensions) { _extensions = new QList<NodePtr>; }
+    if(hasExtension(node)) throw DuplicateException("cannot add an extension which is already there");
+    _extensions->append(node);
+}
+
+void Node::prependExtension(const NodePtr &node)  {
+    checkNodePtr(node);
+    if(!_extensions) { _extensions = new QList<NodePtr>; }
+    if(hasExtension(node)) throw DuplicateException("cannot add an extension which is already there");
+    _extensions->prepend(node);
+}
+
+void Node::removeExtension(const NodePtr &node)  {
+    checkNodePtr(node);
+    if(!hasExtension(node)) throw NotFoundException("cannot remove an extension which is not there");
+    _extensions->removeOne(node);
+}
+
+void Node::removeAllExtensions() {
+    _extensions->clear();
+}
+
+} // namespace Child
+
+/*
 namespace Child {
     CHILD_DEFINITION(Node, Node, Node);
 
@@ -317,3 +370,4 @@ namespace Child {
         return str;
     }
 }
+*/

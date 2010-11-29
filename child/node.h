@@ -9,13 +9,149 @@
 
 #include "child/toolbox.h"
 
+namespace Child {
+
+class Node;
+
+class NodePtr {
+public:
+    NodePtr();
+    NodePtr(Node *data);
+    NodePtr(const NodePtr &other);
+    virtual ~NodePtr();
+
+    virtual Node *initData();
+    Node *data() const;
+    Node &operator*();
+    const Node &operator*() const;
+    Node *operator->();
+    const Node *operator->() const;
+    Node *setData(Node *data);
+    NodePtr& operator=(const NodePtr &other);
+
+    bool isNull() const { return !_data; }
+    operator bool() const { return !isNull(); }
+    bool operator!() const { return isNull(); }
+    bool operator==(const NodePtr &other) const { return _data == other._data; }
+    bool operator!=(const NodePtr &other) const { return _data != other._data; }
+private:
+    Node *_data;
+};
+
+class Node {
+public:
+    friend class NodePtr;
+
+    Node(const NodePtr &origin = NodePtr()) : _origin(origin), _extensions(NULL),
+        _children(NULL), _parents(NULL), _refCount(0) { nodeCount()++; }
+
+    virtual ~Node();
+
+    static unsigned long long int &nodeCount() {
+        static unsigned long long int _nodeCount = 0;
+        return _nodeCount;
+    }
+
+    const NodePtr fork() const {
+        NodePtr node;
+        node->_origin = const_cast<Node *>(this);
+        return node;
+    }
+
+    const NodePtr &origin() const { return _origin; }
+    void setOrigin(const NodePtr &node) { checkNodePtr(node); _origin = node; }
+
+    QList<NodePtr> extensions() const { return _extensions ? *_extensions : QList<NodePtr>(); }
+    bool hasExtension(const NodePtr &node) const { checkNodePtr(node); return _extensions && _extensions->contains(node); }
+    void addExtension(const NodePtr &node);
+    void prependExtension(const NodePtr &node);
+    void removeExtension(const NodePtr &node);
+    void removeAllExtensions();
+
+    const NodePtr hasDirectChild(const QString &name) const {
+        return _children ? _children->value(name) : NodePtr();
+    }
+
+    const NodePtr child(const QString &name) const {
+        if(NodePtr node = hasDirectChild(name)) return node;
+        if(_origin) {
+            NodePtr node = _origin->child(name);
+            if(node) {
+                node = node->fork();
+                const_cast<Node *>(this)->_setChild(name, node);
+                return node;
+            }
+        }
+        qFatal("child not found");
+    }
+
+    const NodePtr setChild(const QString &name, const NodePtr &value) {
+        if(NodePtr current = hasDirectChild(name)) {
+            if(current == value) return(value);
+            current->_removeParent(this);
+        }
+        _setChild(name, value);
+        return(value);
+    }
+
+    void _setChild(const QString &name, const NodePtr &value) {
+        if(!_children) _children = new QHash<QString, NodePtr>;
+        _children->insert(name, value);
+        value->_addParent(this);
+    }
+
+    void _addParent(Node *parent) const {
+        unsigned long long int count = 0;
+        if(_parents)
+            count = _parents->value(parent);
+        else
+            _parents = new QHash<Node *, unsigned long long int>;
+        _parents->insert(parent, count + 1);
+    }
+
+    void _removeParent(Node *parent) const {
+        if(!_parents) qFatal("parent not found");
+        unsigned long long int count = _parents->value(parent) - 1;
+        if(count > 0)
+            _parents->insert(parent, count);
+        else if(count == 0)
+            _parents->remove(parent);
+        else
+            qFatal("parent not found");
+    }
+
+private:
+    NodePtr _origin;
+    QList<NodePtr> *_extensions;
+    QHash<QString, NodePtr> *_children;
+    mutable QHash<Node *, unsigned long long int> *_parents;
+    unsigned long long int _refCount;
+
+    void retain() { _refCount++; }
+    void release() { if(--_refCount == 0) delete this; }
+
+    void checkNodePtr(const NodePtr &node) const {
+        if(!node) throw NullPointerException("Node pointer is NULL");
+    }
+};
+
+inline Node *NodePtr::data() const { return _data ? _data : const_cast<NodePtr *>(this)->initData(); }
+inline Node &NodePtr::operator*() { return *data(); };
+inline const Node &NodePtr::operator*() const { return *data(); };
+inline Node *NodePtr::operator->() { return data(); };
+inline const Node *NodePtr::operator->() const { return data(); };
+inline NodePtr& NodePtr::operator=(const NodePtr &other) { setData(other._data); return *this; }
+
+} // namespace Child
+
+/*
 #define CHILD_DECLARATION(NAME, ORIGIN, PARENT) \
 public: \
     inline static const QString className() { return #NAME; } \
     static NAME *root(); \
     static void initRoot(); \
     inline static NAME *fork(Node *world) { \
-        NAME::root(); /* ensure initialization of root class */ \
+        NAME::root(); \
         return static_cast<NAME *>(world->child(#PARENT)->child(#NAME))->fork(); \
     } \
     inline virtual NAME *fork() { \
@@ -217,5 +353,6 @@ namespace Child {
 
     inline uint qHash(const NodeRef &ref) { return ref.node->hash(); }
 }
+*/
 
 #endif // CHILD_NODE_H
