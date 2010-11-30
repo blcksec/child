@@ -31,7 +31,9 @@ public:
     operator bool() const { return !isNull(); }
     bool operator!() const { return isNull(); }
     bool operator==(const NodePtr &other) const { return _data == other._data; }
+    bool operator==(const Node *other) const { return _data == other; }
     bool operator!=(const NodePtr &other) const { return _data != other._data; }
+    bool operator!=(const Node *other) const { return _data != other; }
 protected:
     const Node *_data;
 
@@ -49,13 +51,13 @@ public:
 
     virtual ~Node();
 
-    static const NodePtr &root();
+    static NodePtr &root();
     static void initRoot();
 
     static NodePtr make();
 
     virtual NodePtr fork() const {
-        Node *f = new Node;
+        NodePtr f(new Node);
         f->setOrigin(this);
         f->initFork();
         return f;
@@ -156,7 +158,7 @@ private:
     void release() const { if(--_refCount == 0) delete this; }
 
     void checkNodePtr(const NodePtr &node) const {
-        if(!node) throw NullPointerException("Node pointer is NULL");
+        if(!node) qFatal("Node pointer is NULL");
     }
 };
 

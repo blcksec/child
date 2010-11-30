@@ -1,4 +1,5 @@
 #include "child.h"
+#include "child/exception.h"
 
 namespace Child {
 
@@ -20,20 +21,17 @@ NodePtr Node::_root = Node::root();
 HugeUnsignedInteger Node::_nodeCount = 0;
 
 Node::~Node() {
-//    unsetOrigin();
-//    removeAllForks();
-//    removeAllExtensions();
-//    removeAllExtendedNodes();
-//    removeAllParents();
-//    removeAllDirectChildren();
+    if(_extensions) delete _extensions;
+    if(_children) delete _children;
+    if(_parents) delete _parents;
     _nodeCount--;
 }
 
-const NodePtr &Node::root() {
+NodePtr &Node::root() {
     if(!_root) {
         _root = new Node;
         _root->setOrigin(Node::root());
-        _root->setChild("Node", Node::root());
+        Node::root()->setChild("Node", _root);
         Node::initRoot();
     }
     return _root;
@@ -42,28 +40,28 @@ const NodePtr &Node::root() {
 void Node::initRoot() {}
 
 NodePtr Node::make() {
-    Node *f = new Node;
-    f->_origin = context()->child("Node");
+    NodePtr f(new Node);
+    f->setOrigin(context()->child("Node"));
     return f;
 }
 
 void Node::addExtension(const NodePtr &node) {
     checkNodePtr(node);
     if(!_extensions) { _extensions = new QList<NodePtr>; }
-    if(hasExtension(node)) throw DuplicateException("cannot add an extension which is already there");
+    if(hasExtension(node)) qFatal("cannot add an extension which is already there");
     _extensions->append(node);
 }
 
 void Node::prependExtension(const NodePtr &node)  {
     checkNodePtr(node);
     if(!_extensions) { _extensions = new QList<NodePtr>; }
-    if(hasExtension(node)) throw DuplicateException("cannot add an extension which is already there");
+    if(hasExtension(node)) qFatal("cannot add an extension which is already there");
     _extensions->prepend(node);
 }
 
 void Node::removeExtension(const NodePtr &node)  {
     checkNodePtr(node);
-    if(!hasExtension(node)) throw NotFoundException("cannot remove an extension which is not there");
+    if(!hasExtension(node)) qFatal("cannot remove an extension which is not there");
     _extensions->removeOne(node);
 }
 

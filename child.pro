@@ -18,7 +18,8 @@ SOURCES += main.cpp \
     child.cpp \
     child/toolbox.cpp \
     child/node.cpp \
-    tests/nodetest.cpp
+    tests/nodetest.cpp \
+    child/exception.cpp
 #    child/nativemethod.cpp \
 #    child/text.cpp \
 #    child/object.cpp \
@@ -51,12 +52,12 @@ HEADERS += \
     child.h \
     child/toolbox.h \
     child/node.h \
+    child/exception.h \
     tests/testhelper.h \
     tests/nodetest.h \
     tests/runalltests.h
 #    child/nativemethod.h \
 #    child/text.h \
-#    child/exception.h \
 #    child/object.h \
 #    child/world.h \
 #    tests/objecttest.h \

@@ -1,12 +1,14 @@
 #include "child.h"
-#include "tests/runalltests.h"
+//#include "tests/runalltests.h"
 //#include "child/application.h"
+#include "child/exception.h"
 
 using namespace Child;
 
 int main() { // int argc, char *argv[]
     init();
-    runAllTests();
+//    runAllTests();
+    p(Exception::make()->inspect());
 //    try {
 ////        Application *app = Application::root();
 ////        app->init();

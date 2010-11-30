@@ -3,7 +3,7 @@
 namespace Child {
     QString readTextFile(const QString &name) {
         QFile file(name);
-        if(!file.open(QIODevice::ReadOnly)) throw FileSystemException("file not found");
+        if(!file.open(QIODevice::ReadOnly)) qFatal("file not found");
         QString text = QTextStream(&file).readAll();
         file.close();
         return text;
@@ -67,5 +67,5 @@ namespace Child {
         return false;
     }
 
-    void notYetImplemented() { throw RuntimeException("not yet implemented!"); }
+    void notYetImplemented() { qFatal("not yet implemented!"); }
 }

@@ -8,8 +8,6 @@
 #include <QtCore/QTextStream>
 #include "QtCore/QTextCodec"
 
-#include "child/exception.h"
-
 namespace Child {
     typedef unsigned long long int HugeUnsignedInteger;
 
