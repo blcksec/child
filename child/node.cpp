@@ -29,7 +29,7 @@ Node::~Node() {
 
 NodePtr &Node::root() {
     if(!_root) {
-        _root = new Node;
+        _root = NodePtr(new Node);
         _root->setOrigin(Node::root());
         Node::root()->setChild("Node", _root);
         Node::initRoot();

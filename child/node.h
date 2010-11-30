@@ -9,6 +9,52 @@
 
 #include "child/toolbox.h"
 
+#define CHILD_DECLARATION(NAME, ORIGIN, PARENT) \
+public: \
+    static NAME##Ptr &root(); \
+    static void initRoot(); \
+    virtual NAME *_new() const { return new NAME; } \
+    virtual const QString className() const { return #NAME; } \
+private: \
+    static NAME##Ptr _root;
+
+#define CHILD_DEFINITION(NAME, ORIGIN, PARENT) \
+NAME##Ptr NAME::_root = NAME::root(); \
+NAME##Ptr &NAME::root() { \
+    if(!_root) { \
+        _root = NAME##Ptr(new NAME); \
+        _root->setOrigin(ORIGIN::root()); \
+        PARENT::root()->setChild(#NAME, _root); \
+        NAME::initRoot(); \
+    } \
+    return _root; \
+}
+
+#define CHILD_PTR_DECLARATION(NAME, ORIGIN, PARENT) \
+class NAME; \
+class NAME##Ptr : public ORIGIN##Ptr { \
+public: \
+    NAME##Ptr() {} \
+    explicit NAME##Ptr(const NAME *data); \
+    NAME##Ptr(const NodePtr &other); \
+    NAME &operator*(); \
+    const NAME &operator*() const; \
+    NAME *operator->(); \
+    const NAME *operator->() const; \
+    const NAME *setData(const NAME *data); \
+    NAME##Ptr& operator=(const NAME##Ptr &other); \
+};
+
+#define CHILD_PTR_DEFINITION(NAME, ORIGIN, PARENT) \
+inline NAME##Ptr::NAME##Ptr(const NAME *data) : ORIGIN##Ptr(data) {} \
+inline NAME##Ptr::NAME##Ptr(const NodePtr &other) : ORIGIN##Ptr(other) {} \
+inline NAME &NAME##Ptr::operator*() { return *static_cast<NAME *>(NodePtr::data()); }; \
+inline const NAME &NAME##Ptr::operator*() const { return *static_cast<const NAME *>(NodePtr::data()); }; \
+inline NAME *NAME##Ptr::operator->() { return static_cast<NAME *>(NodePtr::data()); }; \
+inline const NAME *NAME##Ptr::operator->() const { return static_cast<const NAME *>(NodePtr::data()); }; \
+inline const NAME *NAME##Ptr::setData(const NAME *data) { return static_cast<const NAME *>(NodePtr::setData(data)); } \
+inline NAME##Ptr& NAME##Ptr::operator=(const NAME##Ptr &other) { NodePtr::setData(other._data); return *this; }
+
 namespace Child {
 
 class Node;
@@ -16,7 +62,7 @@ class Node;
 class NodePtr {
 public:
     NodePtr();
-    NodePtr(const Node *data);
+    explicit NodePtr(const Node *data);
     NodePtr(const NodePtr &other);
     virtual ~NodePtr();
 
@@ -56,14 +102,18 @@ public:
 
     static NodePtr make();
 
-    virtual NodePtr fork() const {
-        NodePtr f(new Node);
-        f->setOrigin(this);
+    NodePtr fork() const {
+        NodePtr f(_new());
+        f->setOrigin(NodePtr(this));
         f->initFork();
         return f;
     }
 
+    virtual Node *_new() const { return new Node; }
+
     void initFork() {}
+
+    virtual const QString className() const { return "Node"; }
 
     const NodePtr &origin() const { return _origin; }
     void setOrigin(const NodePtr &node) { checkNodePtr(node); _origin = node != this ? node : NodePtr(); }

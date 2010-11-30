@@ -7,8 +7,12 @@ using namespace Child;
 
 int main() { // int argc, char *argv[]
     init();
+    try {
+        CHILD_THROW(LexerException, "key not found");
+    } catch(ExceptionPtr e) {
+        qDebug() << e->report().toUtf8();
+    }
 //    runAllTests();
-    p(Exception::make()->inspect());
 //    try {
 ////        Application *app = Application::root();
 ////        app->init();

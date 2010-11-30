@@ -3,24 +3,18 @@
 
 namespace Child {
 
-ExceptionPtr Exception::_root = Exception::root();
+CHILD_EXCEPTION_DEFINITION(Exception, Node, Node);
 
-ExceptionPtr &Exception::root() {
-    if(!_root) {
-        _root = new Exception;
-        _root->setOrigin(Node::root());
-        Node::root()->setChild("Exception", _root);
-        Exception::initRoot();
-    }
-    return _root;
+const QString Exception::report() const {
+    QString str;
+    if(!_file.isEmpty()) str += QString("%1:").arg(QFileInfo(_file).fileName());
+    if(_line != 0) str += QString("%1: ").arg(_line);
+    str += className();
+    if(!_message.isEmpty()) str += QString(": %1").arg(_message);
+    if(!_function.isEmpty()) str += QString(" in '%1'").arg(_function);
+    return str;
 }
 
-void Exception::initRoot() {}
-
-ExceptionPtr Exception::make() {
-    ExceptionPtr f(new Exception);
-    f->setOrigin(context()->child("Exception"));
-    return f;
-}
+CHILD_EXCEPTION_DEFINITION(LexerException, Exception, Node);
 
 } // namespace Child

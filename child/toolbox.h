@@ -8,17 +8,21 @@
 #include <QtCore/QTextStream>
 #include "QtCore/QTextCodec"
 
+#define P p(Q_FUNC_INFO);
+
 namespace Child {
-    typedef unsigned long long int HugeUnsignedInteger;
 
-    template<typename T>
-    void p(T const &value) { QTextStream(stdout) << value << '\n'; }
+typedef unsigned long long int HugeUnsignedInteger;
 
-    QString readTextFile(const QString &name);
-    QString escapeTabsAndNewlines(QString text);
-    QString extractLine(const QString &text, int requestedLine);
-    const bool computeColumnAndLineForPosition(const QString &text, const int position, int &column, int &line);
-    void notYetImplemented();
-}
+template<typename T>
+void p(T const &value) { QTextStream(stdout) << value << '\n'; }
+
+QString readTextFile(const QString &name);
+QString escapeTabsAndNewlines(QString text);
+QString extractLine(const QString &text, int requestedLine);
+const bool computeColumnAndLineForPosition(const QString &text, const int position, int &column, int &line);
+void notYetImplemented();
+
+} // namespace Child
 
 #endif // CHILD_TOOLBOX_H

@@ -3,42 +3,59 @@
 
 #include "child/node.h"
 
+#define CHILD_THROW(EXCEPTION, MESSAGE) \
+throw(EXCEPTION::make(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO));
+
+#define CHILD_EXCEPTION_DECLARATION(NAME, ORIGIN, PARENT) \
+CHILD_PTR_DECLARATION(NAME, ORIGIN, PARENT); \
+class NAME : public ORIGIN { \
+    CHILD_DECLARATION(NAME, ORIGIN, PARENT); \
+public: \
+    NAME(const QString &message = "", const QString &file = "", \
+              const int line = 0, const QString &function = "") : \
+        ORIGIN(message, file, line, function) {} \
+    static NAME##Ptr make(const QString &message = "", const QString &file = "", \
+                             const int line = 0, const QString &function = ""); \
+}; \
+CHILD_PTR_DEFINITION(NAME, ORIGIN, PARENT);
+
+#define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN, PARENT) \
+CHILD_DEFINITION(NAME, ORIGIN, PARENT); \
+void NAME::initRoot() {} \
+NAME##Ptr NAME::make(const QString &message, const QString &file, \
+                             const int line, const QString &function) { \
+    NAME##Ptr f(new NAME(message, file, line, function)); \
+    f->setOrigin(context()->child(#NAME)); \
+    return f; \
+}
+
 namespace Child {
 
-class ExceptionPtr;
+CHILD_PTR_DECLARATION(Exception, Node, Node);
 
 class Exception : public Node {
+    CHILD_DECLARATION(Exception, Node, Node);
 public:
-    Exception() {}
+    Exception(const QString &message = "", const QString &file = "",
+              const int line = 0, const QString &function = "") :
+        _message(message), _file(file), _line(line), _function(function) {}
 
-    static ExceptionPtr &root();
-    static void initRoot();
+    static ExceptionPtr make(const QString &message = "", const QString &file = "",
+                             const int line = 0, const QString &function = "");
 
-    static ExceptionPtr make();
+    const QString report() const;
 
-    virtual NodePtr fork() const {
-        NodePtr f(new Exception);
-        f->setOrigin(this);
-        f->initFork();
-        return f;
-    }
+    virtual const QString inspect() const { return report(); }
 private:
-    static ExceptionPtr _root;
+    const QString _message;
+    const QString _file;
+    const int _line;
+    const QString _function;
 };
 
-class ExceptionPtr : public NodePtr {
-public:
-    ExceptionPtr() {}
-    ExceptionPtr(const Exception *data) : NodePtr(data) {}
-    ExceptionPtr(const NodePtr &other) : NodePtr(other) {}
+CHILD_PTR_DEFINITION(Exception, Node, Node);
 
-    Exception &operator*() { return *static_cast<Exception *>(NodePtr::data()); };
-    const Exception &operator*() const { return *static_cast<const Exception *>(NodePtr::data()); };
-    Exception *operator->() { return static_cast<Exception *>(NodePtr::data()); };
-    const Exception *operator->() const { return static_cast<const Exception *>(NodePtr::data()); };
-    const Exception *setData(const Exception *data) { return static_cast<const Exception *>(NodePtr::setData(data)); }
-    ExceptionPtr& operator=(const ExceptionPtr &other) { NodePtr::setData(other._data); return *this; }
-};
+CHILD_EXCEPTION_DECLARATION(LexerException, Exception, Node);
 
 //    class Exception {
 //    public:
