@@ -1,5 +1,6 @@
+#include <QtCore/QStringList>
+
 #include "child.h"
-#include "child/exception.h"
 
 namespace Child {
 
@@ -30,7 +31,6 @@ Node::~Node() {
 NodePtr &Node::root() {
     if(!_root) {
         _root = NodePtr(new Node);
-        _root->setOrigin(Node::root());
         Node::root()->setChild("Node", _root);
         Node::initRoot();
     }
@@ -45,28 +45,89 @@ NodePtr Node::make() {
     return f;
 }
 
+void Node::setOrigin(const NodePtr &node) {
+    CHILD_CHECK_NODE_PTR(node);
+    _origin = node;
+}
+
 void Node::addExtension(const NodePtr &node) {
-    checkNodePtr(node);
+    CHILD_CHECK_NODE_PTR(node);
     if(!_extensions) { _extensions = new QList<NodePtr>; }
-    if(hasExtension(node)) qFatal("cannot add an extension which is already there");
+    if(hasExtension(node)) CHILD_THROW(DuplicateException, "cannot add an extension which is already there");
     _extensions->append(node);
 }
 
 void Node::prependExtension(const NodePtr &node)  {
-    checkNodePtr(node);
+    CHILD_CHECK_NODE_PTR(node);
     if(!_extensions) { _extensions = new QList<NodePtr>; }
-    if(hasExtension(node)) qFatal("cannot add an extension which is already there");
+    if(hasExtension(node)) CHILD_THROW(DuplicateException, "cannot add an extension which is already there");
     _extensions->prepend(node);
 }
 
 void Node::removeExtension(const NodePtr &node)  {
-    checkNodePtr(node);
-    if(!hasExtension(node)) qFatal("cannot remove an extension which is not there");
+    CHILD_CHECK_NODE_PTR(node);
+    if(!hasExtension(node)) CHILD_THROW(NotFoundException, "cannot remove an extension which is not there");
     _extensions->removeOne(node);
 }
 
 void Node::removeAllExtensions() {
     _extensions->clear();
+}
+
+bool Node::hasExtension(const NodePtr &node) const {
+    CHILD_CHECK_NODE_PTR(node); return _extensions && _extensions->contains(node);
+}
+
+const NodePtr Node::child(const QString &name) const {
+    NodePtr node = hasDirectChild(name);
+    if(!node)
+        if(origin() && (node = origin()->child(name))) {
+            node = node->fork();
+            const_cast<Node *>(this)->_setChild(name, node);
+        } else
+            CHILD_THROW(NotFoundException, "child not found");
+    return node;
+}
+
+const NodePtr Node::setChild(const QString &name, const NodePtr &value) {
+    CHILD_CHECK_NODE_PTR(value);
+    if(NodePtr current = hasDirectChild(name)) {
+        if(current == value) return value;
+        current->_removeParent(this);
+    }
+    _setChild(name, value);
+    return value;
+}
+
+bool Node::hasDirectParent(const NodePtr &parent) const {
+    CHILD_CHECK_NODE_PTR(parent);
+    return !parent->hasDirectChild(NodePtr(this)).isNull();
+}
+
+void Node::_setChild(const QString &name, const NodePtr &value) {
+    if(!_children) _children = new QHash<QString, NodePtr>;
+    _children->insert(name, value);
+    value->_addParent(this);
+}
+
+void Node::_addParent(Node *parent) const {
+    HugeUnsignedInteger count = 0;
+    if(_parents)
+        count = _parents->value(parent);
+    else
+        _parents = new QHash<Node *, HugeUnsignedInteger>;
+    _parents->insert(parent, count + 1);
+}
+
+void Node::_removeParent(Node *parent) const {
+    if(!_parents) CHILD_THROW(NotFoundException, "parent not found");
+    HugeUnsignedInteger count = _parents->value(parent) - 1;
+    if(count > 0)
+        _parents->insert(parent, count);
+    else if(count == 0)
+        _parents->remove(parent);
+    else
+        CHILD_THROW(NotFoundException, "parent not found");
 }
 
 const QString Node::inspect() const {

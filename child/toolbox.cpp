@@ -1,10 +1,12 @@
-#include "child/toolbox.h"
+#include <QtCore/QFile>
+
+#include "child/node.h"
 
 namespace Child {
 
 QString readTextFile(const QString &name) {
     QFile file(name);
-    if(!file.open(QIODevice::ReadOnly)) qFatal("file not found");
+    if(!file.open(QIODevice::ReadOnly)) CHILD_THROW(FileSystemException, "file not found");
     QString text = QTextStream(&file).readAll();
     file.close();
     return text;
@@ -67,7 +69,5 @@ const bool computeColumnAndLineForPosition(const QString &text, const int positi
     }
     return false;
 }
-
-void notYetImplemented() { qFatal("not yet implemented!"); }
 
 } // namespace Child

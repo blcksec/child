@@ -1,11 +1,7 @@
 #ifndef CHILD_NODE_H
 #define CHILD_NODE_H
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
 #include <QtCore/QHash>
-#include <QtCore/QQueue>
-#include <QtCore/QStack>
 
 #include "child/toolbox.h"
 
@@ -55,7 +51,12 @@ inline const NAME *NAME##Ptr::operator->() const { return static_cast<const NAME
 inline const NAME *NAME##Ptr::setData(const NAME *data) { return static_cast<const NAME *>(NodePtr::setData(data)); } \
 inline NAME##Ptr& NAME##Ptr::operator=(const NAME##Ptr &other) { NodePtr::setData(other._data); return *this; }
 
+#define CHILD_CHECK_NODE_PTR(NODE_PTR) \
+if(!(NODE_PTR)) CHILD_THROW(NullPointerException, "NodePtr is NULL");
+
 namespace Child {
+
+typedef unsigned long long int HugeUnsignedInteger;
 
 class Node;
 
@@ -116,81 +117,34 @@ public:
     virtual const QString className() const { return "Node"; }
 
     const NodePtr &origin() const { return _origin; }
-    void setOrigin(const NodePtr &node) { checkNodePtr(node); _origin = node != this ? node : NodePtr(); }
+    void setOrigin(const NodePtr &node);
 
     QList<NodePtr> extensions() const { return _extensions ? *_extensions : QList<NodePtr>(); }
-    bool hasExtension(const NodePtr &node) const { checkNodePtr(node); return _extensions && _extensions->contains(node); }
+
     void addExtension(const NodePtr &node);
     void prependExtension(const NodePtr &node);
     void removeExtension(const NodePtr &node);
     void removeAllExtensions();
+    bool hasExtension(const NodePtr &node) const;
 
     const NodePtr hasDirectChild(const QString &name) const {
         return _children ? _children->value(name) : NodePtr();
     }
 
     const QString hasDirectChild(const NodePtr &value) const {
-
         return _children ? _children->key(value) : QString();
     }
 
-    const NodePtr child(const QString &name) const {
-        NodePtr node = hasDirectChild(name);
-        if(!node)
-            if(origin() && (node = origin()->child(name))) {
-                node = node->fork();
-                const_cast<Node *>(this)->_setChild(name, node);
-            } else
-                qFatal("child not found");
-        return node;
+    const NodePtr child(const QString &name) const;
+    const NodePtr setChild(const QString &name, const NodePtr &value);
+
+    const QHash<QString, NodePtr> children() const {
+        return _children ? *_children : QHash<QString, NodePtr>();
     }
 
-    const NodePtr setChild(const QString &name, const NodePtr &value) {
-        if(NodePtr current = hasDirectChild(name)) {
-            if(current == value) return value;
-            current->_removeParent(this);
-        }
-        _setChild(name, value);
-        return value;
-    }
+    bool hasDirectParent(const NodePtr &parent) const;
 
-    void _setChild(const QString &name, const NodePtr &value) {
-        if(!_children) _children = new QHash<QString, NodePtr>;
-        _children->insert(name, value);
-        value->_addParent(this);
-    }
-
-    void _addParent(Node *parent) const {
-        HugeUnsignedInteger count = 0;
-        if(_parents)
-            count = _parents->value(parent);
-        else
-            _parents = new QHash<Node *, HugeUnsignedInteger>;
-        _parents->insert(parent, count + 1);
-    }
-
-    void _removeParent(Node *parent) const {
-        if(!_parents) qFatal("parent not found");
-        HugeUnsignedInteger count = _parents->value(parent) - 1;
-        if(count > 0)
-            _parents->insert(parent, count);
-        else if(count == 0)
-            _parents->remove(parent);
-        else
-            qFatal("parent not found");
-    }
-
-    const QHash<QString, NodePtr> children() const { return _children ? *_children : QHash<QString, NodePtr>(); }
-
-
-    bool hasDirectParent(const NodePtr &parent) const {
-        checkNodePtr(parent);
-        return !parent->hasDirectChild(NodePtr(this)).isNull();
-    }
-
-    static const HugeUnsignedInteger nodeCount() {
-        return _nodeCount;
-    }
+    static const HugeUnsignedInteger nodeCount() { return _nodeCount; }
 
     const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
@@ -204,25 +158,33 @@ private:
     mutable HugeUnsignedInteger _refCount;
     static HugeUnsignedInteger _nodeCount;
 
+    void _setChild(const QString &name, const NodePtr &value);
+    void _addParent(Node *parent) const;
+    void _removeParent(Node *parent) const;
+
     void retain() const { _refCount++; }
     void release() const { if(--_refCount == 0) delete this; }
-
-    void checkNodePtr(const NodePtr &node) const {
-        if(!node) qFatal("Node pointer is NULL");
-    }
 };
+
+} // namespace Child
+
+#include "child/exception.h"
+
+namespace Child {
 
 inline Node &NodePtr::operator*() { return *data(); };
 inline const Node &NodePtr::operator*() const { return *data(); };
 inline Node *NodePtr::operator->() { return data(); };
 inline const Node *NodePtr::operator->() const { return data(); };
 inline NodePtr& NodePtr::operator=(const NodePtr &other) { setData(other._data); return *this; }
+
 inline Node *NodePtr::data() {
-    if(!_data) qFatal("NULL pointer dereferenced");
+    if(!_data) CHILD_THROW(NullPointerException, "NULL pointer dereferenced");
     return const_cast<Node *>(_data);
 }
+
 inline const Node *NodePtr::data() const {
-    if(!_data) qFatal("NULL pointer dereferenced");
+    if(!_data) CHILD_THROW(NullPointerException, "NULL pointer dereferenced");
     return _data;
 }
 

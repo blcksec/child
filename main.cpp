@@ -1,18 +1,19 @@
+#include <QtCore/QDebug>
+
 #include "child.h"
-//#include "tests/runalltests.h"
+#include "tests/runalltests.h"
 //#include "child/application.h"
-#include "child/exception.h"
 
 using namespace Child;
 
 int main() { // int argc, char *argv[]
     init();
-    try {
-        CHILD_THROW(LexerException, "key not found");
-    } catch(ExceptionPtr e) {
-        qDebug() << e->report().toUtf8();
-    }
-//    runAllTests();
+    runAllTests();
+//    try {
+//        CHILD_TODO;
+//    } catch(ExceptionPtr e) {
+//        qDebug() << e->report().toUtf8();
+//    }
 //    try {
 ////        Application *app = Application::root();
 ////        app->init();

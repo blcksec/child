@@ -14,7 +14,7 @@ namespace Child {
 
     static void beginTests() {
         testFailureCount = 0;
-        p("=================== Running all tests ===================");
+        P("=================== Running all tests ===================");
     }
 
     static void test(QObject *testClass) {
@@ -23,9 +23,9 @@ namespace Child {
 
     static void endTests() {
         if(testFailureCount == 0) {
-            p("==================== All tests passed ===================");
+            P("==================== All tests passed ===================");
         } else {
-            p(QString("==================== %1 test(s) failed ===================").arg(testFailureCount));
+            P(QString("==================== %1 test(s) failed ===================").arg(testFailureCount));
         }
     }
 

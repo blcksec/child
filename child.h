@@ -1,6 +1,8 @@
 #ifndef CHILD_H
 #define CHILD_H
 
+#include <QtCore/QStack>
+
 #include "child/node.h"
 
 namespace Child {
