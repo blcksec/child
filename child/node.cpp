@@ -4,11 +4,6 @@
 
 namespace Child {
 
-NodePtr::NodePtr() : _data(NULL) {}
-NodePtr::NodePtr(const Node *data) : _data(NULL) { setData(data); }
-NodePtr::NodePtr(const NodePtr &other) : _data(NULL) { setData(other._data); }
-NodePtr::~NodePtr() { if(_data) _data->release(); }
-
 const Node *NodePtr::setData(const Node *data) {
     if(_data != data) {
         if(_data) _data->release();
@@ -30,7 +25,7 @@ Node::~Node() {
 
 NodePtr &Node::root() {
     if(!_root) {
-        _root = NodePtr(new Node);
+        _root = NodePtr(new Node(NodePtr()));
         Node::root()->setChild("Node", _root);
         Node::initRoot();
     }
@@ -39,11 +34,7 @@ NodePtr &Node::root() {
 
 void Node::initRoot() {}
 
-NodePtr Node::make() {
-    NodePtr f(new Node);
-    f->setOrigin(context()->child("Node"));
-    return f;
-}
+NodePtr Node::find(const QString &name) { return context()->child(name); }
 
 void Node::setOrigin(const NodePtr &node) {
     CHILD_CHECK_NODE_PTR(node);

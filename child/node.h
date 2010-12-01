@@ -9,7 +9,7 @@
 public: \
     static NAME##Ptr &root(); \
     static void initRoot(); \
-    virtual NAME *_new() const { return new NAME; } \
+    virtual NodePtr fork() const { return NodePtr(new NAME(NAME##Ptr(this))); } \
     virtual const QString className() const { return #NAME; } \
 private: \
     static NAME##Ptr _root;
@@ -18,8 +18,7 @@ private: \
 NAME##Ptr NAME::_root = NAME::root(); \
 NAME##Ptr &NAME::root() { \
     if(!_root) { \
-        _root = NAME##Ptr(new NAME); \
-        _root->setOrigin(ORIGIN::root()); \
+        _root = NAME##Ptr(new NAME(ORIGIN::root())); \
         PARENT::root()->setChild(#NAME, _root); \
         NAME::initRoot(); \
     } \
@@ -92,27 +91,17 @@ class Node {
 public:
     friend class NodePtr;
 
-    Node() : _extensions(NULL), _children(NULL), _parents(NULL), _refCount(0) {
-        _nodeCount++;
-    }
+    Node(const NodePtr &origin = find("Node")) : _origin(origin), _extensions(NULL),
+        _children(NULL), _parents(NULL), _refCount(0) { _nodeCount++; }
 
     virtual ~Node();
 
     static NodePtr &root();
     static void initRoot();
 
-    static NodePtr make();
+    static NodePtr find(const QString &name);
 
-    NodePtr fork() const {
-        NodePtr f(_new());
-        f->setOrigin(NodePtr(this));
-        f->initFork();
-        return f;
-    }
-
-    virtual Node *_new() const { return new Node; }
-
-    void initFork() {}
+    virtual NodePtr fork() const { return NodePtr(new Node(NodePtr(this))); }
 
     virtual const QString className() const { return "Node"; }
 
@@ -172,6 +161,12 @@ private:
 
 namespace Child {
 
+// NodePtr
+
+inline NodePtr::NodePtr() : _data(NULL) {}
+inline NodePtr::NodePtr(const Node *data) : _data(NULL) { setData(data); }
+inline NodePtr::NodePtr(const NodePtr &other) : _data(NULL) { setData(other._data); }
+inline NodePtr::~NodePtr() { if(_data) _data->release(); }
 inline Node &NodePtr::operator*() { return *data(); };
 inline const Node &NodePtr::operator*() const { return *data(); };
 inline Node *NodePtr::operator->() { return data(); };

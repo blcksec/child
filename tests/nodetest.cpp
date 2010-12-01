@@ -2,15 +2,14 @@
 
 namespace Child {
     void NodeTest::initialize() {
+        QVERIFY(Node::root()->origin().isNull());
         QVERIFY(Node::root()->hasDirectParent(Node::root()));
     }
 
     void NodeTest::setOrigin() {
-//        Node *obj1 = new Node;
-//        Node *obj2 = new Node;
-//        QVERIFY(obj2->origin() == NULL);
-//        QCOMPARE(obj1->forks().size(), 0);
-//        QCATCH(obj2->setOrigin(NULL), NullPointerException);
+        Node obj1;
+        Node obj2;
+//        QCATCH(obj2.setOrigin(NodePtr()), NullPointerException);
 //        obj2->setOrigin(obj1);
 //        QCOMPARE(obj2->origin(), obj1);
 //        QCOMPARE(obj1->forks().size(), 1);

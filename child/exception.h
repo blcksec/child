@@ -4,7 +4,7 @@
 #include "child/node.h"
 
 #define CHILD_THROW(EXCEPTION, MESSAGE) \
-throw(EXCEPTION::make(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO));
+throw(EXCEPTION##Ptr(new EXCEPTION(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)));
 
 #define CHILD_TODO \
 CHILD_THROW(Exception, "function not yet implemented");
@@ -14,23 +14,17 @@ CHILD_PTR_DECLARATION(NAME, ORIGIN, PARENT); \
 class NAME : public ORIGIN { \
     CHILD_DECLARATION(NAME, ORIGIN, PARENT); \
 public: \
+    NAME(const ORIGIN##Ptr &origin) : ORIGIN(origin) {} \
     NAME(const QString &message = "", const QString &file = "", \
-              const int line = 0, const QString &function = "") : \
-        ORIGIN(message, file, line, function) {} \
-    static NAME##Ptr make(const QString &message = "", const QString &file = "", \
-                             const int line = 0, const QString &function = ""); \
+         const int line = 0, const QString &function = "", \
+         const ORIGIN##Ptr &origin = find(#NAME)) : \
+        ORIGIN(message, file, line, function, origin) {} \
 }; \
 CHILD_PTR_DEFINITION(NAME, ORIGIN, PARENT);
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN, PARENT) \
 CHILD_DEFINITION(NAME, ORIGIN, PARENT); \
-void NAME::initRoot() {} \
-NAME##Ptr NAME::make(const QString &message, const QString &file, \
-                             const int line, const QString &function) { \
-    NAME##Ptr f(new NAME(message, file, line, function)); \
-    f->setOrigin(context()->child(#NAME)); \
-    return f; \
-}
+void NAME::initRoot() {}
 
 namespace Child {
 
@@ -44,12 +38,12 @@ public:
     int line;
     QString function;
 
-    Exception(const QString &message = "", const QString &file = "",
-              const int line = 0, const QString &function = "") :
-        message(message), file(file), line(line), function(function) {}
+    Exception(const NodePtr &origin) : Node(origin) {}
 
-    static ExceptionPtr make(const QString &message = "", const QString &file = "",
-                             const int line = 0, const QString &function = "");
+    Exception(const QString &message = "", const QString &file = "",
+              const int line = 0, const QString &function = "",
+              const NodePtr &origin = find("Exception")) :
+        Node(origin), message(message), file(file), line(line), function(function) {}
 
     const QString report() const;
 

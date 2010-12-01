@@ -8,12 +8,12 @@ using namespace Child;
 
 int main() { // int argc, char *argv[]
     init();
-    runAllTests();
-//    try {
-//        CHILD_TODO;
-//    } catch(ExceptionPtr e) {
-//        qDebug() << e->report().toUtf8();
-//    }
+//    runAllTests();
+    try {
+        CHILD_THROW(LexerException, "key not found");
+    } catch(ExceptionPtr e) {
+        qDebug() << e->report().toUtf8();
+    }
 //    try {
 ////        Application *app = Application::root();
 ////        app->init();
