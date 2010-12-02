@@ -5,27 +5,6 @@
 
 namespace Child {
 
-Node *NodePtr::data() {
-    if(!_data) CHILD_THROW(NullPointerException, "NULL pointer dereferenced");
-    return const_cast<Node *>(_data);
-}
-
-const Node *NodePtr::data() const {
-    if(!_data) CHILD_THROW(NullPointerException, "NULL pointer dereferenced");
-    return _data;
-}
-
-const Node *NodePtr::setData(const Node *data) {
-    if(_data != data) {
-        if(_data) _data->release();
-        if(data) data->retain();
-        _data = data;
-    }
-    return data;
-}
-
-NodePtr Node::_root = Node::root();
-QStack<NodePtr> Node::_contextStack;
 HugeUnsignedInteger Node::_nodeCount = 0;
 
 Node::~Node() {
@@ -36,15 +15,13 @@ Node::~Node() {
 }
 
 NodePtr &Node::root() {
-    if(!_root) {
-        _root = NodePtr(new Node(NodePtr()));
-        Node::root()->setChild("Node", _root);
-        Node::initRoot();
-    }
+    static NodePtr _root(new Node(NodePtr()));
     return _root;
 }
 
-void Node::initRoot() {}
+void Node::initRoot() {
+    root()->addChild("Node", root());
+}
 
 NodePtr Node::find(const QString &name) { return context()->child(name); }
 
@@ -82,29 +59,42 @@ bool Node::hasExtension(const NodePtr &node) const {
 }
 
 const NodePtr Node::child(const QString &name) const {
-    NodePtr node = hasDirectChild(name);
-    if(!node)
-        if(origin() && (node = origin()->child(name))) {
-            node = node->fork();
-            const_cast<Node *>(this)->_setChild(name, node);
-        } else
-            CHILD_THROW(NotFoundException, "child not found");
+    NodePtr node = hasChild(name);
+    if(!node) CHILD_THROW(NotFoundException, "child not found");
     return node;
 }
 
-const NodePtr Node::setChild(const QString &name, const NodePtr &value) {
+const NodePtr Node::addChild(const QString &name, const NodePtr &value) {
     CHILD_CHECK_NODE_PTR(value);
-    if(NodePtr current = hasDirectChild(name)) {
-        if(current == value) return value;
-        current->_removeParent(this);
-    }
+    if(hasDirectChild(name)) CHILD_THROW(DuplicateException, "child with same name is already there");
     _setChild(name, value);
     return value;
 }
 
-bool Node::hasDirectParent(const NodePtr &parent) const {
-    CHILD_CHECK_NODE_PTR(parent);
-    return !parent->hasDirectChild(NodePtr(this)).isNull();
+const NodePtr Node::setChild(const QString &name, const NodePtr &value) {
+    CHILD_CHECK_NODE_PTR(value);
+    bool isDirect;
+    if(NodePtr current = hasChild(name, false, &isDirect)) {
+        if(isDirect) {
+            if(current == value) return value;
+            current->_removeParent(this);
+        }
+    } else CHILD_THROW(NotFoundException, "child not found");
+    _setChild(name, value);
+    return value;
+}
+
+const NodePtr Node::hasChild(const QString &name, bool autoFork, bool *isDirectPtr) const {
+    NodePtr node = hasDirectChild(name);
+    bool isNotDirect = node.isNull();
+    if(isNotDirect)
+        if(origin() && (node = origin()->hasChild(name)))
+            if(autoFork) {
+                node = node->fork();
+                const_cast<Node *>(this)->_setChild(name, node);
+            }
+    if(isDirectPtr) *isDirectPtr = !isNotDirect;
+    return node;
 }
 
 void Node::_setChild(const QString &name, const NodePtr &value) {
@@ -131,6 +121,16 @@ void Node::_removeParent(Node *parent) const {
         _parents->remove(parent);
     else
         CHILD_THROW(NotFoundException, "parent not found");
+}
+
+void Node::throwRuntimeException(const QString &message, const QString &file,
+                               const int line, const QString &function) {
+    throw RuntimeExceptionPtr(new RuntimeException(message, file, line, function));
+}
+
+void Node::throwNullPointerException(const QString &message, const QString &file,
+                               const int line, const QString &function) {
+    throw NullPointerExceptionPtr(new NullPointerException(message, file, line, function));
 }
 
 const QString Node::inspect() const {

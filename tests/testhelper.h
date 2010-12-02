@@ -3,12 +3,14 @@
 
 #include <QtTest/QtTest>
 
+#include "child/exception.h"
+
 #define QCATCH(EXPRESSION, EXCEPTION) \
 do { \
     bool exceptionThrown = false; \
     try { EXPRESSION; } \
-    catch(EXCEPTION &e) { qDebug() << e.message(); exceptionThrown = true; } \
-    catch(Exception &e) { QWARN(qPrintable(e.message())); } \
+    catch(EXCEPTION##Ptr &e) { qDebug() << e->report(); exceptionThrown = true; } \
+    catch(ExceptionPtr &e) { QWARN(qPrintable(e->report())); } \
     if(!exceptionThrown) { QFAIL("'" #EXCEPTION "' has not been thrown"); } \
 } while(false)
 

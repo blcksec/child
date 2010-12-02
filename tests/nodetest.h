@@ -21,22 +21,15 @@ namespace Child {
 
         void initialize();
         void setOrigin();
-        void unsetOrigin();
-        void directOriginIs();
         void fork();
         void addExtension();
-        void prependExtension();
         void removeExtension();
         void hasExtension();
-        void addParent();
-        void removeParent();
-        void directChild();
-        void hasDirectChild();
-        void addDirectChild();
-        void setDirectChild();
-        void removeDirectChild();
-        void child();
+        void addChild();
         void setChild();
+        void removeChild();
+        void hasDirectChild();
+        void hasChild();
         void inspect();
     };
 }

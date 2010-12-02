@@ -24,7 +24,9 @@ CHILD_PTR_DEFINITION(NAME, ORIGIN, PARENT);
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN, PARENT) \
 CHILD_DEFINITION(NAME, ORIGIN, PARENT); \
-void NAME::initRoot() {}
+void NAME::initRoot() { \
+    PARENT::root()->addChild(#NAME, root()); \
+}
 
 namespace Child {
 

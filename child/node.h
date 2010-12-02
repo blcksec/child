@@ -12,17 +12,11 @@ public: \
     static void initRoot(); \
     virtual NodePtr fork() const { return NodePtr(new NAME(NAME##Ptr(this))); } \
     virtual const QString className() const { return #NAME; } \
-private: \
-    static NAME##Ptr _root;
+private:
 
 #define CHILD_DEFINITION(NAME, ORIGIN, PARENT) \
-NAME##Ptr NAME::_root = NAME::root(); \
 NAME##Ptr &NAME::root() { \
-    if(!_root) { \
-        _root = NAME##Ptr(new NAME(ORIGIN::root())); \
-        PARENT::root()->setChild(#NAME, _root); \
-        NAME::initRoot(); \
-    } \
+    static NAME##Ptr _root(new NAME(ORIGIN::root())); \
     return _root; \
 }
 
@@ -51,8 +45,14 @@ inline const NAME *NAME##Ptr::operator->() const { return static_cast<const NAME
 inline const NAME *NAME##Ptr::setData(const NAME *data) { return static_cast<const NAME *>(NodePtr::setData(data)); } \
 inline NAME##Ptr& NAME##Ptr::operator=(const NAME##Ptr &other) { NodePtr::setData(other._data); return *this; }
 
+#define CHILD_THROW_RUNTIME_EXCEPTION(MESSAGE) \
+Node::throwRuntimeException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO);
+
+#define CHILD_THROW_NULL_POINTER_EXCEPTION(MESSAGE) \
+Node::throwNullPointerException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO);
+
 #define CHILD_CHECK_NODE_PTR(NODE_PTR) \
-if(!(NODE_PTR)) CHILD_THROW(NullPointerException, "NodePtr is NULL");
+if(!(NODE_PTR)) CHILD_THROW_NULL_POINTER_EXCEPTION("NodePtr is NULL");
 
 namespace Child {
 
@@ -117,6 +117,12 @@ public:
     void removeAllExtensions();
     bool hasExtension(const NodePtr &node) const;
 
+    const NodePtr child(const QString &name) const;
+    const NodePtr addChild(const QString &name, const NodePtr &value);
+    const NodePtr setChild(const QString &name, const NodePtr &value);
+
+    const NodePtr hasChild(const QString &name, bool autoFork = true, bool *isDirectPtr = NULL) const;
+
     const NodePtr hasDirectChild(const QString &name) const {
         return _children ? _children->value(name) : NodePtr();
     }
@@ -125,27 +131,44 @@ public:
         return _children ? _children->key(value) : QString();
     }
 
-    const NodePtr child(const QString &name) const;
-    const NodePtr setChild(const QString &name, const NodePtr &value);
+    bool hasDirectParent(const NodePtr &parent) const {
+        CHILD_CHECK_NODE_PTR(parent);
+        return !parent->hasDirectChild(NodePtr(this)).isNull();
+    }
 
     const QHash<QString, NodePtr> children() const {
         return _children ? *_children : QHash<QString, NodePtr>();
     }
 
-    bool hasDirectParent(const NodePtr &parent) const;
-
     static const HugeUnsignedInteger nodeCount() { return _nodeCount; }
 
-    static const NodePtr context() { return Node::_contextStack.top(); }
-    static void pushContext(const NodePtr &node) { Node::_contextStack.push(node); }
-    static const NodePtr popContext() { return Node::_contextStack.pop(); }
+    static const NodePtr context() {
+        if(contextStack().isEmpty()) qFatal("Fatal error: context stack is empty!");
+        return contextStack().top();
+    }
+
+    static void pushContext(const NodePtr &node) { contextStack().push(node); }
+
+    static const NodePtr popContext() {
+        if(contextStack().isEmpty()) qFatal("Fatal error: context stack is empty!");
+        return contextStack().pop();
+    }
+
+    static QStack<NodePtr> &contextStack() {
+        static QStack<NodePtr> _contextStack;
+        return _contextStack;
+    }
+
+    static void throwRuntimeException(const QString &message = "", const QString &file = "",
+                                   const int line = 0, const QString &function = "");
+
+    static void throwNullPointerException(const QString &message = "", const QString &file = "",
+                                   const int line = 0, const QString &function = "");
 
     const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
     virtual const QString inspect() const;
 private:
-    static NodePtr _root;
-    static QStack<NodePtr> _contextStack;
     static HugeUnsignedInteger _nodeCount;
     NodePtr _origin;
     QList<NodePtr> *_extensions;
@@ -165,6 +188,26 @@ inline NodePtr::NodePtr() : _data(NULL) {}
 inline NodePtr::NodePtr(const Node *data) : _data(NULL) { setData(data); }
 inline NodePtr::NodePtr(const NodePtr &other) : _data(NULL) { setData(other._data); }
 inline NodePtr::~NodePtr() { if(_data) _data->release(); }
+
+inline Node *NodePtr::data() {
+    if(!_data) CHILD_THROW_NULL_POINTER_EXCEPTION("NULL pointer dereferenced");
+    return const_cast<Node *>(_data);
+}
+
+inline const Node *NodePtr::data() const {
+    if(!_data) CHILD_THROW_NULL_POINTER_EXCEPTION("NULL pointer dereferenced");
+    return _data;
+}
+
+inline const Node *NodePtr::setData(const Node *data) {
+    if(_data != data) {
+        if(_data) _data->release();
+        if(data) data->retain();
+        _data = data;
+    }
+    return data;
+}
+
 inline Node &NodePtr::operator*() { return *data(); };
 inline const Node &NodePtr::operator*() const { return *data(); };
 inline Node *NodePtr::operator->() { return data(); };
