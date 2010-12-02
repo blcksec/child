@@ -1,6 +1,8 @@
 #include <QtCore/QDebug>
 
 #include "child.h"
+#include "child/node.h"
+#include "child/exception.h"
 #include "tests/runalltests.h"
 //#include "child/application.h"
 
@@ -8,12 +10,12 @@ using namespace Child;
 
 int main() { // int argc, char *argv[]
     init();
-//    runAllTests();
-    try {
-        CHILD_THROW(LexerException, "key not found");
-    } catch(ExceptionPtr e) {
-        qDebug() << e->report().toUtf8();
-    }
+    runAllTests();
+//    try {
+//        CHILD_THROW(LexerException, "key not found");
+//    } catch(ExceptionPtr e) {
+//        qDebug() << e->report().toUtf8();
+//    }
 //    try {
 ////        Application *app = Application::root();
 ////        app->init();

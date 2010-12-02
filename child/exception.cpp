@@ -1,6 +1,5 @@
 #include <QtCore/QFileInfo>
 
-#include "child.h"
 #include "child/exception.h"
 
 namespace Child {

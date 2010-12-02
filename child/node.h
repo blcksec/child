@@ -2,6 +2,7 @@
 #define CHILD_NODE_H
 
 #include <QtCore/QHash>
+#include <QtCore/QStack>
 
 #include "child/toolbox.h"
 
@@ -135,17 +136,22 @@ public:
 
     static const HugeUnsignedInteger nodeCount() { return _nodeCount; }
 
+    static const NodePtr context() { return Node::_contextStack.top(); }
+    static void pushContext(const NodePtr &node) { Node::_contextStack.push(node); }
+    static const NodePtr popContext() { return Node::_contextStack.pop(); }
+
     const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
     virtual const QString inspect() const;
 private:
     static NodePtr _root;
+    static QStack<NodePtr> _contextStack;
+    static HugeUnsignedInteger _nodeCount;
     NodePtr _origin;
     QList<NodePtr> *_extensions;
     QHash<QString, NodePtr> *_children;
     mutable QHash<Node *, HugeUnsignedInteger> *_parents;
     mutable HugeUnsignedInteger _refCount;
-    static HugeUnsignedInteger _nodeCount;
 
     void _setChild(const QString &name, const NodePtr &value);
     void _addParent(Node *parent) const;
@@ -154,14 +160,6 @@ private:
     void retain() const { _refCount++; }
     void release() const { if(--_refCount == 0) delete this; }
 };
-
-} // namespace Child
-
-#include "child/exception.h"
-
-namespace Child {
-
-// NodePtr
 
 inline NodePtr::NodePtr() : _data(NULL) {}
 inline NodePtr::NodePtr(const Node *data) : _data(NULL) { setData(data); }
@@ -172,16 +170,6 @@ inline const Node &NodePtr::operator*() const { return *data(); };
 inline Node *NodePtr::operator->() { return data(); };
 inline const Node *NodePtr::operator->() const { return data(); };
 inline NodePtr& NodePtr::operator=(const NodePtr &other) { setData(other._data); return *this; }
-
-inline Node *NodePtr::data() {
-    if(!_data) CHILD_THROW(NullPointerException, "NULL pointer dereferenced");
-    return const_cast<Node *>(_data);
-}
-
-inline const Node *NodePtr::data() const {
-    if(!_data) CHILD_THROW(NullPointerException, "NULL pointer dereferenced");
-    return _data;
-}
 
 } // namespace Child
 

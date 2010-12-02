@@ -1,8 +1,19 @@
 #include <QtCore/QStringList>
 
-#include "child.h"
+#include "child/node.h"
+#include "child/exception.h"
 
 namespace Child {
+
+Node *NodePtr::data() {
+    if(!_data) CHILD_THROW(NullPointerException, "NULL pointer dereferenced");
+    return const_cast<Node *>(_data);
+}
+
+const Node *NodePtr::data() const {
+    if(!_data) CHILD_THROW(NullPointerException, "NULL pointer dereferenced");
+    return _data;
+}
 
 const Node *NodePtr::setData(const Node *data) {
     if(_data != data) {
@@ -14,6 +25,7 @@ const Node *NodePtr::setData(const Node *data) {
 }
 
 NodePtr Node::_root = Node::root();
+QStack<NodePtr> Node::_contextStack;
 HugeUnsignedInteger Node::_nodeCount = 0;
 
 Node::~Node() {

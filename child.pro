@@ -16,8 +16,8 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     child.cpp \
-    child/toolbox.cpp \
     child/node.cpp \
+    child/toolbox.cpp \
     tests/nodetest.cpp \
     child/exception.cpp
 #    child/nativemethod.cpp \
@@ -50,9 +50,9 @@ SOURCES += main.cpp \
 
 HEADERS += \
     child.h \
-    child/toolbox.h \
     child/node.h \
     child/exception.h \
+    child/toolbox.h \
     tests/testhelper.h \
     tests/nodetest.h \
     tests/runalltests.h

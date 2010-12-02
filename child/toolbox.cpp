@@ -1,6 +1,6 @@
 #include <QtCore/QFile>
 
-#include "child/node.h"
+#include "child/exception.h"
 
 namespace Child {
 
