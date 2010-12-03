@@ -6,21 +6,23 @@
 
 #include "child/toolbox.h"
 
-#define CHILD_DECLARATION(NAME, ORIGIN, PARENT) \
+#define CHILD_DECLARATION(NAME, ORIGIN) \
 public: \
     static NAME##Ptr &root(); \
-    static void initRoot(); \
+    static bool initRoot(); \
     virtual NodePtr fork() const { return NodePtr(new NAME(NAME##Ptr(this))); } \
     virtual const QString className() const { return #NAME; } \
-private:
+private: \
+    static bool _initialized;
 
-#define CHILD_DEFINITION(NAME, ORIGIN, PARENT) \
+#define CHILD_DEFINITION(NAME, ORIGIN) \
+bool NAME::_initialized = NAME::initRoot(); \
 NAME##Ptr &NAME::root() { \
     static NAME##Ptr _root(new NAME(ORIGIN::root())); \
     return _root; \
 }
 
-#define CHILD_PTR_DECLARATION(NAME, ORIGIN, PARENT) \
+#define CHILD_PTR_DECLARATION(NAME, ORIGIN) \
 class NAME; \
 class NAME##Ptr : public ORIGIN##Ptr { \
 public: \
@@ -35,7 +37,7 @@ public: \
     NAME##Ptr& operator=(const NAME##Ptr &other); \
 };
 
-#define CHILD_PTR_DEFINITION(NAME, ORIGIN, PARENT) \
+#define CHILD_PTR_DEFINITION(NAME, ORIGIN) \
 inline NAME##Ptr::NAME##Ptr(const NAME *data) : ORIGIN##Ptr(data) {} \
 inline NAME##Ptr::NAME##Ptr(const NodePtr &other) : ORIGIN##Ptr(other) {} \
 inline NAME &NAME##Ptr::operator*() { return *static_cast<NAME *>(NodePtr::data()); }; \
@@ -92,13 +94,15 @@ class Node {
 public:
     friend class NodePtr;
 
+    enum Comparison { Smaller = -2, SmallerOrEqual, Equal, GreaterOrEqual, Greater, Different };
+
     Node(const NodePtr &origin = find("Node")) : _origin(origin), _extensions(NULL),
-        _children(NULL), _parents(NULL), _refCount(0) { _nodeCount++; }
+        _children(NULL), _parents(NULL), _refCount(0) { nodeCount()++; }
 
     virtual ~Node();
 
     static NodePtr &root();
-    static void initRoot();
+    static bool initRoot();
 
     static NodePtr find(const QString &name);
 
@@ -120,11 +124,16 @@ public:
     const NodePtr child(const QString &name) const;
     const NodePtr addChild(const QString &name, const NodePtr &value);
     const NodePtr setChild(const QString &name, const NodePtr &value);
+    void removeChild(const QString &name);
 
-    const NodePtr hasChild(const QString &name, bool autoFork = true, bool *isDirectPtr = NULL) const;
+    const NodePtr hasChild(const QString &name, bool searchInParents = true,
+                           bool forkChildFoundInFirstOrigin = true, bool *isDirectPtr = NULL) const;
 
-    const NodePtr hasDirectChild(const QString &name) const {
-        return _children ? _children->value(name) : NodePtr();
+    const NodePtr hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) const {
+        NodePtr child;
+        if(_children) child = _children->value(name);
+        if(isRemovedPtr) *isRemovedPtr = !child && _children && _children->contains(name);
+        return child;
     }
 
     const QString hasDirectChild(const NodePtr &value) const {
@@ -136,11 +145,13 @@ public:
         return !parent->hasDirectChild(NodePtr(this)).isNull();
     }
 
-    const QHash<QString, NodePtr> children() const {
-        return _children ? *_children : QHash<QString, NodePtr>();
-    }
+    const QHash<QString, NodePtr> children() const;
+    const QList<NodePtr> parents() const;
 
-    static const HugeUnsignedInteger nodeCount() { return _nodeCount; }
+    static HugeUnsignedInteger &nodeCount() {
+        static HugeUnsignedInteger _nodeCount = 0;
+        return _nodeCount;
+    }
 
     static const NodePtr context() {
         if(contextStack().isEmpty()) qFatal("Fatal error: context stack is empty!");
@@ -169,7 +180,7 @@ public:
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
     virtual const QString inspect() const;
 private:
-    static HugeUnsignedInteger _nodeCount;
+    static bool _initialized;
     NodePtr _origin;
     QList<NodePtr> *_extensions;
     QHash<QString, NodePtr> *_children;

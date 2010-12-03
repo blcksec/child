@@ -4,7 +4,7 @@
 
 namespace Child {
 
-CHILD_EXCEPTION_DEFINITION(Exception, Node, Node);
+CHILD_EXCEPTION_DEFINITION(Exception, Node);
 
 const QString Exception::report() const {
     QString str;
@@ -16,15 +16,15 @@ const QString Exception::report() const {
     return str;
 }
 
-CHILD_EXCEPTION_DEFINITION(LexerException, Exception, Node);
-CHILD_EXCEPTION_DEFINITION(ParserException, Exception, Node);
-CHILD_EXCEPTION_DEFINITION(RuntimeException, Exception, Node);
-CHILD_EXCEPTION_DEFINITION(ArgumentException, RuntimeException, Node);
-CHILD_EXCEPTION_DEFINITION(NullPointerException, RuntimeException, Node);
-CHILD_EXCEPTION_DEFINITION(IndexOutOfBoundsException, RuntimeException, Node);
-CHILD_EXCEPTION_DEFINITION(NotFoundException, RuntimeException, Node);
-CHILD_EXCEPTION_DEFINITION(DuplicateException, RuntimeException, Node);
-CHILD_EXCEPTION_DEFINITION(OperatingSystemException, Exception, Node);
-CHILD_EXCEPTION_DEFINITION(FileSystemException, OperatingSystemException, Node);
+CHILD_EXCEPTION_DEFINITION(LexerException, Exception);
+CHILD_EXCEPTION_DEFINITION(ParserException, Exception);
+CHILD_EXCEPTION_DEFINITION(RuntimeException, Exception);
+CHILD_EXCEPTION_DEFINITION(ArgumentException, RuntimeException);
+CHILD_EXCEPTION_DEFINITION(NullPointerException, RuntimeException);
+CHILD_EXCEPTION_DEFINITION(IndexOutOfBoundsException, RuntimeException);
+CHILD_EXCEPTION_DEFINITION(NotFoundException, RuntimeException);
+CHILD_EXCEPTION_DEFINITION(DuplicateException, RuntimeException);
+CHILD_EXCEPTION_DEFINITION(OperatingSystemException, Exception);
+CHILD_EXCEPTION_DEFINITION(FileSystemException, OperatingSystemException);
 
 } // namespace Child

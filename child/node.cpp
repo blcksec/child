@@ -5,13 +5,13 @@
 
 namespace Child {
 
-HugeUnsignedInteger Node::_nodeCount = 0;
+bool Node::_initialized = Node::initRoot();
 
 Node::~Node() {
     if(_extensions) delete _extensions;
     if(_children) delete _children;
     if(_parents) delete _parents;
-    _nodeCount--;
+    nodeCount()--;
 }
 
 NodePtr &Node::root() {
@@ -19,8 +19,9 @@ NodePtr &Node::root() {
     return _root;
 }
 
-void Node::initRoot() {
+bool Node::initRoot() {
     root()->addChild("Node", root());
+    return true;
 }
 
 NodePtr Node::find(const QString &name) { return context()->child(name); }
@@ -66,7 +67,7 @@ const NodePtr Node::child(const QString &name) const {
 
 const NodePtr Node::addChild(const QString &name, const NodePtr &value) {
     CHILD_CHECK_NODE_PTR(value);
-    if(hasDirectChild(name)) CHILD_THROW(DuplicateException, "child with same name is already there");
+    if(hasChild(name, false)) CHILD_THROW(DuplicateException, "child with same name is already there");
     _setChild(name, value);
     return value;
 }
@@ -74,7 +75,7 @@ const NodePtr Node::addChild(const QString &name, const NodePtr &value) {
 const NodePtr Node::setChild(const QString &name, const NodePtr &value) {
     CHILD_CHECK_NODE_PTR(value);
     bool isDirect;
-    if(NodePtr current = hasChild(name, false, &isDirect)) {
+    if(NodePtr current = hasChild(name, true, false, &isDirect)) {
         if(isDirect) {
             if(current == value) return value;
             current->_removeParent(this);
@@ -84,23 +85,48 @@ const NodePtr Node::setChild(const QString &name, const NodePtr &value) {
     return value;
 }
 
-const NodePtr Node::hasChild(const QString &name, bool autoFork, bool *isDirectPtr) const {
-    NodePtr node = hasDirectChild(name);
-    bool isNotDirect = node.isNull();
-    if(isNotDirect)
-        if(origin() && (node = origin()->hasChild(name)))
-            if(autoFork) {
+void Node::removeChild(const QString &name) {
+    bool isDirect;
+    if(NodePtr current = hasChild(name, true, false, &isDirect)) {
+        if(isDirect) current->_removeParent(this);
+    } else CHILD_THROW(NotFoundException, "child not found");
+    _setChild(name, NodePtr());
+}
+
+const NodePtr Node::hasChild(const QString &name, bool searchInParents,
+                             bool forkChildFoundInFirstOrigin, bool *isDirectPtr) const {
+    bool isRemoved;
+    NodePtr node = hasDirectChild(name, &isRemoved);
+    bool isDirect = !node.isNull() || isRemoved;
+    if(!isDirect)
+        if(origin() && (node = origin()->hasChild(name, searchInParents)))
+            if(forkChildFoundInFirstOrigin) {
                 node = node->fork();
                 const_cast<Node *>(this)->_setChild(name, node);
             }
-    if(isDirectPtr) *isDirectPtr = !isNotDirect;
+    if(isDirectPtr) *isDirectPtr = isDirect;
     return node;
+}
+
+const QHash<QString, NodePtr> Node::children() const {
+    QHash<QString, NodePtr> children;
+    if(_children) {
+        QHashIterator<QString, NodePtr> i(*_children);
+        while(i.hasNext()) if(i.next().value()) children.insert(i.key(), i.value());
+    }
+    return children;
+}
+
+const QList<NodePtr> Node::parents() const {
+    QList<NodePtr> parents;
+    if(_parents) foreach(Node *parent, _parents->keys()) parents.append(NodePtr(parent));
+    return parents;
 }
 
 void Node::_setChild(const QString &name, const NodePtr &value) {
     if(!_children) _children = new QHash<QString, NodePtr>;
     _children->insert(name, value);
-    value->_addParent(this);
+    if(value) value->_addParent(this);
 }
 
 void Node::_addParent(Node *parent) const {

@@ -17,16 +17,16 @@ TEMPLATE = app
 SOURCES += main.cpp \
     child.cpp \
     child/node.cpp \
-    child/toolbox.cpp \
     tests/nodetest.cpp \
-    child/exception.cpp
+    child/toolbox.cpp \
+    child/exception.cpp \
 #    child/nativemethod.cpp \
-#    child/text.cpp \
-#    child/object.cpp \
+    child/object.cpp \
+    tests/objecttest.cpp \
+    child/text.cpp \
+    tests/texttest.cpp
 #    child/world.cpp \
 #    child/dictionary.cpp \
-#    tests/texttest.cpp \
-#    tests/objecttest.cpp \
 #    tests/worldtest.cpp \
 #    tests/dictionarytest.cpp \
 #    child/application.cpp \
@@ -51,18 +51,18 @@ SOURCES += main.cpp \
 HEADERS += \
     child.h \
     child/node.h \
-    child/exception.h \
-    child/toolbox.h \
-    tests/testhelper.h \
     tests/nodetest.h \
-    tests/runalltests.h
+    child/toolbox.h \
+    child/exception.h \
+    tests/testhelper.h \
+    tests/runalltests.h \
 #    child/nativemethod.h \
-#    child/text.h \
-#    child/object.h \
+    child/object.h \
+    tests/objecttest.h \
+    child/text.h \
+    tests/texttest.h
 #    child/world.h \
-#    tests/objecttest.h \
 #    tests/worldtest.h \
-#    tests/texttest.h \
 #    child/dictionary.h \
 #    tests/dictionarytest.h \
 #    child/application.h \
