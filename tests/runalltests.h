@@ -5,7 +5,7 @@
 #include "tests/nodetest.h"
 #include "tests/objecttest.h"
 #include "tests/texttest.h"
-//#include "tests/listtest.h"
+#include "tests/listtest.h"
 //#include "tests/dictionarytest.h"
 
 namespace Child {
@@ -35,7 +35,7 @@ static void runAllTests() {
         test(new NodeTest);
         test(new ObjectTest);
         test(new TextTest);
-//        test(new ListTest);
+        test(new ListTest);
 //        test(new DictionaryTest);
         endTests();
     } catch(ExceptionPtr e) {

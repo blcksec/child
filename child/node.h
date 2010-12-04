@@ -6,6 +6,84 @@
 
 #include "child/toolbox.h"
 
+namespace Child {
+
+typedef unsigned long long int HugeUnsignedInteger;
+
+class Node;
+
+#define CHILD_PTR_DECLARATION(NAME, ORIGIN) \
+class NAME; \
+class NAME##Ptr : public ORIGIN##Ptr { \
+public: \
+    NAME##Ptr() {} \
+    explicit NAME##Ptr(const NAME &other); \
+    explicit NAME##Ptr(const NAME *other); \
+    NAME##Ptr(const NodePtr &other, bool dynamicCast = false); \
+    static NAME##Ptr dynamicCast(const NodePtr &other); \
+    \
+    NAME &operator*(); \
+    const NAME &operator*() const; \
+    NAME *operator->(); \
+    const NAME *operator->() const; \
+    NAME##Ptr &operator=(const NAME##Ptr &other); \
+};
+
+#define CHILD_PTR_DEFINITION(NAME, ORIGIN) \
+inline NAME##Ptr::NAME##Ptr(const NAME &other) { initData(&other); } \
+inline NAME##Ptr::NAME##Ptr(const NAME *other) { CHILD_NODE_PTR_CHECK_CAST(NAME, other); initData(other); } \
+inline NAME##Ptr::NAME##Ptr(const NodePtr &other, bool dynamicCast) { \
+    if(dynamicCast) \
+        initData(dynamic_cast<const NAME *>(other.data())); \
+    else { \
+        CHILD_NODE_PTR_CHECK_CAST(NAME, other.data()); \
+        initData(other.data()); \
+    } \
+} \
+inline NAME##Ptr NAME##Ptr::dynamicCast(const NodePtr &other) { return NAME##Ptr(dynamic_cast<const NAME *>(other.data())); } \
+\
+inline NAME &NAME##Ptr::operator*() { CHILD_NODE_PTR_CHECK_DATA; return *static_cast<NAME *>(data()); }; \
+inline const NAME &NAME##Ptr::operator*() const { CHILD_NODE_PTR_CHECK_DATA; return *static_cast<const NAME *>(data()); }; \
+inline NAME *NAME##Ptr::operator->() { CHILD_NODE_PTR_CHECK_DATA; return static_cast<NAME *>(data()); }; \
+inline const NAME *NAME##Ptr::operator->() const { CHILD_NODE_PTR_CHECK_DATA; return static_cast<const NAME *>(data()); }; \
+inline NAME##Ptr &NAME##Ptr::operator=(const NAME##Ptr &other) { CHILD_NODE_PTR_CHECK_CAST(NAME, other.data()); setData(other.data()); return *this; }
+
+#define CHILD_NODE_PTR_CHECK_DATA \
+if(!data()) CHILD_THROW_NULL_POINTER_EXCEPTION("NULL pointer dereferenced")
+
+#define CHILD_NODE_PTR_CHECK_CAST(NAME, DATA) \
+if(DATA && !dynamic_cast<const NAME *>(DATA)) CHILD_THROW_TYPECAST_EXCEPTION("typecasting failed")
+
+class NodePtr {
+public:
+    NodePtr();
+    explicit NodePtr(const Node &other);
+    explicit NodePtr(const Node *other);
+    NodePtr(const NodePtr &other);
+    virtual ~NodePtr();
+
+    Node *data();
+    const Node *data() const;
+    void initData(const Node *data);
+    void setData(const Node *data);
+
+    Node &operator*();
+    const Node &operator*() const;
+    Node *operator->();
+    const Node *operator->() const;
+    NodePtr &operator=(const NodePtr &other);
+
+    bool isNull() const { return !data(); }
+    operator bool() const { return !isNull(); }
+    bool operator!() const { return isNull(); }
+    bool operator==(const NodePtr &other) const { return data() == other.data(); }
+    bool operator==(const Node *other) const { return data() == other; }
+    bool operator!=(const NodePtr &other) const { return data() != other.data(); }
+    bool operator!=(const Node *other) const { return data() != other; }
+private:
+    const Node *_data;
+};
+
 #define CHILD_DECLARATION(NAME, ORIGIN) \
 public: \
     static NAME##Ptr &root(); \
@@ -22,73 +100,17 @@ NAME##Ptr &NAME::root() { \
     return _root; \
 }
 
-#define CHILD_PTR_DECLARATION(NAME, ORIGIN) \
-class NAME; \
-class NAME##Ptr : public ORIGIN##Ptr { \
-public: \
-    NAME##Ptr() {} \
-    explicit NAME##Ptr(const NAME *data); \
-    NAME##Ptr(const NodePtr &other); \
-    NAME &operator*(); \
-    const NAME &operator*() const; \
-    NAME *operator->(); \
-    const NAME *operator->() const; \
-    const NAME *setData(const NAME *data); \
-    NAME##Ptr& operator=(const NAME##Ptr &other); \
-};
-
-#define CHILD_PTR_DEFINITION(NAME, ORIGIN) \
-inline NAME##Ptr::NAME##Ptr(const NAME *data) : ORIGIN##Ptr(data) {} \
-inline NAME##Ptr::NAME##Ptr(const NodePtr &other) : ORIGIN##Ptr(other) {} \
-inline NAME &NAME##Ptr::operator*() { return *static_cast<NAME *>(NodePtr::data()); }; \
-inline const NAME &NAME##Ptr::operator*() const { return *static_cast<const NAME *>(NodePtr::data()); }; \
-inline NAME *NAME##Ptr::operator->() { return static_cast<NAME *>(NodePtr::data()); }; \
-inline const NAME *NAME##Ptr::operator->() const { return static_cast<const NAME *>(NodePtr::data()); }; \
-inline const NAME *NAME##Ptr::setData(const NAME *data) { return static_cast<const NAME *>(NodePtr::setData(data)); } \
-inline NAME##Ptr& NAME##Ptr::operator=(const NAME##Ptr &other) { NodePtr::setData(other._data); return *this; }
-
 #define CHILD_THROW_RUNTIME_EXCEPTION(MESSAGE) \
-Node::throwRuntimeException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO);
+Node::throwRuntimeException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 
 #define CHILD_THROW_NULL_POINTER_EXCEPTION(MESSAGE) \
-Node::throwNullPointerException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO);
+Node::throwNullPointerException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
+
+#define CHILD_THROW_TYPECAST_EXCEPTION(MESSAGE) \
+Node::throwTypecastException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 
 #define CHILD_CHECK_NODE_PTR(NODE_PTR) \
-if(!(NODE_PTR)) CHILD_THROW_NULL_POINTER_EXCEPTION("NodePtr is NULL");
-
-namespace Child {
-
-typedef unsigned long long int HugeUnsignedInteger;
-
-class Node;
-
-class NodePtr {
-public:
-    NodePtr();
-    explicit NodePtr(const Node *data);
-    NodePtr(const NodePtr &other);
-    virtual ~NodePtr();
-
-    Node &operator*();
-    const Node &operator*() const;
-    Node *operator->();
-    const Node *operator->() const;
-    const Node *setData(const Node *data);
-    NodePtr& operator=(const NodePtr &other);
-
-    bool isNull() const { return !_data; }
-    operator bool() const { return !isNull(); }
-    bool operator!() const { return isNull(); }
-    bool operator==(const NodePtr &other) const { return _data == other._data; }
-    bool operator==(const Node *other) const { return _data == other; }
-    bool operator!=(const NodePtr &other) const { return _data != other._data; }
-    bool operator!=(const Node *other) const { return _data != other; }
-protected:
-    const Node *_data;
-
-    Node *data();
-    const Node *data() const;
-};
+if(!(NODE_PTR)) CHILD_THROW_NULL_POINTER_EXCEPTION("NodePtr is NULL")
 
 class Node {
 public:
@@ -96,8 +118,18 @@ public:
 
     enum Comparison { Smaller = -2, SmallerOrEqual, Equal, GreaterOrEqual, Greater, Different };
 
-    Node(const NodePtr &origin = find("Node")) : _origin(origin), _extensions(NULL),
+    Node(const NodePtr &origin = find("Node")) : _origin(origin), _extensions(NULL), // default constructor
         _children(NULL), _parents(NULL), _refCount(0) { nodeCount()++; }
+
+    Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
+        _children(NULL), _parents(NULL), _refCount(0) {
+        if(other._extensions) _extensions = new QList<NodePtr>(*other._extensions);
+        if(other._children) {
+            QHashIterator<QString, NodePtr> i(other.children());
+            while(i.hasNext()) { i.next(); addChild(i.key(), i.value()); }
+        }
+        nodeCount()++;
+    }
 
     virtual ~Node();
 
@@ -126,6 +158,16 @@ public:
     const NodePtr setChild(const QString &name, const NodePtr &value);
     void removeChild(const QString &name);
 
+    void addAnonymousChild(const NodePtr &value) {
+        CHILD_CHECK_NODE_PTR(value);
+        value->_addParent(this);
+    }
+
+    void removeAnonymousChild(const NodePtr &value) {
+        CHILD_CHECK_NODE_PTR(value);
+        value->_removeParent(this);
+    }
+
     const NodePtr hasChild(const QString &name, bool searchInParents = true,
                            bool forkChildFoundInFirstOrigin = true, bool *isDirectPtr = NULL) const;
 
@@ -142,11 +184,14 @@ public:
 
     bool hasDirectParent(const NodePtr &parent) const {
         CHILD_CHECK_NODE_PTR(parent);
-        return !parent->hasDirectChild(NodePtr(this)).isNull();
+        return _parents && _parents->contains(parent.data());
     }
 
     const QHash<QString, NodePtr> children() const;
     const QList<NodePtr> parents() const;
+
+    virtual Comparison compare(const NodePtr &other) const { return this == other.data() ? Equal : Different; }
+    virtual uint hash() const { return ::qHash(this); }
 
     static HugeUnsignedInteger &nodeCount() {
         static HugeUnsignedInteger _nodeCount = 0;
@@ -176,6 +221,9 @@ public:
     static void throwNullPointerException(const QString &message = "", const QString &file = "",
                                    const int line = 0, const QString &function = "");
 
+    static void throwTypecastException(const QString &message = "", const QString &file = "",
+                                   const int line = 0, const QString &function = "");
+
     const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
     virtual const QString inspect() const;
@@ -184,46 +232,52 @@ private:
     NodePtr _origin;
     QList<NodePtr> *_extensions;
     QHash<QString, NodePtr> *_children;
-    mutable QHash<Node *, HugeUnsignedInteger> *_parents;
+    mutable QHash<const Node *, HugeUnsignedInteger> *_parents;
     mutable HugeUnsignedInteger _refCount;
 
     void _setChild(const QString &name, const NodePtr &value);
-    void _addParent(Node *parent) const;
-    void _removeParent(Node *parent) const;
+    void _addParent(const Node *parent) const;
+    void _removeParent(const Node *parent) const;
 
     void retain() const { _refCount++; }
     void release() const { if(--_refCount == 0) delete this; }
 };
 
+inline bool operator==(const Node &a, const Node &b) { return a.compare(NodePtr(b)) == Node::Equal; }
+inline bool operator!=(const Node &a, const Node &b) { return a.compare(NodePtr(b)) != Node::Equal; }
+inline uint qHash(const Node &node) { return node.hash(); }
+
+// NodePtr inline definitions
+
 inline NodePtr::NodePtr() : _data(NULL) {}
-inline NodePtr::NodePtr(const Node *data) : _data(NULL) { setData(data); }
-inline NodePtr::NodePtr(const NodePtr &other) : _data(NULL) { setData(other._data); }
-inline NodePtr::~NodePtr() { if(_data) _data->release(); }
+inline NodePtr::NodePtr(const Node &other) { initData(&other); }
+inline NodePtr::NodePtr(const Node *other) { initData(other); }
+inline NodePtr::NodePtr(const NodePtr &other) { initData(other.data()); }
+inline NodePtr::~NodePtr() { if(data()) data()->release(); }
 
-inline Node *NodePtr::data() {
-    if(!_data) CHILD_THROW_NULL_POINTER_EXCEPTION("NULL pointer dereferenced");
-    return const_cast<Node *>(_data);
+inline Node *NodePtr::data() { return const_cast<Node *>(_data); }
+inline const Node *NodePtr::data() const { return _data; }
+
+inline void NodePtr::initData(const Node *data) {
+    if(data) data->retain();
+    _data = data;
 }
 
-inline const Node *NodePtr::data() const {
-    if(!_data) CHILD_THROW_NULL_POINTER_EXCEPTION("NULL pointer dereferenced");
-    return _data;
-}
-
-inline const Node *NodePtr::setData(const Node *data) {
+inline void NodePtr::setData(const Node *data) {
     if(_data != data) {
         if(_data) _data->release();
         if(data) data->retain();
         _data = data;
     }
-    return data;
 }
 
-inline Node &NodePtr::operator*() { return *data(); };
-inline const Node &NodePtr::operator*() const { return *data(); };
-inline Node *NodePtr::operator->() { return data(); };
-inline const Node *NodePtr::operator->() const { return data(); };
-inline NodePtr& NodePtr::operator=(const NodePtr &other) { setData(other._data); return *this; }
+inline Node &NodePtr::operator*() { CHILD_NODE_PTR_CHECK_DATA; return *data(); };
+inline const Node &NodePtr::operator*() const { CHILD_NODE_PTR_CHECK_DATA; return *data(); };
+inline Node *NodePtr::operator->() { CHILD_NODE_PTR_CHECK_DATA; return data(); };
+inline const Node *NodePtr::operator->() const { CHILD_NODE_PTR_CHECK_DATA; return data(); };
+inline NodePtr &NodePtr::operator=(const NodePtr &other) { setData(other.data()); return *this; }
+
+inline uint qHash(const NodePtr &node) { return ::qHash(node.data()); }
 
 } // namespace Child
 

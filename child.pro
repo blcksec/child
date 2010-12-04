@@ -24,7 +24,9 @@ SOURCES += main.cpp \
     child/object.cpp \
     tests/objecttest.cpp \
     child/text.cpp \
-    tests/texttest.cpp
+    tests/texttest.cpp \
+    child/list.cpp \
+    tests/listtest.cpp
 #    child/world.cpp \
 #    child/dictionary.cpp \
 #    tests/worldtest.cpp \
@@ -32,8 +34,6 @@ SOURCES += main.cpp \
 #    child/application.cpp \
 #    child/block.cpp \
 #    child/message.cpp \
-#    child/list.cpp \
-#    tests/listtest.cpp \
 #    child/number.cpp \
 #    child/boolean.cpp \
 #    child/character.cpp \
@@ -60,7 +60,9 @@ HEADERS += \
     child/object.h \
     tests/objecttest.h \
     child/text.h \
-    tests/texttest.h
+    tests/texttest.h \
+    child/list.h \
+    tests/listtest.h
 #    child/world.h \
 #    tests/worldtest.h \
 #    child/dictionary.h \
@@ -68,8 +70,6 @@ HEADERS += \
 #    child/application.h \
 #    child/block.h \
 #    child/message.h \
-#    child/list.h \
-#    tests/listtest.h \
 #    child/number.h \
 #    child/boolean.h \
 #    child/character.h \

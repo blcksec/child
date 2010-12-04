@@ -11,13 +11,12 @@ CHILD_PTR_DECLARATION(Text, Object);
 class Text : public Object {
     CHILD_DECLARATION(Text, Object);
 public:
+    Text(const QString &value = "", const TextPtr &origin = find("Object")->child("Text")) : // default constructor
+        Object(origin), _value(value) {}
+
     Text(const ObjectPtr &origin) : Object(origin) {} // root constructor
 
-    Text(const TextPtr &origin) : Object(origin),
-        _value(origin->_value) {} // fork constructor
-
-    Text(const QString &value = "") : Object(find("Object")->child("Text")),
-        _value(value) {} // convenience constructor
+    Text(const TextPtr &origin) : Object(origin), _value(origin->_value) {} // fork constructor
 
     const QString value() const { return _value; }
     TextPtr setValue(const QString &value) { _value = value; return TextPtr(this); }
@@ -26,7 +25,7 @@ public:
 
     virtual Comparison compare(const NodePtr &other) const {
         if(NodePtr(this) == other) return Equal;
-        TextPtr otherText(other); // TODO: type casting?
+        TextPtr otherText(other, true);
         if(!otherText) return Different;
         int result = value().compare(otherText->value());
         if(result > 0) return Greater;

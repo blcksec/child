@@ -4,20 +4,20 @@
 #include "child/node.h"
 
 #define CHILD_THROW(EXCEPTION, MESSAGE) \
-throw(EXCEPTION##Ptr(new EXCEPTION(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)));
+throw EXCEPTION##Ptr(new EXCEPTION(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO))
 
 #define CHILD_TODO \
-CHILD_THROW(Exception, "function not yet implemented");
+CHILD_THROW(Exception, "function not yet implemented")
 
 #define CHILD_EXCEPTION_DECLARATION(NAME, ORIGIN) \
 CHILD_PTR_DECLARATION(NAME, ORIGIN); \
 class NAME : public ORIGIN { \
     CHILD_DECLARATION(NAME, ORIGIN); \
 public: \
+    NAME(const QString &message = "", const QString &file = "", const int line = 0, \
+         const QString &function = "", const NAME##Ptr &origin = find(#NAME)) : \
+        ORIGIN(message, file, line, function, origin) {} \
     NAME(const ORIGIN##Ptr &origin) : ORIGIN(origin) {} \
-    NAME(const QString &message = "", const QString &file = "", \
-         const int line = 0, const QString &function = "") : \
-        ORIGIN(message, file, line, function) {} \
 }; \
 CHILD_PTR_DEFINITION(NAME, ORIGIN);
 
@@ -40,14 +40,14 @@ public:
     int line;
     QString function;
 
+    Exception(const QString &message = "", const QString &file = "", const int line = 0, // default constructor
+              const QString &function = "", const ExceptionPtr &origin = find("Exception")) :
+        Node(origin), message(message), file(file), line(line), function(function) {}
+
     Exception(const NodePtr &origin) : Node(origin) {} // root constructor
 
     Exception(const ExceptionPtr &origin) : Node(origin), message(origin->message), // fork constructor
         file(origin->file), line(origin->line), function(origin->function) {}
-
-    Exception(const QString &message = "", const QString &file = "",  // convenience constructor
-              const int line = 0, const QString &function = "") :
-        Node(find("Exception")), message(message), file(file), line(line), function(function) {}
 
     const QString report() const;
 
@@ -64,6 +64,7 @@ CHILD_EXCEPTION_DECLARATION(NullPointerException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(IndexOutOfBoundsException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(NotFoundException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(DuplicateException, RuntimeException);
+CHILD_EXCEPTION_DECLARATION(TypecastException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(OperatingSystemException, Exception);
 CHILD_EXCEPTION_DECLARATION(FileSystemException, OperatingSystemException);
 

@@ -23,25 +23,17 @@ void TextTest::compare() {
     NodePtr n(new Node());
     QVERIFY(t1->compare(t2) == Node::Equal);
     QVERIFY(t1->compare(t3) != Node::Equal);
-//    QVERIFY(t1->compare(n) != Node::Equal); <-- You are here
-
-//    QCOMPARE(*t1, *t2);
-//    QVERIFY(*t1 == *t2);
-//    QVERIFY(!(*t1 != *t2));
-//    QVERIFY(*t1 != *t3);
-//    Text *t4 = Text::fork(world, "Jean");
-//    Text *t5 = Text::fork(world, "Pierre");
-//    QVERIFY(*t4 != *t5);
-//    QCOMPARE(t4->compare(t5), Node::Smaller);
-//    QCOMPARE(t5->compare(t4), Node::Greater);
-
-//    NodeRef r1(t1);
-//    NodeRef r2(t2);
-//    NodeRef r3(t3);
-//    QCOMPARE(r1, r2);
-//    QVERIFY(r1 == r2);
-//    QVERIFY(!(r1 != r2));
-//    QVERIFY(r1 != r3);
+    QVERIFY(t1->compare(n) != Node::Equal);
+    QVERIFY(t1 != t2);
+    QCOMPARE(*t1, *t2);
+    QVERIFY(*t1 == *t2);
+    QVERIFY(!(*t1 != *t2));
+    QVERIFY(*t1 != *t3);
+    TextPtr t4(new Text("Jean"));
+    TextPtr t5(new Text("Pierre"));
+    QVERIFY(*t4 != *t5);
+    QCOMPARE(t4->compare(t5), Node::Smaller);
+    QCOMPARE(t5->compare(t4), Node::Greater);
 }
 
 void TextTest::upcase() {

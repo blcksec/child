@@ -9,7 +9,10 @@ bool Node::_initialized = Node::initRoot();
 
 Node::~Node() {
     if(_extensions) delete _extensions;
-    if(_children) delete _children;
+    if(_children) {
+        foreach(NodePtr child, *_children) if(child) child->_removeParent(this);
+        delete _children;
+    }
     if(_parents) delete _parents;
     nodeCount()--;
 }
@@ -119,7 +122,7 @@ const QHash<QString, NodePtr> Node::children() const {
 
 const QList<NodePtr> Node::parents() const {
     QList<NodePtr> parents;
-    if(_parents) foreach(Node *parent, _parents->keys()) parents.append(NodePtr(parent));
+    if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(NodePtr(parent));
     return parents;
 }
 
@@ -129,16 +132,16 @@ void Node::_setChild(const QString &name, const NodePtr &value) {
     if(value) value->_addParent(this);
 }
 
-void Node::_addParent(Node *parent) const {
+void Node::_addParent(const Node *parent) const {
     HugeUnsignedInteger count = 0;
     if(_parents)
         count = _parents->value(parent);
     else
-        _parents = new QHash<Node *, HugeUnsignedInteger>;
+        _parents = new QHash<const Node *, HugeUnsignedInteger>;
     _parents->insert(parent, count + 1);
 }
 
-void Node::_removeParent(Node *parent) const {
+void Node::_removeParent(const Node *parent) const {
     if(!_parents) CHILD_THROW(NotFoundException, "parent not found");
     HugeUnsignedInteger count = _parents->value(parent) - 1;
     if(count > 0)
@@ -157,6 +160,11 @@ void Node::throwRuntimeException(const QString &message, const QString &file,
 void Node::throwNullPointerException(const QString &message, const QString &file,
                                const int line, const QString &function) {
     throw NullPointerExceptionPtr(new NullPointerException(message, file, line, function));
+}
+
+void Node::throwTypecastException(const QString &message, const QString &file,
+                               const int line, const QString &function) {
+    throw TypecastExceptionPtr(new TypecastException(message, file, line, function));
 }
 
 const QString Node::inspect() const {
