@@ -3,23 +3,29 @@
 
 #include "child/object.h"
 
-namespace Child {
-    class Character : public Object {
-        CHILD_DECLARATION(Character, Object, Object);
-    public:
-        static Character *fork(Node *world, QChar value) {
-            return Character::fork(world)->setValue(value);
-        }
+CHILD_BEGIN
 
-        virtual void initFork() { _value = Character::as(origin())->_value; }
+CHILD_PTR_DECLARATION(Character, Object);
 
-        QChar value() const { return _value; }
-        Character *setValue(QChar value) { _value = value; return this; }
+#define CHILD_CHARACTER(ARGS...) CharacterPtr(new Character(Node::findInContext("Object")->child("Character"), ##ARGS))
 
-        virtual const QString inspect() const { return QString("'%1'").arg(value()); }
-    private:
-        QChar _value;
-    };
-}
+class Character : public Object {
+    CHILD_DECLARATION(Character, Object);
+public:
+    Character(const NodePtr &origin, QChar value = QChar::Null) : Object(origin), _value(value) {}
+    static void initRoot() { Object::root()->addChild("Character", root()); }
+    virtual NodePtr fork() const { return NodePtr(new Character(NodePtr(this), _value)); }
+
+    QChar value() const { return _value; }
+    void setValue(QChar value) { _value = value; }
+
+    virtual const QString inspect() const { return QString("'%1'").arg(value()); }
+private:
+    QChar _value;
+};
+
+CHILD_PTR_DEFINITION(Character, Object);
+
+CHILD_END
 
 #endif // CHILD_CHARACTER_H

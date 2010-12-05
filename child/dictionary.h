@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Dictionary, Object);
 
-#define CHILD_DICTIONARY(...) DictionaryPtr(new Dictionary(__VA_ARGS__))
+#define CHILD_DICTIONARY(ARGS...) DictionaryPtr(new Dictionary(Node::findInContext("Object")->child("Dictionary"), ##ARGS))
 
 #define CHILD_CHECK_KEY(KEY) \
 if(!(KEY)) CHILD_THROW(NullPointerException, "key is NULL")
@@ -19,27 +19,16 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 class Dictionary : public Object {
     CHILD_DECLARATION(Dictionary, Object);
 public:
-    Dictionary(const NodeHash &other = NodeHash(), // default constructor
-               const DictionaryPtr &origin = find("Object")->child("Dictionary")) :
-        Object(origin), _hash(NULL) {
+    Dictionary(const NodePtr &origin, const NodeHash &other = NodeHash()) : Object(origin), _hash(NULL) {
         if(!other.isEmpty()) {
-            QHashIterator<NodeRef, NodePtr> i(other);
+            NodeHashIterator i(other);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()); }
         }
     }
 
-    Dictionary(const ObjectPtr &origin) : Object(origin), _hash(NULL) {} // root constructor
-
-    Dictionary(const DictionaryPtr &origin) : Object(origin), _hash(NULL) { // fork constructor
-        if(origin->isNotEmpty()) {
-            QHashIterator<NodeRef, NodePtr> i(*origin->_hash);
-            while(i.hasNext()) { i.next(); set(i.key(), i.value()->fork()); }
-        }
-    }
-
-    Dictionary(const Dictionary &other) : Object(other), _hash(NULL) { // copy constructor
+    Dictionary(const Dictionary &other) : Object(other), _hash(NULL) {
         if(other.isNotEmpty()) {
-            QHashIterator<NodeRef, NodePtr> i(*other._hash);
+            NodeHashIterator i(*other._hash);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()); }
         }
     }
@@ -49,6 +38,17 @@ public:
             foreach(NodePtr node, *_hash) removeAnonymousChild(node);
             delete _hash;
         }
+    }
+
+    static void initRoot() { Object::root()->addChild("Dictionary", root()); }
+
+    virtual NodePtr fork() const {
+        DictionaryPtr dict(new Dictionary(NodePtr(this)));
+        if(isNotEmpty()) {
+            NodeHashIterator i(*_hash);
+            while(i.hasNext()) { i.next(); dict->set(i.key(), i.value()->fork()); }
+        }
+        return dict;
     }
 
     NodePtr get(const NodeRef &key) const {

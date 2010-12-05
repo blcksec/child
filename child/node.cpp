@@ -5,7 +5,7 @@
 
 CHILD_BEGIN
 
-bool Node::_initialized = Node::initRoot();
+const bool Node::isInitialized = Node::root().isNotNull();
 
 Node::~Node() {
     if(_extensions) delete _extensions;
@@ -18,16 +18,13 @@ Node::~Node() {
 }
 
 NodePtr &Node::root() {
-    static NodePtr _root(new Node(NodePtr()));
+    static NodePtr _root;
+    if(!_root) {
+        _root = NodePtr(new Node(NodePtr()));
+        initRoot();
+    }
     return _root;
 }
-
-bool Node::initRoot() {
-    root()->addChild("Node", root());
-    return true;
-}
-
-NodePtr Node::find(const QString &name) { return context()->child(name); }
 
 void Node::setOrigin(const NodePtr &node) {
     CHILD_CHECK_NODE_PTR(node);
@@ -152,20 +149,15 @@ void Node::_removeParent(const Node *parent) const {
         CHILD_THROW(NotFoundException, "parent not found");
 }
 
-void Node::throwRuntimeException(const QString &message, const QString &file,
-                               const int line, const QString &function) {
-    throw RuntimeExceptionPtr(new RuntimeException(message, file, line, function));
+#define CHILD_THROW_FUNCTION(EXCEPTION) \
+void Node::throw##EXCEPTION(const QString &message, const QString &file, \
+                            const int line, const QString &function) { \
+    throw EXCEPTION##Ptr(new EXCEPTION(findInContext(#EXCEPTION), message, file, line, function)); \
 }
 
-void Node::throwNullPointerException(const QString &message, const QString &file,
-                               const int line, const QString &function) {
-    throw NullPointerExceptionPtr(new NullPointerException(message, file, line, function));
-}
-
-void Node::throwTypecastException(const QString &message, const QString &file,
-                               const int line, const QString &function) {
-    throw TypecastExceptionPtr(new TypecastException(message, file, line, function));
-}
+CHILD_THROW_FUNCTION(RuntimeException);
+CHILD_THROW_FUNCTION(NullPointerException);
+CHILD_THROW_FUNCTION(TypecastException);
 
 const QString Node::inspect() const {
     QString str;

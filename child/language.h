@@ -3,10 +3,12 @@
 
 #include "child/object.h"
 
-namespace Child {
-    namespace Language {
-        Object *root();
-    }
+CHILD_BEGIN
+
+namespace Language {
+    ObjectPtr root();
 }
+
+CHILD_END
 
 #endif // CHILD_LANGUAGE_H

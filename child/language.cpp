@@ -1,15 +1,16 @@
 #include "child/language.h"
 
-namespace Child {
-    namespace Language {
-        Object *root() {
-            static Object *_root;
-            if(!_root) {
-                _root = new Object;
-                _root->setOrigin(Object::root());
-                _root->addParent("Language", Object::root());
-            }
-            return _root;
+CHILD_BEGIN
+
+namespace Language {
+    ObjectPtr root() {
+        static ObjectPtr _root;
+        if(!_root) {
+            _root = Object::root()->fork();
+            Object::root()->addChild("Language", _root);
         }
+        return _root;
     }
 }
+
+CHILD_END

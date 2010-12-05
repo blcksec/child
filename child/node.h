@@ -88,6 +88,7 @@ public:
     NodePtr &operator=(const NodePtr &other);
 
     bool isNull() const { return !data(); }
+    bool isNotNull() const { return data(); }
     operator bool() const { return !isNull(); }
     bool operator!() const { return isNull(); }
 private:
@@ -104,21 +105,23 @@ public:
 
 // === Node ===
 
-#define CHILD_NODE(...) NodePtr(new Node(__VA_ARGS__))
+#define CHILD_NODE(ARGS...) NodePtr(new Node(Node::findInContext("Node"), ##ARGS))
 
 #define CHILD_DECLARATION(NAME, ORIGIN) \
 public: \
     static NAME##Ptr &root(); \
-    static bool initRoot(); \
-    virtual NodePtr fork() const { return NodePtr(new NAME(NAME##Ptr(this))); } \
     virtual const QString className() const { return #NAME; } \
 private: \
-    static bool _initialized;
+    static const bool isInitialized;
 
 #define CHILD_DEFINITION(NAME, ORIGIN) \
-bool NAME::_initialized = NAME::initRoot(); \
+const bool NAME::isInitialized = NAME::root().isNotNull(); \
 NAME##Ptr &NAME::root() { \
-    static NAME##Ptr _root(new NAME(ORIGIN::root())); \
+    static NAME##Ptr _root; \
+    if(!_root) { \
+        _root = NAME##Ptr(new NAME(ORIGIN::root())); \
+        initRoot(); \
+    } \
     return _root; \
 }
 
@@ -136,14 +139,16 @@ if(!(NODE_PTR)) CHILD_THROW_NULL_POINTER_EXCEPTION("NodePtr is NULL")
 
 typedef QList<NodePtr> NodeList;
 typedef QHash<NodeRef, NodePtr> NodeHash;
+typedef QHashIterator<NodeRef, NodePtr> NodeHashIterator;
 
 class Node {
+    CHILD_DECLARATION(Node, NULL);
 public:
     friend class NodePtr;
 
     enum Comparison { Smaller = -2, SmallerOrEqual, Equal, GreaterOrEqual, Greater, Different };
 
-    Node(const NodePtr &origin = find("Node")) : _origin(origin), _extensions(NULL), // default constructor
+    Node(const NodePtr &origin) : _origin(origin), _extensions(NULL), // default constructor
         _children(NULL), _parents(NULL), _refCount(0) { nodeCount()++; }
 
     Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
@@ -158,14 +163,8 @@ public:
 
     virtual ~Node();
 
-    static NodePtr &root();
-    static bool initRoot();
-
-    static NodePtr find(const QString &name);
-
-    virtual NodePtr fork() const { return CHILD_NODE(NodePtr(this)); }
-
-    virtual const QString className() const { return "Node"; }
+    static void initRoot() { root()->addChild("Node", root()); }
+    virtual NodePtr fork() const { return NodePtr(new Node(NodePtr(this))); }
 
     const NodePtr &origin() const { return _origin; }
     void setOrigin(const NodePtr &node);
@@ -239,6 +238,8 @@ public:
         static QStack<NodePtr> _contextStack;
         return _contextStack;
     }
+
+    static NodePtr findInContext(const QString &name) { return context()->child(name); }
 
     static void throwRuntimeException(const QString &message = "", const QString &file = "",
                                    const int line = 0, const QString &function = "");

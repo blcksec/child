@@ -8,20 +8,18 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Text, Object);
 
-#define CHILD_TEXT(...) TextPtr(new Text(__VA_ARGS__))
+#define CHILD_TEXT(ARGS...) TextPtr(new Text(Node::findInContext("Object")->child("Text"), ##ARGS))
 
 class Text : public Object {
     CHILD_DECLARATION(Text, Object);
 public:
-    Text(const QString &value = "", const TextPtr &origin = find("Object")->child("Text")) : // default constructor
-        Object(origin), _value(value) {}
-
-    Text(const ObjectPtr &origin) : Object(origin) {} // root constructor
-
-    Text(const TextPtr &origin) : Object(origin), _value(origin->_value) {} // fork constructor
+    Text(const NodePtr &origin, const QString &value = "") : Object(origin), _value(value) {}
+//    Text(const Text &other) : Object(other), _value(other._value) {}
+    static void initRoot() { Object::root()->addChild("Text", root()); }
+    virtual NodePtr fork() const { return NodePtr(new Text(NodePtr(this), _value)); }
 
     const QString value() const { return _value; }
-    TextPtr setValue(const QString &value) { _value = value; return TextPtr(this); }
+    void setValue(const QString &value) { _value = value; }
 
     TextPtr upcase() { return CHILD_TEXT(value().toUpper()); }
 

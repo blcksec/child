@@ -10,7 +10,7 @@ void NodeTest::initialize() {
 void NodeTest::setOrigin() {
     NodePtr obj1 = CHILD_NODE();
     NodePtr obj2 = CHILD_NODE();
-    QCOMPARE(obj2->origin(), Node::find("Node"));
+    QCOMPARE(obj2->origin(), Node::findInContext("Node"));
     QCATCH(obj2->setOrigin(NodePtr()), NullPointerException);
     obj2->setOrigin(obj1);
     QCOMPARE(obj2->origin(), obj1);

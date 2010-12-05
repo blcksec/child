@@ -7,10 +7,10 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Exception, Node);
 
-#define CHILD_EXCEPTION(...) ExceptionPtr(new Exception(__VA_ARGS__))
+#define CHILD_EXCEPTION(ARGS...) ExceptionPtr(new Exception(Node::findInContext("Exception"), ##ARGS))
 
 #define CHILD_THROW(EXCEPTION, MESSAGE) \
-throw EXCEPTION##Ptr(new EXCEPTION(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO))
+throw EXCEPTION##Ptr(new EXCEPTION(Node::findInContext(#EXCEPTION), MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO))
 
 #define CHILD_TODO \
 CHILD_THROW(Exception, "function not yet implemented")
@@ -23,14 +23,15 @@ public:
     int line;
     QString function;
 
-    Exception(const QString &message = "", const QString &file = "", const int line = 0, // default constructor
-              const QString &function = "", const ExceptionPtr &origin = find("Exception")) :
+    Exception(const NodePtr &origin, const QString &message = "", const QString &file = "",
+              const int line = 0, const QString &function = "") :
         Node(origin), message(message), file(file), line(line), function(function) {}
 
-    Exception(const NodePtr &origin) : Node(origin) {} // root constructor
+    static void initRoot() { Node::root()->addChild("Exception", root()); }
 
-    Exception(const ExceptionPtr &origin) : Node(origin), message(origin->message), // fork constructor
-        file(origin->file), line(origin->line), function(origin->function) {}
+    virtual NodePtr fork() const {
+        return NodePtr(new Exception(NodePtr(this), message, file, line, function));
+    }
 
     const QString report() const;
 
@@ -44,19 +45,18 @@ CHILD_PTR_DECLARATION(NAME, ORIGIN); \
 class NAME : public ORIGIN { \
     CHILD_DECLARATION(NAME, ORIGIN); \
 public: \
-    NAME(const QString &message = "", const QString &file = "", const int line = 0, \
-         const QString &function = "", const NAME##Ptr &origin = find(#NAME)) : \
-        ORIGIN(message, file, line, function, origin) {} \
-    NAME(const ORIGIN##Ptr &origin) : ORIGIN(origin) {} \
+    NAME(const NodePtr &origin, const QString &message = "", const QString &file = "", \
+         const int line = 0, const QString &function = "") : \
+        ORIGIN(origin, message, file, line, function) {} \
+    static void initRoot() { Node::root()->addChild(#NAME, root()); } \
+    virtual NodePtr fork() const { \
+        return NodePtr(new NAME(NodePtr(this), message, file, line, function)); \
+    } \
 }; \
 CHILD_PTR_DEFINITION(NAME, ORIGIN);
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
-CHILD_DEFINITION(NAME, ORIGIN); \
-bool NAME::initRoot() { \
-    Node::root()->addChild(#NAME, root()); \
-    return true; \
-}
+CHILD_DEFINITION(NAME, ORIGIN);
 
 CHILD_EXCEPTION_DECLARATION(LexerException, Exception);
 CHILD_EXCEPTION_DECLARATION(ParserException, Exception);

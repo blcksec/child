@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(List, Object);
 
-#define CHILD_LIST(...) ListPtr(new List(__VA_ARGS__))
+#define CHILD_LIST(ARGS...) ListPtr(new List(Node::findInContext("Object")->child("List"), ##ARGS))
 
 #define CHILD_CHECK_VALUE(VALUE) \
 if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
@@ -16,18 +16,11 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 class List : public Object {
     CHILD_DECLARATION(List, Object);
 public:
-    List(const NodeList &other = NodeList(), // default constructor
-         const ListPtr &origin = find("Object")->child("List")) : Object(origin), _list(NULL) {
+    List(const NodePtr &origin, const NodeList &other = NodeList()) : Object(origin), _list(NULL) {
         if(!other.isEmpty()) foreach(NodePtr node, other) append(node);
     }
 
-    List(const ObjectPtr &origin) : Object(origin), _list(NULL) {} // root constructor
-
-    List(const ListPtr &origin) : Object(origin), _list(NULL) { // fork constructor
-        if(origin->isNotEmpty()) foreach(NodePtr node, *origin->_list) append(node->fork());
-    }
-
-    List(const List &other) : Object(other), _list(NULL) { // copy constructor
+    List(const List &other) : Object(other), _list(NULL) {
         if(other.isNotEmpty()) foreach(NodePtr node, *other._list) append(node);
     }
 
@@ -36,6 +29,14 @@ public:
             foreach(NodePtr node, *_list) removeAnonymousChild(node);
             delete _list;
         }
+    }
+
+    static void initRoot() { Object::root()->addChild("List", root()); }
+
+    virtual NodePtr fork() const {
+        ListPtr list(new List(NodePtr(this)));
+        if(isNotEmpty()) foreach(NodePtr node, *_list) list->append(node->fork());
+        return list;
     }
 
     NodePtr insert(int i, const NodePtr &value) {

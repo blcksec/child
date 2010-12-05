@@ -1,9 +1,7 @@
 #include "child/number.h"
 
-namespace Child {
-    CHILD_DEFINITION(Number, Object, Object);
+CHILD_BEGIN
 
-    void Number::initRoot() {
-        // TODO
-    }
-}
+CHILD_DEFINITION(Number, Object);
+
+CHILD_END

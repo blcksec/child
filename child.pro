@@ -23,18 +23,19 @@ SOURCES += main.cpp \
 #    child/nativemethod.cpp \
     child/object.cpp \
     tests/objecttest.cpp \
+    child/boolean.cpp \
+    child/number.cpp \
+    child/character.cpp \
     child/text.cpp \
     tests/texttest.cpp \
     child/list.cpp \
     tests/listtest.cpp \
     child/dictionary.cpp \
-    tests/dictionarytest.cpp
+    tests/dictionarytest.cpp \
 #    child/application.cpp \
 #    child/block.cpp \
 #    child/message.cpp \
-#    child/number.cpp \
-#    child/boolean.cpp \
-#    child/character.cpp \
+    child/language.cpp
 #    child/language/lexer.cpp \
 #    child/language/token.cpp \
 #    child/language/sourcecode.cpp \
@@ -44,7 +45,6 @@ SOURCES += main.cpp \
 #    child/language/parser.cpp \
 #    child/language/operatortable.cpp \
 #    child/language/operator.cpp \
-#    child/language.cpp \
 #    child/world.cpp \
 #    tests/worldtest.cpp
 
@@ -59,19 +59,19 @@ HEADERS += \
 #    child/nativemethod.h \
     child/object.h \
     tests/objecttest.h \
+    child/boolean.h \
+    child/number.h \
+    child/character.h \
     child/text.h \
     tests/texttest.h \
     child/list.h \
     tests/listtest.h \
     child/dictionary.h \
-    tests/dictionarytest.h
+    tests/dictionarytest.h \
 #    child/application.h \
 #    child/block.h \
 #    child/message.h \
-#    child/number.h \
-#    child/boolean.h \
-#    child/character.h \
-#    child/language.h \
+    child/language.h
 #    child/language/lexer.h \
 #    child/language/token.h \
 #    child/language/sourcecode.h \

@@ -5,13 +5,6 @@ CHILD_BEGIN
 
 CHILD_DEFINITION(Text, Object);
 
-bool Text::initRoot() {
-    Object::root()->addChild("Text", root());
-//    NativeMethod *meth = NativeMethod::fork(root(), CHILD_METHODPTR(Text::upcase));
-//    root()->addDirectChild("upcase", meth);
-    return true;
-}
-
 QString Text::unescapeSequence(const QString &source) {
     QString result;
     int i = 0;

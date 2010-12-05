@@ -1,9 +1,7 @@
 #include "child/character.h"
 
-namespace Child {
-    CHILD_DEFINITION(Character, Object, Object);
+CHILD_BEGIN
 
-    void Character::initRoot() {
-        // TODO
-    }
-}
+CHILD_DEFINITION(Character, Object);
+
+CHILD_END

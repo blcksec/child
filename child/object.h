@@ -7,16 +7,14 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Object, Node);
 
-#define CHILD_OBJECT(...) ObjectPtr(new Object(__VA_ARGS__))
+#define CHILD_OBJECT(ARGS...) ObjectPtr(new Object(Node::findInContext("Object"), ##ARGS))
 
 class Object : public Node {
     CHILD_DECLARATION(Object, Node);
 public:
-    Object(const NodePtr &origin) : Node(origin) {} // root constructor
-
-    Object(const ObjectPtr &origin) : Node(origin) {} // fork constructor
-
-    Object() : Node(find("Object")) {} // convenience constructor
+    Object(const NodePtr &origin) : Node(origin) {}
+    static void initRoot() { Node::root()->addChild("Object", root()); }
+    virtual NodePtr fork() const { return NodePtr(new Object(NodePtr(this))); }
 };
 
 CHILD_PTR_DEFINITION(Object, Node);
