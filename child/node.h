@@ -254,7 +254,6 @@ public:
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
     virtual const QString inspect() const;
 private:
-    static bool _initialized;
     NodePtr _origin;
     NodeList *_extensions;
     QHash<QString, NodePtr> *_children;
