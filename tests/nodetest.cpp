@@ -1,6 +1,6 @@
 #include "tests/nodetest.h"
 
-namespace Child {
+CHILD_BEGIN
 
 void NodeTest::initialize() {
     QVERIFY(Node::root()->origin().isNull());
@@ -8,8 +8,8 @@ void NodeTest::initialize() {
 }
 
 void NodeTest::setOrigin() {
-    NodePtr obj1(new Node());
-    NodePtr obj2(new Node());
+    NodePtr obj1 = CHILD_NODE();
+    NodePtr obj2 = CHILD_NODE();
     QCOMPARE(obj2->origin(), Node::find("Node"));
     QCATCH(obj2->setOrigin(NodePtr()), NullPointerException);
     obj2->setOrigin(obj1);
@@ -17,15 +17,15 @@ void NodeTest::setOrigin() {
 }
 
 void NodeTest::fork() {
-    NodePtr obj1(new Node());
-    NodePtr obj2(obj1->fork());
+    NodePtr obj1 = CHILD_NODE();
+    NodePtr obj2 = obj1->fork();
     QCOMPARE(obj2->origin(), obj1);
 }
 
 void NodeTest::addExtension() {
-    NodePtr node1(new Node());
-    NodePtr node2(new Node());
-    NodePtr obj(new Node());
+    NodePtr node1 = CHILD_NODE();
+    NodePtr node2 = CHILD_NODE();
+    NodePtr obj = CHILD_NODE();
     QCOMPARE(obj->extensions().size(), 0);
     QCATCH(obj->addExtension(NodePtr()), NullPointerException);
     obj->addExtension(node1);
@@ -39,9 +39,9 @@ void NodeTest::addExtension() {
 }
 
 void NodeTest::removeExtension() {
-    NodePtr node1(new Node());
-    NodePtr node2(new Node());
-    NodePtr obj(new Node());
+    NodePtr node1 = CHILD_NODE();
+    NodePtr node2 = CHILD_NODE();
+    NodePtr obj = CHILD_NODE();
     QCOMPARE(obj->extensions().size(), 0);
     obj->addExtension(node1);
     QCOMPARE(obj->extensions().size(), 1);
@@ -59,9 +59,9 @@ void NodeTest::removeExtension() {
 }
 
 void NodeTest::hasExtension() {
-    NodePtr node1(new Node());
-    NodePtr node2(new Node());
-    NodePtr obj(new Node());
+    NodePtr node1 = CHILD_NODE();
+    NodePtr node2 = CHILD_NODE();
+    NodePtr obj = CHILD_NODE();
     obj->addExtension(node1);
     QCATCH(obj->hasExtension(NodePtr()), NullPointerException);
     QVERIFY(obj->hasExtension(node1));
@@ -71,9 +71,9 @@ void NodeTest::hasExtension() {
 }
 
 void NodeTest::addChild() {
-    NodePtr world(new Node());
-    NodePtr country1(new Node());
-    NodePtr country2(new Node());
+    NodePtr world = CHILD_NODE();
+    NodePtr country1 = CHILD_NODE();
+    NodePtr country2 = CHILD_NODE();
     QCATCH(world->addChild("France", NodePtr()), NullPointerException);
     world->addChild("France", country1);
     QCOMPARE(world->child("France"), country1);
@@ -81,17 +81,17 @@ void NodeTest::addChild() {
     world->addChild("Spain", country2);
     QCOMPARE(world->child("Spain"), country2);
     QCOMPARE(world->children().size(), 2);
-    NodePtr newWorld(world->fork());
+    NodePtr newWorld = world->fork();
     QCATCH(newWorld->addChild("France", country1), DuplicateException);
-    NodePtr city(new Node());
+    NodePtr city = CHILD_NODE();
     country1->addChild("France", city);
     QCOMPARE(country1->child("France"), city);
 }
 
 void NodeTest::setChild() {
-    NodePtr world(new Node());
-    NodePtr country1(new Node());
-    NodePtr country2(new Node());
+    NodePtr world = CHILD_NODE();
+    NodePtr country1 = CHILD_NODE();
+    NodePtr country2 = CHILD_NODE();
     QCATCH(world->setChild("France", NodePtr()), NullPointerException);
     QCATCH(world->setChild("France", country1), NotFoundException);
     world->addChild("France", country1);
@@ -103,14 +103,14 @@ void NodeTest::setChild() {
     QCOMPARE(world->children().size(), 1);
     QCOMPARE(country2->parents().size(), 1);
     QCOMPARE(country1->parents().size(), 0);
-    NodePtr newWorld(world->fork());
+    NodePtr newWorld = world->fork();
     newWorld->setChild("France", country1);
     QCOMPARE(newWorld->child("France"), country1);
 }
 
 void NodeTest::removeChild() {
-    NodePtr world(new Node());
-    NodePtr country(new Node());
+    NodePtr world = CHILD_NODE();
+    NodePtr country = CHILD_NODE();
     QCATCH(world->removeChild("France"), NotFoundException);
     world->addChild("France", country);
     QVERIFY(world->hasChild("France"));
@@ -129,7 +129,7 @@ void NodeTest::removeChild() {
     QCOMPARE(world->children().size(), 1);
     QCATCH(world->addChild("France", country), DuplicateException);
     world->removeChild("France");
-    NodePtr newWorld(world->fork());
+    NodePtr newWorld = world->fork();
     QVERIFY(!newWorld->hasChild("France"));
     QCATCH(newWorld->child("France"), NotFoundException);
     QCATCH(newWorld->setChild("France", country), NotFoundException);
@@ -143,8 +143,8 @@ void NodeTest::removeChild() {
 }
 
 void NodeTest::hasDirectChild() {
-    NodePtr world(new Node());
-    NodePtr country(new Node());
+    NodePtr world = CHILD_NODE();
+    NodePtr country = CHILD_NODE();
     QVERIFY(!world->hasDirectChild("France"));
     QVERIFY(world->hasDirectChild(country).isNull());
     world->addChild("France", country);
@@ -157,13 +157,13 @@ void NodeTest::hasDirectChild() {
 }
 
 void NodeTest::hasChild() {
-    NodePtr world(new Node());
-    NodePtr country(new Node());
+    NodePtr world = CHILD_NODE();
+    NodePtr country = CHILD_NODE();
     QVERIFY(!world->hasChild("France"));
     world->addChild("France", country);
     QVERIFY(world->hasChild("France"));
-    NodePtr newNewWorld(world->fork()->fork());
+    NodePtr newNewWorld = world->fork()->fork();
     QVERIFY(newNewWorld->hasChild("France"));
 }
 
-} // namespace Child
+CHILD_END

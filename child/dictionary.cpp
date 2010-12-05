@@ -1,15 +1,12 @@
 #include "child/dictionary.h"
 
-namespace Child {
-    CHILD_DEFINITION(NewDictionary, Object, Object);
+CHILD_BEGIN
 
-    void NewDictionary::initRoot() {
-        // TODO
-    }
+CHILD_DEFINITION(Dictionary, Object);
 
-    CHILD_DEFINITION(Dictionary, Object, Object);
-
-    void Dictionary::initRoot() {
-        // TODO
-    }
+bool Dictionary::initRoot() {
+    Object::root()->addChild("Dictionary", root());
+    return true;
 }
+
+CHILD_END

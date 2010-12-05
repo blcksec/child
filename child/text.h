@@ -4,9 +4,11 @@
 //#include "child/nativemethod.h"
 #include "child/object.h"
 
-namespace Child {
+CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Text, Object);
+
+#define CHILD_TEXT(...) TextPtr(new Text(__VA_ARGS__))
 
 class Text : public Object {
     CHILD_DECLARATION(Text, Object);
@@ -21,10 +23,10 @@ public:
     const QString value() const { return _value; }
     TextPtr setValue(const QString &value) { _value = value; return TextPtr(this); }
 
-    TextPtr upcase() { return TextPtr(new Text(value().toUpper())); }
+    TextPtr upcase() { return CHILD_TEXT(value().toUpper()); }
 
-    virtual Comparison compare(const NodePtr &other) const {
-        if(NodePtr(this) == other) return Equal;
+    virtual Comparison compare(const Node &other) const {
+        if(this == &other) return Equal;
         TextPtr otherText(other, true);
         if(!otherText) return Different;
         int result = value().compare(otherText->value());
@@ -45,6 +47,6 @@ private:
 
 CHILD_PTR_DEFINITION(Text, Object);
 
-} // namespace Child
+CHILD_END
 
 #endif // CHILD_TEXT_H

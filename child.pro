@@ -26,11 +26,9 @@ SOURCES += main.cpp \
     child/text.cpp \
     tests/texttest.cpp \
     child/list.cpp \
-    tests/listtest.cpp
-#    child/world.cpp \
-#    child/dictionary.cpp \
-#    tests/worldtest.cpp \
-#    tests/dictionarytest.cpp \
+    tests/listtest.cpp \
+    child/dictionary.cpp \
+    tests/dictionarytest.cpp
 #    child/application.cpp \
 #    child/block.cpp \
 #    child/message.cpp \
@@ -46,7 +44,9 @@ SOURCES += main.cpp \
 #    child/language/parser.cpp \
 #    child/language/operatortable.cpp \
 #    child/language/operator.cpp \
-#    child/language.cpp
+#    child/language.cpp \
+#    child/world.cpp \
+#    tests/worldtest.cpp
 
 HEADERS += \
     child.h \
@@ -62,11 +62,9 @@ HEADERS += \
     child/text.h \
     tests/texttest.h \
     child/list.h \
-    tests/listtest.h
-#    child/world.h \
-#    tests/worldtest.h \
-#    child/dictionary.h \
-#    tests/dictionarytest.h \
+    tests/listtest.h \
+    child/dictionary.h \
+    tests/dictionarytest.h
 #    child/application.h \
 #    child/block.h \
 #    child/message.h \
@@ -82,7 +80,9 @@ HEADERS += \
 #    child/language/primitive.h \
 #    child/language/parser.h \
 #    child/language/operatortable.h \
-#    child/language/operator.h
+#    child/language/operator.h \
+#    child/world.h \
+#    tests/worldtest.h
 
 OTHER_FILES += \
     notes/ideas.txt \

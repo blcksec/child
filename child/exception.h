@@ -3,34 +3,17 @@
 
 #include "child/node.h"
 
+CHILD_BEGIN
+
+CHILD_PTR_DECLARATION(Exception, Node);
+
+#define CHILD_EXCEPTION(...) ExceptionPtr(new Exception(__VA_ARGS__))
+
 #define CHILD_THROW(EXCEPTION, MESSAGE) \
 throw EXCEPTION##Ptr(new EXCEPTION(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO))
 
 #define CHILD_TODO \
 CHILD_THROW(Exception, "function not yet implemented")
-
-#define CHILD_EXCEPTION_DECLARATION(NAME, ORIGIN) \
-CHILD_PTR_DECLARATION(NAME, ORIGIN); \
-class NAME : public ORIGIN { \
-    CHILD_DECLARATION(NAME, ORIGIN); \
-public: \
-    NAME(const QString &message = "", const QString &file = "", const int line = 0, \
-         const QString &function = "", const NAME##Ptr &origin = find(#NAME)) : \
-        ORIGIN(message, file, line, function, origin) {} \
-    NAME(const ORIGIN##Ptr &origin) : ORIGIN(origin) {} \
-}; \
-CHILD_PTR_DEFINITION(NAME, ORIGIN);
-
-#define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
-CHILD_DEFINITION(NAME, ORIGIN); \
-bool NAME::initRoot() { \
-    Node::root()->addChild(#NAME, root()); \
-    return true; \
-}
-
-namespace Child {
-
-CHILD_PTR_DECLARATION(Exception, Node);
 
 class Exception : public Node {
     CHILD_DECLARATION(Exception, Node);
@@ -56,6 +39,25 @@ public:
 
 CHILD_PTR_DEFINITION(Exception, Node);
 
+#define CHILD_EXCEPTION_DECLARATION(NAME, ORIGIN) \
+CHILD_PTR_DECLARATION(NAME, ORIGIN); \
+class NAME : public ORIGIN { \
+    CHILD_DECLARATION(NAME, ORIGIN); \
+public: \
+    NAME(const QString &message = "", const QString &file = "", const int line = 0, \
+         const QString &function = "", const NAME##Ptr &origin = find(#NAME)) : \
+        ORIGIN(message, file, line, function, origin) {} \
+    NAME(const ORIGIN##Ptr &origin) : ORIGIN(origin) {} \
+}; \
+CHILD_PTR_DEFINITION(NAME, ORIGIN);
+
+#define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
+CHILD_DEFINITION(NAME, ORIGIN); \
+bool NAME::initRoot() { \
+    Node::root()->addChild(#NAME, root()); \
+    return true; \
+}
+
 CHILD_EXCEPTION_DECLARATION(LexerException, Exception);
 CHILD_EXCEPTION_DECLARATION(ParserException, Exception);
 CHILD_EXCEPTION_DECLARATION(RuntimeException, Exception);
@@ -68,6 +70,6 @@ CHILD_EXCEPTION_DECLARATION(TypecastException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(OperatingSystemException, Exception);
 CHILD_EXCEPTION_DECLARATION(FileSystemException, OperatingSystemException);
 
-} // namespace Child
+CHILD_END
 
 #endif // CHILD_EXCEPTION_H

@@ -4,7 +4,9 @@
 #include "tests/testhelper.h"
 #include "child/object.h"
 
+#ifdef CHILD_IS_NAMESPACED
 namespace Child {
+#endif
 
 class ObjectTest : public QObject
 {
@@ -23,6 +25,8 @@ private slots:
     void initialize();
 };
 
-} // namespace Child
+#ifdef CHILD_IS_NAMESPACED
+}
+#endif
 
 #endif // CHILD_OBJECTTEST_H

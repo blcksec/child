@@ -1,7 +1,7 @@
 #include "child/text.h"
 #include "child/exception.h"
 
-namespace Child {
+CHILD_BEGIN
 
 CHILD_DEFINITION(Text, Object);
 
@@ -76,4 +76,4 @@ QChar Text::unescapeSequenceNumber(const QString &source, int &i) {
     return QChar(code);
 }
 
-} // namespace Child
+CHILD_END

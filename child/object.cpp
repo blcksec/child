@@ -1,6 +1,6 @@
 #include "child/object.h"
 
-namespace Child {
+CHILD_BEGIN
 
 CHILD_DEFINITION(Object, Node);
 
@@ -9,4 +9,4 @@ bool Object::initRoot() {
     return true;
 }
 
-}  // namespace Child
+CHILD_END

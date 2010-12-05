@@ -5,7 +5,9 @@
 #include "child/text.h"
 #include "child/list.h"
 
+#ifdef CHILD_IS_NAMESPACED
 namespace Child {
+#endif
 
 class ListTest : public QObject
 {
@@ -18,7 +20,7 @@ private slots:
     }
 
     void cleanup() {
-        QCOMPARE(Node::nodeCount(), _initialNodeCount);
+        QVERIFY(Node::nodeCount() == _initialNodeCount);
     }
 
     void initialize();
@@ -27,6 +29,8 @@ private slots:
     void clear();
 };
 
-} // namespace Child
+#ifdef CHILD_IS_NAMESPACED
+}
+#endif
 
 #endif // CHILD_LISTTEST_H

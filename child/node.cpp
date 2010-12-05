@@ -3,7 +3,7 @@
 #include "child/node.h"
 #include "child/exception.h"
 
-namespace Child {
+CHILD_BEGIN
 
 bool Node::_initialized = Node::initRoot();
 
@@ -176,7 +176,7 @@ const QString Node::inspect() const {
     return str;
 }
 
-} // namespace Child
+CHILD_END
 
 /*
 namespace Child {

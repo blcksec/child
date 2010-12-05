@@ -4,16 +4,21 @@
 #include "child/exception.h"
 #include "child/object.h"
 
-namespace Child {
+CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(List, Object);
+
+#define CHILD_LIST(...) ListPtr(new List(__VA_ARGS__))
+
+#define CHILD_CHECK_VALUE(VALUE) \
+if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 
 class List : public Object {
     CHILD_DECLARATION(List, Object);
 public:
-    List(const QList<NodePtr> &other = QList<NodePtr>(), // default constructor
+    List(const NodeList &other = NodeList(), // default constructor
          const ListPtr &origin = find("Object")->child("List")) : Object(origin), _list(NULL) {
-        if(!other.empty()) _list = new QList<NodePtr>(other);
+        if(!other.isEmpty()) foreach(NodePtr node, other) append(node);
     }
 
     List(const ObjectPtr &origin) : Object(origin), _list(NULL) {} // root constructor
@@ -35,8 +40,8 @@ public:
 
     NodePtr insert(int i, const NodePtr &value) {
         checkIndex(i, true);
-        checkValue(value);
-        if(!_list) { _list = new QList<NodePtr>; }
+        CHILD_CHECK_VALUE(value);
+        if(!_list) { _list = new NodeList; }
         _list->insert(i, value);
         addAnonymousChild(value);
         return value;
@@ -63,7 +68,7 @@ public:
 
     NodePtr set(int i, const NodePtr &value) {
         checkIndex(i);
-        checkValue(value);
+        CHILD_CHECK_VALUE(value);
         removeAnonymousChild(_list->at(i));
         _list->replace(i, value);
         addAnonymousChild(value);
@@ -77,10 +82,10 @@ public:
     }
 
     bool hasValue(const NodePtr &value) const {
-        checkValue(value);
+        CHILD_CHECK_VALUE(value);
         if(_list)
             foreach(NodePtr node, *_list)
-                if(node->compare(value) == Equal) return true;
+                if(node->compare(*value) == Equal) return true;
         return false;
     }
 
@@ -133,15 +138,11 @@ public:
     const_iterator begin() const { return const_iterator(this); }
     const_iterator end() const { return const_iterator(this, size()); }
 private:
-    QList<NodePtr> *_list;
-
-    void checkValue(const NodePtr &value) const {
-        if(!value) CHILD_THROW(NullPointerException, "NodePtr is NULL");
-    }
+    NodeList *_list;
 };
 
 CHILD_PTR_DEFINITION(List, Object);
 
-} // namespace Child
+CHILD_END
 
 #endif // CHILD_LIST_H

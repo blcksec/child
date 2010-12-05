@@ -4,11 +4,14 @@
 #include <QtCore/QHash>
 #include <QtCore/QStack>
 
+#include "child.h"
 #include "child/toolbox.h"
 
-namespace Child {
+CHILD_BEGIN
 
 typedef unsigned long long int HugeUnsignedInteger;
+
+// === NodePtr ===
 
 class Node;
 
@@ -18,7 +21,9 @@ class NAME##Ptr : public ORIGIN##Ptr { \
 public: \
     NAME##Ptr() {} \
     explicit NAME##Ptr(const NAME &other); \
+    explicit NAME##Ptr(const Node &other, bool dynamicCast = false); \
     explicit NAME##Ptr(const NAME *other); \
+    NAME##Ptr(const NAME##Ptr &other); \
     NAME##Ptr(const NodePtr &other, bool dynamicCast = false); \
     static NAME##Ptr dynamicCast(const NodePtr &other); \
     \
@@ -31,7 +36,16 @@ public: \
 
 #define CHILD_PTR_DEFINITION(NAME, ORIGIN) \
 inline NAME##Ptr::NAME##Ptr(const NAME &other) { initData(&other); } \
+inline NAME##Ptr::NAME##Ptr(const Node &other, bool dynamicCast) { \
+    if(dynamicCast) \
+        initData(dynamic_cast<const NAME *>(&other)); \
+    else { \
+        CHILD_NODE_PTR_CHECK_CAST(NAME, &other); \
+        initData(&other); \
+    } \
+} \
 inline NAME##Ptr::NAME##Ptr(const NAME *other) { CHILD_NODE_PTR_CHECK_CAST(NAME, other); initData(other); } \
+inline NAME##Ptr::NAME##Ptr(const NAME##Ptr &other) : ORIGIN##Ptr(other) {} \
 inline NAME##Ptr::NAME##Ptr(const NodePtr &other, bool dynamicCast) { \
     if(dynamicCast) \
         initData(dynamic_cast<const NAME *>(other.data())); \
@@ -76,13 +90,21 @@ public:
     bool isNull() const { return !data(); }
     operator bool() const { return !isNull(); }
     bool operator!() const { return isNull(); }
-    bool operator==(const NodePtr &other) const { return data() == other.data(); }
-    bool operator==(const Node *other) const { return data() == other; }
-    bool operator!=(const NodePtr &other) const { return data() != other.data(); }
-    bool operator!=(const Node *other) const { return data() != other; }
 private:
     const Node *_data;
 };
+
+// === NodeRef ===
+
+class NodeRef : public NodePtr { // Can be used as key in hash (comparisons by value)
+public:
+    NodeRef() : NodePtr() {}
+    NodeRef(const NodePtr &other) : NodePtr(other) {}
+};
+
+// === Node ===
+
+#define CHILD_NODE(...) NodePtr(new Node(__VA_ARGS__))
 
 #define CHILD_DECLARATION(NAME, ORIGIN) \
 public: \
@@ -112,6 +134,9 @@ Node::throwTypecastException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 #define CHILD_CHECK_NODE_PTR(NODE_PTR) \
 if(!(NODE_PTR)) CHILD_THROW_NULL_POINTER_EXCEPTION("NodePtr is NULL")
 
+typedef QList<NodePtr> NodeList;
+typedef QHash<NodeRef, NodePtr> NodeHash;
+
 class Node {
 public:
     friend class NodePtr;
@@ -123,7 +148,7 @@ public:
 
     Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
         _children(NULL), _parents(NULL), _refCount(0) {
-        if(other._extensions) _extensions = new QList<NodePtr>(*other._extensions);
+        if(other._extensions) _extensions = new NodeList(*other._extensions);
         if(other._children) {
             QHashIterator<QString, NodePtr> i(other.children());
             while(i.hasNext()) { i.next(); addChild(i.key(), i.value()); }
@@ -138,14 +163,14 @@ public:
 
     static NodePtr find(const QString &name);
 
-    virtual NodePtr fork() const { return NodePtr(new Node(NodePtr(this))); }
+    virtual NodePtr fork() const { return CHILD_NODE(NodePtr(this)); }
 
     virtual const QString className() const { return "Node"; }
 
     const NodePtr &origin() const { return _origin; }
     void setOrigin(const NodePtr &node);
 
-    QList<NodePtr> extensions() const { return _extensions ? *_extensions : QList<NodePtr>(); }
+    NodeList extensions() const { return _extensions ? *_extensions : NodeList(); }
 
     void addExtension(const NodePtr &node);
     void prependExtension(const NodePtr &node);
@@ -188,9 +213,9 @@ public:
     }
 
     const QHash<QString, NodePtr> children() const;
-    const QList<NodePtr> parents() const;
+    const NodeList parents() const;
 
-    virtual Comparison compare(const NodePtr &other) const { return this == other.data() ? Equal : Different; }
+    virtual Comparison compare(const Node &other) const { return this == &other ? Equal : Different; }
     virtual uint hash() const { return ::qHash(this); }
 
     static HugeUnsignedInteger &nodeCount() {
@@ -230,7 +255,7 @@ public:
 private:
     static bool _initialized;
     NodePtr _origin;
-    QList<NodePtr> *_extensions;
+    NodeList *_extensions;
     QHash<QString, NodePtr> *_children;
     mutable QHash<const Node *, HugeUnsignedInteger> *_parents;
     mutable HugeUnsignedInteger _refCount;
@@ -243,11 +268,11 @@ private:
     void release() const { if(--_refCount == 0) delete this; }
 };
 
-inline bool operator==(const Node &a, const Node &b) { return a.compare(NodePtr(b)) == Node::Equal; }
-inline bool operator!=(const Node &a, const Node &b) { return a.compare(NodePtr(b)) != Node::Equal; }
+inline bool operator==(const Node &a, const Node &b) { return a.compare(b) == Node::Equal; }
+inline bool operator!=(const Node &a, const Node &b) { return a.compare(b) != Node::Equal; }
 inline uint qHash(const Node &node) { return node.hash(); }
 
-// NodePtr inline definitions
+// === NodePtr inline definitions ===
 
 inline NodePtr::NodePtr() : _data(NULL) {}
 inline NodePtr::NodePtr(const Node &other) { initData(&other); }
@@ -277,9 +302,17 @@ inline Node *NodePtr::operator->() { CHILD_NODE_PTR_CHECK_DATA; return data(); }
 inline const Node *NodePtr::operator->() const { CHILD_NODE_PTR_CHECK_DATA; return data(); };
 inline NodePtr &NodePtr::operator=(const NodePtr &other) { setData(other.data()); return *this; }
 
+inline bool operator==(const NodePtr &a, const NodePtr &b) { return a.data() == b.data(); }
+inline bool operator!=(const NodePtr &a, const NodePtr &b) { return a.data() != b.data(); }
 inline uint qHash(const NodePtr &node) { return ::qHash(node.data()); }
 
-} // namespace Child
+// === NodeRef inline definitions ===
+
+inline bool operator==(const NodeRef &a, const NodeRef &b) { return a->compare(*b) == Node::Equal; }
+inline bool operator!=(const NodeRef &a, const NodeRef &b) { return a->compare(*b) != Node::Equal; }
+inline uint qHash(const NodeRef &node) { return node->hash(); }
+
+CHILD_END
 
 /*
 #define CHILD_DECLARATION(NAME, ORIGIN, PARENT) \

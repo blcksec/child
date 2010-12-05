@@ -1,6 +1,6 @@
 #include "child/list.h"
 
-namespace Child {
+CHILD_BEGIN
 
 CHILD_DEFINITION(List, Object);
 
@@ -9,4 +9,4 @@ bool List::initRoot() {
     return true;
 }
 
-} // namespace Child
+CHILD_END

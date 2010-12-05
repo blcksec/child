@@ -4,7 +4,9 @@
 #include "tests/testhelper.h"
 #include "child/text.h"
 
+#ifdef CHILD_IS_NAMESPACED
 namespace Child {
+#endif
 
 class TextTest : public QObject
 {
@@ -26,6 +28,8 @@ private slots:
     void upcase();
 };
 
-} // namespace Child
+#ifdef CHILD_IS_NAMESPACED
+}
+#endif
 
 #endif // CHILD_TEXTTEST_H

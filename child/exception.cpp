@@ -2,7 +2,7 @@
 
 #include "child/exception.h"
 
-namespace Child {
+CHILD_BEGIN
 
 CHILD_EXCEPTION_DEFINITION(Exception, Node);
 
@@ -28,4 +28,4 @@ CHILD_EXCEPTION_DEFINITION(TypecastException, RuntimeException);
 CHILD_EXCEPTION_DEFINITION(OperatingSystemException, Exception);
 CHILD_EXCEPTION_DEFINITION(FileSystemException, OperatingSystemException);
 
-} // namespace Child
+CHILD_END

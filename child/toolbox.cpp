@@ -2,7 +2,7 @@
 
 #include "child/exception.h"
 
-namespace Child {
+CHILD_BEGIN
 
 QString readTextFile(const QString &name) {
     QFile file(name);
@@ -70,4 +70,4 @@ const bool computeColumnAndLineForPosition(const QString &text, const int positi
     return false;
 }
 
-} // namespace Child
+CHILD_END

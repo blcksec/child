@@ -6,11 +6,12 @@
 #include "tests/runalltests.h"
 //#include "child/application.h"
 
-using namespace Child;
+CHILD_USE
 
 int main() { // int argc, char *argv[]
     init();
     runAllTests();
+//    NodeRef r2(t2);
 //    try {
 //        CHILD_THROW(LexerException, "key not found");
 //    } catch(ExceptionPtr e) {

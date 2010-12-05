@@ -6,9 +6,9 @@
 #include "tests/objecttest.h"
 #include "tests/texttest.h"
 #include "tests/listtest.h"
-//#include "tests/dictionarytest.h"
+#include "tests/dictionarytest.h"
 
-namespace Child {
+CHILD_BEGIN
 
 static int testFailureCount;
 
@@ -36,13 +36,13 @@ static void runAllTests() {
         test(new ObjectTest);
         test(new TextTest);
         test(new ListTest);
-//        test(new DictionaryTest);
+        test(new DictionaryTest);
         endTests();
     } catch(ExceptionPtr e) {
         qDebug() << e->report().toUtf8();
     }
 }
 
-} // namespace Child
+CHILD_END
 
 #endif // CHILD_RUNALLTESTS_H

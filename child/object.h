@@ -3,9 +3,11 @@
 
 #include "child/node.h"
 
-namespace Child {
+CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Object, Node);
+
+#define CHILD_OBJECT(...) ObjectPtr(new Object(__VA_ARGS__))
 
 class Object : public Node {
     CHILD_DECLARATION(Object, Node);
@@ -19,6 +21,6 @@ public:
 
 CHILD_PTR_DEFINITION(Object, Node);
 
-} // namespace Child
+CHILD_END
 
 #endif // CHILD_OBJECT_H

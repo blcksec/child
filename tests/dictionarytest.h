@@ -5,34 +5,34 @@
 #include "child/text.h"
 #include "child/dictionary.h"
 #include "child/list.h"
-#include "child/world.h"
 
+#ifdef CHILD_IS_NAMESPACED
 namespace Child {
-    class DictionaryTest : public QObject
-    {
-        Q_OBJECT
-    private:
-        long long int _initialNodeCount;
-    private slots:
-        void initTestCase() {
-            Dictionary::root();
-            NewDictionary::root();
-        }
+#endif
 
-        void init() {
-            _initialNodeCount = Node::nodeCount();
-        }
+class DictionaryTest : public QObject
+{
+    Q_OBJECT
+private:
+    HugeUnsignedInteger _initialNodeCount;
+private slots:
+    void init() {
+        _initialNodeCount = Node::nodeCount();
+    }
 
-        void cleanup() {
-            QVERIFY(Node::nodeCount() == _initialNodeCount);
-        }
+    void cleanup() {
+        QVERIFY(Node::nodeCount() == _initialNodeCount);
+    }
 
-        void initialize();
-        void getAndSet();
-        void keys();
-        void remove();
-        void clear();
-    };
+    void initialize();
+    void getAndSet();
+    void keys();
+    void remove();
+    void clear();
+};
+
+#ifdef CHILD_IS_NAMESPACED
 }
+#endif
 
 #endif // CHILD_DICTIONARYTEST_H

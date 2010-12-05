@@ -2,10 +2,10 @@
 #include "child/node.h"
 #include "child/exception.h"
 
-namespace Child {
+CHILD_BEGIN
 
 void init() {
     Node::pushContext(Node::root());
 }
 
-} // namespace Child
+CHILD_END
