@@ -4,8 +4,7 @@
 #include "child/node.h"
 #include "child/exception.h"
 #include "tests/runalltests.h"
-#include "child/language.h"
-#include "child/number.h"
+#include "child/language/operatortable.h"
 //#include "child/application.h"
 
 CHILD_USE
@@ -13,7 +12,10 @@ CHILD_USE
 int main() { // int argc, char *argv[]
     init();
     runAllTests();
-    PP;
+    using namespace Language;
+    OperatorTablePtr ops(CHILD_OPERATOR_TABLE());
+    ops->append("+", Operator::Binary, 1);
+    ops->append("-", Operator::Binary, 2);
 //    NodeRef r2(t2);
 //    try {
 //        CHILD_THROW(LexerException, "key not found");

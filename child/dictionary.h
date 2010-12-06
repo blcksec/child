@@ -43,7 +43,7 @@ public:
     static void initRoot() { Object::root()->addChild("Dictionary", root()); }
 
     virtual NodePtr fork() const {
-        DictionaryPtr dict(new Dictionary(NodePtr(this)));
+        DictionaryPtr dict = new Dictionary(this);
         if(isNotEmpty()) {
             NodeHashIterator i(*_hash);
             while(i.hasNext()) { i.next(); dict->set(i.key(), i.value()->fork()); }
@@ -88,12 +88,12 @@ public:
         if(!(_hash && (oldValue = _hash->value(key)))) CHILD_THROW(NotFoundException, "key not found");
         removeAnonymousChild(oldValue);
         _hash->remove(key);
-        return DictionaryPtr(this);
+        return this;
     }
 
     DictionaryPtr clear() {
         foreach(NodeRef key, keys()) remove(key);
-        return DictionaryPtr(this);
+        return this;
     }
 
     virtual const QString inspect() const {

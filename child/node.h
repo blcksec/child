@@ -22,7 +22,7 @@ public: \
     NAME##Ptr() {} \
     explicit NAME##Ptr(const NAME &other); \
     explicit NAME##Ptr(const Node &other, bool dynamicCast = false); \
-    explicit NAME##Ptr(const NAME *other); \
+    NAME##Ptr(const NAME *other); \
     NAME##Ptr(const NAME##Ptr &other); \
     NAME##Ptr(const NodePtr &other, bool dynamicCast = false); \
     static NAME##Ptr dynamicCast(const NodePtr &other); \
@@ -32,6 +32,7 @@ public: \
     NAME *operator->(); \
     const NAME *operator->() const; \
     NAME##Ptr &operator=(const NAME##Ptr &other); \
+    static const NAME##Ptr &null() { static const NAME##Ptr _null; return _null; }; \
 };
 
 #define CHILD_PTR_DEFINITION(NAME, ORIGIN) \
@@ -54,7 +55,7 @@ inline NAME##Ptr::NAME##Ptr(const NodePtr &other, bool dynamicCast) { \
         initData(other.data()); \
     } \
 } \
-inline NAME##Ptr NAME##Ptr::dynamicCast(const NodePtr &other) { return NAME##Ptr(dynamic_cast<const NAME *>(other.data())); } \
+inline NAME##Ptr NAME##Ptr::dynamicCast(const NodePtr &other) { return dynamic_cast<const NAME *>(other.data()); } \
 \
 inline NAME &NAME##Ptr::operator*() { CHILD_NODE_PTR_CHECK_DATA; return *static_cast<NAME *>(data()); }; \
 inline const NAME &NAME##Ptr::operator*() const { CHILD_NODE_PTR_CHECK_DATA; return *static_cast<const NAME *>(data()); }; \
@@ -72,7 +73,7 @@ class NodePtr {
 public:
     NodePtr();
     explicit NodePtr(const Node &other);
-    explicit NodePtr(const Node *other);
+    NodePtr(const Node *other);
     NodePtr(const NodePtr &other);
     virtual ~NodePtr();
 
@@ -91,6 +92,8 @@ public:
     bool isNotNull() const { return data(); }
     operator bool() const { return !isNull(); }
     bool operator!() const { return isNull(); }
+
+    static const NodePtr &null() { static const NodePtr _null; return _null; };
 private:
     const Node *_data;
 };
@@ -164,7 +167,7 @@ public:
     virtual ~Node();
 
     static void initRoot() { root()->addChild("Node", root()); }
-    virtual NodePtr fork() const { return NodePtr(new Node(NodePtr(this))); }
+    virtual NodePtr fork() const { return new Node(this); }
 
     const NodePtr &origin() const { return _origin; }
     void setOrigin(const NodePtr &node);

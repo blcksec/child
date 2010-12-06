@@ -29,9 +29,7 @@ public:
 
     static void initRoot() { Node::root()->addChild("Exception", root()); }
 
-    virtual NodePtr fork() const {
-        return NodePtr(new Exception(NodePtr(this), message, file, line, function));
-    }
+    virtual NodePtr fork() const { return new Exception(this, message, file, line, function); }
 
     const QString report() const;
 
@@ -50,7 +48,7 @@ public: \
         ORIGIN(origin, message, file, line, function) {} \
     static void initRoot() { Node::root()->addChild(#NAME, root()); } \
     virtual NodePtr fork() const { \
-        return NodePtr(new NAME(NodePtr(this), message, file, line, function)); \
+        return new NAME(this, message, file, line, function); \
     } \
 }; \
 CHILD_PTR_DEFINITION(NAME, ORIGIN);

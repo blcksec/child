@@ -20,7 +20,7 @@ Node::~Node() {
 NodePtr &Node::root() {
     static NodePtr _root;
     if(!_root) {
-        _root = NodePtr(new Node(NodePtr()));
+        _root = new Node(NULL);
         initRoot();
     }
     return _root;
@@ -90,7 +90,7 @@ void Node::removeChild(const QString &name) {
     if(NodePtr current = hasChild(name, true, false, &isDirect)) {
         if(isDirect) current->_removeParent(this);
     } else CHILD_THROW(NotFoundException, "child not found");
-    _setChild(name, NodePtr());
+    _setChild(name, NULL);
 }
 
 const NodePtr Node::hasChild(const QString &name, bool searchInParents,
@@ -119,7 +119,7 @@ const QHash<QString, NodePtr> Node::children() const {
 
 const QList<NodePtr> Node::parents() const {
     QList<NodePtr> parents;
-    if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(NodePtr(parent));
+    if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(parent);
     return parents;
 }
 

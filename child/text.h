@@ -16,7 +16,7 @@ public:
     Text(const NodePtr &origin, const QString &value = "") : Object(origin), _value(value) {}
 //    Text(const Text &other) : Object(other), _value(other._value) {}
     static void initRoot() { Object::root()->addChild("Text", root()); }
-    virtual NodePtr fork() const { return NodePtr(new Text(NodePtr(this), _value)); }
+    virtual NodePtr fork() const { return new Text(this, _value); }
 
     const QString value() const { return _value; }
     void setValue(const QString &value) { _value = value; }

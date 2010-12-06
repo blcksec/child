@@ -1,45 +1,49 @@
 #ifndef CHILD_OPERATOR_H
 #define CHILD_OPERATOR_H
 
-#include "child/object.h"
 #include "child/language.h"
 
-namespace Child {
-    namespace Language {
-        class Operator : public Object {
-            CHILD_DECLARATION(Operator, Object, Language);
-        public:
-            enum Type { Null, Prefix, Postfix, Binary };
-            enum Associativity { LeftAssociative, RightAssociative, NonAssociative };
-            static const short namePrecedence = 511;
+CHILD_BEGIN
 
-            QString text;
-            Type type;
-            short precedence;
-            Associativity associativity;
-            QString name;
+namespace Language {
+    CHILD_PTR_DECLARATION(Operator, Object);
 
-            Operator(const QString &text = "", Type type = Null, short precedence = 0,
-                     Associativity associativity = LeftAssociative, const QString &name = "")
-                         : text(text), type(type), precedence(precedence), associativity(associativity), name(name) {
-                if(name.isEmpty()) this->name = text;
-            }
+    #define CHILD_OPERATOR(ARGS...) \
+    OperatorPtr(new Operator(Node::findInContext("Object")->child("Language")->child("Operator"), ##ARGS))
 
-            virtual void initFork() {
-                Operator *orig = Operator::as(origin());
-                text = orig->text;
-                type = orig->type;
-                precedence = orig->precedence;
-                associativity = orig->associativity;
-                name = orig->name;
-            }
+    class Operator : public Object {
+        CHILD_DECLARATION(Operator, Object);
+    public:
+        enum Type { Null, Prefix, Postfix, Binary };
+        enum Associativity { LeftAssociative, RightAssociative, NonAssociative };
+        static const short namePrecedence = 511;
 
-            const bool isNull() const { return type == Null; }
+        QString text;
+        Type type;
+        short precedence;
+        Associativity associativity;
+        QString name;
 
-            virtual const QString inspect() const { return QString("\"%1\"").arg(name); }
-        private:
-        };
-    }
+        Operator(const NodePtr &origin, const QString &text = "", Type type = Null, short precedence = 0,
+                Associativity associativity = LeftAssociative, const QString &name = "") :
+            Object(origin), text(text), type(type), precedence(precedence), associativity(associativity),name(name) {
+            if(name.isEmpty()) this->name = text;
+        }
+
+        static void initRoot() { Language::root()->addChild("Operator", root()); }
+
+        virtual NodePtr fork() const {
+            return new Operator(this, text, type, precedence, associativity, name);
+        }
+
+        const bool isNull() const { return type == Null; }
+
+        virtual const QString inspect() const { return QString("\"%1\"").arg(name); }
+    };
+
+    CHILD_PTR_DEFINITION(Operator, Object);
 }
+
+CHILD_END
 
 #endif // CHILD_OPERATOR_H

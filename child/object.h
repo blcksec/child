@@ -14,7 +14,7 @@ class Object : public Node {
 public:
     Object(const NodePtr &origin) : Node(origin) {}
     static void initRoot() { Node::root()->addChild("Object", root()); }
-    virtual NodePtr fork() const { return NodePtr(new Object(NodePtr(this))); }
+    virtual NodePtr fork() const { return new Object(this); }
 };
 
 CHILD_PTR_DEFINITION(Object, Node);

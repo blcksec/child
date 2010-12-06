@@ -1,11 +1,9 @@
 #include "child/language/operator.h"
 
-namespace Child {
-    namespace Language {
-        CHILD_DEFINITION(Operator, Object, Language);
+CHILD_BEGIN
 
-        void Operator::initRoot() {
-            // TODO
-        }
-    }
+namespace Language {
+    CHILD_DEFINITION(Operator, Object);
 }
+
+CHILD_END

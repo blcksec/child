@@ -14,7 +14,7 @@ class Character : public Object {
 public:
     Character(const NodePtr &origin, QChar value = QChar::Null) : Object(origin), _value(value) {}
     static void initRoot() { Object::root()->addChild("Character", root()); }
-    virtual NodePtr fork() const { return NodePtr(new Character(NodePtr(this), _value)); }
+    virtual NodePtr fork() const { return new Character(this, _value); }
 
     QChar value() const { return _value; }
     void setValue(QChar value) { _value = value; }

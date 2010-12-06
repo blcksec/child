@@ -199,3 +199,9 @@ Language
     Section
     SourceCode
     Token
+
+OperatorTable
+    List<OperatorPtr>
+    Hash<Pair<String, Type>, OperatorPtr> textsAndTypes
+    Set<String> texts
+    String firstChars

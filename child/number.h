@@ -14,7 +14,7 @@ class Number : public Object {
 public:
     Number(const NodePtr &origin, double value = 0) : Object(origin), _value(value) {}
     static void initRoot() { Object::root()->addChild("Number", root()); }
-    virtual NodePtr fork() const { return NodePtr(new Number(NodePtr(this), _value)); }
+    virtual NodePtr fork() const { return new Number(this, _value); }
 
     double value() const { return _value; }
     void setValue(double value) { _value = value; }
