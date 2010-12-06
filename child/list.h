@@ -1,7 +1,6 @@
 #ifndef CHILD_LIST_H
 #define CHILD_LIST_H
 
-#include "child/exception.h"
 #include "child/object.h"
 
 CHILD_BEGIN
@@ -9,7 +8,7 @@ CHILD_BEGIN
 #define CHILD_CHECK_VALUE(VALUE) \
 if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 
-template<class P, class T>
+template<class C, class T>
 class GenericList : public Object {
 public:
     GenericList(const NodePtr &origin, const QList<T> &other = QList<T>()) : Object(origin), _list(NULL) {
@@ -34,7 +33,7 @@ public:
     }
 
     void initFork() {
-        P orig = origin();
+        C orig = origin();
         if(orig->isNotEmpty()) {
             foreach(T node, *orig->_list) _append(node->fork());
             hasChanged();
@@ -51,7 +50,7 @@ public:
         addAnonymousChild(value);
     }
 
-    P insert(int i, const P &otherList) {
+    C insert(int i, const C &otherList) {
         checkIndex(i, true);
         if(!otherList) CHILD_THROW(NullPointerException, "ListPtr is NULL");
         for(int j = 0; j < otherList->size(); j++) {
@@ -63,14 +62,21 @@ public:
 
     T append(const T &value) { return insert(size(), value); }
     T _append(const T &value) { _insert(size(), value); return value; }
-    P append(const P &otherList) { return insert(size(), otherList); }
+    C append(const C &otherList) { return insert(size(), otherList); }
     T prepend(const T &value) { return insert(0, value); }
-    P prepend(const P &otherList) { return insert(0, otherList); }
+    C prepend(const C &otherList) { return insert(0, otherList); }
 
     T get(int i) const {
         checkIndex(i);
         return _list->at(i);
     }
+
+    T first() const { return get(0); }
+    T second() const { return get(1); }
+    T third() const { return get(2); }
+    T fourth() const { return get(3); }
+    T fifth() const { return get(4); }
+    T last() const { return get(size()-1); }
 
     T set(int i, const T &value) {
         checkIndex(i);
@@ -126,17 +132,18 @@ public:
     virtual const QString inspect() const {
         QString str = "[";
         bool first = true;
-        for(int i = 0; i < size(); i++) {
-            if(!first) str.append(", "); else first = false;
-            str.append(get(i)->inspect());
+        Iterator i(C(this));
+        while(T value = i.next()) {
+            if(!first) str += ", "; else first = false;
+            str += value->inspect();
         }
-        str.append("]");
+        str += "]";
         return str;
     }
 
     class Iterator {
     public:
-        Iterator(const P &list) : _iterator(QListIterator<T>(*list->_list)) {}
+        Iterator(const C &list) : _iterator(QListIterator<T>(*list->_list)) {}
 
         bool hasNext() const { return _iterator.hasNext(); }
         const T &next() { return hasNext() ? _iterator.next() : T::null(); }
@@ -157,8 +164,8 @@ public:
 
 //    const_iterator begin() const { return const_iterator(this); }
 //    const_iterator end() const { return const_iterator(this, size()); }
+private:
     QList<T> *_list;
-    private:
 };
 
 CHILD_PTR_DECLARATION(List, Object);

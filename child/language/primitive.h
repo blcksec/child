@@ -1,35 +1,34 @@
 #ifndef CHILD_PRIMITIVE_H
 #define CHILD_PRIMITIVE_H
 
-#include "child/object.h"
+#include "child/element.h"
 #include "child/language.h"
 
-namespace Child {
-    namespace Language {
-        class Primitive : public Object {
-            CHILD_DECLARATION(Primitive, Object, Language);
-        public:
-            Primitive() : _value(NULL) {}
+CHILD_BEGIN
 
-            virtual ~Primitive() {
-                delete _value;
-            }
+namespace Language {
+    CHILD_PTR_DECLARATION(Primitive, Element);
 
-            Node *value() const { return _value; }
-            void setValue(Node *value) { _value = value; }
+    #define CHILD_PRIMITIVE(ARGS...) \
+    PrimitivePtr(new Primitive(Node::findInContext("Object")->child("Language")->child("Primitive"), ##ARGS))
 
-            const QStringRef &sourceCodeRef() const { return _sourceCodeRef; }
-            void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }
+    class Primitive : public Element {
+        CHILD_DECLARATION(Primitive, Element);
+    public:
+        Primitive(const NodePtr &origin, const NodePtr &value = NULL) : Element(origin, value) {}
 
-            virtual const QString inspect() const {
-                if(!value()) return "NULL";
-                return value()->inspect();
-            }
-        private:
-            Node *_value;
-            QStringRef _sourceCodeRef;
-        };
-    }
+        static void initRoot() { Language::root()->addChild("Primitive", root()); }
+        virtual NodePtr fork() const { return new Primitive(this, value()); }
+
+        const QStringRef &sourceCodeRef() const { return _sourceCodeRef; }
+        void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }
+    private:
+        QStringRef _sourceCodeRef;
+    };
+
+    CHILD_PTR_DEFINITION(Primitive, Element);
 }
+
+CHILD_END
 
 #endif // CHILD_PRIMITIVE_H

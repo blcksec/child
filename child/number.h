@@ -1,30 +1,26 @@
 #ifndef CHILD_NUMBER_H
 #define CHILD_NUMBER_H
 
-#include "child/object.h"
+#include "child/element.h"
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Number, Object);
+CHILD_PTR_DECLARATION(Number, Element);
 
 #define CHILD_NUMBER(ARGS...) NumberPtr(new Number(Node::findInContext("Object")->child("Number"), ##ARGS))
 
-class Number : public Object {
-    CHILD_DECLARATION(Number, Object);
+class Number : public GenericElement<NumberPtr, double> {
+    CHILD_DECLARATION(Number, Element);
 public:
-    Number(const NodePtr &origin, double value = 0) : Object(origin), _value(value) {}
-    static void initRoot() { Object::root()->addChild("Number", root()); }
-    virtual NodePtr fork() const { return new Number(this, _value); }
+    Number(const NodePtr &origin, const double value = 0) : GenericElement<NumberPtr, double>(origin, value) {}
 
-    double value() const { return _value; }
-    void setValue(double value) { _value = value; }
+    static void initRoot() { Object::root()->addChild("Number", root()); }
+    virtual NodePtr fork() const { return new Number(this, value()); }
 
     virtual const QString inspect() const { return QString("%1").arg(value()); }
-private:
-    double _value;
 };
 
-CHILD_PTR_DEFINITION(Number, Object);
+CHILD_PTR_DEFINITION(Number, Element);
 
 CHILD_END
 

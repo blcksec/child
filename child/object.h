@@ -2,6 +2,7 @@
 #define CHILD_OBJECT_H
 
 #include "child/node.h"
+#include "child/exception.h"
 
 CHILD_BEGIN
 

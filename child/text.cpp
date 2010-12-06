@@ -1,9 +1,8 @@
 #include "child/text.h"
-#include "child/exception.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Text, Object);
+CHILD_DEFINITION(Text, Element);
 
 QString Text::unescapeSequence(const QString &source) {
     QString result;

@@ -1,11 +1,9 @@
 #include "child/language/primitive.h"
 
-namespace Child {
-    namespace Language {
-        CHILD_DEFINITION(Primitive, Object, Language);
+CHILD_BEGIN
 
-        void Primitive::initRoot() {
-            // TODO
-        }
-    }
+namespace Language {
+    CHILD_DEFINITION(Primitive, Element);
 }
+
+CHILD_END

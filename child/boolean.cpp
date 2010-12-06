@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Boolean, Object);
+CHILD_DEFINITION(Boolean, Element);
 
 CHILD_END

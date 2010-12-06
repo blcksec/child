@@ -1,30 +1,26 @@
 #ifndef CHILD_BOOLEAN_H
 #define CHILD_BOOLEAN_H
 
-#include "child/object.h"
+#include "child/element.h"
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Boolean, Object);
+CHILD_PTR_DECLARATION(Boolean, Element);
 
 #define CHILD_BOOLEAN(ARGS...) BooleanPtr(new Boolean(Node::findInContext("Object")->child("Boolean"), ##ARGS))
 
-class Boolean : public Object {
-    CHILD_DECLARATION(Boolean, Object);
+class Boolean : public GenericElement<BooleanPtr, bool> {
+    CHILD_DECLARATION(Boolean, Element);
 public:
-    Boolean(const NodePtr &origin, bool value = false) : Object(origin), _value(value) {}
-    static void initRoot() { Object::root()->addChild("Boolean", root()); }
-    virtual NodePtr fork() const { return new Boolean(this, _value); }
+    Boolean(const NodePtr &origin, const bool value = false) : GenericElement<BooleanPtr, bool>(origin, value) {}
 
-    bool value() const { return _value; }
-    void setValue(bool value) { _value = value; }
+    static void initRoot() { Object::root()->addChild("Boolean", root()); }
+    virtual NodePtr fork() const { return new Boolean(this, value()); }
 
     virtual const QString inspect() const { return value() ? "true" : "false"; }
-private:
-    bool _value;
 };
 
-CHILD_PTR_DEFINITION(Boolean, Object);
+CHILD_PTR_DEFINITION(Boolean, Element);
 
 CHILD_END
 

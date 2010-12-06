@@ -23,11 +23,13 @@ SOURCES += main.cpp \
 #    child/nativemethod.cpp \
     child/object.cpp \
     tests/objecttest.cpp \
+    child/element.cpp \
     child/boolean.cpp \
     child/number.cpp \
     child/character.cpp \
     child/text.cpp \
     tests/texttest.cpp \
+    child/pair.cpp \
     child/list.cpp \
     tests/listtest.cpp \
     child/dictionary.cpp \
@@ -38,9 +40,9 @@ SOURCES += main.cpp \
     child/language.cpp \
 #    child/language/token.cpp \
     child/language/operator.cpp \
-    child/language/operatortable.cpp
-#    child/language/primitive.cpp \
-#    child/language/primitivechain.cpp \
+    child/language/operatortable.cpp \
+    child/language/primitive.cpp \
+    child/language/primitivechain.cpp
 #    child/language/section.cpp \
 #    child/language/sourcecode.cpp \
 #    child/language/lexer.cpp \
@@ -59,11 +61,13 @@ HEADERS += \
 #    child/nativemethod.h \
     child/object.h \
     tests/objecttest.h \
+    child/element.h \
     child/boolean.h \
     child/number.h \
     child/character.h \
     child/text.h \
     tests/texttest.h \
+    child/pair.h \
     child/list.h \
     tests/listtest.h \
     child/dictionary.h \
@@ -74,9 +78,9 @@ HEADERS += \
     child/language.h \
 #    child/language/token.h \
     child/language/operator.h \
-    child/language/operatortable.h
-#    child/language/primitive.h \
-#    child/language/primitivechain.h \
+    child/language/operatortable.h \
+    child/language/primitive.h \
+    child/language/primitivechain.h
 #    child/language/section.h \
 #    child/language/sourcecode.h \
 #    child/language/lexer.h \

@@ -1,7 +1,6 @@
 #ifndef CHILD_DICTIONARY_H
 #define CHILD_DICTIONARY_H
 
-#include "child/exception.h"
 #include "child/object.h"
 
 CHILD_BEGIN

@@ -1,11 +1,9 @@
 #include "child/language/primitivechain.h"
 
-namespace Child {
-    namespace Language {
-        CHILD_DEFINITION(PrimitiveChain, Object, Language);
+CHILD_BEGIN
 
-        void PrimitiveChain::initRoot() {
-            // TODO
-        }
-    }
+namespace Language {
+    CHILD_DEFINITION(PrimitiveChain, Element);
 }
+
+CHILD_END

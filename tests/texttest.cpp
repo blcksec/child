@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 void TextTest::initialize() {
-    QCOMPARE(Text::root()->origin(), Object::root());
+    QCOMPARE(Text::root()->origin(), Element::root());
     QCOMPARE(Object::root()->child("Text"), Text::root());
 }
 

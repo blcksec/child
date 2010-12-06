@@ -3,7 +3,6 @@
 
 #include <QtCore/QSet>
 
-#include "child/exception.h"
 #include "child/list.h"
 #include "child/language/operator.h"
 
@@ -18,16 +17,10 @@ namespace Language {
     class OperatorTable : public GenericList<OperatorTablePtr, OperatorPtr> {
         CHILD_DECLARATION(OperatorTable, List);
     public:
-        OperatorTable(const NodePtr &origin) : GenericList<OperatorTablePtr, OperatorPtr>(origin),
-            _texts(NULL), _textsAndTypes(NULL) {}
+        OperatorTable(const NodePtr &origin) : GenericList<OperatorTablePtr, OperatorPtr>(origin) {}
 
         static void initRoot() { Language::root()->addChild("OperatorTable", root()); }
         virtual NodePtr fork() const { CHILD_TODO; return new OperatorTable(this); }
-
-        virtual ~OperatorTable() {
-            delete _texts;
-            delete _textsAndTypes;
-        }
 
         void append(const QString &text, Operator::Type type, short precedence,
                          Operator::Associativity associativity = Operator::LeftAssociative,
@@ -36,32 +29,32 @@ namespace Language {
                         CHILD_OPERATOR(text, type, precedence, associativity, name));
         }
 
-//        Operator *find(const QString &text, const Operator::Type type) const;
+        bool has(const QString &text) const {
+            return _texts.contains(text);
+        }
 
-//        bool hasOperator(const QString &text) const {
-//            return operators()->hasKey(text);
-//        }
+        OperatorPtr has(const QString &text, const Operator::Type type) const {
+            return _textsAndTypes.value(QPair<QString, Operator::Type>(text, type));
+        }
 
-//        bool hasOperatorStartingWith(const QChar c) const {
-//            return _firstChars.contains(c);
-//        }
+        bool hasOperatorStartingWith(const QChar c) const {
+            return _firstChars.contains(c);
+        }
 
         virtual void hasChanged() {
-            if(_texts) _texts->clear(); else _texts = new QSet<QString>;
-            if(_textsAndTypes)
-                _textsAndTypes->clear();
-            else
-                _textsAndTypes = new QHash<QPair<QString, Operator::Type>, OperatorPtr>;
+            _texts.clear();
+            _textsAndTypes.clear();
+            _firstChars.clear();
             Iterator i(this);
             while(OperatorPtr op = i.next()) {
-                _texts->insert(op->text);
-                _textsAndTypes->insert(QPair<QString, Operator::Type>(op->text, op->type), op);
+                _texts.insert(op->text);
+                _textsAndTypes.insert(QPair<QString, Operator::Type>(op->text, op->type), op);
                 if(!_firstChars.contains(op->text.at(0))) _firstChars += op->text.at(0);
             }
         }
     private:
-        QSet<QString> *_texts;
-        QHash<QPair<QString, Operator::Type>, OperatorPtr> *_textsAndTypes;
+        QSet<QString> _texts;
+        QHash<QPair<QString, Operator::Type>, OperatorPtr> _textsAndTypes;
         QString _firstChars;
     };
 
