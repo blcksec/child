@@ -6,7 +6,8 @@
 CHILD_BEGIN
 
 namespace Language {
-    ObjectPtr root();
+    ObjectPtr &root();
+    static bool isInitialized = root().isNotNull();
 }
 
 CHILD_END

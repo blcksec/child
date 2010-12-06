@@ -111,8 +111,8 @@ public:
 public: \
     static NAME##Ptr &root(); \
     virtual const QString className() const { return #NAME; } \
-private: \
-    static const bool isInitialized;
+    static const bool isInitialized; \
+private:
 
 #define CHILD_DEFINITION(NAME, ORIGIN) \
 const bool NAME::isInitialized = NAME::root().isNotNull(); \

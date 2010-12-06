@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 namespace Language {
-    ObjectPtr root() {
+    ObjectPtr &root() {
         static ObjectPtr _root;
         if(!_root) {
             _root = Object::root()->fork();
