@@ -5,7 +5,6 @@
 #include "child/exception.h"
 #include "tests/runalltests.h"
 #include "child/application.h"
-//#include "child/application.h"
 
 CHILD_USE
 
