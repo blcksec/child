@@ -3,6 +3,8 @@
 
 #include <QtCore/QFileInfo>
 
+#include "child/text.h"
+#include "child/dictionary.h"
 #include "child/language/block.h"
 
 CHILD_BEGIN
@@ -11,7 +13,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(SourceCode, Object);
 
     #define CHILD_SOURCE_CODE(ARGS...) \
-    SourceCodePtr(new SourceCode(Node::findInContext("Object")->child("Language")->child("SourceCode"), ##ARGS))
+    Language::SourceCodePtr(new Language::SourceCode(Node::findInContext("Object")->child("Language")->child("SourceCode"), ##ARGS))
 
     class SourceCode : public Object {
         CHILD_DECLARATION(SourceCode, Object);
@@ -64,23 +66,25 @@ namespace Language {
 
     CHILD_PTR_DEFINITION(SourceCode, Object);
 
-    // === SourceCodeList ===
+    // === SourceCodeDictionary ===
 
-    CHILD_PTR_DECLARATION(SourceCodeList, List);
+    CHILD_PTR_DECLARATION(SourceCodeDictionary, Dictionary);
 
-    #define CHILD_SOURCE_CODE_LIST(ARGS...) \
-    SourceCodeListPtr(new SourceCodeList(Node::findInContext("Object")->child("Language")->child("SourceCodeList"), ##ARGS))
+    #define CHILD_SOURCE_CODE_DICTIONARY(ARGS...) \
+    Language::SourceCodeDictionaryPtr(new Language::SourceCodeDictionary( \
+        Node::findInContext("Object")->child("Language")->child("SourceCodeDictionary"), ##ARGS))
 
-    class SourceCodeList : public GenericList<SourceCodeListPtr, SourceCodePtr> {
-        CHILD_DECLARATION(SourceCodeList, List);
+    class SourceCodeDictionary : public GenericDictionary<SourceCodeDictionaryPtr, NodeRef, SourceCodePtr> {
+        CHILD_DECLARATION(SourceCodeDictionary, Dictionary);
     public:
-        SourceCodeList(const NodePtr &origin) : GenericList<SourceCodeListPtr, SourceCodePtr>(origin) {}
+        SourceCodeDictionary(const NodePtr &origin) :
+            GenericDictionary<SourceCodeDictionaryPtr, NodeRef, SourceCodePtr>(origin) {}
 
-        static void initRoot() { Language::root()->addChild("SourceCodeList", root()); }
-        virtual NodePtr fork() const { CHILD_TODO; return new SourceCodeList(this); }
+        static void initRoot() { Language::root()->addChild("SourceCodeDictionary", root()); }
+        virtual NodePtr fork() const { CHILD_TODO; return new SourceCodeDictionary(this); }
     };
 
-    CHILD_PTR_DEFINITION(SourceCodeList, List);
+    CHILD_PTR_DEFINITION(SourceCodeDictionary, Dictionary);
 }
 
 CHILD_END

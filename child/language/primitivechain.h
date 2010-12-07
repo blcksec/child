@@ -10,7 +10,8 @@ namespace Language {
     CHILD_PTR_DECLARATION(PrimitiveChain, List);
 
     #define CHILD_PRIMITIVE_CHAIN(ARGS...) \
-    PrimitiveChainPtr(new PrimitiveChain(Node::findInContext("Object")->child("Language")->child("PrimitiveChain"), ##ARGS))
+    Language::PrimitiveChainPtr(new Language::PrimitiveChain( \
+        Node::findInContext("Object")->child("Language")->child("PrimitiveChain"), ##ARGS))
 
     class PrimitiveChain : public GenericList<PrimitiveChainPtr, PrimitivePtr> {
         CHILD_DECLARATION(PrimitiveChain, List);

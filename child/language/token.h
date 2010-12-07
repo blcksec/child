@@ -9,7 +9,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(Token, Object);
 
     #define CHILD_TOKEN(ARGS...) \
-    TokenPtr(new Token(Node::findInContext("Object")->child("Language")->child("Token"), ##ARGS))
+    Language::TokenPtr(new Language::Token(Node::findInContext("Object")->child("Language")->child("Token"), ##ARGS))
 
     class Token : public Object {
         CHILD_DECLARATION(Token, Object);

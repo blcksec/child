@@ -12,7 +12,8 @@ namespace Language {
     CHILD_PTR_DECLARATION(OperatorTable, List);
 
     #define CHILD_OPERATOR_TABLE(ARGS...) \
-    OperatorTablePtr(new OperatorTable(Node::findInContext("Object")->child("Language")->child("OperatorTable"), ##ARGS))
+    Language::OperatorTablePtr(new Language::OperatorTable( \
+        Node::findInContext("Object")->child("Language")->child("OperatorTable"), ##ARGS))
 
     class OperatorTable : public GenericList<OperatorTablePtr, OperatorPtr> {
         CHILD_DECLARATION(OperatorTable, List);

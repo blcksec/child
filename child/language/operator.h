@@ -9,7 +9,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(Operator, Object);
 
     #define CHILD_OPERATOR(ARGS...) \
-    OperatorPtr(new Operator(Node::findInContext("Object")->child("Language")->child("Operator"), ##ARGS))
+    Language::OperatorPtr(new Language::Operator(Node::findInContext("Object")->child("Language")->child("Operator"), ##ARGS))
 
     class Operator : public Object {
         CHILD_DECLARATION(Operator, Object);

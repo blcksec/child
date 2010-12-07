@@ -9,7 +9,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(Section, List);
 
     #define CHILD_SECTION(ARGS...) \
-    SectionPtr(new Section(Node::findInContext("Object")->child("Language")->child("Section"), ##ARGS))
+    Language::SectionPtr(new Language::Section(Node::findInContext("Object")->child("Language")->child("Section"), ##ARGS))
 
     class Section : public GenericList<SectionPtr, PrimitiveChainPtr> {
         CHILD_DECLARATION(Section, List);

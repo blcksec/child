@@ -5,7 +5,7 @@
 
 CHILD_BEGIN
 
-template<class P, class T1, class T2>
+template<class C, class T1, class T2>
 class GenericPair : public Object {
 public:
     GenericPair(const NodePtr &origin, T1 first = NULL, T2 second = NULL) :
@@ -14,15 +14,15 @@ public:
     virtual NodePtr fork() const { return new GenericPair(this, _first->fork(), _second->fork()); }
 
     T1 first() const { return _first; }
-    void setFirst(T1 first) { _first = first; }
+    void setFirst(const T1 &first) { _first = first; }
     T2 second() const { return _second; }
-    void setSecond(T2 second) { _second = second; }
+    void setSecond(const T2 &second) { _second = second; }
 
     // aliases...
     T1 key() const { return _first; }
-    void setKey(T1 key) { _first = key; }
+    void setKey(const T1 &key) { _first = key; }
     T2 value() const { return _second; }
-    void setValue(T2 value) { _second = value; }
+    void setValue(const T2 &value) { _second = value; }
 
     virtual const QString toString(bool debug = false) const {
         return QString("%1: %2").arg(first()->toString(debug), second()->toString(debug));

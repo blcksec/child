@@ -179,6 +179,15 @@ class List : public GenericList<ListPtr, NodePtr> {
 public:
     List(const NodePtr &origin, const NodeList &other = NodeList()) :
         GenericList<ListPtr, NodePtr>(origin, other) {}
+
+    List(const NodePtr &origin, const QList<NodeRef> &other) :
+        GenericList<ListPtr, NodePtr>(origin) {
+        if(!other.isEmpty()) {
+            foreach(NodeRef ref, other) _append(ref);
+            hasChanged();
+        }
+    }
+
     List(const List &other) : GenericList<ListPtr, NodePtr>(other) {}
 
     static void initRoot() { Object::root()->addChild("List", root()); }
@@ -191,7 +200,6 @@ public:
 };
 
 CHILD_PTR_DEFINITION(List, Object);
-
 
 /*
 CHILD_PTR_DECLARATION(List, Object);

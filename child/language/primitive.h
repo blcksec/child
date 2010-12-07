@@ -10,7 +10,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(Primitive, Element);
 
     #define CHILD_PRIMITIVE(ARGS...) \
-    PrimitivePtr(new Primitive(Node::findInContext("Object")->child("Language")->child("Primitive"), ##ARGS))
+    Language::PrimitivePtr(new Language::Primitive(Node::findInContext("Object")->child("Language")->child("Primitive"), ##ARGS))
 
     class Primitive : public Element {
         CHILD_DECLARATION(Primitive, Element);

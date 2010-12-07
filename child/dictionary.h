@@ -5,108 +5,122 @@
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Dictionary, Object);
-
-#define CHILD_DICTIONARY(ARGS...) DictionaryPtr(new Dictionary(Node::findInContext("Object")->child("Dictionary"), ##ARGS))
-
 #define CHILD_CHECK_KEY(KEY) \
 if(!(KEY)) CHILD_THROW(NullPointerException, "key is NULL")
 
 #define CHILD_CHECK_VALUE(VALUE) \
 if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 
-class Dictionary : public Object {
-    CHILD_DECLARATION(Dictionary, Object);
+template<class C, class K, class V>
+class GenericDictionary : public Object {
 public:
-    Dictionary(const NodePtr &origin, const NodeHash &other = NodeHash()) : Object(origin), _hash(NULL) {
+    GenericDictionary(const NodePtr &origin, const QHash<K, V> &other = (QHash<K, V>())) : Object(origin), _hash(NULL) {
         if(!other.isEmpty()) {
-            NodeHashIterator i(other);
+            QHashIterator<K, V> i(other);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()); }
         }
     }
 
-    Dictionary(const Dictionary &other) : Object(other), _hash(NULL) {
+    GenericDictionary(const GenericDictionary &other) : Object(other), _hash(NULL) {
         if(other.isNotEmpty()) {
-            NodeHashIterator i(*other._hash);
+            QHashIterator<K, V> i(*other._hash);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()); }
         }
     }
 
-    virtual ~Dictionary() {
+    virtual ~GenericDictionary() {
         if(_hash) {
-            foreach(NodePtr node, *_hash) removeAnonymousChild(node);
+            foreach(V value, *_hash) removeAnonymousChild(value);
             delete _hash;
         }
     }
 
-    static void initRoot() { Object::root()->addChild("Dictionary", root()); }
-
-    virtual NodePtr fork() const {
-        DictionaryPtr dict = new Dictionary(this);
-        if(isNotEmpty()) {
-            NodeHashIterator i(*_hash);
-            while(i.hasNext()) { i.next(); dict->set(i.key(), i.value()->fork()); }
+    void initFork() {
+        C orig = origin();
+        if(orig->isNotEmpty()) {
+            QHashIterator<K, V> i(*orig->_hash);
+            while(i.hasNext()) { i.next(); set(i.key(), i.value()->fork()); }
         }
-        return dict;
     }
 
-    NodePtr get(const NodeRef &key) const {
+    V get(const K &key) const {
         CHILD_CHECK_KEY(key);
-        if(!hasKey(key)) CHILD_THROW(NotFoundException, "key not found");
-        return _hash->value(key);
+        V value;
+        if(!(value = hasKey(key))) CHILD_THROW(NotFoundException, "key not found");
+        return value;
     }
 
-    NodePtr set(const NodeRef &key, const NodePtr &value) {
+    V set(const K &key, const V &value) {
         CHILD_CHECK_KEY(key);
         CHILD_CHECK_VALUE(value);
-        if(!_hash) { _hash = new NodeHash; }
-        if(NodePtr oldValue = _hash->value(key)) removeAnonymousChild(oldValue);
+        if(!_hash) { _hash = new QHash<K, V>; }
+        if(V oldValue = _hash->value(key)) removeAnonymousChild(oldValue);
         _hash->insert(key, value);
         addAnonymousChild(value);
         return value;
     }
 
 //        Node *key(Node *value) const;
-    NodePtr value(const NodeRef &key) const { return get(key); }
+    V value(const K &key) const { return get(key); }
     int size() const { return _hash ? _hash->size() : 0; }
     bool isEmpty() const { return size() == 0; }
     bool isNotEmpty() const { return size() > 0; }
 
-    NodeList keys() const {
-        NodeList list;
-        if(_hash) foreach(NodeRef node, _hash->keys()) list.append(node);
+    QList<K> keys() const {
+        QList<K> list;
+        if(_hash) foreach(K key, _hash->keys()) list.append(key);
         return(list);
     }
 //        NodeList values() const;
-    bool hasKey(const NodeRef &key) const { CHILD_CHECK_KEY(key); return _hash && _hash->contains(key); }
+    V hasKey(const K &key) const { CHILD_CHECK_KEY(key); return _hash ? _hash->value(key) : V(); }
 //        bool hasValue(Node *value) const;
 
-    DictionaryPtr remove(const NodeRef &key) {
+    void remove(const K &key) {
         CHILD_CHECK_KEY(key);
-        NodePtr oldValue;
+        V oldValue;
         if(!(_hash && (oldValue = _hash->value(key)))) CHILD_THROW(NotFoundException, "key not found");
         removeAnonymousChild(oldValue);
         _hash->remove(key);
-        return this;
     }
 
-    DictionaryPtr clear() {
-        foreach(NodeRef key, keys()) remove(key);
-        return this;
+    void clear() {
+        foreach(K key, keys()) remove(key);
     }
 
     virtual const QString toString(bool debug = false) const {
         QString str = "[";
         bool first = true;
-        foreach(NodeRef key, keys()) {
-            if(!first) str.append(", "); else first = false;
-            str.append(QString("%1: %2").arg(key->toString(debug), get(key)->toString(debug)));
+        foreach(K key, keys()) {
+            if(!first) str += ", "; else first = false;
+            str += QString("%1: %2").arg(key->toString(debug), get(key)->toString(debug));
         }
         str.append("]");
         return str;
     }
 private:
-    NodeHash *_hash;
+    QHash<K, V> *_hash;
+};
+
+CHILD_PTR_DECLARATION(Dictionary, Object);
+
+#define CHILD_DICTIONARY(ARGS...) DictionaryPtr(new Dictionary(Node::findInContext("Object")->child("Dictionary"), ##ARGS))
+
+class Dictionary : public GenericDictionary<DictionaryPtr, NodeRef, NodePtr> {
+    CHILD_DECLARATION(Dictionary, Object);
+public:
+    Dictionary(const NodePtr &origin, const NodeHash &other = NodeHash()) :
+        GenericDictionary<DictionaryPtr, NodeRef, NodePtr>(origin, other) {}
+
+    Dictionary(const Dictionary &other) :
+        GenericDictionary<DictionaryPtr, NodeRef, NodePtr>(other) {}
+
+    static void initRoot() { Object::root()->addChild("Dictionary", root()); }
+
+    virtual NodePtr fork() const {
+        DictionaryPtr dict = new Dictionary(this);
+        dict->initFork();
+        return dict;
+    }
 };
 
 CHILD_PTR_DEFINITION(Dictionary, Object);

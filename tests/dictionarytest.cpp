@@ -47,7 +47,7 @@ void DictionaryTest::getAndSet() { // TODO: more tests with fork and/or removed 
 
 void DictionaryTest::keys() { // TODO: test with fork and/or removed key
     DictionaryPtr dict = CHILD_DICTIONARY();
-    NodeList keys = dict->keys();
+    QList<NodeRef> keys = dict->keys();
     QVERIFY(keys.isEmpty());
     TextPtr t1 = CHILD_TEXT("val1");
     TextPtr k1 = CHILD_TEXT("key1");

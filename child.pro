@@ -44,7 +44,8 @@ SOURCES += main.cpp \
     child/language/primitivechain.cpp \
     child/language/section.cpp \
     child/language/block.cpp \
-    child/language/sourcecode.cpp
+    child/language/sourcecode.cpp \
+    child/language/argument.cpp
 #    child/language/lexer.cpp \
 #    child/language/parser.cpp \
 #    child/world.cpp \
@@ -82,7 +83,8 @@ HEADERS += \
     child/language/primitivechain.h \
     child/language/section.h \
     child/language/block.h \
-    child/language/sourcecode.h
+    child/language/sourcecode.h \
+    child/language/argument.h
 #    child/language/lexer.h \
 #    child/language/parser.h \
 #    child/world.h \

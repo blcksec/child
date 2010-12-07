@@ -9,7 +9,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(Block, List);
 
     #define CHILD_BLOCK(ARGS...) \
-    BlockPtr(new Block(Node::findInContext("Object")->child("Language")->child("Block"), ##ARGS))
+    Language::BlockPtr(new Language::Block(Node::findInContext("Object")->child("Language")->child("Block"), ##ARGS))
 
     class Block : public GenericList<BlockPtr, SectionPtr> {
         CHILD_DECLARATION(Block, List);

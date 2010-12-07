@@ -22,6 +22,7 @@ public:
     virtual NodePtr fork() const { CHILD_TODO; return new Application(this); }
 
     void init() {
+        _sourceCodes = CHILD_SOURCE_CODE_DICTIONARY();
         initOperatorTable();
 //        _lexer = Language::Lexer::fork(this);
 //        _lexer->setOperatorTable(operatorTable());
@@ -31,29 +32,27 @@ public:
 
     void initOperatorTable();
 
-    Language::SourceCodeListPtr sourceCodes() const { return _sourceCodes; }
+    Language::SourceCodeDictionaryPtr sourceCodes() const { return _sourceCodes; }
     Language::OperatorTablePtr operatorTable() const { return _operatorTable; }
 //    Language::LexerPtr lexer() const { return _lexer; }
 //    Language::ParserPtr parser() const { return _parser; }
 
-//    Language::SourceCodePtr loadSourceCode(QString url) {
-//        url = QFileInfo(url).absoluteFilePath();
-//        if(sourceCodeIsAlreadyLoaded(url)) return Language::SourceCode::as(sourceCodes()->get(url));
-//        Language::SourceCode *source = Language::SourceCode::fork(this);
-//        source->load(url);
-//        source->parse(parser());
-//        if(!sourceCodes()) _sourceCodes = Dictionary::fork(this);
-//        sourceCodes()->set(url, source);
-//        return source;
-//    }
+    Language::SourceCodePtr loadSourceCode(QString url) {
+        url = QFileInfo(url).absoluteFilePath();
+        Language::SourceCodePtr source;
+        if(!(source = sourceCodeIsAlreadyLoaded(url))) {
+            source = CHILD_SOURCE_CODE(url);
+            sourceCodes()->set(CHILD_TEXT(url), source);
+        }
+        return source;
+    }
 
-//    const bool sourceCodeIsAlreadyLoaded(QString url) {
-//        url = QFileInfo(url).absoluteFilePath();
-//        if(!sourceCodes()) return false;
-//        return sourceCodes()->hasKey(url);
-//    }
+    Language::SourceCodePtr sourceCodeIsAlreadyLoaded(QString url) {
+        url = QFileInfo(url).absoluteFilePath();
+        return sourceCodes()->hasKey(CHILD_TEXT(url));
+    }
 private:
-    Language::SourceCodeListPtr _sourceCodes;
+    Language::SourceCodeDictionaryPtr _sourceCodes;
     Language::OperatorTablePtr _operatorTable;
 //    Language::LexerPtr _lexer;
 //    Language::ParserPtr _parser;

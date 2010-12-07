@@ -13,8 +13,7 @@ int main() { // int argc, char *argv[]
     runAllTests();
     ApplicationPtr app = Application::root();
     app->init();
-    app->operatorTable()->inspect();
-
+    Language::SourceCodePtr source = app->loadSourceCode("../child/examples/test.child");
 //    NodeRef r2(t2);
 //    try {
 //        CHILD_THROW(LexerException, "key not found");

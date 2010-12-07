@@ -174,8 +174,8 @@ class PrimitiveChain : List<Primitive>
 
 Message:
     name
-    inputs (Pair<PrimitiveChain, PrimitiveChain>Enumeration ?)
-    outputs (Pair<PrimitiveChain, PrimitiveChain>Enumeration ?)
+    inputs (Enumeration<Pair<PrimitiveChain, PrimitiveChain>>)
+    outputs (Enumeration<Pair<PrimitiveChain, PrimitiveChain>>)
     block
 
 (result: value, ok: succeeded) = meth(1, 2)
