@@ -1,72 +1,70 @@
 #include "child/application.h"
 
-namespace Child {
-    CHILD_DEFINITION(Application, Object, Object);
+CHILD_BEGIN
 
-    void Application::initRoot() {
-        // TODO
-    }
+CHILD_DEFINITION(Application, Object);
 
-    void Application::initOperatorTable() {
-        using namespace Language;
+void Application::initOperatorTable() {
+    using namespace Language;
 
-        OperatorTable *opTable = OperatorTable::fork(this);
+    OperatorTablePtr ops = CHILD_OPERATOR_TABLE();
 
-        opTable->append("++", Operator::Postfix, Operator::namePrecedence);
-        opTable->append("--", Operator::Postfix, Operator::namePrecedence);
+    ops->append("++", Operator::Postfix, Operator::namePrecedence);
+    ops->append("--", Operator::Postfix, Operator::namePrecedence);
 
-        opTable->append(".", Operator::Binary, Operator::namePrecedence);
-        opTable->append("...", Operator::Postfix, Operator::namePrecedence);
+    ops->append(".", Operator::Binary, Operator::namePrecedence);
+    ops->append("...", Operator::Postfix, Operator::namePrecedence);
 
-        opTable->append("+", Operator::Prefix, 411, Operator::RightAssociative, "unary_plus");
-        opTable->append("-", Operator::Prefix, 411, Operator::RightAssociative, "unary_minus");
-        opTable->append("!", Operator::Prefix, 411, Operator::RightAssociative);
+    ops->append("+", Operator::Prefix, 411, Operator::RightAssociative, "unary_plus");
+    ops->append("-", Operator::Prefix, 411, Operator::RightAssociative, "unary_minus");
+    ops->append("!", Operator::Prefix, 411, Operator::RightAssociative);
 
-        opTable->append("\\", Operator::Prefix, 421);
-        opTable->append("@", Operator::Prefix, 431);
-        opTable->append("#", Operator::Prefix, 411);
-        opTable->append("$", Operator::Prefix, 411);
+    ops->append("\\", Operator::Prefix, 421);
+    ops->append("@", Operator::Prefix, 431);
+    ops->append("#", Operator::Prefix, 411);
+    ops->append("$", Operator::Prefix, 411);
 
-        opTable->append("+", Operator::Binary, 341);
-        opTable->append("-", Operator::Binary, 341);
-        opTable->append("*", Operator::Binary, 351);
-        opTable->append("/", Operator::Binary, 351);
-        opTable->append("%", Operator::Binary, 351);
+    ops->append("+", Operator::Binary, 341);
+    ops->append("-", Operator::Binary, 341);
+    ops->append("*", Operator::Binary, 351);
+    ops->append("/", Operator::Binary, 351);
+    ops->append("%", Operator::Binary, 351);
 
-        opTable->append("&", Operator::Binary, 351);
-        opTable->append("|", Operator::Binary, 341);
-        opTable->append("^", Operator::Binary, 341);
-        opTable->append("<<", Operator::Binary, 351);
-        opTable->append(">>", Operator::Binary, 351);
+    ops->append("&", Operator::Binary, 351);
+    ops->append("|", Operator::Binary, 341);
+    ops->append("^", Operator::Binary, 341);
+    ops->append("<<", Operator::Binary, 351);
+    ops->append(">>", Operator::Binary, 351);
 
-        opTable->append("&&", Operator::Binary, 321);
-        opTable->append("||", Operator::Binary, 311);
+    ops->append("&&", Operator::Binary, 321);
+    ops->append("||", Operator::Binary, 311);
 
-        opTable->append("==", Operator::Binary, 331, Operator::NonAssociative);
-        opTable->append("!=", Operator::Binary, 331, Operator::NonAssociative);
-        opTable->append("<", Operator::Binary, 331, Operator::NonAssociative);
-        opTable->append(">", Operator::Binary, 331, Operator::NonAssociative);
-        opTable->append("<=", Operator::Binary, 331, Operator::NonAssociative);
-        opTable->append(">=", Operator::Binary, 331, Operator::NonAssociative);
+    ops->append("==", Operator::Binary, 331, Operator::NonAssociative);
+    ops->append("!=", Operator::Binary, 331, Operator::NonAssociative);
+    ops->append("<", Operator::Binary, 331, Operator::NonAssociative);
+    ops->append(">", Operator::Binary, 331, Operator::NonAssociative);
+    ops->append("<=", Operator::Binary, 331, Operator::NonAssociative);
+    ops->append(">=", Operator::Binary, 331, Operator::NonAssociative);
 
-        opTable->append("..", Operator::Binary, 341);
+    ops->append("..", Operator::Binary, 341);
 
-        opTable->append(",", Operator::Binary, 221);
-        opTable->append("->", Operator::Binary, 211);
+    ops->append(",", Operator::Binary, 221);
+    ops->append("->", Operator::Binary, 211);
 
-        opTable->append(":=", Operator::Binary, 111, Operator::RightAssociative);
-        opTable->append("=", Operator::Binary, 121, Operator::RightAssociative);
-        opTable->append("+=", Operator::Binary, 151, Operator::RightAssociative);
-        opTable->append("-=", Operator::Binary, 151, Operator::RightAssociative);
-        opTable->append("*=", Operator::Binary, 161, Operator::RightAssociative);
-        opTable->append("/=", Operator::Binary, 161, Operator::RightAssociative);
-        opTable->append("%=", Operator::Binary, 161, Operator::RightAssociative);
-        opTable->append("&=", Operator::Binary, 141, Operator::RightAssociative);
-        opTable->append("|=", Operator::Binary, 131, Operator::RightAssociative);
-        opTable->append("^=", Operator::Binary, 151, Operator::RightAssociative);
-        opTable->append("<<=", Operator::Binary, 161, Operator::RightAssociative);
-        opTable->append(">>=", Operator::Binary, 161, Operator::RightAssociative);
+    ops->append(":=", Operator::Binary, 111, Operator::RightAssociative);
+    ops->append("=", Operator::Binary, 121, Operator::RightAssociative);
+    ops->append("+=", Operator::Binary, 151, Operator::RightAssociative);
+    ops->append("-=", Operator::Binary, 151, Operator::RightAssociative);
+    ops->append("*=", Operator::Binary, 161, Operator::RightAssociative);
+    ops->append("/=", Operator::Binary, 161, Operator::RightAssociative);
+    ops->append("%=", Operator::Binary, 161, Operator::RightAssociative);
+    ops->append("&=", Operator::Binary, 141, Operator::RightAssociative);
+    ops->append("|=", Operator::Binary, 131, Operator::RightAssociative);
+    ops->append("^=", Operator::Binary, 151, Operator::RightAssociative);
+    ops->append("<<=", Operator::Binary, 161, Operator::RightAssociative);
+    ops->append(">>=", Operator::Binary, 161, Operator::RightAssociative);
 
-        _operatorTable = opTable;
-    }
+    _operatorTable = ops;
 }
+
+CHILD_END

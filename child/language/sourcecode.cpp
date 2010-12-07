@@ -1,11 +1,10 @@
 #include "child/language/sourcecode.h"
 
-namespace Child {
-    namespace Language {
-        CHILD_DEFINITION(SourceCode, Object, Language);
+CHILD_BEGIN
 
-        void SourceCode::initRoot() {
-            // TODO
-        }
-    }
+namespace Language {
+    CHILD_DEFINITION(SourceCode, Object);
+    CHILD_DEFINITION(SourceCodeList, List);
 }
+
+CHILD_END

@@ -1,31 +1,29 @@
 #include "child/language/token.h"
 
-namespace Child {
-    namespace Language {
-        CHILD_DEFINITION(Token, Object, Language);
+CHILD_BEGIN
 
-        void Token::initRoot() {
-            // TODO
-        }
+namespace Language {
+    CHILD_DEFINITION(Token, Object);
 
-        const char *Token::typesName[] = {
-            "<NULL>",
-            "<EOF>",
-            "Name",
-            "Label",
-            "Operator",
-            "Boolean",
-            "Number",
-            "Character",
-            "Text",
-            "LeftParenthesis",
-            "RightParenthesis",
-            "LeftBracket",
-            "RightBracket",
-            "LeftBrace",
-            "RightBrace",
-            "Semicolon",
-            "Newline"
-        };
-    }
+    const char *Token::typeNames[] = {
+        "<NULL>",
+        "<EOF>",
+        "Name",
+        "Label",
+        "Operator",
+        "Boolean",
+        "Number",
+        "Character",
+        "Text",
+        "LeftParenthesis",
+        "RightParenthesis",
+        "LeftBracket",
+        "RightBracket",
+        "LeftBrace",
+        "RightBrace",
+        "Semicolon",
+        "Newline"
+    };
 }
+
+CHILD_END

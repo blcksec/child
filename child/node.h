@@ -255,7 +255,8 @@ public:
 
     const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
-    virtual const QString inspect() const;
+    virtual const QString toString(bool debug = false) const;
+    void inspect() const { P(toString(true)); }
 private:
     NodePtr _origin;
     NodeList *_extensions;

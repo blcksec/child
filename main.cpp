@@ -4,7 +4,7 @@
 #include "child/node.h"
 #include "child/exception.h"
 #include "tests/runalltests.h"
-#include "child/language/operatortable.h"
+#include "child/application.h"
 //#include "child/application.h"
 
 CHILD_USE
@@ -12,6 +12,10 @@ CHILD_USE
 int main() { // int argc, char *argv[]
     init();
     runAllTests();
+    ApplicationPtr app = Application::root();
+    app->init();
+    app->operatorTable()->inspect();
+
 //    NodeRef r2(t2);
 //    try {
 //        CHILD_THROW(LexerException, "key not found");

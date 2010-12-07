@@ -24,7 +24,7 @@ inline bool qCompare(const T1 &t1, const T2 &t2, const char *actual, const char 
     return (t1 == t2)
         ? compare_helper(true, "COMPARE()", file, line)
         : compare_helper(false, "Compared values are not the same",
-                         toString(t1->inspect()), toString(t2->inspect()), actual, expected, file, line);
+                         toString(t1->toString()), toString(t2->toString()), actual, expected, file, line);
 }
 
 }

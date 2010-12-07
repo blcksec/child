@@ -115,6 +115,18 @@ public:
     bool isEmpty() const { return size() == 0; }
     bool isNotEmpty() const { return size() > 0; }
 
+    const QString join(const QString &separator = "", const QString &prefix = "",
+                       const QString &suffix = "", bool debug = false) const {
+        QString str;
+        bool first = true;
+        Iterator i(C(this));
+        while(T value = i.next()) {
+            if(!first) str += separator; else first = false;
+            str += prefix + value->toString(debug) + suffix;
+        }
+        return str;
+    }
+
     void checkIndex(int i, bool insertMode = false) const {
         int max = size();
         if(!insertMode) max--;
@@ -129,17 +141,7 @@ public:
 
     virtual void hasChanged() {}
 
-    virtual const QString inspect() const {
-        QString str = "[";
-        bool first = true;
-        Iterator i(C(this));
-        while(T value = i.next()) {
-            if(!first) str += ", "; else first = false;
-            str += value->inspect();
-        }
-        str += "]";
-        return str;
-    }
+    virtual const QString toString(bool debug = false) const { return "[" + join(", ", "", "", debug) + "]"; }
 
     class Iterator {
     public:

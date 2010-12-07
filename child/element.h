@@ -30,7 +30,7 @@ public:
     Element(const NodePtr &origin, const NodePtr &value = NULL) : GenericElement<ElementPtr, NodePtr>(origin, value) {}
     static void initRoot() { Object::root()->addChild("Element", root()); }
     virtual NodePtr fork() const { return new Element(this, value()->fork()); }
-    virtual const QString inspect() const { return value() ? value()->inspect() : "NULL"; }
+    virtual const QString toString(bool debug = false) const { return value() ? value()->toString(debug) : "NULL"; }
 };
 
 CHILD_PTR_DEFINITION(Element, Object);

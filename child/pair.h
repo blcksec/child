@@ -24,8 +24,8 @@ public:
     T2 value() const { return _second; }
     void setValue(T2 value) { _second = value; }
 
-    virtual const QString inspect() const {
-        return QString("%1: %2").arg(first()->inspect()).arg(second()->inspect());
+    virtual const QString toString(bool debug = false) const {
+        return QString("%1: %2").arg(first()->toString(debug), second()->toString(debug));
     }
 private:
     T1 _first;

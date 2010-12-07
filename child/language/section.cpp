@@ -1,11 +1,9 @@
 #include "child/language/section.h"
 
-namespace Child {
-    namespace Language {
-        CHILD_DEFINITION(Section, Object, Language);
+CHILD_BEGIN
 
-        void Section::initRoot() {
-            // TODO
-        }
-    }
+namespace Language {
+    CHILD_DEFINITION(Section, List);
 }
+
+CHILD_END

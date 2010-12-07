@@ -26,7 +26,7 @@ namespace Language {
 
         Operator(const NodePtr &origin, const QString &text = "", Type type = Null, short precedence = 0,
                 Associativity associativity = LeftAssociative, const QString &name = "") :
-            Object(origin), text(text), type(type), precedence(precedence), associativity(associativity),name(name) {
+            Object(origin), text(text), type(type), precedence(precedence), associativity(associativity), name(name) {
             if(name.isEmpty()) this->name = text;
         }
 
@@ -38,7 +38,10 @@ namespace Language {
 
         const bool isNull() const { return type == Null; }
 
-        virtual const QString inspect() const { return QString("\"%1\"").arg(name); }
+        virtual const QString toString(bool debug = false) const {
+            #pragma unused(debug)
+            return QString("\"%1\"").arg(name);
+        }
     };
 
     CHILD_PTR_DEFINITION(Operator, Object);

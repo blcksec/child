@@ -17,7 +17,10 @@ public:
     static void initRoot() { Object::root()->addChild("Number", root()); }
     virtual NodePtr fork() const { return new Number(this, value()); }
 
-    virtual const QString inspect() const { return QString("%1").arg(value()); }
+    virtual const QString toString(bool debug = false) const {
+        #pragma unused(debug)
+        return QString("%1").arg(value());
+    }
 };
 
 CHILD_PTR_DEFINITION(Number, Element);

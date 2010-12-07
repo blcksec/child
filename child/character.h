@@ -12,12 +12,13 @@ CHILD_PTR_DECLARATION(Character, Element);
 class Character : public GenericElement<CharacterPtr, QChar> {
     CHILD_DECLARATION(Character, Element);
 public:
-    Character(const NodePtr &origin, const QChar &value = QChar::Null) : GenericElement<CharacterPtr, QChar>(origin, value) {}
+    Character(const NodePtr &origin, const QChar &value = QChar::Null) :
+        GenericElement<CharacterPtr, QChar>(origin, value) {}
 
     static void initRoot() { Object::root()->addChild("Character", root()); }
     virtual NodePtr fork() const { return new Character(this, value()); }
 
-    virtual const QString inspect() const { return QString("'%1'").arg(value()); }
+    virtual const QString toString(bool debug = false) const { return debug ? ("'" + QString(value()) + "'") : value(); }
 };
 
 CHILD_PTR_DEFINITION(Character, Element);

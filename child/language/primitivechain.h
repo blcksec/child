@@ -20,17 +20,7 @@ namespace Language {
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
         virtual NodePtr fork() const { CHILD_TODO; return new PrimitiveChain(this); }
 
-        virtual const QString inspect() const {
-            QString str = "(";
-            bool first = true;
-            Iterator i(this);
-            while(PrimitivePtr prim = i.next()) {
-                if(!first) str += " "; else first = false;
-                str += prim->inspect();
-            }
-            str += ")";
-            return str;
-        }
+        virtual const QString toString(bool debug = false) const { return join(", ", "", "", debug); }
     };
 
     CHILD_PTR_DEFINITION(PrimitiveChain, List);

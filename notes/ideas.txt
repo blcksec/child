@@ -168,12 +168,9 @@ Name<Text>: ""
 else: { ... }
 false : { ... }
 
-Un block est constitué d'une liste de Pair.
-
-class Block : public List<Section>;
-class Section : public Pair<PrimitiveChain, PrimitiveChainList>;
-class PrimitiveChainList : public List<PrimitiveChain>;
-class PrimitiveChain : public List<Primitive>
+class Block : List<Section>
+class Section : PrimitiveChain, List<PrimitiveChain>
+class PrimitiveChain : List<Primitive>
 
 Message:
     name

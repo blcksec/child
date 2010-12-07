@@ -159,13 +159,9 @@ CHILD_THROW_FUNCTION(RuntimeException);
 CHILD_THROW_FUNCTION(NullPointerException);
 CHILD_THROW_FUNCTION(TypecastException);
 
-const QString Node::inspect() const {
-    QString str;
-    str = hexMemoryAddress();
-    str.append(": [");
-    str.append(QStringList(children().keys()).join(", "));
-    str.append("]");
-    return str;
+const QString Node::toString(bool debug) const {
+    #pragma unused(debug)
+    return QString("%1: [%2]").arg(hexMemoryAddress(), QStringList(children().keys()).join(", "));
 }
 
 CHILD_END

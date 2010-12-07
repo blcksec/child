@@ -95,12 +95,12 @@ public:
         return this;
     }
 
-    virtual const QString inspect() const {
+    virtual const QString toString(bool debug = false) const {
         QString str = "[";
         bool first = true;
         foreach(NodeRef key, keys()) {
             if(!first) str.append(", "); else first = false;
-            str.append(QString("%1: %2").arg(key->inspect(), get(key)->inspect()));
+            str.append(QString("%1: %2").arg(key->toString(debug), get(key)->toString(debug)));
         }
         str.append("]");
         return str;

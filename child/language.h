@@ -8,6 +8,7 @@ CHILD_BEGIN
 namespace Language {
     ObjectPtr &root();
     static bool isInitialized = root().isNotNull();
+    #pragma unused(isInitialized)
 }
 
 CHILD_END

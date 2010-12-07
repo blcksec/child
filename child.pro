@@ -34,17 +34,17 @@ SOURCES += main.cpp \
     tests/listtest.cpp \
     child/dictionary.cpp \
     tests/dictionarytest.cpp \
-#    child/application.cpp \
-#    child/block.cpp \
+    child/application.cpp \
 #    child/message.cpp \
     child/language.cpp \
-#    child/language/token.cpp \
+    child/language/token.cpp \
     child/language/operator.cpp \
     child/language/operatortable.cpp \
     child/language/primitive.cpp \
-    child/language/primitivechain.cpp
-#    child/language/section.cpp \
-#    child/language/sourcecode.cpp \
+    child/language/primitivechain.cpp \
+    child/language/section.cpp \
+    child/language/block.cpp \
+    child/language/sourcecode.cpp
 #    child/language/lexer.cpp \
 #    child/language/parser.cpp \
 #    child/world.cpp \
@@ -72,17 +72,17 @@ HEADERS += \
     tests/listtest.h \
     child/dictionary.h \
     tests/dictionarytest.h \
-#    child/application.h \
-#    child/block.h \
+    child/application.h \
 #    child/message.h \
     child/language.h \
-#    child/language/token.h \
+    child/language/token.h \
     child/language/operator.h \
     child/language/operatortable.h \
     child/language/primitive.h \
-    child/language/primitivechain.h
-#    child/language/section.h \
-#    child/language/sourcecode.h \
+    child/language/primitivechain.h \
+    child/language/section.h \
+    child/language/block.h \
+    child/language/sourcecode.h
 #    child/language/lexer.h \
 #    child/language/parser.h \
 #    child/world.h \

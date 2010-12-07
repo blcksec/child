@@ -33,7 +33,10 @@ public:
 
     const QString report() const;
 
-    virtual const QString inspect() const { return report(); }
+    virtual const QString toString(bool debug = false) const {
+        #pragma unused(debug)
+        return report();
+    }
 };
 
 CHILD_PTR_DEFINITION(Exception, Node);

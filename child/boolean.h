@@ -17,7 +17,10 @@ public:
     static void initRoot() { Object::root()->addChild("Boolean", root()); }
     virtual NodePtr fork() const { return new Boolean(this, value()); }
 
-    virtual const QString inspect() const { return value() ? "true" : "false"; }
+    virtual const QString toString(bool debug = false) const {
+        #pragma unused(debug)
+        return value() ? "true" : "false";
+    }
 };
 
 CHILD_PTR_DEFINITION(Boolean, Element);

@@ -32,7 +32,7 @@ public:
     static QString unescapeSequence(const QString &source);
     static QChar unescapeSequenceNumber(const QString &source, int &i);
 
-    virtual const QString inspect() const { return QString("\"%1\"").arg(value()); }
+    virtual const QString toString(bool debug = false) const { return debug ? "\"" + value() + "\"" : value(); }
 };
 
 CHILD_PTR_DEFINITION(Text, Element);
