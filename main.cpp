@@ -7,13 +7,14 @@
 #include "child/application.h"
 
 CHILD_USE
+using namespace Language;
 
 int main() { // int argc, char *argv[]
     init();
     runAllTests();
     ApplicationPtr app = Application::root();
     app->init();
-    Language::SourceCodePtr source = app->loadSourceCode("../child/examples/test.child");
+    SourceCodePtr source = app->loadSourceCode("../child/examples/test.child");
 //    NodeRef r2(t2);
 //    try {
 //        CHILD_THROW(LexerException, "key not found");

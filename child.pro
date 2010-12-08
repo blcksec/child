@@ -45,7 +45,8 @@ SOURCES += main.cpp \
     child/language/section.cpp \
     child/language/block.cpp \
     child/language/sourcecode.cpp \
-    child/language/argument.cpp
+    child/language/argument.cpp \
+    child/bunch.cpp
 #    child/language/lexer.cpp \
 #    child/language/parser.cpp \
 #    child/world.cpp \
@@ -84,7 +85,8 @@ HEADERS += \
     child/language/section.h \
     child/language/block.h \
     child/language/sourcecode.h \
-    child/language/argument.h
+    child/language/argument.h \
+    child/bunch.h
 #    child/language/lexer.h \
 #    child/language/parser.h \
 #    child/world.h \

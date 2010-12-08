@@ -8,6 +8,8 @@
 
 CHILD_BEGIN
 
+using namespace Language;
+
 CHILD_PTR_DECLARATION(Application, Object);
 
 #define CHILD_APPLICATION(ARGS...) \
@@ -24,22 +26,22 @@ public:
     void init() {
         _sourceCodes = CHILD_SOURCE_CODE_DICTIONARY();
         initOperatorTable();
-//        _lexer = Language::Lexer::fork(this);
+//        _lexer = Lexer::fork(this);
 //        _lexer->setOperatorTable(operatorTable());
-//        _parser = Language::Parser::fork(this);
+//        _parser = Parser::fork(this);
 //        _parser->setLexer(_lexer);
     }
 
     void initOperatorTable();
 
-    Language::SourceCodeDictionaryPtr sourceCodes() const { return _sourceCodes; }
-    Language::OperatorTablePtr operatorTable() const { return _operatorTable; }
-//    Language::LexerPtr lexer() const { return _lexer; }
-//    Language::ParserPtr parser() const { return _parser; }
+    SourceCodeDictionaryPtr sourceCodes() const { return _sourceCodes; }
+    OperatorTablePtr operatorTable() const { return _operatorTable; }
+//    LexerPtr lexer() const { return _lexer; }
+//    ParserPtr parser() const { return _parser; }
 
-    Language::SourceCodePtr loadSourceCode(QString url) {
+    SourceCodePtr loadSourceCode(QString url) {
         url = QFileInfo(url).absoluteFilePath();
-        Language::SourceCodePtr source;
+        SourceCodePtr source;
         if(!(source = sourceCodeIsAlreadyLoaded(url))) {
             source = CHILD_SOURCE_CODE(url);
             sourceCodes()->set(CHILD_TEXT(url), source);
@@ -47,15 +49,15 @@ public:
         return source;
     }
 
-    Language::SourceCodePtr sourceCodeIsAlreadyLoaded(QString url) {
+    SourceCodePtr sourceCodeIsAlreadyLoaded(QString url) {
         url = QFileInfo(url).absoluteFilePath();
         return sourceCodes()->hasKey(CHILD_TEXT(url));
     }
 private:
-    Language::SourceCodeDictionaryPtr _sourceCodes;
-    Language::OperatorTablePtr _operatorTable;
-//    Language::LexerPtr _lexer;
-//    Language::ParserPtr _parser;
+    SourceCodeDictionaryPtr _sourceCodes;
+    OperatorTablePtr _operatorTable;
+//    LexerPtr _lexer;
+//    ParserPtr _parser;
 };
 
 CHILD_PTR_DEFINITION(Application, Object);
