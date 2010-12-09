@@ -16,7 +16,7 @@ namespace Language {
     class Argument : public GenericPair<ArgumentPtr, PrimitiveChainPtr, PrimitiveChainPtr> {
         CHILD_DECLARATION(Argument, Pair);
     public:
-        Argument(const NodePtr &origin, PrimitiveChainPtr label = NULL, PrimitiveChainPtr value = NULL) :
+        Argument(const NodePtr &origin, const PrimitiveChainPtr &label = NULL, const PrimitiveChainPtr &value = NULL) :
             GenericPair<ArgumentPtr, PrimitiveChainPtr, PrimitiveChainPtr>(origin, label, value) {}
 
         static void initRoot() { Language::root()->addChild("Argument", root()); }
@@ -56,6 +56,14 @@ namespace Language {
 
         static void initRoot() { Language::root()->addChild("ArgumentBunch", root()); }
         virtual NodePtr fork() const { return ArgumentBunchPtr(new ArgumentBunch(this))->initFork(); }
+
+        ArgumentPtr append(const ArgumentPtr &argument) { // Strange... Shoud be inherited from GenericList?
+            return GenericList<ArgumentBunchPtr, ArgumentPtr>::append(argument);
+        }
+
+        ArgumentPtr append(const PrimitiveChainPtr &label, const PrimitiveChainPtr &value) {
+            return GenericList<ArgumentBunchPtr, ArgumentPtr>::append(CHILD_ARGUMENT(label, value));
+        }
 
         virtual const QString toString(bool debug = false) const { return join(", ", "", "", debug); }
     };

@@ -37,44 +37,16 @@ namespace Language {
             return scanBlock();
         }
 
-        const TokenPtr token() const {
-            return _currentToken;
-        }
+        const TokenPtr token() const { return _currentToken; }
+        const Token::Type tokenType() const { return _currentToken->type; }
+        const QString tokenTypeName() const { return _currentToken->typeName(); }
+        const QString tokenText() const { return _currentToken->text(); }
 
-        const Token::Type tokenType() const {
-            return _currentToken->type;
-        }
-
-        const QString tokenTypeName() const {
-            return _currentToken->typeName();
-        }
-
-        const QString tokenText() const {
-            return _currentToken->text();
-        }
-
-        void consume() {
-            _currentToken = lexer()->nextToken();
-        }
-
-        void openToken() {
-            _openedTokens.push(tokenType());
-        }
-
-        void closeToken() {
-            _openedTokens.pop();
-        }
-
-        const Token::Type topToken() const {
-            if(_openedTokens.empty())
-                return Token::Null;
-            else
-                return _openedTokens.top();
-        }
-
-        void clearOpenedTokens() {
-            _openedTokens.clear();
-        }
+        void consume() { _currentToken = lexer()->nextToken(); }
+        void openToken() { _openedTokens.push(tokenType()); }
+        void closeToken() { _openedTokens.pop(); }
+        const Token::Type topToken() const { return _openedTokens.isEmpty() ? Token::Null : _openedTokens.top(); }
+        void clearOpenedTokens() { _openedTokens.clear(); }
 
         const bool is(const Token::Type type, const QString &text = QString()) const {
             if(text.isNull())
@@ -96,9 +68,7 @@ namespace Language {
             }
         }
 
-        void consumeNewline() {
-             while(is(Token::Newline)) consume();
-        }
+        void consumeNewline() { while(is(Token::Newline)) consume(); }
 
         void consumeUselessNewline() {
             if(!is(Token::Newline)) return;
@@ -117,16 +87,10 @@ namespace Language {
         SectionPtr scanSection() {
             SectionPtr section = CHILD_SECTION();
             if(is(Token::Label)) {
-                MessagePtr message = CHILD_MESSAGE();
                 QString name = tokenText();
                 name.chop(1);
-                message->setName(name);
-                PrimitivePtr primitive = CHILD_PRIMITIVE();
-                primitive->setValue(message);
-                primitive->setSourceCodeRef(token()->sourceCodeRef);
-                PrimitiveChainPtr primitiveChain = CHILD_PRIMITIVE_CHAIN();
-                primitiveChain->append(primitive);
-                section->setLabel(primitiveChain);
+                PrimitivePtr primitive = CHILD_PRIMITIVE(CHILD_MESSAGE(name), token()->sourceCodeRef);
+                section->setLabel(CHILD_PRIMITIVE_CHAIN(primitive));
                 consume();
                 consumeNewline();
             }
@@ -147,15 +111,12 @@ namespace Language {
         PrimitiveChainPtr scanUnaryExpressionChain() {
             PrimitiveChainPtr primitiveChain = CHILD_PRIMITIVE_CHAIN();
             if(is(Token::Label)) {
-                PrimitivePtr primitive = CHILD_PRIMITIVE();
-                MessagePtr message = CHILD_MESSAGE();
-                primitive->setValue(message);
-                primitive->setSourceCodeRef(token()->sourceCodeRef);
-                message->setName(tokenText());
+                MessagePtr message = CHILD_MESSAGE(tokenText());
+                PrimitivePtr primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
                 openToken();
                 consume();
                 consumeNewline();
-                message->inputs()->append(CHILD_ARGUMENT(PrimitiveChainPtr(), scanExpression()));
+                message->inputs()->append(NULL, scanExpression());
                 closeToken();
                 primitiveChain->append(primitive);
             }
@@ -167,9 +128,7 @@ namespace Language {
             return primitiveChain;
         }
 
-        const bool isUnaryExpression() const {
-            return isPrefixOperator() || isPrimaryExpression();
-        }
+        const bool isUnaryExpression() const { return isPrefixOperator() || isPrimaryExpression(); }
 
         void scanUnaryExpression(PrimitiveChainPtr &primitiveChain) {
             if(OperatorPtr op = isPrefixOperator())
@@ -178,9 +137,7 @@ namespace Language {
                 scanPrimaryExpression(primitiveChain);
         }
 
-        const bool isPrimaryExpression() const {
-            return isOperand();
-        }
+        const bool isPrimaryExpression() const { return isOperand(); }
 
         void scanPrimaryExpression(PrimitiveChainPtr &primitiveChain) {
             primitiveChain->append(scanOperand());
@@ -188,9 +145,7 @@ namespace Language {
                 primitiveChain->append(scanPostfixOperator(op));
         }
 
-        const bool isOperand() const {
-            return isName() || isLiteral() || isSubexpression();
-        }
+        const bool isOperand() const { return isName() || isLiteral() || isSubexpression(); }
 
         PrimitivePtr scanOperand() {
             if(isName()) {
@@ -202,15 +157,11 @@ namespace Language {
             }
         }
 
-        const bool isName() const {
-            return is(Token::Name);
-        }
+        const bool isName() const { return is(Token::Name); }
 
         PrimitivePtr scanName() {
-            PrimitivePtr primitive = CHILD_PRIMITIVE();
-            MessagePtr message = CHILD_MESSAGE();
-            primitive->setValue(message);
-            message->setName(tokenText());
+            MessagePtr message = CHILD_MESSAGE(tokenText());
+            PrimitivePtr primitive = CHILD_PRIMITIVE(message);
             int begin = token()->sourceCodeRef.position();
             consume();
             if(is(Token::LeftParenthesis)) {
@@ -220,7 +171,7 @@ namespace Language {
                 if(!is(Token::RightParenthesis)) {
                     PrimitiveChainPtr chain = scanExpression();
 //                    List *list = pairToList(chain);
-                    message->inputs()->append(CHILD_ARGUMENT(PrimitiveChainPtr(), chain));
+                    message->inputs()->append(NULL, chain);
                 }
                 closeToken();
                 match(Token::RightParenthesis);
@@ -251,36 +202,34 @@ namespace Language {
         }
 
         PrimitivePtr scanLiteral() {
-            PrimitivePtr primitive = CHILD_PRIMITIVE();
-            primitive->setSourceCodeRef(token()->sourceCodeRef);
+            NodePtr value;
             QChar c;
             QString s;
             switch(tokenType()) {
             case Token::Boolean:
-                primitive->setValue(CHILD_BOOLEAN(tokenText() == "true"));
+                value = CHILD_BOOLEAN(tokenText() == "true");
                 break;
             case Token::Number:
-                primitive->setValue(CHILD_NUMBER(tokenText().toDouble()));
+                value = CHILD_NUMBER(tokenText().toDouble());
                 break;
             case Token::Character:
                 c = Text::unescapeSequence(tokenText().mid(1, tokenText().size() - 2)).at(0);
-                primitive->setValue(CHILD_CHARACTER(c));
+                value = CHILD_CHARACTER(c);
                 break;
             case Token::Text:
                 s = Text::unescapeSequence(tokenText().mid(1, tokenText().size() - 2));
-                primitive->setValue(CHILD_TEXT(s));
+                value = CHILD_TEXT(s);
                 break;
             default:
                 throwError("unimplemented token!");
             }
+            PrimitivePtr primitive = CHILD_PRIMITIVE(value, token()->sourceCodeRef);
             consume();
             consumeUselessNewline();
             return primitive;
         }
 
-        const bool isSubexpression() const {
-            return is(Token::LeftParenthesis);
-        }
+        const bool isSubexpression() const { return is(Token::LeftParenthesis); }
 
         PrimitivePtr scanSubexpression() {
             PrimitivePtr primitive = CHILD_PRIMITIVE();
@@ -301,34 +250,23 @@ namespace Language {
             return lexer()->operatorTable()->has(tokenText(), type);
         }
 
-        OperatorPtr isPrefixOperator() const {
-            return isOperator(Operator::Prefix);
-        }
+        OperatorPtr isPrefixOperator() const { return isOperator(Operator::Prefix); }
 
         void scanPrefixOperator(PrimitiveChainPtr &primitiveChain, OperatorPtr &currentOp) {
-            PrimitivePtr primitive = CHILD_PRIMITIVE();
-            MessagePtr message = CHILD_MESSAGE();
-            primitive->setValue(message);
-            primitive->setSourceCodeRef(token()->sourceCodeRef);
-            message->setName(currentOp->name);
+            MessagePtr message = CHILD_MESSAGE(currentOp->name);
+            PrimitivePtr primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
             consume();
             consumeNewline();
             PrimitiveChainPtr unary = CHILD_PRIMITIVE_CHAIN();
             scanUnaryExpression(unary);
-            message->inputs()->append(CHILD_ARGUMENT(PrimitiveChainPtr(), unary));
+            message->inputs()->append(NULL, unary);
             primitiveChain->append(primitive);
         }
 
-        OperatorPtr isPostfixOperator() const {
-            return isOperator(Operator::Postfix);
-        }
+        OperatorPtr isPostfixOperator() const { return isOperator(Operator::Postfix); }
 
         PrimitivePtr scanPostfixOperator(OperatorPtr &currentOp) {
-            PrimitivePtr primitive = CHILD_PRIMITIVE();
-            MessagePtr message = CHILD_MESSAGE();
-            primitive->setValue(message);
-            primitive->setSourceCodeRef(token()->sourceCodeRef);
-            message->setName(currentOp->name);
+            PrimitivePtr primitive = CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), token()->sourceCodeRef);
             consume();
             consumeUselessNewline();
             return primitive;
@@ -344,11 +282,8 @@ namespace Language {
 
         PrimitiveChainPtr scanBinaryOperator(PrimitiveChainPtr leftHandSide, OperatorPtr &currentOp, const short minPrecedence) {
             do {
-                PrimitivePtr primitive = CHILD_PRIMITIVE();
-                MessagePtr message = CHILD_MESSAGE();
-                primitive->setValue(message);
-                primitive->setSourceCodeRef(token()->sourceCodeRef);
-                message->setName(currentOp->name);
+                MessagePtr message = CHILD_MESSAGE(currentOp->name);
+                PrimitivePtr primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
                 consume();
                 consumeNewline();
                 PrimitiveChainPtr rightHandSide = scanUnaryExpressionChain();
@@ -359,10 +294,9 @@ namespace Language {
                     if(nextOp->associativity == Operator::RightAssociative && nextOp->precedence != currentOp->precedence) break;
                     rightHandSide = scanBinaryOperator(rightHandSide, nextOp, nextOp->precedence);
                 }
-                message->inputs()->append(CHILD_ARGUMENT(PrimitiveChainPtr(), leftHandSide));
-                message->inputs()->append(CHILD_ARGUMENT(PrimitiveChainPtr(), rightHandSide));
-                leftHandSide = CHILD_PRIMITIVE_CHAIN();
-                leftHandSide->append(primitive);
+                message->inputs()->append(NULL, leftHandSide);
+                message->inputs()->append(NULL, rightHandSide);
+                leftHandSide = CHILD_PRIMITIVE_CHAIN(primitive);
             } while((currentOp = isBinaryOperator()) && currentOp->precedence >= minPrecedence);
             return leftHandSide;
         }

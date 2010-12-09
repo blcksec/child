@@ -11,7 +11,10 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 template<class C, class T>
 class GenericList : public Object {
 public:
-    GenericList(const NodePtr &origin, const QList<T> &other = QList<T>(), const bool isBunched = false) :
+    GenericList(const NodePtr &origin, const T &value = NULL, const bool isBunched = false) :
+        Object(origin), _list(NULL), _isBunched(isBunched) { if(value) append(value); }
+
+    GenericList(const NodePtr &origin, const QList<T> &other, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) {
         if(!other.isEmpty()) {
             foreach(T node, other) _append(node);

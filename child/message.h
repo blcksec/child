@@ -16,7 +16,7 @@ MessagePtr(new Message(Node::context()->child("Object", "Message"), ##ARGS))
 class Message : public Object {
     CHILD_DECLARATION(Message, Object);
 public:
-    Message(const NodePtr &origin) : Object(origin) {}
+    Message(const NodePtr &origin, const QString &name = "") : Object(origin), _name(name) {}
 
     static void initRoot() { Object::root()->addChild("Message", root()); }
 

@@ -15,10 +15,11 @@ namespace Language {
     class Primitive : public Element {
         CHILD_DECLARATION(Primitive, Element);
     public:
-        Primitive(const NodePtr &origin, const NodePtr &value = NULL) : Element(origin, value) {}
+        Primitive(const NodePtr &origin, const NodePtr &value = NULL, const QStringRef &sourceCodeRef = NULL) :
+            Element(origin, value), _sourceCodeRef(sourceCodeRef) {}
 
         static void initRoot() { Language::root()->addChild("Primitive", root()); }
-        virtual NodePtr fork() const { return new Primitive(this, value()); }
+        virtual NodePtr fork() const { return new Primitive(this, value(), sourceCodeRef()); }
 
         const QStringRef &sourceCodeRef() const { return _sourceCodeRef; }
         void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }

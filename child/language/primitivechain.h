@@ -16,7 +16,8 @@ namespace Language {
     class PrimitiveChain : public GenericList<PrimitiveChainPtr, PrimitivePtr> {
         CHILD_DECLARATION(PrimitiveChain, List);
     public:
-        PrimitiveChain(const NodePtr &origin) : GenericList<PrimitiveChainPtr, PrimitivePtr>(origin) {}
+        PrimitiveChain(const NodePtr &origin, const PrimitivePtr &primitive = NULL) :
+            GenericList<PrimitiveChainPtr, PrimitivePtr>(origin, primitive) {}
 
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
         virtual NodePtr fork() const { return PrimitiveChainPtr(new PrimitiveChain(this))->initFork(); }
