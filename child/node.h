@@ -81,6 +81,7 @@ public:
     const Node *data() const;
     void initData(const Node *data);
     void setData(const Node *data);
+    void clear() { setData(NULL); }
 
     Node &operator*();
     const Node &operator*() const;
@@ -108,7 +109,7 @@ public:
 
 // === Node ===
 
-#define CHILD_NODE(ARGS...) NodePtr(new Node(Node::findInContext("Node"), ##ARGS))
+#define CHILD_NODE(ARGS...) NodePtr(new Node(Node::context()->child("Node"), ##ARGS))
 
 #define CHILD_DECLARATION(NAME, ORIGIN) \
 public: \
@@ -181,6 +182,15 @@ public:
     bool hasExtension(const NodePtr &node) const;
 
     const NodePtr child(const QString &name) const;
+
+    const NodePtr child(const QString &name1, const QString &name2) const {
+        return child(name1)->child(name2);
+    }
+
+    const NodePtr child(const QString &name1, const QString &name2, const QString &name3) const {
+        return child(name1)->child(name2)->child(name3);
+    }
+
     const NodePtr addChild(const QString &name, const NodePtr &value);
     const NodePtr setChild(const QString &name, const NodePtr &value);
     void removeChild(const QString &name);
@@ -242,8 +252,6 @@ public:
         return _contextStack;
     }
 
-    static NodePtr findInContext(const QString &name) { return context()->child(name); }
-
     static void throwRuntimeException(const QString &message = "", const QString &file = "",
                                    const int line = 0, const QString &function = "");
 
@@ -256,7 +264,7 @@ public:
     const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
     virtual const QString toString(bool debug = false) const;
-    void inspect() const { P(toString(true)); }
+    void inspect() const { P(toString(true).toUtf8()); }
 private:
     NodePtr _origin;
     NodeList *_extensions;

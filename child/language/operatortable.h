@@ -1,5 +1,5 @@
-#ifndef CHILD_OPERATORTABLE_H
-#define CHILD_OPERATORTABLE_H
+#ifndef CHILD_LANGUAGE_OPERATOR_TABLE_H
+#define CHILD_LANGUAGE_OPERATOR_TABLE_H
 
 #include <QtCore/QSet>
 
@@ -13,7 +13,7 @@ namespace Language {
 
     #define CHILD_OPERATOR_TABLE(ARGS...) \
     Language::OperatorTablePtr(new Language::OperatorTable( \
-        Node::findInContext("Object")->child("Language")->child("OperatorTable"), ##ARGS))
+        Node::context()->child("Object", "Language", "OperatorTable"), ##ARGS))
 
     class OperatorTable : public GenericList<OperatorTablePtr, OperatorPtr> {
         CHILD_DECLARATION(OperatorTable, List);
@@ -21,7 +21,7 @@ namespace Language {
         OperatorTable(const NodePtr &origin) : GenericList<OperatorTablePtr, OperatorPtr>(origin) {}
 
         static void initRoot() { Language::root()->addChild("OperatorTable", root()); }
-        virtual NodePtr fork() const { CHILD_TODO; return new OperatorTable(this); }
+        virtual NodePtr fork() const { return OperatorTablePtr(new OperatorTable(this))->initFork(); };
 
         void append(const QString &text, Operator::Type type, short precedence,
                          Operator::Associativity associativity = Operator::LeftAssociative,
@@ -64,4 +64,4 @@ namespace Language {
 
 CHILD_END
 
-#endif // CHILD_OPERATORTABLE_H
+#endif // CHILD_LANGUAGE_OPERATOR_TABLE_H

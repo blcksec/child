@@ -7,7 +7,7 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Character, Element);
 
-#define CHILD_CHARACTER(ARGS...) CharacterPtr(new Character(Node::findInContext("Object")->child("Character"), ##ARGS))
+#define CHILD_CHARACTER(ARGS...) CharacterPtr(new Character(Node::context()->child("Object", "Character"), ##ARGS))
 
 class Character : public GenericElement<CharacterPtr, QChar> {
     CHILD_DECLARATION(Character, Element);

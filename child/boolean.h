@@ -7,7 +7,7 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Boolean, Element);
 
-#define CHILD_BOOLEAN(ARGS...) BooleanPtr(new Boolean(Node::findInContext("Object")->child("Boolean"), ##ARGS))
+#define CHILD_BOOLEAN(ARGS...) BooleanPtr(new Boolean(Node::context()->child("Object", "Boolean"), ##ARGS))
 
 class Boolean : public GenericElement<BooleanPtr, bool> {
     CHILD_DECLARATION(Boolean, Element);

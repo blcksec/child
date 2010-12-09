@@ -1,5 +1,5 @@
-#ifndef CHILD_OPERATOR_H
-#define CHILD_OPERATOR_H
+#ifndef CHILD_LANGUAGE_OPERATOR_H
+#define CHILD_LANGUAGE_OPERATOR_H
 
 #include "child/language.h"
 
@@ -9,7 +9,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(Operator, Object);
 
     #define CHILD_OPERATOR(ARGS...) \
-    Language::OperatorPtr(new Language::Operator(Node::findInContext("Object")->child("Language")->child("Operator"), ##ARGS))
+    Language::OperatorPtr(new Language::Operator(Node::context()->child("Object", "Language", "Operator"), ##ARGS))
 
     class Operator : public Object {
         CHILD_DECLARATION(Operator, Object);
@@ -49,4 +49,4 @@ namespace Language {
 
 CHILD_END
 
-#endif // CHILD_OPERATOR_H
+#endif // CHILD_LANGUAGE_OPERATOR_H

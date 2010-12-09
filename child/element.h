@@ -22,7 +22,7 @@ private:
 
 CHILD_PTR_DECLARATION(Element, Object);
 
-#define CHILD_ELEMENT(ARGS...) ElementPtr(new Element(Node::findInContext("Object")->child("Element"), ##ARGS))
+#define CHILD_ELEMENT(ARGS...) ElementPtr(new Element(Node::context()->child("Object", "Element"), ##ARGS))
 
 class Element : public GenericElement<ElementPtr, NodePtr> {
     CHILD_DECLARATION(Element, Object);

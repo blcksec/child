@@ -7,7 +7,7 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Number, Element);
 
-#define CHILD_NUMBER(ARGS...) NumberPtr(new Number(Node::findInContext("Object")->child("Number"), ##ARGS))
+#define CHILD_NUMBER(ARGS...) NumberPtr(new Number(Node::context()->child("Object", "Number"), ##ARGS))
 
 class Number : public GenericElement<NumberPtr, double> {
     CHILD_DECLARATION(Number, Element);

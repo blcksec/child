@@ -32,23 +32,23 @@ SOURCES += main.cpp \
     child/pair.cpp \
     child/list.cpp \
     tests/listtest.cpp \
+    child/bunch.cpp \
     child/dictionary.cpp \
     tests/dictionarytest.cpp \
     child/application.cpp \
-#    child/message.cpp \
+    child/block.cpp \
+    child/message.cpp \
     child/language.cpp \
     child/language/token.cpp \
     child/language/operator.cpp \
     child/language/operatortable.cpp \
     child/language/primitive.cpp \
     child/language/primitivechain.cpp \
-    child/language/section.cpp \
-    child/language/block.cpp \
-    child/language/sourcecode.cpp \
     child/language/argument.cpp \
-    child/bunch.cpp
-#    child/language/lexer.cpp \
-#    child/language/parser.cpp \
+    child/language/section.cpp \
+    child/language/sourcecode.cpp \
+    child/language/lexer.cpp \
+    child/language/parser.cpp
 #    child/world.cpp \
 #    tests/worldtest.cpp
 
@@ -72,23 +72,23 @@ HEADERS += \
     child/pair.h \
     child/list.h \
     tests/listtest.h \
+    child/bunch.h \
     child/dictionary.h \
     tests/dictionarytest.h \
     child/application.h \
-#    child/message.h \
+    child/block.h \
+    child/message.h \
     child/language.h \
     child/language/token.h \
     child/language/operator.h \
     child/language/operatortable.h \
     child/language/primitive.h \
     child/language/primitivechain.h \
-    child/language/section.h \
-    child/language/block.h \
-    child/language/sourcecode.h \
     child/language/argument.h \
-    child/bunch.h
-#    child/language/lexer.h \
-#    child/language/parser.h \
+    child/language/section.h \
+    child/language/sourcecode.h \
+    child/language/lexer.h \
+    child/language/parser.h
 #    child/world.h \
 #    tests/worldtest.h
 

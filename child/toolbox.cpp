@@ -12,6 +12,13 @@ QString readTextFile(const QString &name) {
     return text;
 }
 
+QString concatenateStrings(const QString &first, const QString &separator, const QString &second) {
+    QString str = first;
+    if(!first.isEmpty() && !second.isEmpty()) str += separator;
+    str += second;
+    return str;
+}
+
 QString escapeTabsAndNewlines(QString text) {
     text.replace('\r', "\\r");
     text.replace('\n', "\\n");

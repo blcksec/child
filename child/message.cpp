@@ -1,9 +1,7 @@
 #include "child/message.h"
 
-namespace Child {
-    CHILD_DEFINITION(Message, Object, Object);
+CHILD_BEGIN
 
-    void Message::initRoot() {
-        // TODO
-    }
-}
+CHILD_DEFINITION(Message, Object);
+
+CHILD_END

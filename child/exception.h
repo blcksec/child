@@ -7,10 +7,10 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Exception, Node);
 
-#define CHILD_EXCEPTION(ARGS...) ExceptionPtr(new Exception(Node::findInContext("Exception"), ##ARGS))
+#define CHILD_EXCEPTION(ARGS...) ExceptionPtr(new Exception(Node::context()->child("Exception"), ##ARGS))
 
 #define CHILD_THROW(EXCEPTION, MESSAGE) \
-throw EXCEPTION##Ptr(new EXCEPTION(Node::findInContext(#EXCEPTION), MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO))
+throw EXCEPTION##Ptr(new EXCEPTION(Node::context()->child(#EXCEPTION), MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO))
 
 #define CHILD_TODO \
 CHILD_THROW(Exception, "function not yet implemented")

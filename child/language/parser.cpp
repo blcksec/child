@@ -1,14 +1,12 @@
 #include "child/language/parser.h"
 
-namespace Child {
-    namespace Language {
-        CHILD_DEFINITION(Parser, Object, Language);
+CHILD_BEGIN
 
-        void Parser::initRoot() {
-            // TODO
-        }
-    }
+namespace Language {
+    CHILD_DEFINITION(Parser, Object);
 }
+
+CHILD_END
 
 //        enum Rule {
 //            ListRule

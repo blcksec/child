@@ -35,12 +35,13 @@ public:
         }
     }
 
-    void initFork() {
+    C initFork() {
         C orig = origin();
         if(orig->isNotEmpty()) {
             QHashIterator<K, V> i(*orig->_hash);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()->fork()); }
         }
+        return C(this);
     }
 
     V get(const K &key) const {
@@ -103,7 +104,7 @@ private:
 
 CHILD_PTR_DECLARATION(Dictionary, Object);
 
-#define CHILD_DICTIONARY(ARGS...) DictionaryPtr(new Dictionary(Node::findInContext("Object")->child("Dictionary"), ##ARGS))
+#define CHILD_DICTIONARY(ARGS...) DictionaryPtr(new Dictionary(Node::context()->child("Object", "Dictionary"), ##ARGS))
 
 class Dictionary : public GenericDictionary<DictionaryPtr, NodeRef, NodePtr> {
     CHILD_DECLARATION(Dictionary, Object);
@@ -116,11 +117,7 @@ public:
 
     static void initRoot() { Object::root()->addChild("Dictionary", root()); }
 
-    virtual NodePtr fork() const {
-        DictionaryPtr dict = new Dictionary(this);
-        dict->initFork();
-        return dict;
-    }
+    virtual NodePtr fork() const { return DictionaryPtr(new Dictionary(this))->initFork(); };
 };
 
 CHILD_PTR_DEFINITION(Dictionary, Object);

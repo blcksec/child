@@ -65,6 +65,7 @@ void Application::initOperatorTable() {
     ops->append(">>=", Operator::Binary, 161, Operator::RightAssociative);
 
     _operatorTable = ops;
+    addChild("operatorTable", _operatorTable);
 }
 
 CHILD_END

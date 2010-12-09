@@ -1,5 +1,5 @@
-#ifndef CHILD_PRIMITIVECHAIN_H
-#define CHILD_PRIMITIVECHAIN_H
+#ifndef CHILD_LANGUAGE_PRIMITIVE_CHAIN_H
+#define CHILD_LANGUAGE_PRIMITIVE_CHAIN_H
 
 #include "child/list.h"
 #include "child/language/primitive.h"
@@ -11,7 +11,7 @@ namespace Language {
 
     #define CHILD_PRIMITIVE_CHAIN(ARGS...) \
     Language::PrimitiveChainPtr(new Language::PrimitiveChain( \
-        Node::findInContext("Object")->child("Language")->child("PrimitiveChain"), ##ARGS))
+        Node::context()->child("Object", "Language", "PrimitiveChain"), ##ARGS))
 
     class PrimitiveChain : public GenericList<PrimitiveChainPtr, PrimitivePtr> {
         CHILD_DECLARATION(PrimitiveChain, List);
@@ -19,7 +19,7 @@ namespace Language {
         PrimitiveChain(const NodePtr &origin) : GenericList<PrimitiveChainPtr, PrimitivePtr>(origin) {}
 
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
-        virtual NodePtr fork() const { CHILD_TODO; return new PrimitiveChain(this); }
+        virtual NodePtr fork() const { return PrimitiveChainPtr(new PrimitiveChain(this))->initFork(); }
 
         virtual const QString toString(bool debug = false) const { return join(", ", "", "", debug); }
     };
@@ -29,4 +29,4 @@ namespace Language {
 
 CHILD_END
 
-#endif // CHILD_PRIMITIVECHAIN_H
+#endif // CHILD_LANGUAGE_PRIMITIVE_CHAIN_H

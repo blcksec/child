@@ -1,86 +1,73 @@
 #ifndef CHILD_MESSAGE_H
 #define CHILD_MESSAGE_H
 
-#include "child/object.h"
-#include "child/dictionary.h"
 #include "child/block.h"
+#include "child/language/argument.h"
 
-namespace Child {
-    class Message : public Object {
-        CHILD_DECLARATION(Message, Object, Object);
-    public:
-        static Message *is(Node *node, const QString &name) {
-            Message *message = Message::is(node);
-            return message && message->name() == name ? message : NULL;
-        }
+CHILD_BEGIN
 
-        Message() : _inputs(NULL), _outputs(NULL), _block(NULL) {}
+using namespace Language;
 
-        virtual ~Message() {
-            delete _inputs;
-            delete _outputs;
-            delete _block;
-        }
+CHILD_PTR_DECLARATION(Message, Object);
 
-        const QString &name() const { return _name; }
-        void setName(const QString &name) { _name = name; }
+#define CHILD_MESSAGE(ARGS...) \
+MessagePtr(new Message(Node::context()->child("Object", "Message"), ##ARGS))
 
-        Dictionary *inputs(bool createIfNull = false) const {
-            if(_inputs) return _inputs;
-            if(createIfNull)
-                return const_cast<Message *>(this)->_inputs =
-                       Dictionary::fork(const_cast<Message *>(this));
-            else
-                return Dictionary::root();
-        }
+class Message : public Object {
+    CHILD_DECLARATION(Message, Object);
+public:
+    Message(const NodePtr &origin) : Object(origin) {}
 
-        void appendInput(const QString &key, Language::PrimitiveChain *input) {
-            inputs(true)->set(key, input);
-        }
+    static void initRoot() { Object::root()->addChild("Message", root()); }
 
-        void appendInput(List *inputs) {
-            if(!inputs) throw NullPointerException("List pointer is NULL");
-            for(int i = 0; i < inputs->size(); i++) {
-                appendInput("", Language::PrimitiveChain::as(inputs->get(i)));
-            }
-        }
+    virtual NodePtr fork() const {
+        MessagePtr message = new Message(this);
+        if(!name().isEmpty()) message->setName(name());
+        if(inputs(false)) message->setInputs(inputs()->fork());
+        if(outputs(false)) message->setOutputs(outputs()->fork());
+        if(block()) message->setBlock(block()->fork());
+        return message;
+    }
 
-        Language::PrimitiveChain *input(int i) const { return Language::PrimitiveChain::as(inputs()->get(i)); }
-        Language::PrimitiveChain *firstInput() const { return input(0); }
-        Language::PrimitiveChain *secondInput() const { return input(1); }
-        Language::PrimitiveChain *lastInput() const { return input(inputCount()-1); }
+    const QString name() const { return _name; }
+    void setName(const QString &name) { _name = name; }
 
-        int inputCount() const { return inputs()->size(); }
+    ArgumentBunchPtr inputs(bool createIfNull = true) const {
+        if(!_inputs && createIfNull) const_cast<Message *>(this)->_inputs = CHILD_ARGUMENT_BUNCH();
+        return(_inputs);
+    }
 
-        virtual const QString inspect() const {
-            QString str;
-            str.append(name());
-            if(inputs()->isNotEmpty()) {
-                str.append("(");
-                bool first = true;
-                foreach(NamedNode namedNode, inputs()->namedNodes()) {
-                    if(!first) str.append(", "); else first = false;
-                    if(!Dictionary::keyIsAnonymous(namedNode.name)) {
-                        str.append(Dictionary::unescapedKey(namedNode.name));
-                        str.append(": ");
-                    }
-                    QString chain = namedNode.node->inspect();
-                    chain.remove(0, 1); // remove useless parenthesis
-                    chain.chop(1);
-                    str.append(chain);
-                }
-                str.append(")");
-            }
-            return str;
-        }
-    private:
-        QString _name;
-        Dictionary *_inputs;
-        bool _hasVariadicInputs;
-        Dictionary *_outputs;
-        bool _hasVariadicOutputs;
-        Block *_block;
-    };
-}
+    void setInputs(const ArgumentBunchPtr &inputs) { _inputs = inputs; }
+
+    ArgumentBunchPtr outputs(bool createIfNull = true) const {
+        if(!_outputs && createIfNull) const_cast<Message *>(this)->_outputs = CHILD_ARGUMENT_BUNCH();
+        return(_outputs);
+    }
+
+    void setOutputs(const ArgumentBunchPtr &outputs) { _outputs = outputs; }
+
+    BlockPtr block() const { return _block; }
+    void setBlock(const BlockPtr &block) { _block = block; }
+
+    virtual const QString toString(bool debug = false) const {
+        QString str = name();
+        if(inputs(false) && inputs()->isNotEmpty())
+            str += "(" + inputs()->toString(debug) + ")";
+        if(outputs(false) && outputs()->isNotEmpty())
+            str += " -> (" + outputs()->toString(debug) + ")";
+        if(block())
+            str += " {\n" + block()->toString(debug) + "\n}";
+        return str;
+    }
+private:
+    QString _name;
+    ArgumentBunchPtr _inputs;
+    ArgumentBunchPtr _outputs;
+    BlockPtr _block;
+};
+
+CHILD_PTR_DEFINITION(Message, Object);
+
+CHILD_END
 
 #endif // CHILD_MESSAGE_H

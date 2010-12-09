@@ -1,142 +1,153 @@
 #ifndef CHILD_LEXER_H
 #define CHILD_LEXER_H
 
-#include "child/object.h"
-#include "child/language.h"
 #include "child/language/token.h"
 #include "child/language/operatortable.h"
 
-namespace Child {
-    namespace Language {
-        class Lexer : public Object {
-            CHILD_DECLARATION(Lexer, Object, Language);
-        public:
-            Lexer() : _operatorTable(0), _source(0) {}
+CHILD_BEGIN
 
-            OperatorTable *operatorTable() const { return _operatorTable; }
-            void setOperatorTable(OperatorTable *table) { _operatorTable = table; }
+namespace Language {
+    CHILD_PTR_DECLARATION(Lexer, Object);
 
-            void setSource(const QString *source) { _source = source; rewind(); }
-            const QString *source() const { return _source; }
+    #define CHILD_LEXER(ARGS...) \
+    Language::LexerPtr(new Language::Lexer(Node::context()->child("Object", "Language", "Lexer"), ##ARGS))
 
-            void setResourceName(const QString &name) { _resourceName = name;}
-            const QString &resourceName() const { return _resourceName; }
+    class Lexer : public Object {
+        CHILD_DECLARATION(Lexer, Object);
+    public:
+        Lexer(const NodePtr &origin) : Object(origin) {}
+        static void initRoot() { Language::root()->addChild("Lexer", root()); }
+        virtual NodePtr fork() const { return new Lexer(this); } // TODO
 
-            void rewind();
-            const Token *nextToken();
+        OperatorTablePtr operatorTable() const {
+            if(!_operatorTable) const_cast<Lexer *>(this)->_operatorTable = context()->child("operatorTable");
+            return _operatorTable;
+        }
 
-            void consume();
+        void setSource(const QString source) { _source = source; rewind(); }
+        const QString source() const { return _source; }
 
-            void startToken() {
-                _tokenPosition = _position;
-            }
+        void setResourceName(const QString &name) { _resourceName = name;}
+        const QString resourceName() const { return _resourceName; }
 
-            const Token *finishToken(const Token::Type type) {
-                return Token::fork(this, type, tokenTextRef());
-            }
+        void rewind();
+        TokenPtr nextToken();
 
-            const QStringRef tokenTextRef() const {
-                return _source->midRef(_tokenPosition, _position - _tokenPosition);
-            }
+        void consume();
 
-            const Token *scan(const Token::Type type) { // Simple one char tokens
-                startToken();
-                consume();
-                return finishToken(type);
-            }
+        void startToken() {
+            _tokenPosition = _position;
+        }
 
-            bool isEof() const {
-                return _currentChar.isNull();
-            }
+        TokenPtr finishToken(const Token::Type type) {
+            return CHILD_TOKEN(type, tokenTextRef());
+        }
 
-            bool isSpace() const {
-                return _currentChar == ' ' || _currentChar == '\t';
-            }
+        const QStringRef tokenTextRef() const {
+            return _source.midRef(_tokenPosition, _position - _tokenPosition);
+        }
 
-            void consumeSpaces() {
-                do consume(); while(isSpace());
-            }
+        TokenPtr scan(const Token::Type type) { // Simple one char tokens
+            startToken();
+            consume();
+            return finishToken(type);
+        }
 
-            bool isNewline() const {
-                return _currentChar == '\r' || _currentChar == '\n';
-            }
+        bool isEof() const {
+            return _currentChar.isNull();
+        }
 
-            const Token *scanNewline() {
-                startToken();
-                do consume(); while(isNewline() || isSpace());
-                return finishToken(Token::Newline);
-            }
+        bool isSpace() const {
+            return _currentChar == ' ' || _currentChar == '\t';
+        }
 
-            bool isLineComment() const {
-                return _currentChar == '/' && _nextChar == '/';
-            }
+        void consumeSpaces() {
+            do consume(); while(isSpace());
+        }
 
-            void consumeLineComment();
+        bool isNewline() const {
+            return _currentChar == '\r' || _currentChar == '\n';
+        }
 
-            bool isBlockComment() const {
-                return _currentChar == '/' && _nextChar == '*';
-            }
+        TokenPtr scanNewline() {
+            startToken();
+            do consume(); while(isNewline() || isSpace());
+            return finishToken(Token::Newline);
+        }
 
-            void consumeBlockComment();
+        bool isLineComment() const {
+            return _currentChar == '/' && _nextChar == '/';
+        }
 
-            bool isName() const {
-                return _currentChar.isLetter() || _currentChar == '_';
-            }
+        void consumeLineComment();
 
-            const Token *scanName();
+        bool isBlockComment() const {
+            return _currentChar == '/' && _nextChar == '*';
+        }
 
-            bool isOperator() const {
-                return operatorTable()->hasOperatorStartingWith(_currentChar);
-            }
+        void consumeBlockComment();
 
-            const Token *scanOperator();
+        bool isName() const {
+            return _currentChar.isLetter() || _currentChar == '_';
+        }
 
-            bool isNumber() const {
-                return _currentChar.isNumber();
-            }
+        TokenPtr scanName();
 
-            const Token *scanNumber();
+        bool isOperator() const {
+            return operatorTable()->hasOperatorStartingWith(_currentChar);
+        }
 
-            const Token *scanCharacter();
-            const Token *scanText();
+        TokenPtr scanOperator();
 
-            void consumeEscapeSequence();
-            void consumeEscapeSequenceNumber();
+        bool isNumber() const {
+            return _currentChar.isNumber();
+        }
 
-            void throwError(const QString &message);
+        TokenPtr scanNumber();
 
-            const QString toString();
+        TokenPtr scanCharacter();
+        TokenPtr scanText();
 
-            void test() {
-    //            setSource("[a, b] = [c, d]");
-    //            p(escapeTabsAndNewlines(toString()).toUtf8());
-            }
+        void consumeEscapeSequence();
+        void consumeEscapeSequenceNumber();
 
-    //        void test() {
-    //            setSource(readTextFile("../child/examples/lexertest.child"));
-    //            setFilename("lexertest.child");
-    //            p(escapeTabsAndNewlines(toString()).toUtf8());
-    //        }
+        void throwError(QString message) const;
 
-    //        void test() {
-    //            setSource(readTextFile("../child/examples/lexertest.child"));
-    //            setFilename("lexertest.child");
-    //            for(int i = 0; i < 1000; i++) {
-    //                while(nextToken().type != Token::Eof) {}
-    //                rewind();
-    //            }
-    //        }
-        private:
-            OperatorTable *_operatorTable;
-            const QString *_source;
-            QString _resourceName;
-            int _position;
-            QChar _previousChar;
-            QChar _currentChar;
-            QChar _nextChar;
-            int _tokenPosition;
-        };
-    }
+        virtual const QString toString(bool debug = false) const;
+
+//        void test() {
+//            setSource("[a, b] = [c, d]");
+//            p(toString().toUtf8());
+//        }
+
+//        void test() {
+//            setSource(readTextFile("../child/examples/lexertest.child"));
+//            setFilename("lexertest.child");
+//            p(toString().toUtf8());
+//        }
+
+//        void test() {
+//            setSource(readTextFile("../child/examples/lexertest.child"));
+//            setFilename("lexertest.child");
+//            for(int i = 0; i < 1000; i++) {
+//                while(nextToken().type != Token::Eof) {}
+//                rewind();
+//            }
+//        }
+    private:
+        OperatorTablePtr _operatorTable;
+        QString _source;
+        QString _resourceName;
+        int _position;
+        QChar _previousChar;
+        QChar _currentChar;
+        QChar _nextChar;
+        int _tokenPosition;
+    };
+
+    CHILD_PTR_DEFINITION(Lexer, Object);
 }
+
+CHILD_END
 
 #endif // CHILD_LEXER_H

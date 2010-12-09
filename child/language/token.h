@@ -1,5 +1,5 @@
-#ifndef CHILD_TOKEN_H
-#define CHILD_TOKEN_H
+#ifndef CHILD_LANGUAGE_TOKEN_H
+#define CHILD_LANGUAGE_TOKEN_H
 
 #include "child/language.h"
 
@@ -9,7 +9,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(Token, Object);
 
     #define CHILD_TOKEN(ARGS...) \
-    Language::TokenPtr(new Language::Token(Node::findInContext("Object")->child("Language")->child("Token"), ##ARGS))
+    Language::TokenPtr(new Language::Token(Node::context()->child("Object", "Language", "Token"), ##ARGS))
 
     class Token : public Object {
         CHILD_DECLARATION(Token, Object);
@@ -51,8 +51,7 @@ namespace Language {
         static const QString typeName(const Type type) { return typeNames[type]; }
 
         virtual const QString toString(bool debug = false) const {
-            #pragma unused(debug)
-            return QString("%1: '%2'").arg(typeName(), text());
+            return QString("%1: '%2'").arg(typeName(), debug ? escapeTabsAndNewlines(text()) : text());
         }
     };
 
@@ -61,4 +60,4 @@ namespace Language {
 
 CHILD_END
 
-#endif // CHILD_TOKEN_H
+#endif // CHILD_LANGUAGE_TOKEN_H

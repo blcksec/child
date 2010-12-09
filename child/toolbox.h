@@ -13,6 +13,7 @@ QTextStream(stdout) << VALUE << '\n';
 #define PP P(Q_FUNC_INFO);
 
 QString readTextFile(const QString &name);
+QString concatenateStrings(const QString &first, const QString &separator, const QString &second);
 QString escapeTabsAndNewlines(QString text);
 QString extractLine(const QString &text, int requestedLine);
 const bool computeColumnAndLineForPosition(const QString &text, const int position, int &column, int &line);

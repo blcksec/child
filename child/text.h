@@ -7,7 +7,7 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Text, Element);
 
-#define CHILD_TEXT(ARGS...) TextPtr(new Text(Node::findInContext("Object")->child("Text"), ##ARGS))
+#define CHILD_TEXT(ARGS...) TextPtr(new Text(Node::context()->child("Object", "Text"), ##ARGS))
 
 class Text : public GenericElement<TextPtr, QString> {
     CHILD_DECLARATION(Text, Element);

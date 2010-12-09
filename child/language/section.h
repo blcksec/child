@@ -1,5 +1,5 @@
-#ifndef CHILD_SECTION_H
-#define CHILD_SECTION_H
+#ifndef CHILD_LANGUAGE_SECTION_H
+#define CHILD_LANGUAGE_SECTION_H
 
 #include "child/language/primitivechain.h"
 
@@ -9,7 +9,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(Section, List);
 
     #define CHILD_SECTION(ARGS...) \
-    Language::SectionPtr(new Language::Section(Node::findInContext("Object")->child("Language")->child("Section"), ##ARGS))
+    Language::SectionPtr(new Language::Section(Node::context()->child("Object", "Language", "Section"), ##ARGS))
 
     class Section : public GenericList<SectionPtr, PrimitiveChainPtr> {
         CHILD_DECLARATION(Section, List);
@@ -17,7 +17,7 @@ namespace Language {
         Section(const NodePtr &origin) : GenericList<SectionPtr, PrimitiveChainPtr>(origin) {}
 
         static void initRoot() { Language::root()->addChild("Section", root()); }
-        virtual NodePtr fork() const { CHILD_TODO; return new Section(this); }
+        virtual NodePtr fork() const { return SectionPtr(new Section(this))->initFork(); }
 
         PrimitiveChainPtr label() const { return _label; }
         void setLabel(const PrimitiveChainPtr &label) { _label = label; }
@@ -37,4 +37,4 @@ namespace Language {
 
 CHILD_END
 
-#endif // CHILD_SECTION_H
+#endif // CHILD_LANGUAGE_SECTION_H

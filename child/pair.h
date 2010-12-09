@@ -34,7 +34,7 @@ private:
 
 CHILD_PTR_DECLARATION(Pair, Object);
 
-#define CHILD_PAIR(ARGS...) PairPtr(new Pair(Node::findInContext("Object")->child("Pair"), ##ARGS))
+#define CHILD_PAIR(ARGS...) PairPtr(new Pair(Node::context()->child("Object", "Pair"), ##ARGS))
 
 class Pair : public GenericPair<PairPtr, NodePtr, NodePtr> {
     CHILD_DECLARATION(Pair, Object);

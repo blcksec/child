@@ -1,5 +1,5 @@
-#ifndef CHILD_PRIMITIVE_H
-#define CHILD_PRIMITIVE_H
+#ifndef CHILD_LANGUAGE_PRIMITIVE_H
+#define CHILD_LANGUAGE_PRIMITIVE_H
 
 #include "child/element.h"
 #include "child/language.h"
@@ -10,7 +10,7 @@ namespace Language {
     CHILD_PTR_DECLARATION(Primitive, Element);
 
     #define CHILD_PRIMITIVE(ARGS...) \
-    Language::PrimitivePtr(new Language::Primitive(Node::findInContext("Object")->child("Language")->child("Primitive"), ##ARGS))
+    Language::PrimitivePtr(new Language::Primitive(Node::context()->child("Object", "Language", "Primitive"), ##ARGS))
 
     class Primitive : public Element {
         CHILD_DECLARATION(Primitive, Element);
@@ -31,4 +31,4 @@ namespace Language {
 
 CHILD_END
 
-#endif // CHILD_PRIMITIVE_H
+#endif // CHILD_LANGUAGE_PRIMITIVE_H

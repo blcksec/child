@@ -152,7 +152,7 @@ void Node::_removeParent(const Node *parent) const {
 #define CHILD_THROW_FUNCTION(EXCEPTION) \
 void Node::throw##EXCEPTION(const QString &message, const QString &file, \
                             const int line, const QString &function) { \
-    throw EXCEPTION##Ptr(new EXCEPTION(findInContext(#EXCEPTION), message, file, line, function)); \
+    throw EXCEPTION##Ptr(new EXCEPTION(context()->child(#EXCEPTION), message, file, line, function)); \
 }
 
 CHILD_THROW_FUNCTION(RuntimeException);

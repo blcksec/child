@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 CHILD_PTR_DECLARATION(Object, Node);
 
-#define CHILD_OBJECT(ARGS...) ObjectPtr(new Object(Node::findInContext("Object"), ##ARGS))
+#define CHILD_OBJECT(ARGS...) ObjectPtr(new Object(Node::context()->child("Object"), ##ARGS))
 
 class Object : public Node {
     CHILD_DECLARATION(Object, Node);
