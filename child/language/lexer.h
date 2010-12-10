@@ -111,7 +111,7 @@ namespace Language {
         void consumeEscapeSequence();
         void consumeEscapeSequenceNumber();
 
-        void throwError(QString message) const;
+        LexerExceptionPtr lexerException(QString message) const;
 
         virtual const QString toString(bool debug = false) const;
 

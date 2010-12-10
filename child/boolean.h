@@ -18,7 +18,7 @@ public:
     virtual NodePtr fork() const { return new Boolean(this, value()); }
 
     virtual const QString toString(bool debug = false) const {
-        #pragma unused(debug)
+        Q_UNUSED(debug);
         return value() ? "true" : "false";
     }
 };

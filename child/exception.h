@@ -34,7 +34,7 @@ public:
     const QString report() const;
 
     virtual const QString toString(bool debug = false) const {
-        #pragma unused(debug)
+        Q_UNUSED(debug);
         return report();
     }
 };

@@ -63,8 +63,7 @@ namespace Language {
                 return text;
             } else {
                 const QString optionalText = text.isNull() ? "" : "'" + text + "' ";
-                throwError("expecting " + optionalText + Token::typeName(type) + ", found " + tokenTypeName());
-                return ""; // deadcode avoiding "control reaches end of non-void function" warning
+                throw parserException("expecting " + optionalText + Token::typeName(type) + ", found " + tokenTypeName());
             }
         }
 
@@ -124,7 +123,7 @@ namespace Language {
                 scanUnaryExpression(primitiveChain);
                 if(isBinaryOperator()) break;
             }
-            if(primitiveChain->isEmpty()) throwError("expecting UnaryExpression, found " + tokenTypeName());
+            if(primitiveChain->isEmpty()) throw parserException("expecting UnaryExpression, found " + tokenTypeName());
             return primitiveChain;
         }
 
@@ -221,7 +220,7 @@ namespace Language {
                 value = CHILD_TEXT(s);
                 break;
             default:
-                throwError("unimplemented token!");
+                throw parserException("unimplemented token!");
             }
             PrimitivePtr primitive = CHILD_PRIMITIVE(value, token()->sourceCodeRef);
             consume();
@@ -301,7 +300,7 @@ namespace Language {
             return leftHandSide;
         }
 
-        void throwError(QString message) const {
+        ParserExceptionPtr parserException(QString message) const {
             int column, line;
             computeColumnAndLineForPosition(lexer()->source(), token()->sourceCodeRef.position(), column, line);
             QString text = extractLine(lexer()->source(), line);
@@ -309,8 +308,7 @@ namespace Language {
                 QString cursor = QString(" ").repeated(column - 1).append("^");
                 message += "\n" + text + "\n" + cursor;
             }
-            throw ParserExceptionPtr(new ParserException(context()->child("ParserException"),
-                                                         message, lexer()->resourceName(), line));
+            return new ParserException(context()->child("ParserException"),message, lexer()->resourceName(), line);
         }
     private:
         LexerPtr _lexer;

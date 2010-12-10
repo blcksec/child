@@ -18,7 +18,7 @@ public:
     virtual NodePtr fork() const { return new Number(this, value()); }
 
     virtual const QString toString(bool debug = false) const {
-        #pragma unused(debug)
+        Q_UNUSED(debug);
         return QString("%1").arg(value());
     }
 };

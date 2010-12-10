@@ -35,7 +35,7 @@ namespace Language {
                 else if(isName()) return scanName();
                 else if(isNumber()) return scanNumber();
                 else if(isOperator()) return scanOperator();
-                else throwError(QString("invalid character: '%1'").arg(_currentChar));
+                else throw lexerException(QString("invalid character: '%1'").arg(_currentChar));
             }
         }
     }
@@ -65,7 +65,7 @@ namespace Language {
         consume(); // Slash
         consume(); // *
         while(!(_currentChar == '*' && _nextChar == '/')) {
-            if(isEof()) throwError("unexpected EOF found before the end of a comment");
+            if(isEof()) throw lexerException("unexpected EOF found before the end of a comment");
             consume();
         }
         consume(); // *
@@ -120,45 +120,45 @@ namespace Language {
         while(true) {
             if(_currentChar.isNumber()) {
                 if(base == 2 && !(_currentChar == '0' || _currentChar == '1'))
-                    throwError("a binary number can only contain 0 or 1");
+                    throw lexerException("a binary number can only contain 0 or 1");
                 if(base == 8 && !QString("01234567").contains(_currentChar))
-                    throwError("an octal number can only contain digits from 0 to 7");
+                    throw lexerException("an octal number can only contain digits from 0 to 7");
                 oneMoreDigitExpected = false;
             } else if(base == 16 && QString("abcdef").contains(_currentChar, Qt::CaseInsensitive)) {
                 oneMoreDigitExpected = false;
             } else if(_currentChar == '.' && _nextChar.isNumber()) {
-                if(decimalPointFound) throwError("too many decimal points in a number");
-                if(eFound) throwError("the exponential part of a number cannot contain a decimal point");
-                if(base == 16) throwError("an hexadecimal number cannot contain a decimal point");
-                if(base == 8) throwError("an octal number cannot contain a decimal point");
-                if(base == 2) throwError("a binary number cannot contain a decimal point");
+                if(decimalPointFound) throw lexerException("too many decimal points in a number");
+                if(eFound) throw lexerException("the exponential part of a number cannot contain a decimal point");
+                if(base == 16) throw lexerException("an hexadecimal number cannot contain a decimal point");
+                if(base == 8) throw lexerException("an octal number cannot contain a decimal point");
+                if(base == 2) throw lexerException("a binary number cannot contain a decimal point");
                 decimalPointFound = true;
                 oneMoreDigitExpected = true;
             } else if(base != 16 && (_currentChar == 'e' || _currentChar == 'E')) {
-                if(eFound) throwError("a number cannot contain more than one exponential part");
-                if(base == 8) throwError("an octal number cannot contain an exponential part");
-                if(base == 2) throwError("a binary number cannot contain an exponential part");
+                if(eFound) throw lexerException("a number cannot contain more than one exponential part");
+                if(base == 8) throw lexerException("an octal number cannot contain an exponential part");
+                if(base == 2) throw lexerException("a binary number cannot contain an exponential part");
                 eFound = true;
                 oneMoreDigitExpected = true;
             } else if((_currentChar == '+' || _currentChar == '-') && base == 10 && (_previousChar == 'e' || _previousChar == 'E')) {
                 // All is good in the hood!
             } else if(isName()) {
-                throwError(QString("unexpected character found in a number: '%1'").arg(_currentChar));
+                throw lexerException(QString("unexpected character found in a number: '%1'").arg(_currentChar));
             } else break;
             consume();
         }
-        if(oneMoreDigitExpected) throwError(QString("unexpected character found in a number: '%1'").arg(_currentChar));
+        if(oneMoreDigitExpected) throw lexerException(QString("unexpected character found in a number: '%1'").arg(_currentChar));
         return finishToken(Token::Number);
     }
 
     TokenPtr Lexer::scanCharacter() {
         startToken();
         consume(); // left single quote
-        if(isEof()) throwError("unexpected EOF found in a character literal");
+        if(isEof()) throw lexerException("unexpected EOF found in a character literal");
         if(_currentChar != '\'') {
             if(_currentChar == '\\') consumeEscapeSequence(); else consume();
-            if(isEof()) throwError("unexpected EOF found in a character literal");
-            if(_currentChar != '\'') throwError("a character literal can't have more than one character");
+            if(isEof()) throw lexerException("unexpected EOF found in a character literal");
+            if(_currentChar != '\'') throw lexerException("a character literal can't have more than one character");
         }
         consume(); // right single quote
         return finishToken(Token::Character);
@@ -168,7 +168,7 @@ namespace Language {
         startToken();
         consume(); // left double quote
         while(_currentChar != '"') {
-            if(isEof()) throwError("unexpected EOF found in a text literal");
+            if(isEof()) throw lexerException("unexpected EOF found in a text literal");
             if(_currentChar == '\\') consumeEscapeSequence(); else consume();
         };
         consume(); // right double quote
@@ -177,12 +177,12 @@ namespace Language {
 
     void Lexer::consumeEscapeSequence() {
         consume(); // anti-slash
-        if(isEof()) throwError("unexpected EOF found in an escape sequence");
+        if(isEof()) throw lexerException("unexpected EOF found in an escape sequence");
         if(QString("trn\"'\\").contains(_currentChar))
             consume();
         else if(QString("01234567xu").contains(_currentChar, Qt::CaseInsensitive))
             consumeEscapeSequenceNumber();
-        else throwError(QString("unknown escape sequence: '\\%1'").arg(_currentChar));
+        else throw lexerException(QString("unknown escape sequence: '\\%1'").arg(_currentChar));
     }
 
     void Lexer::consumeEscapeSequenceNumber() {
@@ -206,19 +206,19 @@ namespace Language {
         }
         QString number = "";
         while(number.size() < maxSize) {
-            if(isEof()) throwError("unexpected EOF found in an escape sequence number");
+            if(isEof()) throw lexerException("unexpected EOF found in an escape sequence number");
             if(!allowedChars.contains(_currentChar, Qt::CaseInsensitive)) break;
             number.append(_currentChar);
             consume();
         }
-        if(number.isEmpty()) throwError("invalid escape sequence number");
+        if(number.isEmpty()) throw lexerException("invalid escape sequence number");
         bool ok;
         ushort code = type == 'o' ? number.toUShort(&ok, 8) : number.toUShort(&ok, 16);
-        if(!ok) throwError("invalid number in escape sequence");
-        if(type != 'u' && code > 0xFF) throwError("invalid number in escape sequence");
+        if(!ok) throw lexerException("invalid number in escape sequence");
+        if(type != 'u' && code > 0xFF) throw lexerException("invalid number in escape sequence");
     }
 
-    void Lexer::throwError(QString message) const {
+    LexerExceptionPtr Lexer::lexerException(QString message) const {
         int column, line;
         computeColumnAndLineForPosition(_source, _position, column, line);
         QString text = extractLine(_source, line);
@@ -226,7 +226,7 @@ namespace Language {
             QString cursor = QString(" ").repeated(column - 1).append("^");
             message += "\n" + text + "\n" + cursor;
         }
-        throw LexerExceptionPtr(new LexerException(context()->child("LexerException"), message, _resourceName, line));
+        return new LexerException(context()->child("LexerException"), message, _resourceName, line);
     }
 
     const QString Lexer::toString(bool debug) const {

@@ -39,7 +39,7 @@ namespace Language {
         const bool isNull() const { return type == Null; }
 
         virtual const QString toString(bool debug = false) const {
-            #pragma unused(debug)
+            Q_UNUSED(debug);
             return QString("\"%1\"").arg(name);
         }
     };

@@ -160,7 +160,7 @@ CHILD_THROW_FUNCTION(NullPointerException);
 CHILD_THROW_FUNCTION(TypecastException);
 
 const QString Node::toString(bool debug) const {
-    #pragma unused(debug)
+    Q_UNUSED(debug);
     return QString("%1: [%2]").arg(hexMemoryAddress(), QStringList(children().keys()).join(", "));
 }
 
