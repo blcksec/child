@@ -1,2 +1,1 @@
-doc:
-    1 * 2 + 3 / 4
+Exception(e): "Argh" print

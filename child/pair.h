@@ -8,7 +8,7 @@ CHILD_BEGIN
 template<class C, class T1, class T2>
 class GenericPair : public Object {
 public:
-    GenericPair(const NodePtr &origin, T1 first = NULL, T2 second = NULL) :
+    GenericPair(const NodePtr &origin, const T1 &first = NULL, const T2 &second = NULL) :
         Object(origin), _first(first), _second(second) {}
 
     virtual NodePtr fork() const { return new GenericPair(this, _first->fork(), _second->fork()); }
@@ -39,7 +39,7 @@ CHILD_PTR_DECLARATION(Pair, Object);
 class Pair : public GenericPair<PairPtr, NodePtr, NodePtr> {
     CHILD_DECLARATION(Pair, Object);
 public:
-    Pair(const NodePtr &origin, NodePtr first = NULL, NodePtr second = NULL) :
+    Pair(const NodePtr &origin, const NodePtr &first = NULL, const NodePtr &second = NULL) :
         GenericPair<PairPtr, NodePtr, NodePtr>(origin, first, second) {}
 
     static void initRoot() { Object::root()->addChild("Pair", root()); }

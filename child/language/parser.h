@@ -72,7 +72,7 @@ namespace Language {
         void consumeUselessNewline() {
             if(!is(Token::Newline)) return;
             Token::Type type = topToken();
-            if(type == Token::LeftParenthesis || type == Token::LeftBracket || type == Token::Label)
+            if(type == Token::LeftParenthesis || type == Token::LeftBracket)
                do consume(); while(is(Token::Newline));
         }
 
@@ -85,15 +85,15 @@ namespace Language {
 
         SectionPtr scanSection() {
             SectionPtr section = CHILD_SECTION();
-            if(is(Token::Label)) {
-                QString name = tokenText();
-                name.chop(1);
-                PrimitivePtr primitive = CHILD_PRIMITIVE(CHILD_MESSAGE(name), token()->sourceCodeRef);
-                section->setLabel(CHILD_PRIMITIVE_CHAIN(primitive));
-                consume();
-                consumeNewline();
-            }
-            while(!(is(Token::Label) || is(Token::Eof))) {
+//            if(is(Token::Label)) {
+//                QString name = tokenText();
+//                name.chop(1);
+//                PrimitivePtr primitive = CHILD_PRIMITIVE(CHILD_MESSAGE(name), token()->sourceCodeRef);
+//                section->setLabel(CHILD_PRIMITIVE_CHAIN(primitive));
+//                consume();
+//                consumeNewline();
+//            }
+            while(!is(Token::Eof)) { // || is(Token::Label)
                 section->append(scanExpression());
                 consumeNewline();
             }
@@ -109,16 +109,16 @@ namespace Language {
 
         PrimitiveChainPtr scanUnaryExpressionChain() {
             PrimitiveChainPtr primitiveChain = CHILD_PRIMITIVE_CHAIN();
-            if(is(Token::Label)) {
-                MessagePtr message = CHILD_MESSAGE(tokenText());
-                PrimitivePtr primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
-                openToken();
-                consume();
-                consumeNewline();
-                message->inputs()->append(NULL, scanExpression());
-                closeToken();
-                primitiveChain->append(primitive);
-            }
+//            if(is(Token::Label)) {
+//                MessagePtr message = CHILD_MESSAGE(tokenText());
+//                PrimitivePtr primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
+//                openToken();
+//                consume();
+//                consumeNewline();
+//                message->inputs()->append(NULL, scanExpression());
+//                closeToken();
+//                primitiveChain->append(primitive);
+//            }
             while(isUnaryExpression()) {
                 scanUnaryExpression(primitiveChain);
                 if(isBinaryOperator()) break;
@@ -273,31 +273,51 @@ namespace Language {
 
         OperatorPtr isBinaryOperator() const {
             OperatorPtr op = isOperator(Operator::Binary);
-            if(op && op->name == "," && topToken() == Token::Label)
-                return NULL;
-            else
-                return op;
+//            if(op && op->name == "," && topToken() == Token::Label)
+//                return NULL;
+//            else
+//                return op;
+            return op;
         }
 
         PrimitiveChainPtr scanBinaryOperator(PrimitiveChainPtr leftHandSide, OperatorPtr &currentOp, const short minPrecedence) {
             do {
-                MessagePtr message = CHILD_MESSAGE(currentOp->name);
-                PrimitivePtr primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
+                QStringRef sourceCodeRef = token()->sourceCodeRef;
                 consume();
                 consumeNewline();
                 PrimitiveChainPtr rightHandSide = scanUnaryExpressionChain();
-                while(OperatorPtr nextOp = isBinaryOperator()) {
-                    if(nextOp->associativity == Operator::NonAssociative && nextOp->precedence == currentOp->precedence)
-                        qFatal("syntax error: chained non-associative operators with same precedence");
-                    if(nextOp->associativity != Operator::RightAssociative && nextOp->precedence <= currentOp->precedence) break;
-                    if(nextOp->associativity == Operator::RightAssociative && nextOp->precedence != currentOp->precedence) break;
-                    rightHandSide = scanBinaryOperator(rightHandSide, nextOp, nextOp->precedence);
+                OperatorPtr nextOp;
+                while((nextOp = isBinaryOperator()) && (
+                          operatorPrecedence(nextOp) > operatorPrecedence(currentOp) ||
+                          (nextOp->associativity == Operator::RightAssociative &&
+                           operatorPrecedence(nextOp) == operatorPrecedence(currentOp))
+                          )) {
+                    rightHandSide = scanBinaryOperator(rightHandSide, nextOp, operatorPrecedence(nextOp));
                 }
-                message->inputs()->append(NULL, leftHandSide);
-                message->inputs()->append(NULL, rightHandSide);
-                leftHandSide = CHILD_PRIMITIVE_CHAIN(primitive);
-            } while((currentOp = isBinaryOperator()) && currentOp->precedence >= minPrecedence);
+                if(!currentOp->isSyntaxElement) {
+                    MessagePtr message = CHILD_MESSAGE(currentOp->name);
+                    PrimitivePtr primitive = CHILD_PRIMITIVE(message, sourceCodeRef);
+                    message->inputs()->append(NULL, rightHandSide);
+                    leftHandSide = CHILD_PRIMITIVE_CHAIN(CHILD_PRIMITIVE(leftHandSide, QStringRef())); // TODO: proper sourceCodeRef
+                    leftHandSide->append(primitive);
+                } else {
+                    if(currentOp->name == ":") {
+                        PrimitivePtr primitive = CHILD_PRIMITIVE(CHILD_ARGUMENT(leftHandSide, rightHandSide), sourceCodeRef);
+                        leftHandSide = CHILD_PRIMITIVE_CHAIN(primitive);
+                    }
+                }
+            } while((currentOp = isBinaryOperator()) && operatorPrecedence(currentOp) >= minPrecedence);
             return leftHandSide;
+        }
+
+        short operatorPrecedence(const OperatorPtr &op) const {
+            short precedence = op->precedence;
+            if(op->name == ",") {
+                Token::Type type = topToken();
+                if(type == Token::LeftParenthesis || type == Token::LeftBracket)
+                    precedence = 1;
+            }
+            return precedence;
         }
 
         ParserExceptionPtr parserException(QString message) const {

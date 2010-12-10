@@ -25,9 +25,9 @@ namespace Language {
 
         void append(const QString &text, Operator::Type type, short precedence,
                          Operator::Associativity associativity = Operator::LeftAssociative,
-                         const QString &name = "") {
+                         const QString &name = "", const bool isSyntaxElement = false) {
             GenericList<OperatorTablePtr, OperatorPtr>::append(
-                        CHILD_OPERATOR(text, type, precedence, associativity, name));
+                        CHILD_OPERATOR(text, type, precedence, associativity, name, isSyntaxElement));
         }
 
         bool has(const QString &text) const {

@@ -18,7 +18,6 @@ namespace Language {
             Null,
             Eof,
             Name,
-            Label,
             Operator,
             Boolean,
             Number,

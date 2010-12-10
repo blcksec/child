@@ -9,7 +9,6 @@ namespace Language {
         "<NULL>",
         "<EOF>",
         "Name",
-        "Label",
         "Operator",
         "Boolean",
         "Number",

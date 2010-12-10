@@ -79,10 +79,6 @@ namespace Language {
             consume();
         const QStringRef text(tokenTextRef());
         if(text == "true" || text == "false") return finishToken(Token::Boolean);
-        if(_currentChar == ':' && _nextChar != '=') {
-            consume();
-            return finishToken(Token::Label);
-        }
         return finishToken(Token::Name);
     }
 

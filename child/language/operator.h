@@ -23,17 +23,19 @@ namespace Language {
         short precedence;
         Associativity associativity;
         QString name;
+        bool isSyntaxElement;
 
         Operator(const NodePtr &origin, const QString &text = "", Type type = Null, short precedence = 0,
-                Associativity associativity = LeftAssociative, const QString &name = "") :
-            Object(origin), text(text), type(type), precedence(precedence), associativity(associativity), name(name) {
+                Associativity associativity = LeftAssociative, const QString &name = "", const bool isSyntaxElement = false) :
+            Object(origin), text(text), type(type), precedence(precedence), associativity(associativity),
+            name(name), isSyntaxElement(isSyntaxElement) {
             if(name.isEmpty()) this->name = text;
         }
 
         static void initRoot() { Language::root()->addChild("Operator", root()); }
 
         virtual NodePtr fork() const {
-            return new Operator(this, text, type, precedence, associativity, name);
+            return new Operator(this, text, type, precedence, associativity, name, isSyntaxElement);
         }
 
         const bool isNull() const { return type == Null; }

@@ -22,7 +22,7 @@ namespace Language {
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
         virtual NodePtr fork() const { return PrimitiveChainPtr(new PrimitiveChain(this))->initFork(); }
 
-        virtual const QString toString(bool debug = false) const { return join(", ", "", "", debug); }
+        virtual const QString toString(bool debug = false) const { return join(" ", "", "", debug); }
     };
 
     CHILD_PTR_DEFINITION(PrimitiveChain, List);
