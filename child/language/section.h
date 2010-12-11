@@ -24,8 +24,8 @@ namespace Language {
 
         virtual const QString toString(bool debug = false) const {
             QString str;
-            if(label() && label()->isNotEmpty()) str += label()->toString(debug) + ":\n";
-            str += join("\n", "    ", "", debug);
+            if(label() && label()->isNotEmpty()) str = label()->toString(debug) + ":";
+            str = concatenateStrings(str, "\n", join("\n", "    ", "", debug));
             return str;
         }
     private:

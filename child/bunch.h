@@ -12,14 +12,23 @@ CHILD_PTR_DECLARATION(Bunch, List);
 class Bunch : public GenericList<BunchPtr, NodePtr> {
     CHILD_DECLARATION(Bunch, List);
 public:
-    Bunch(const NodePtr &origin, const NodeList &other = NodeList()) :
-        GenericList<BunchPtr, NodePtr>(origin, other, true) {}
+    Bunch(const NodePtr &origin) : GenericList<BunchPtr, NodePtr>(origin, true) {}
+
+    Bunch(const NodePtr &origin, const NodePtr &value) : GenericList<BunchPtr, NodePtr>(origin, value, true) {}
+
+    Bunch(const NodePtr &origin, const NodePtr &value1, const NodePtr &value2) :
+        GenericList<BunchPtr, NodePtr>(origin, value1, value2, true) {}
+
+    Bunch(const NodePtr &origin, const NodePtr &value1, const NodePtr &value2, const NodePtr &value3) :
+        GenericList<BunchPtr, NodePtr>(origin, value1, value2, value3, true) {}
 
     Bunch(const Bunch &other) : GenericList<BunchPtr, NodePtr>(other) {}
 
     static void initRoot() { Object::root()->addChild("Bunch", root()); }
 
     virtual NodePtr fork() const { return BunchPtr(new Bunch(this))->initFork(); }
+
+    virtual const QString toString(bool debug = false) const { return "[" + join(", ", "", "", debug) + "]"; }
 };
 
 CHILD_PTR_DEFINITION(Bunch, List);

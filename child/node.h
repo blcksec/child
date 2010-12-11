@@ -236,7 +236,8 @@ public:
     }
 
     static const NodePtr context() {
-        if(contextStack().isEmpty()) qFatal("Fatal error: context stack is empty!");
+        if(contextStack().isEmpty())
+            qFatal("Fatal error: context stack is empty!");
         return contextStack().top();
     }
 

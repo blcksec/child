@@ -43,7 +43,12 @@ public:
         GenericPair<PairPtr, NodePtr, NodePtr>(origin, first, second) {}
 
     static void initRoot() { Object::root()->addChild("Pair", root()); }
-    virtual NodePtr fork() const { return new Pair(this, first()->fork(), second()->fork()); }
+
+    virtual NodePtr fork() const {
+        return new Pair(this,
+                        first() ? first()->fork() : NodePtr::null(),
+                        second() ? second()->fork() : NodePtr::null());
+    }
 };
 
 CHILD_PTR_DEFINITION(Pair, Object);

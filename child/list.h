@@ -11,8 +11,17 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 template<class C, class T>
 class GenericList : public Object {
 public:
-    GenericList(const NodePtr &origin, const T &value = NULL, const bool isBunched = false) :
-        Object(origin), _list(NULL), _isBunched(isBunched) { if(value) append(value); }
+    GenericList(const NodePtr &origin, const bool isBunched = false) :
+        Object(origin), _list(NULL), _isBunched(isBunched) {}
+
+    GenericList(const NodePtr &origin, const T &value, const bool isBunched = false) :
+        Object(origin), _list(NULL), _isBunched(isBunched) { append(value); }
+
+    GenericList(const NodePtr &origin, const T &value1, const T &value2, const bool isBunched = false) :
+        Object(origin), _list(NULL), _isBunched(isBunched) { append(value1); append(value2); }
+
+    GenericList(const NodePtr &origin, const T &value1, const T &value2, const T &value3, const bool isBunched = false) :
+        Object(origin), _list(NULL), _isBunched(isBunched) { append(value1); append(value2); append(value3); }
 
     GenericList(const NodePtr &origin, const QList<T> &other, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) {
@@ -123,11 +132,13 @@ public:
     const QString join(const QString &separator = "", const QString &prefix = "",
                        const QString &suffix = "", bool debug = false) const {
         QString str;
-        bool first = true;
-        Iterator i(C(this));
-        while(T value = i.next()) {
-            if(!first) str += separator; else first = false;
-            str += prefix + value->toString(debug) + suffix;
+        if(_list) {
+            bool first = true;
+            Iterator i(C(this));
+            while(T value = i.next()) {
+                if(!first) str += separator; else first = false;
+                str += prefix + value->toString(debug) + suffix;
+            }
         }
         return str;
     }

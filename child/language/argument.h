@@ -51,18 +51,31 @@ namespace Language {
     class ArgumentBunch : public GenericList<ArgumentBunchPtr, ArgumentPtr> {
         CHILD_DECLARATION(ArgumentBunch, Bunch);
     public:
-        ArgumentBunch(const NodePtr &origin, const QList<ArgumentPtr> &other = QList<ArgumentPtr>()) :
-            GenericList<ArgumentBunchPtr, ArgumentPtr>(origin, other, true) {}
+        ArgumentBunch(const NodePtr &origin) : GenericList<ArgumentBunchPtr, ArgumentPtr>(origin, true) {}
 
         static void initRoot() { Language::root()->addChild("ArgumentBunch", root()); }
         virtual NodePtr fork() const { return ArgumentBunchPtr(new ArgumentBunch(this))->initFork(); }
 
-        ArgumentPtr append(const ArgumentPtr &argument) { // Strange... Shoud be inherited from GenericList?
+        ArgumentPtr append(const ArgumentPtr &argument) {
             return GenericList<ArgumentBunchPtr, ArgumentPtr>::append(argument);
         }
 
+        void append(const PrimitiveChainPtr &value) {
+            if(PairPtr pair = PairPtr(value->first()->value(), true))
+                append(pair->first(), pair->second());
+            else if(BunchPtr bunch = BunchPtr(value->first()->value(), true))
+                append(bunch);
+            else
+                append(CHILD_ARGUMENT(NULL, value));
+        }
+
         ArgumentPtr append(const PrimitiveChainPtr &label, const PrimitiveChainPtr &value) {
-            return GenericList<ArgumentBunchPtr, ArgumentPtr>::append(CHILD_ARGUMENT(label, value));
+            return append(CHILD_ARGUMENT(label, value));
+        }
+
+        void append(const BunchPtr &bunch) {
+            Bunch::Iterator i(bunch);
+            while(NodePtr value = i.next()) append(PrimitiveChainPtr(value));
         }
 
         virtual const QString toString(bool debug = false) const { return join(", ", "", "", debug); }

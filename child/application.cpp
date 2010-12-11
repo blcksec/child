@@ -48,7 +48,7 @@ void Application::initOperatorTable() {
 
     ops->append("..", Operator::Binary, 341);
 
-    ops->append(",", Operator::Binary, 221);
+    ops->append(",", Operator::Binary, 221, Operator::LeftAssociative, "", true);
     ops->append("->", Operator::Binary, 211);
 
     ops->append(":=", Operator::Binary, 111, Operator::RightAssociative);

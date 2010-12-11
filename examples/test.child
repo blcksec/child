@@ -1,1 +1,1 @@
-Exception(e): "Argh" print
+Person(first: "Manu", last: "Vila", age: 38);
