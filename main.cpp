@@ -19,6 +19,8 @@ int main() { // int argc, char *argv[]
         SourceCodePointer source = app->loadSourceCode("../child/examples/test.child");
 //        source->inspect();
         source->block()->run()->inspect();
+        TextPointer t(CHILD_TEXT("hello"));
+        ((*t).*NativeMethodPointer(t->child("upcase"))->method())(CHILD_MESSAGE())->inspect();
         Node::popContext();
     } catch(ExceptionPointer e) {
         qDebug() << e->report().toUtf8();

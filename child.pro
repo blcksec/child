@@ -20,7 +20,7 @@ SOURCES += main.cpp \
     child/node.cpp \
     tests/nodetest.cpp \
     child/exception.cpp \
-#    child/nativemethod.cpp \
+    child/nativemethod.cpp \
     child/object.cpp \
     tests/objecttest.cpp \
     child/element.cpp \
@@ -58,7 +58,7 @@ HEADERS += \
     tests/nodetest.h \
     child/exception.h \
     tests/runalltests.h \
-#    child/nativemethod.h \
+    child/nativemethod.h \
     child/object.h \
     tests/objecttest.h \
     child/element.h \

@@ -3,6 +3,7 @@
 
 #include "child/node.h"
 #include "child/exception.h"
+#include "child/nativemethod.h"
 
 CHILD_BEGIN
 

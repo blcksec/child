@@ -1,29 +1,33 @@
-#ifndef CHILD_NATIVEMETHOD_H
-#define CHILD_NATIVEMETHOD_H
+#ifndef CHILD_NATIVE_METHOD_H
+#define CHILD_NATIVE_METHOD_H
 
 #include "child/node.h"
+#include "child/exception.h"
 
-#define CHILD_METHODPTR(METH) static_cast<NodeMethodPtr>(&METH)
+CHILD_BEGIN
 
-namespace Child {
-    class NativeMethod : public Node {
-        CHILD_DECLARATION(NativeMethod, Node, Node);
-    public:
-        static NativeMethod *fork(Node *world, NodeMethodPtr method) {
-            return NativeMethod::fork(world)->setMethod(method);
-        }
+CHILD_POINTER_DECLARATION(NativeMethod,);
 
-        NativeMethod() : _method(NULL) {}
+#define CHILD_NATIVE_METHOD(ARGS...) NativeMethodPointer(new NativeMethod(Node::context()->child("NativeMethod"), ##ARGS))
 
-        virtual void initFork() {
-            setMethod(NativeMethod::as(origin())->_method);
-        }
+class MessagePointer;
+typedef Pointer (Node::*MethodPtr)(const MessagePointer &);
 
-        NodeMethodPtr method() const { return _method; }
-        NativeMethod *setMethod(NodeMethodPtr method) { _method = method; return this; }
-    private:
-        NodeMethodPtr _method;
-    };
-}
+class NativeMethod : public Node {
+    CHILD_DECLARATION(NativeMethod, Node);
+public:
+    NativeMethod(const Pointer &origin, const MethodPtr &method = NULL) : Node(origin), _method(method) {}
+    static void initRoot() { Node::root()->addChild("NativeMethod", root()); }
+    virtual Pointer fork() const { return new NativeMethod(this, _method); }
 
-#endif // CHILD_NATIVEMETHOD_H
+    MethodPtr method() const { return _method; }
+    NativeMethodPointer setMethod(const MethodPtr &method) { _method = method; return this; }
+private:
+    MethodPtr _method;
+};
+
+CHILD_POINTER_DEFINITION(NativeMethod,);
+
+CHILD_END
+
+#endif // CHILD_NATIVE_METHOD_H
