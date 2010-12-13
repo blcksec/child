@@ -132,13 +132,11 @@ public:
     const QString join(const QString &separator = "", const QString &prefix = "",
                        const QString &suffix = "", bool debug = false, short level = 0) const {
         QString str;
-        if(_list) {
-            bool first = true;
-            Iterator i(C(this));
-            while(T value = i.next()) {
-                if(!first) str += separator; else first = false;
-                str += prefix + value->toString(debug, level) + suffix;
-            }
+        bool first = true;
+        Iterator i(C(this));
+        while(T value = i.next()) {
+            if(!first) str += separator; else first = false;
+            str += prefix + value->toString(debug, level) + suffix;
         }
         return str;
     }
@@ -163,12 +161,13 @@ public:
 
     class Iterator {
     public:
-        Iterator(const C &list) : _iterator(QListIterator<T>(*list->_list)) {}
+        Iterator(const C &list) : _iterator(list->_list ? new QListIterator<T>(*list->_list) : NULL) {}
+        ~Iterator() { delete _iterator; }
 
-        bool hasNext() const { return _iterator.hasNext(); }
-        const T &next() { return hasNext() ? _iterator.next() : T::null(); }
+        bool hasNext() const { return _iterator && _iterator->hasNext(); }
+        const T &next() { return hasNext() ? _iterator->next() : T::null(); }
     private:
-        QListIterator<T> _iterator;
+        QListIterator<T> *_iterator;
     };
 
 //    class const_iterator {

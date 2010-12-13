@@ -21,6 +21,7 @@ Pointer &Node::root() {
     static Pointer _root;
     if(!_root) {
         _root = new Node(NULL);
+        empty(); // anticipate the _empty local static initialization
         initRoot();
     }
     return _root;

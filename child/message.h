@@ -49,12 +49,18 @@ public:
     BlockPointer block() const { return _block; }
     void setBlock(const BlockPointer &block) { _block = block; }
 
+    virtual Pointer run(const Pointer &receiver = context()) {
+        Q_UNUSED(receiver);
+        PP;
+        return this;
+    }
+
     virtual const QString toString(bool debug = false, short level = 0) const {
         QString str = name();
         if(inputs(false) && inputs()->isNotEmpty())
             str += "(" + inputs()->toString(debug, level) + ")";
         if(outputs(false) && outputs()->isNotEmpty())
-            str += " -> (" + outputs()->toString(debug, level) + ")";
+            str += " -> " + outputs()->toString(debug, level);
         if(block()) str += " " + block()->toString(debug, level);
         return str;
     }

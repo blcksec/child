@@ -2,6 +2,7 @@
 #define CHILD_LANGUAGE_PRIMITIVE_H
 
 #include "child/element.h"
+#include "child/text.h"
 #include "child/language.h"
 
 CHILD_BEGIN
@@ -23,6 +24,10 @@ namespace Language {
 
         const QStringRef &sourceCodeRef() const { return _sourceCodeRef; }
         void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }
+
+        virtual Pointer run(const Pointer &receiver = context()) {
+            return value()->run(receiver);
+        }
     private:
         QStringRef _sourceCodeRef;
     };

@@ -146,7 +146,7 @@ namespace Language {
             } else if(isNestedBlock()) {
                 return scanNestedBlock();
             }
-            throw parserException("unknown operand");
+            throw parserException("unimplemented operand");
         }
 
         const bool isName() const { return is(Token::Name); }
@@ -214,7 +214,7 @@ namespace Language {
                 value = CHILD_TEXT(s);
                 break;
             default:
-                throw parserException("unimplemented token!");
+                throw parserException("unimplemented token");
             }
             PrimitivePointer primitive = CHILD_PRIMITIVE(value, token()->sourceCodeRef);
             consume();
@@ -297,26 +297,40 @@ namespace Language {
                           )) {
                     rightHandSide = scanBinaryOperator(rightHandSide, nextOp, operatorPrecedence(nextOp));
                 }
-                if(!currentOp->isSyntaxElement) {
-                    MessagePointer message = CHILD_MESSAGE(currentOp->name);
-                    PrimitivePointer primitive = CHILD_PRIMITIVE(message, sourceCodeRef);
-                    message->inputs()->append(rightHandSide);
-                    leftHandSide = CHILD_PRIMITIVE_CHAIN(CHILD_PRIMITIVE(leftHandSide, QStringRef())); // TODO: proper sourceCodeRef
-                    leftHandSide->append(primitive);
-                } else {
-                    if(currentOp->name == ":") {
-                        PrimitivePointer primitive = CHILD_PRIMITIVE(CHILD_PAIR(leftHandSide, rightHandSide), sourceCodeRef);
-                        leftHandSide = CHILD_PRIMITIVE_CHAIN(primitive);
-                    } else if (currentOp->name == ",") {
-                        BunchPointer bunch(leftHandSide->first()->value(), true);
-                        if(!bunch) {
-                            PrimitivePointer primitive = CHILD_PRIMITIVE(CHILD_BUNCH(leftHandSide, rightHandSide), sourceCodeRef);
-                            leftHandSide = CHILD_PRIMITIVE_CHAIN(primitive);
-                        } else
-                            bunch->append(rightHandSide);
-                    }
-                }
+                leftHandSide = resolveBinaryOperator(leftHandSide, currentOp, rightHandSide, sourceCodeRef);
             } while((currentOp = isBinaryOperator()) && operatorPrecedence(currentOp) >= minPrecedence);
+            return leftHandSide;
+        }
+
+        PrimitiveChainPointer resolveBinaryOperator(PrimitiveChainPointer leftHandSide,
+                                                    const OperatorPointer &op,
+                                                    const PrimitiveChainPointer &rightHandSide,
+                                                    const QStringRef &sourceCodeRef) {
+            if(op->isSyntaxElement) {
+                if(op->name == ":") {
+                    PrimitivePointer primitive = CHILD_PRIMITIVE(CHILD_PAIR(leftHandSide, rightHandSide), sourceCodeRef);
+                    leftHandSide = CHILD_PRIMITIVE_CHAIN(primitive);
+                } else if(op->name == ",") {
+                    BunchPointer bunch(leftHandSide->first()->value(), true);
+                    if(!bunch) {
+                        PrimitivePointer primitive = CHILD_PRIMITIVE(CHILD_BUNCH(leftHandSide, rightHandSide), sourceCodeRef);
+                        leftHandSide = CHILD_PRIMITIVE_CHAIN(primitive);
+                    } else {
+                        bunch->append(rightHandSide);
+                    }
+                } else if(op->name == "->") {
+                    MessagePointer message(leftHandSide->last()->value(), true);
+                    if(!message) throw parserException("message expected before '->'");
+                    message->outputs()->append(rightHandSide);
+                } else
+                    throw parserException("unimplemented syntax operator");
+            } else {
+                MessagePointer message = CHILD_MESSAGE(op->name);
+                PrimitivePointer primitive = CHILD_PRIMITIVE(message, sourceCodeRef);
+                message->inputs()->append(rightHandSide);
+                leftHandSide = CHILD_PRIMITIVE_CHAIN(CHILD_PRIMITIVE(leftHandSide, QStringRef())); // TODO: proper sourceCodeRef
+                leftHandSide->append(primitive);
+            }
             return leftHandSide;
         }
 

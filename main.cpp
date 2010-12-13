@@ -12,16 +12,17 @@ using namespace Language;
 int main() { // int argc, char *argv[]
     init();
     runAllTests();
-//    try {
+    try {
         ApplicationPointer app = Application::root();
         Node::pushContext(app);
         app->init();
         SourceCodePointer source = app->loadSourceCode("../child/examples/test.child");
-        source->inspect();
+//        source->inspect();
+        source->block()->run()->inspect();
         Node::popContext();
-//    } catch(ExceptionPointer e) {
-//        qDebug() << e->report().toUtf8();
-//    }
+    } catch(ExceptionPointer e) {
+        qDebug() << e->report().toUtf8();
+    }
 //    NodeRef r2(t2);
 //    try {
 //        CHILD_THROW(LexerException, "key not found");

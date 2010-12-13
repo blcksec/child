@@ -60,7 +60,7 @@ List
 
 * "objets persistants" pour gérer les watchers sur des objets changeants
 
-if(name == "Vila") { "Yo there!" else: "Too bad..." } print
+if(name == "Vila") { "Yo there!"; else: "Too bad..." } print
 
 if(name == "Vila") { "Yo there!" } else { "Too bad..." } print
 
@@ -89,10 +89,14 @@ full_name(capitalize<Boolean>: false) -> result: "", ok: true := {
 meta:
     inline!
     no_autorun!
+check:
+    ...
+before:
+    "full_name" log
 body:
     str := [first_name, last_name] join(" ")
     if(capitalize) { str captitalize } else { str }
-end:
+after:
     everyting clean!
 test:
     p := Person()

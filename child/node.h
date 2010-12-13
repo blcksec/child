@@ -9,6 +9,8 @@
 
 CHILD_BEGIN
 
+#define CHILD_NODE(ARGS...) Pointer(new Node(Node::context()->child("Node"), ##ARGS))
+
 #define CHILD_CHECK_POINTER(POINTER) \
 if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Pointer is NULL")
 
@@ -100,8 +102,15 @@ public:
     const QHash<QString, Pointer> children() const;
     const PointerList parents() const;
 
+    virtual Pointer run(const Pointer &receiver = context()) {
+        Q_UNUSED(receiver);
+        return this;
+    }
+
     virtual Comparison compare(const Node &other) const { return this == &other ? Equal : Different; }
     virtual uint hash() const { return ::qHash(this); }
+
+    static const Pointer &empty() { static const Pointer _empty(new Node(Node::root())); return _empty; };
 
     static HugeUnsignedInteger &nodeCount() {
         static HugeUnsignedInteger _nodeCount = 0;
@@ -157,13 +166,12 @@ inline bool operator==(const Reference &a, const Reference &b) { return a->compa
 inline bool operator!=(const Reference &a, const Reference &b) { return a->compare(*b) != Node::Equal; }
 inline uint qHash(const Reference &node) { return node->hash(); }
 
-#define CHILD_NODE(ARGS...) Pointer(new Node(Node::context()->child("Node"), ##ARGS))
-
 #define CHILD_DECLARATION(NAME, ORIGIN) \
 public: \
     static NAME##Pointer &root(); \
     virtual const QString className() const { return #NAME; } \
     static const bool isInitialized; \
+    static const NAME##Pointer &empty() { static const NAME##Pointer _empty(new NAME(NAME::root())); return _empty; }; \
 private:
 
 #define CHILD_DEFINITION(NAME, ORIGIN) \
@@ -172,6 +180,7 @@ NAME##Pointer &NAME::root() { \
     static NAME##Pointer _root; \
     if(!_root) { \
         _root = NAME##Pointer(new NAME(ORIGIN::root())); \
+        empty(); \
         initRoot(); \
     } \
     return _root; \
