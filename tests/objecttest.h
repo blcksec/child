@@ -1,32 +1,17 @@
-#ifndef CHILD_OBJECTTEST_H
-#define CHILD_OBJECTTEST_H
+#ifndef CHILD_OBJECT_TEST_H
+#define CHILD_OBJECT_TEST_H
 
-#include "tests/testhelper.h"
 #include "child/object.h"
 
-#ifdef CHILD_IS_NAMESPACED
-namespace Child {
-#endif
+#include "tests/testbegin.h"
 
-class ObjectTest : public QObject
-{
+class ObjectTest : public QObject {
     Q_OBJECT
-private:
-    HugeUnsignedInteger _initialNodeCount;
-private slots:
-    void init() {
-        _initialNodeCount = Node::nodeCount();
-    }
-
-    void cleanup() {
-        QCOMPARE(Node::nodeCount(), _initialNodeCount);
-    }
+    CHILD_TEST
 
     void initialize();
 };
 
-#ifdef CHILD_IS_NAMESPACED
-}
-#endif
+#include "tests/testend.h"
 
-#endif // CHILD_OBJECTTEST_H
+#endif // CHILD_OBJECT_TEST_H

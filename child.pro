@@ -16,9 +16,9 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     child.cpp \
+    child/global.cpp \
     child/node.cpp \
     tests/nodetest.cpp \
-    child/toolbox.cpp \
     child/exception.cpp \
 #    child/nativemethod.cpp \
     child/object.cpp \
@@ -49,16 +49,14 @@ SOURCES += main.cpp \
     child/language/sourcecode.cpp \
     child/language/lexer.cpp \
     child/language/parser.cpp
-#    child/world.cpp \
-#    tests/worldtest.cpp
 
 HEADERS += \
     child.h \
+    child/global.h \
+    child/pointer.h \
     child/node.h \
     tests/nodetest.h \
-    child/toolbox.h \
     child/exception.h \
-    tests/testhelper.h \
     tests/runalltests.h \
 #    child/nativemethod.h \
     child/object.h \
@@ -88,9 +86,9 @@ HEADERS += \
     child/language/section.h \
     child/language/sourcecode.h \
     child/language/lexer.h \
-    child/language/parser.h
-#    child/world.h \
-#    tests/worldtest.h
+    child/language/parser.h \
+    tests/testbegin.h \
+    tests/testend.h
 
 OTHER_FILES += \
     notes/ideas.txt \

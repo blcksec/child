@@ -1,26 +1,13 @@
-#ifndef CHILD_TEXTTEST_H
-#define CHILD_TEXTTEST_H
+#ifndef CHILD_TEXT_TEST_H
+#define CHILD_TEXT_TEST_H
 
-#include "tests/testhelper.h"
 #include "child/text.h"
 
-#ifdef CHILD_IS_NAMESPACED
-namespace Child {
-#endif
+#include "tests/testbegin.h"
 
-class TextTest : public QObject
-{
+class TextTest : public QObject {
     Q_OBJECT
-private:
-    HugeUnsignedInteger _initialNodeCount;
-private slots:
-    void init() {
-        _initialNodeCount = Node::nodeCount();
-    }
-
-    void cleanup() {
-        QCOMPARE(Node::nodeCount(), _initialNodeCount);
-    }
+    CHILD_TEST
 
     void initialize();
     void fork();
@@ -28,8 +15,6 @@ private slots:
     void upcase();
 };
 
-#ifdef CHILD_IS_NAMESPACED
-}
-#endif
+#include "tests/testend.h"
 
-#endif // CHILD_TEXTTEST_H
+#endif // CHILD_TEXT_TEST_H

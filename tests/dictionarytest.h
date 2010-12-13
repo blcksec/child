@@ -1,28 +1,15 @@
-#ifndef CHILD_DICTIONARYTEST_H
-#define CHILD_DICTIONARYTEST_H
+#ifndef CHILD_DICTIONARY_TEST_H
+#define CHILD_DICTIONARY_TEST_H
 
-#include "tests/testhelper.h"
 #include "child/text.h"
 #include "child/dictionary.h"
 #include "child/list.h"
 
-#ifdef CHILD_IS_NAMESPACED
-namespace Child {
-#endif
+#include "tests/testbegin.h"
 
-class DictionaryTest : public QObject
-{
+class DictionaryTest : public QObject {
     Q_OBJECT
-private:
-    HugeUnsignedInteger _initialNodeCount;
-private slots:
-    void init() {
-        _initialNodeCount = Node::nodeCount();
-    }
-
-    void cleanup() {
-        QVERIFY(Node::nodeCount() == _initialNodeCount);
-    }
+    CHILD_TEST
 
     void initialize();
     void getAndSet();
@@ -31,8 +18,6 @@ private slots:
     void clear();
 };
 
-#ifdef CHILD_IS_NAMESPACED
-}
-#endif
+#include "tests/testend.h"
 
-#endif // CHILD_DICTIONARYTEST_H
+#endif // CHILD_DICTIONARY_TEST_H

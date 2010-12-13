@@ -1,7 +1,6 @@
-#ifndef CHILD_RUNALLTESTS_H
-#define CHILD_RUNALLTESTS_H
+#ifndef CHILD_RUN_ALL_TESTS_H
+#define CHILD_RUN_ALL_TESTS_H
 
-#include "tests/testhelper.h"
 #include "tests/nodetest.h"
 #include "tests/objecttest.h"
 #include "tests/texttest.h"
@@ -45,4 +44,4 @@ static void runAllTests() {
 
 CHILD_END
 
-#endif // CHILD_RUNALLTESTS_H
+#endif // CHILD_RUN_ALL_TESTS_H

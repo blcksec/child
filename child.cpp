@@ -1,6 +1,5 @@
 #include "child.h"
 #include "child/node.h"
-#include "child/exception.h"
 
 CHILD_BEGIN
 

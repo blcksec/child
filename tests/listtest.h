@@ -1,27 +1,14 @@
-#ifndef CHILD_LISTTEST_H
-#define CHILD_LISTTEST_H
+#ifndef CHILD_LIST_TEST_H
+#define CHILD_LIST_TEST_H
 
-#include "tests/testhelper.h"
 #include "child/text.h"
 #include "child/list.h"
 
-#ifdef CHILD_IS_NAMESPACED
-namespace Child {
-#endif
+#include "tests/testbegin.h"
 
-class ListTest : public QObject
-{
+class ListTest : public QObject {
     Q_OBJECT
-private:
-    HugeUnsignedInteger _initialNodeCount;
-private slots:
-    void init() {
-        _initialNodeCount = Node::nodeCount();
-    }
-
-    void cleanup() {
-        QVERIFY(Node::nodeCount() == _initialNodeCount);
-    }
+    CHILD_TEST
 
     void initialize();
     void insertGetAndSet();
@@ -29,8 +16,6 @@ private slots:
     void clear();
 };
 
-#ifdef CHILD_IS_NAMESPACED
-}
-#endif
+#include "tests/testend.h"
 
-#endif // CHILD_LISTTEST_H
+#endif // CHILD_LIST_TEST_H
