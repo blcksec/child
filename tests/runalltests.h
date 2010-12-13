@@ -37,7 +37,7 @@ static void runAllTests() {
         test(new ListTest);
         test(new DictionaryTest);
         endTests();
-    } catch(ExceptionPtr e) {
+    } catch(ExceptionPointer e) {
         qDebug() << e->report().toUtf8();
     }
 }

@@ -11,19 +11,19 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 template<class C, class T>
 class GenericList : public Object {
 public:
-    GenericList(const NodePtr &origin, const bool isBunched = false) :
+    GenericList(const Pointer &origin, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) {}
 
-    GenericList(const NodePtr &origin, const T &value, const bool isBunched = false) :
+    GenericList(const Pointer &origin, const T &value, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) { append(value); }
 
-    GenericList(const NodePtr &origin, const T &value1, const T &value2, const bool isBunched = false) :
+    GenericList(const Pointer &origin, const T &value1, const T &value2, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) { append(value1); append(value2); }
 
-    GenericList(const NodePtr &origin, const T &value1, const T &value2, const T &value3, const bool isBunched = false) :
+    GenericList(const Pointer &origin, const T &value1, const T &value2, const T &value3, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) { append(value1); append(value2); append(value3); }
 
-    GenericList(const NodePtr &origin, const QList<T> &other, const bool isBunched = false) :
+    GenericList(const Pointer &origin, const QList<T> &other, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) {
         if(!other.isEmpty()) {
             foreach(T node, other) _append(node);
@@ -66,7 +66,7 @@ public:
 
     C insert(int i, const C &otherList) {
         checkIndex(i, true);
-        if(!otherList) CHILD_THROW(NullPointerException, "ListPtr is NULL");
+        if(!otherList) CHILD_THROW(NullPointerException, "ListPointer is NULL");
         for(int j = 0; j < otherList->size(); j++) {
             _insert(i + j, otherList->get(j));
         }
@@ -119,7 +119,7 @@ public:
 
     void clear() {
         if(_list) {
-            foreach(NodePtr node, *_list) removeAnonymousChild(node);
+            foreach(Pointer node, *_list) removeAnonymousChild(node);
             _list->clear();
             hasChanged();
         }
@@ -130,14 +130,14 @@ public:
     bool isNotEmpty() const { return size() > 0; }
 
     const QString join(const QString &separator = "", const QString &prefix = "",
-                       const QString &suffix = "", bool debug = false) const {
+                       const QString &suffix = "", bool debug = false, short level = 0) const {
         QString str;
         if(_list) {
             bool first = true;
             Iterator i(C(this));
             while(T value = i.next()) {
                 if(!first) str += separator; else first = false;
-                str += prefix + value->toString(debug) + suffix;
+                str += prefix + value->toString(debug, level) + suffix;
             }
         }
         return str;
@@ -157,7 +157,9 @@ public:
 
     virtual void hasChanged() {}
 
-    virtual const QString toString(bool debug = false) const { return "[" + join(", ", "", "", debug) + "]"; }
+    virtual const QString toString(bool debug = false, short level = 0) const {
+        return "[" + join(", ", "", "", debug, level) + "]";
+    }
 
     class Iterator {
     public:
@@ -172,7 +174,7 @@ public:
 //    class const_iterator {
 //    public:
 //        const_iterator(const List *list, int i = 0) : _list(list), _i(i) {}
-//        NodePtr const operator*() const { return _list->get(_i); }
+//        NodePointer const operator*() const { return _list->get(_i); }
 //        const_iterator &operator++() { ++_i; return *this; }
 //        bool operator!=(const const_iterator &o) const { return _i != o._i; }
 //    private:
@@ -187,36 +189,36 @@ private:
     bool _isBunched;
 };
 
-CHILD_PTR_DECLARATION(List, Object);
+CHILD_POINTER_DECLARATION(List, Object);
 
-#define CHILD_LIST(ARGS...) ListPtr(new List(Node::context()->child("Object", "List"), ##ARGS))
+#define CHILD_LIST(ARGS...) ListPointer(new List(Node::context()->child("Object", "List"), ##ARGS))
 
-class List : public GenericList<ListPtr, NodePtr> {
+class List : public GenericList<ListPointer, Pointer> {
     CHILD_DECLARATION(List, Object);
 public:
-    List(const NodePtr &origin, const NodeList &other = NodeList()) :
-        GenericList<ListPtr, NodePtr>(origin, other) {}
+    List(const Pointer &origin, const PointerList &other = PointerList()) :
+        GenericList<ListPointer, Pointer>(origin, other) {}
 
-    List(const NodePtr &origin, const QList<NodeRef> &other) :
-        GenericList<ListPtr, NodePtr>(origin) {
+    List(const Pointer &origin, const QList<Reference> &other) :
+        GenericList<ListPointer, Pointer>(origin) {
         if(!other.isEmpty()) {
-            foreach(NodeRef ref, other) _append(ref);
+            foreach(Reference ref, other) _append(ref);
             hasChanged();
         }
     }
 
-    List(const List &other) : GenericList<ListPtr, NodePtr>(other) {}
+    List(const List &other) : GenericList<ListPointer, Pointer>(other) {}
 
     static void initRoot() { Object::root()->addChild("List", root()); }
 
-    virtual NodePtr fork() const {
-        ListPtr list = new List(this);
+    virtual Pointer fork() const {
+        ListPointer list = new List(this);
         list->initFork();
         return list;
     }
 };
 
-CHILD_PTR_DEFINITION(List, Object);
+CHILD_POINTER_DEFINITION(List, Object);
 
 CHILD_END
 

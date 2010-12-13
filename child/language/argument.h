@@ -8,80 +8,80 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_PTR_DECLARATION(Argument, Pair);
+    CHILD_POINTER_DECLARATION(Argument, Pair);
 
     #define CHILD_ARGUMENT(ARGS...) \
-    Language::ArgumentPtr(new Language::Argument(Node::context()->child("Object", "Language", "Argument"), ##ARGS))
+    Language::ArgumentPointer(new Language::Argument(Node::context()->child("Object", "Language", "Argument"), ##ARGS))
 
-    class Argument : public GenericPair<ArgumentPtr, PrimitiveChainPtr, PrimitiveChainPtr> {
+    class Argument : public GenericPair<ArgumentPointer, PrimitiveChainPointer, PrimitiveChainPointer> {
         CHILD_DECLARATION(Argument, Pair);
     public:
-        Argument(const NodePtr &origin, const PrimitiveChainPtr &label = NULL, const PrimitiveChainPtr &value = NULL) :
-            GenericPair<ArgumentPtr, PrimitiveChainPtr, PrimitiveChainPtr>(origin, label, value) {}
+        Argument(const Pointer &origin, const PrimitiveChainPointer &label = NULL, const PrimitiveChainPointer &value = NULL) :
+            GenericPair<ArgumentPointer, PrimitiveChainPointer, PrimitiveChainPointer>(origin, label, value) {}
 
         static void initRoot() { Language::root()->addChild("Argument", root()); }
 
-        virtual NodePtr fork() const {
+        virtual Pointer fork() const {
             return new Argument(this,
-                                label() ? label()->fork() : NodePtr::null(),
-                                value() ? value()->fork() : NodePtr::null());
+                                label() ? label()->fork() : Pointer::null(),
+                                value() ? value()->fork() : Pointer::null());
         }
 
         // aliases...
-        PrimitiveChainPtr label() const { return key(); }
-        void setLabel(const PrimitiveChainPtr &label) { setKey(label); }
+        PrimitiveChainPointer label() const { return key(); }
+        void setLabel(const PrimitiveChainPointer &label) { setKey(label); }
 
-        virtual const QString toString(bool debug = false) const {
-            return concatenateStrings(label() ? label()->toString(debug) + ":" : "",
+        virtual const QString toString(bool debug = false, short level = 0) const {
+            return concatenateStrings(label() ? label()->toString(debug, level) + ":" : "",
                                       " ",
-                                      value() ? value()->toString(debug) : "");
+                                      value() ? value()->toString(debug, level) : "");
         }
     };
 
-    CHILD_PTR_DEFINITION(Argument, Pair);
+    CHILD_POINTER_DEFINITION(Argument, Pair);
 
     // === ArgumentBunch ===
 
-    CHILD_PTR_DECLARATION(ArgumentBunch, Bunch);
+    CHILD_POINTER_DECLARATION(ArgumentBunch, Bunch);
 
     #define CHILD_ARGUMENT_BUNCH(ARGS...) \
-    Language::ArgumentBunchPtr(new Language::ArgumentBunch( \
+    Language::ArgumentBunchPointer(new Language::ArgumentBunch( \
         Node::context()->child("Object", "Language", "ArgumentBunch"), ##ARGS))
 
-    class ArgumentBunch : public GenericList<ArgumentBunchPtr, ArgumentPtr> {
+    class ArgumentBunch : public GenericList<ArgumentBunchPointer, ArgumentPointer> {
         CHILD_DECLARATION(ArgumentBunch, Bunch);
     public:
-        ArgumentBunch(const NodePtr &origin) : GenericList<ArgumentBunchPtr, ArgumentPtr>(origin, true) {}
+        ArgumentBunch(const Pointer &origin) : GenericList<ArgumentBunchPointer, ArgumentPointer>(origin, true) {}
 
         static void initRoot() { Language::root()->addChild("ArgumentBunch", root()); }
-        virtual NodePtr fork() const { return ArgumentBunchPtr(new ArgumentBunch(this))->initFork(); }
+        virtual Pointer fork() const { return ArgumentBunchPointer(new ArgumentBunch(this))->initFork(); }
 
-        ArgumentPtr append(const ArgumentPtr &argument) {
-            return GenericList<ArgumentBunchPtr, ArgumentPtr>::append(argument);
+        ArgumentPointer append(const ArgumentPointer &argument) {
+            return GenericList<ArgumentBunchPointer, ArgumentPointer>::append(argument);
         }
 
-        void append(const PrimitiveChainPtr &value) {
-            if(PairPtr pair = PairPtr(value->first()->value(), true))
+        void append(const PrimitiveChainPointer &value) {
+            if(PairPointer pair = PairPointer(value->first()->value(), true))
                 append(pair->first(), pair->second());
-            else if(BunchPtr bunch = BunchPtr(value->first()->value(), true))
+            else if(BunchPointer bunch = BunchPointer(value->first()->value(), true))
                 append(bunch);
             else
                 append(CHILD_ARGUMENT(NULL, value));
         }
 
-        ArgumentPtr append(const PrimitiveChainPtr &label, const PrimitiveChainPtr &value) {
+        ArgumentPointer append(const PrimitiveChainPointer &label, const PrimitiveChainPointer &value) {
             return append(CHILD_ARGUMENT(label, value));
         }
 
-        void append(const BunchPtr &bunch) {
+        void append(const BunchPointer &bunch) {
             Bunch::Iterator i(bunch);
-            while(NodePtr value = i.next()) append(PrimitiveChainPtr(value));
+            while(Pointer value = i.next()) append(PrimitiveChainPointer(value));
         }
 
-        virtual const QString toString(bool debug = false) const { return join(", ", "", "", debug); }
+        virtual const QString toString(bool debug = false, short level = 0) const { return join(", ", "", "", debug, level); }
     };
 
-    CHILD_PTR_DEFINITION(ArgumentBunch, Bunch);
+    CHILD_POINTER_DEFINITION(ArgumentBunch, Bunch);
 }
 
 CHILD_END

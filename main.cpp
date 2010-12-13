@@ -13,19 +13,19 @@ int main() { // int argc, char *argv[]
     init();
     runAllTests();
 //    try {
-        ApplicationPtr app = Application::root();
+        ApplicationPointer app = Application::root();
         Node::pushContext(app);
         app->init();
-        SourceCodePtr source = app->loadSourceCode("../child/examples/test.child");
+        SourceCodePointer source = app->loadSourceCode("../child/examples/test.child");
         source->inspect();
         Node::popContext();
-//    } catch(ExceptionPtr e) {
+//    } catch(ExceptionPointer e) {
 //        qDebug() << e->report().toUtf8();
 //    }
 //    NodeRef r2(t2);
 //    try {
 //        CHILD_THROW(LexerException, "key not found");
-//    } catch(ExceptionPtr e) {
+//    } catch(ExceptionPointer e) {
 //        qDebug() << e->report().toUtf8();
 //    }
 //    try {

@@ -8,13 +8,13 @@ void ListTest::initialize() {
 }
 
 void ListTest::insertGetAndSet() { // TODO: more tests with fork
-    ListPtr list = CHILD_LIST();
+    ListPointer list = CHILD_LIST();
     QCOMPARE(list->size(), 0);
     QVERIFY(list->isEmpty());
     QVERIFY(!list->isNotEmpty());
     QCATCH(list->get(-1), IndexOutOfBoundsException);
     QCATCH(list->get(0), IndexOutOfBoundsException);
-    TextPtr t1 = CHILD_TEXT("val1");
+    TextPointer t1 = CHILD_TEXT("val1");
     QCATCH(list->set(-1, t1), IndexOutOfBoundsException);
     QCATCH(list->set(0, t1), IndexOutOfBoundsException);
     QCATCH(list->insert(-1, t1), IndexOutOfBoundsException);
@@ -24,19 +24,19 @@ void ListTest::insertGetAndSet() { // TODO: more tests with fork
     QVERIFY(list->isNotEmpty());
     QCOMPARE(list->get(0), t1);
     QVERIFY(t1->hasDirectParent(list));
-    TextPtr t2 = CHILD_TEXT("val2");
+    TextPointer t2 = CHILD_TEXT("val2");
     list->set(0, t2);
     QCOMPARE(list->size(), 1);
     QCOMPARE(list->get(0), t2);
     QVERIFY(!t1->hasDirectParent(list));
     QVERIFY(t2->hasDirectParent(list));
-    TextPtr t3 = CHILD_TEXT("val3");
+    TextPointer t3 = CHILD_TEXT("val3");
     list->insert(0, t3);
     QCOMPARE(list->size(), 2);
     QCOMPARE(list->get(0), t3);
     QCOMPARE(list->get(1), t2);
 
-    ListPtr newList = list->fork();
+    ListPointer newList = list->fork();
     QCOMPARE(newList->size(), 2);
     QCOMPARE(newList->get(0)->origin(), t3);
     QCOMPARE(newList->get(1)->origin(), t2);
@@ -45,10 +45,10 @@ void ListTest::insertGetAndSet() { // TODO: more tests with fork
 }
 
 void ListTest::remove() { // TODO: test with fork
-    ListPtr list = CHILD_LIST();
-    TextPtr t1 = CHILD_TEXT("val1");
-    TextPtr t2 = CHILD_TEXT("val2");
-    TextPtr t3 = CHILD_TEXT("val3");
+    ListPointer list = CHILD_LIST();
+    TextPointer t1 = CHILD_TEXT("val1");
+    TextPointer t2 = CHILD_TEXT("val2");
+    TextPointer t3 = CHILD_TEXT("val3");
     list->append(t1);
     list->append(t2);
     list->append(t3);
@@ -72,10 +72,10 @@ void ListTest::remove() { // TODO: test with fork
 }
 
 void ListTest::clear() {
-    ListPtr list = CHILD_LIST();
-    TextPtr t1 = CHILD_TEXT("val1");
-    TextPtr t2 = CHILD_TEXT("val2");
-    TextPtr t3 = CHILD_TEXT("val3");
+    ListPointer list = CHILD_LIST();
+    TextPointer t1 = CHILD_TEXT("val1");
+    TextPointer t2 = CHILD_TEXT("val2");
+    TextPointer t3 = CHILD_TEXT("val3");
     list->append(t1);
     list->append(t2);
     list->append(t3);

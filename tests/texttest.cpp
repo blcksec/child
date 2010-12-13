@@ -8,19 +8,19 @@ void TextTest::initialize() {
 }
 
 void TextTest::fork() {
-    TextPtr text = CHILD_TEXT("Hello");
+    TextPointer text = CHILD_TEXT("Hello");
     QCOMPARE(text->origin(), Text::root());
     QCOMPARE(text->value(), QString("Hello"));
-    TextPtr newText(text->fork());
+    TextPointer newText(text->fork());
     QCOMPARE(newText->origin(), text);
     QCOMPARE(newText->value(), QString("Hello"));
 }
 
 void TextTest::compare() {
-    TextPtr t1 = CHILD_TEXT("Hello");
-    TextPtr t2 = CHILD_TEXT("Hello");
-    TextPtr t3 = CHILD_TEXT("Salut");
-    NodePtr n = CHILD_NODE();
+    TextPointer t1 = CHILD_TEXT("Hello");
+    TextPointer t2 = CHILD_TEXT("Hello");
+    TextPointer t3 = CHILD_TEXT("Salut");
+    Pointer n = CHILD_NODE();
     QVERIFY(t1->compare(*t2) == Node::Equal);
     QVERIFY(t1->compare(*t3) != Node::Equal);
     QVERIFY(t1->compare(*n) != Node::Equal);
@@ -29,15 +29,15 @@ void TextTest::compare() {
     QVERIFY(*t1 == *t2);
     QVERIFY(!(*t1 != *t2));
     QVERIFY(*t1 != *t3);
-    TextPtr t4 = CHILD_TEXT("Jean");
-    TextPtr t5 = CHILD_TEXT("Pierre");
+    TextPointer t4 = CHILD_TEXT("Jean");
+    TextPointer t5 = CHILD_TEXT("Pierre");
     QVERIFY(*t4 != *t5);
     QCOMPARE(t4->compare(*t5), Node::Smaller);
     QCOMPARE(t5->compare(*t4), Node::Greater);
 }
 
 void TextTest::upcase() {
-    TextPtr text = CHILD_TEXT("Hello");
+    TextPointer text = CHILD_TEXT("Hello");
     QCOMPARE(text->upcase()->value(), QString("HELLO"));
 }
 

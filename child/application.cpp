@@ -7,7 +7,7 @@ CHILD_DEFINITION(Application, Object);
 void Application::initOperatorTable() {
     using namespace Language;
 
-    OperatorTablePtr ops = CHILD_OPERATOR_TABLE();
+    OperatorTablePointer ops = CHILD_OPERATOR_TABLE();
 
     ops->append("++", Operator::Postfix, Operator::namePrecedence);
     ops->append("--", Operator::Postfix, Operator::namePrecedence);

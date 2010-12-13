@@ -8,21 +8,21 @@ void DictionaryTest::initialize() {
 }
 
 void DictionaryTest::getAndSet() { // TODO: more tests with fork and/or removed key
-    DictionaryPtr dict = CHILD_DICTIONARY();
+    DictionaryPointer dict = CHILD_DICTIONARY();
     QCOMPARE(dict->size(), 0);
     QVERIFY(dict->isEmpty());
-    QCATCH(dict->get(NodePtr()), NullPointerException);
+    QCATCH(dict->get(Pointer()), NullPointerException);
     QCATCH(dict->get(CHILD_TEXT("missing")), NotFoundException);
-    QCATCH(dict->set(CHILD_TEXT("missing"), NodePtr()), NullPointerException);
-    TextPtr t1 = CHILD_TEXT("val1");
-    TextPtr k1 = CHILD_TEXT("key1");
+    QCATCH(dict->set(CHILD_TEXT("missing"), Pointer()), NullPointerException);
+    TextPointer t1 = CHILD_TEXT("val1");
+    TextPointer k1 = CHILD_TEXT("key1");
     dict->set(k1, t1);
     QCOMPARE(dict->size(), 1);
     QVERIFY(dict->isNotEmpty());
     QCOMPARE(dict->get(k1), t1);
     QCOMPARE(dict->get(CHILD_TEXT("key1")), t1);
     QVERIFY(t1->hasDirectParent(dict));
-    TextPtr t2 = CHILD_TEXT("val2");
+    TextPointer t2 = CHILD_TEXT("val2");
     dict->set(k1, t2);
     QCOMPARE(dict->size(), 1);
     QCOMPARE(dict->get(k1), t2);
@@ -33,34 +33,34 @@ void DictionaryTest::getAndSet() { // TODO: more tests with fork and/or removed 
     QCOMPARE(dict->get(k1), t2);
     QVERIFY(!t1->hasDirectParent(dict));
     QVERIFY(t2->hasDirectParent(dict));
-    TextPtr t3 = CHILD_TEXT("val3");
-    TextPtr k2 = CHILD_TEXT("key2");
+    TextPointer t3 = CHILD_TEXT("val3");
+    TextPointer k2 = CHILD_TEXT("key2");
     dict->set(k2, t3);
     QCOMPARE(dict->size(), 2);
     QCOMPARE(dict->get(k2), t3);
 
-    DictionaryPtr newDict(dict->fork());
+    DictionaryPointer newDict(dict->fork());
     QCOMPARE(newDict->size(), 2);
     QCOMPARE(newDict->get(k1)->origin(), t2);
     QCOMPARE(newDict->get(k2)->origin(), t3);
 }
 
 void DictionaryTest::keys() { // TODO: test with fork and/or removed key
-    DictionaryPtr dict = CHILD_DICTIONARY();
-    QList<NodeRef> keys = dict->keys();
+    DictionaryPointer dict = CHILD_DICTIONARY();
+    QList<Reference> keys = dict->keys();
     QVERIFY(keys.isEmpty());
-    TextPtr t1 = CHILD_TEXT("val1");
-    TextPtr k1 = CHILD_TEXT("key1");
-    TextPtr t2 = CHILD_TEXT("val2");
-    TextPtr k2 = CHILD_TEXT("key2");
-    TextPtr t3 = CHILD_TEXT("val3");
-    TextPtr k3 = CHILD_TEXT("key3");
+    TextPointer t1 = CHILD_TEXT("val1");
+    TextPointer k1 = CHILD_TEXT("key1");
+    TextPointer t2 = CHILD_TEXT("val2");
+    TextPointer k2 = CHILD_TEXT("key2");
+    TextPointer t3 = CHILD_TEXT("val3");
+    TextPointer k3 = CHILD_TEXT("key3");
     dict->set(k1, t1);
     dict->set(k2, t2);
     dict->set(k3, t3);
     keys = dict->keys();
     QCOMPARE(keys.size(), 3);
-    ListPtr list = CHILD_LIST(keys);
+    ListPointer list = CHILD_LIST(keys);
     QVERIFY(list->hasValue(k1));
     QVERIFY(list->hasValue(CHILD_TEXT("key1")));
     QVERIFY(list->hasValue(k2));
@@ -71,13 +71,13 @@ void DictionaryTest::keys() { // TODO: test with fork and/or removed key
 }
 
 void DictionaryTest::remove() { // TODO: test with fork
-    DictionaryPtr dict = CHILD_DICTIONARY();
-    TextPtr t1 = CHILD_TEXT("val1");
-    TextPtr k1 = CHILD_TEXT("key1");
-    TextPtr t2 = CHILD_TEXT("val2");
-    TextPtr k2 = CHILD_TEXT("key2");
-    TextPtr t3 = CHILD_TEXT("val3");
-    TextPtr k3 = CHILD_TEXT("key3");
+    DictionaryPointer dict = CHILD_DICTIONARY();
+    TextPointer t1 = CHILD_TEXT("val1");
+    TextPointer k1 = CHILD_TEXT("key1");
+    TextPointer t2 = CHILD_TEXT("val2");
+    TextPointer k2 = CHILD_TEXT("key2");
+    TextPointer t3 = CHILD_TEXT("val3");
+    TextPointer k3 = CHILD_TEXT("key3");
     dict->set(k1, t1);
     dict->set(k2, t2);
     dict->set(k3, t3);
@@ -85,7 +85,7 @@ void DictionaryTest::remove() { // TODO: test with fork
     QVERIFY(dict->hasKey(k1));
     QCOMPARE(dict->get(k1), t1);
     QVERIFY(t1->hasDirectParent(dict));
-    QCATCH(dict->remove(NodePtr()), NullPointerException);
+    QCATCH(dict->remove(Pointer()), NullPointerException);
     QCATCH(dict->remove(CHILD_TEXT("missing")), NotFoundException);
     dict->remove(k1);
     QCOMPARE(dict->size(), 2);
@@ -100,7 +100,7 @@ void DictionaryTest::remove() { // TODO: test with fork
 }
 
 void DictionaryTest::clear() {
-    DictionaryPtr dict = CHILD_DICTIONARY();
+    DictionaryPointer dict = CHILD_DICTIONARY();
     dict->set(CHILD_TEXT("key1"), CHILD_TEXT("val1"));
     dict->set(CHILD_TEXT("key2"), CHILD_TEXT("val2"));
     dict->set(CHILD_TEXT("key3"), CHILD_TEXT("val3"));

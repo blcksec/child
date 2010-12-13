@@ -11,8 +11,8 @@ CHILD_USE
 do { \
     bool exceptionThrown = false; \
     try { EXPRESSION; } \
-    catch(EXCEPTION##Ptr &e) { /* qDebug() << e->report(); */ exceptionThrown = true; } \
-    catch(ExceptionPtr &e) { QWARN(qPrintable(e->report())); } \
+    catch(EXCEPTION##Pointer &e) { /* qDebug() << e->report(); */ exceptionThrown = true; } \
+    catch(ExceptionPointer &e) { QWARN(qPrintable(e->report())); } \
     if(!exceptionThrown) { QFAIL("'" #EXCEPTION "' has not been thrown"); } \
 } while(false)
 

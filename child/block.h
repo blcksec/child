@@ -5,23 +5,29 @@
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Block, List);
+CHILD_POINTER_DECLARATION(Block, List);
 
 #define CHILD_BLOCK(ARGS...) \
-BlockPtr(new Block(Node::context()->child("Object", "Block"), ##ARGS))
+BlockPointer(new Block(Node::context()->child("Object", "Block"), ##ARGS))
 
-class Block : public GenericList<BlockPtr, Language::SectionPtr> {
+class Block : public GenericList<BlockPointer, Language::SectionPointer> {
     CHILD_DECLARATION(Block, List);
 public:
-    Block(const NodePtr &origin) : GenericList<BlockPtr, Language::SectionPtr>(origin) {}
+    Block(const Pointer &origin) : GenericList<BlockPointer, Language::SectionPointer>(origin) {}
 
     static void initRoot() { Object::root()->addChild("Block", root()); }
-    virtual NodePtr fork() const { return BlockPtr(new Block(this))->initFork(); }
+    virtual Pointer fork() const { return BlockPointer(new Block(this))->initFork(); }
 
-    virtual const QString toString(bool debug = false) const { return join("\n", "", "", debug); }
+    virtual const QString toString(bool debug = false, short level = 0) const {
+        QString str;
+        if(level > 0) str += "{\n";
+        str += join("\n", "", "", debug, level + 1);
+        if(level > 0) str += "\n" + QString("    ").repeated(level) + "}";
+        return str;
+    }
 };
 
-CHILD_PTR_DEFINITION(Block, List);
+CHILD_POINTER_DEFINITION(Block, List);
 
 CHILD_END
 

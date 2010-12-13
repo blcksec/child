@@ -5,23 +5,23 @@
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Text, Element);
+CHILD_POINTER_DECLARATION(Text, Element);
 
-#define CHILD_TEXT(ARGS...) TextPtr(new Text(Node::context()->child("Object", "Text"), ##ARGS))
+#define CHILD_TEXT(ARGS...) TextPointer(new Text(Node::context()->child("Object", "Text"), ##ARGS))
 
-class Text : public GenericElement<TextPtr, QString> {
+class Text : public GenericElement<TextPointer, QString> {
     CHILD_DECLARATION(Text, Element);
 public:
-    Text(const NodePtr &origin, const QString &value = "") : GenericElement<TextPtr, QString>(origin, value) {}
+    Text(const Pointer &origin, const QString &value = "") : GenericElement<TextPointer, QString>(origin, value) {}
 
     static void initRoot() { Object::root()->addChild("Text", root()); }
-    virtual NodePtr fork() const { return new Text(this, value()); }
+    virtual Pointer fork() const { return new Text(this, value()); }
 
-    TextPtr upcase() { return CHILD_TEXT(value().toUpper()); }
+    TextPointer upcase() { return CHILD_TEXT(value().toUpper()); }
 
     virtual Comparison compare(const Node &other) const {
         if(this == &other) return Equal;
-        TextPtr otherText(other, true);
+        TextPointer otherText(other, true);
         if(!otherText) return Different;
         int result = value().compare(otherText->value());
         if(result > 0) return Greater;
@@ -32,10 +32,13 @@ public:
     static QString unescapeSequence(const QString &source);
     static QChar unescapeSequenceNumber(const QString &source, int &i);
 
-    virtual const QString toString(bool debug = false) const { return debug ? "\"" + value() + "\"" : value(); }
+    virtual const QString toString(bool debug = false, short level = 0) const {
+        Q_UNUSED(level);
+        return debug ? "\"" + value() + "\"" : value();
+    }
 };
 
-CHILD_PTR_DEFINITION(Text, Element);
+CHILD_POINTER_DEFINITION(Text, Element);
 
 CHILD_END
 

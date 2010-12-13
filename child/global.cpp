@@ -79,7 +79,7 @@ const bool computeColumnAndLineForPosition(const QString &text, const int positi
 
 #define CHILD_THROW_FUNCTION(EXCEPTION) \
 void throw##EXCEPTION(const QString &message, const QString &file, const int line, const QString &function) { \
-    throw EXCEPTION##Ptr(new EXCEPTION(Node::context()->child(#EXCEPTION), message, file, line, function)); \
+    throw EXCEPTION##Pointer(new EXCEPTION(Node::context()->child(#EXCEPTION), message, file, line, function)); \
 }
 
 CHILD_THROW_FUNCTION(RuntimeException);

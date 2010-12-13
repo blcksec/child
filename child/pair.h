@@ -8,10 +8,10 @@ CHILD_BEGIN
 template<class C, class T1, class T2>
 class GenericPair : public Object {
 public:
-    GenericPair(const NodePtr &origin, const T1 &first = NULL, const T2 &second = NULL) :
+    GenericPair(const Pointer &origin, const T1 &first = NULL, const T2 &second = NULL) :
         Object(origin), _first(first), _second(second) {}
 
-    virtual NodePtr fork() const { return new GenericPair(this, _first->fork(), _second->fork()); }
+    virtual Pointer fork() const { return new GenericPair(this, _first->fork(), _second->fork()); }
 
     T1 first() const { return _first; }
     void setFirst(const T1 &first) { _first = first; }
@@ -24,34 +24,34 @@ public:
     T2 value() const { return _second; }
     void setValue(const T2 &value) { _second = value; }
 
-    virtual const QString toString(bool debug = false) const {
-        return QString("%1: %2").arg(first()->toString(debug), second()->toString(debug));
+    virtual const QString toString(bool debug = false, short level = 0) const {
+        return QString("%1: %2").arg(first()->toString(debug, level), second()->toString(debug, level));
     }
 private:
     T1 _first;
     T2 _second;
 };
 
-CHILD_PTR_DECLARATION(Pair, Object);
+CHILD_POINTER_DECLARATION(Pair, Object);
 
-#define CHILD_PAIR(ARGS...) PairPtr(new Pair(Node::context()->child("Object", "Pair"), ##ARGS))
+#define CHILD_PAIR(ARGS...) PairPointer(new Pair(Node::context()->child("Object", "Pair"), ##ARGS))
 
-class Pair : public GenericPair<PairPtr, NodePtr, NodePtr> {
+class Pair : public GenericPair<PairPointer, Pointer, Pointer> {
     CHILD_DECLARATION(Pair, Object);
 public:
-    Pair(const NodePtr &origin, const NodePtr &first = NULL, const NodePtr &second = NULL) :
-        GenericPair<PairPtr, NodePtr, NodePtr>(origin, first, second) {}
+    Pair(const Pointer &origin, const Pointer &first = NULL, const Pointer &second = NULL) :
+        GenericPair<PairPointer, Pointer, Pointer>(origin, first, second) {}
 
     static void initRoot() { Object::root()->addChild("Pair", root()); }
 
-    virtual NodePtr fork() const {
+    virtual Pointer fork() const {
         return new Pair(this,
-                        first() ? first()->fork() : NodePtr::null(),
-                        second() ? second()->fork() : NodePtr::null());
+                        first() ? first()->fork() : Pointer::null(),
+                        second() ? second()->fork() : Pointer::null());
     }
 };
 
-CHILD_PTR_DEFINITION(Pair, Object);
+CHILD_POINTER_DEFINITION(Pair, Object);
 
 CHILD_END
 

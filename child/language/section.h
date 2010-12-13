@@ -6,33 +6,33 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_PTR_DECLARATION(Section, List);
+    CHILD_POINTER_DECLARATION(Section, List);
 
     #define CHILD_SECTION(ARGS...) \
-    Language::SectionPtr(new Language::Section(Node::context()->child("Object", "Language", "Section"), ##ARGS))
+    Language::SectionPointer(new Language::Section(Node::context()->child("Object", "Language", "Section"), ##ARGS))
 
-    class Section : public GenericList<SectionPtr, PrimitiveChainPtr> {
+    class Section : public GenericList<SectionPointer, PrimitiveChainPointer> {
         CHILD_DECLARATION(Section, List);
     public:
-        Section(const NodePtr &origin) : GenericList<SectionPtr, PrimitiveChainPtr>(origin) {}
+        Section(const Pointer &origin) : GenericList<SectionPointer, PrimitiveChainPointer>(origin) {}
 
         static void initRoot() { Language::root()->addChild("Section", root()); }
-        virtual NodePtr fork() const { return SectionPtr(new Section(this))->initFork(); }
+        virtual Pointer fork() const { return SectionPointer(new Section(this))->initFork(); }
 
-        PrimitiveChainPtr label() const { return _label; }
-        void setLabel(const PrimitiveChainPtr &label) { _label = label; }
+        PrimitiveChainPointer label() const { return _label; }
+        void setLabel(const PrimitiveChainPointer &label) { _label = label; }
 
-        virtual const QString toString(bool debug = false) const {
+        virtual const QString toString(bool debug = false, short level = 0) const {
             QString str;
-            if(label() && label()->isNotEmpty()) str = label()->toString(debug) + ":";
-            str = concatenateStrings(str, "\n", join("\n", "    ", "", debug));
+            if(label() && label()->isNotEmpty()) str += QString("    ").repeated(level - 1) + label()->toString(debug, level) + ":";
+            str = concatenateStrings(str, "\n", join("\n", QString("    ").repeated(level), "", debug, level));
             return str;
         }
     private:
-        PrimitiveChainPtr _label;
+        PrimitiveChainPointer _label;
     };
 
-    CHILD_PTR_DEFINITION(Section, List);
+    CHILD_POINTER_DEFINITION(Section, List);
 }
 
 CHILD_END

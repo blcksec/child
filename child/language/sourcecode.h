@@ -11,16 +11,16 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_PTR_DECLARATION(SourceCode, Object);
+    CHILD_POINTER_DECLARATION(SourceCode, Object);
 
     #define CHILD_SOURCE_CODE(ARGS...) \
-    Language::SourceCodePtr(new Language::SourceCode(Node::context()->child("Object", "Language", "SourceCode"), ##ARGS))
+    Language::SourceCodePointer(new Language::SourceCode(Node::context()->child("Object", "Language", "SourceCode"), ##ARGS))
 
     class SourceCode : public Object {
         CHILD_DECLARATION(SourceCode, Object);
     public:
-        SourceCode(const NodePtr &origin, const QString &url = "",
-                   const QString &txt = "", const BlockPtr &block = NULL) :
+        SourceCode(const Pointer &origin, const QString &url = "",
+                   const QString &txt = "", const BlockPointer &block = NULL) :
             Object(origin), _url(url), _text(txt), _block(block) {
             if(!url.isEmpty() && txt.isEmpty()) load();
             if(!text().isEmpty() && block.isNull()) parse();
@@ -28,7 +28,7 @@ namespace Language {
 
         static void initRoot() { Language::root()->addChild("SourceCode", root()); }
 
-        virtual NodePtr fork() const {
+        virtual Pointer fork() const {
             return new SourceCode(this, url(), text(), block() ? block()->fork() : block());
         }
 
@@ -38,8 +38,8 @@ namespace Language {
         const QString &text() const { return _text; }
         void setText(const QString &text) { _text = text; }
 
-        BlockPtr block() const { return _block; }
-        void setBlock(const BlockPtr &block) { _block = block; }
+        BlockPointer block() const { return _block; }
+        void setBlock(const BlockPointer &block) { _block = block; }
 
         void load(const QString &newUrl = "") {
             if(!newUrl.isEmpty()) setUrl(newUrl);
@@ -49,43 +49,43 @@ namespace Language {
 
         void parse(const QString &newText = "") {
             if(!newText.isEmpty()) setText(newText);
-            ParserPtr parser = context()->child("parser");
+            ParserPointer parser = context()->child("parser");
             setBlock(parser->parse(text(), QFileInfo(url()).fileName()));
         }
 
-        virtual const QString toString(bool debug = false) const {
+        virtual const QString toString(bool debug = false, short level = 0) const {
             QString str;
             if(!url().isEmpty()) str += QString("/* %1 */\n").arg(url());
-            if(block()) str += block()->toString(debug);
+            if(block()) str += block()->toString(debug, level);
             return str;
         }
     private:
         QString _url;
         QString _text;
-        BlockPtr _block;
+        BlockPointer _block;
     };
 
-    CHILD_PTR_DEFINITION(SourceCode, Object);
+    CHILD_POINTER_DEFINITION(SourceCode, Object);
 
     // === SourceCodeDictionary ===
 
-    CHILD_PTR_DECLARATION(SourceCodeDictionary, Dictionary);
+    CHILD_POINTER_DECLARATION(SourceCodeDictionary, Dictionary);
 
     #define CHILD_SOURCE_CODE_DICTIONARY(ARGS...) \
-    Language::SourceCodeDictionaryPtr(new Language::SourceCodeDictionary( \
+    Language::SourceCodeDictionaryPointer(new Language::SourceCodeDictionary( \
         Node::context()->child("Object", "Language", "SourceCodeDictionary"), ##ARGS))
 
-    class SourceCodeDictionary : public GenericDictionary<SourceCodeDictionaryPtr, NodeRef, SourceCodePtr> {
+    class SourceCodeDictionary : public GenericDictionary<SourceCodeDictionaryPointer, Reference, SourceCodePointer> {
         CHILD_DECLARATION(SourceCodeDictionary, Dictionary);
     public:
-        SourceCodeDictionary(const NodePtr &origin) :
-            GenericDictionary<SourceCodeDictionaryPtr, NodeRef, SourceCodePtr>(origin) {}
+        SourceCodeDictionary(const Pointer &origin) :
+            GenericDictionary<SourceCodeDictionaryPointer, Reference, SourceCodePointer>(origin) {}
 
         static void initRoot() { Language::root()->addChild("SourceCodeDictionary", root()); }
-        virtual NodePtr fork() const { return SourceCodeDictionaryPtr(new SourceCodeDictionary(this))->initFork(); };
+        virtual Pointer fork() const { return SourceCodeDictionaryPointer(new SourceCodeDictionary(this))->initFork(); };
     };
 
-    CHILD_PTR_DEFINITION(SourceCodeDictionary, Dictionary);
+    CHILD_POINTER_DEFINITION(SourceCodeDictionary, Dictionary);
 }
 
 CHILD_END

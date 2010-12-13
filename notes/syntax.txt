@@ -206,7 +206,7 @@ meth(a<Text>) := { do_something } se traduit par :
 
 message(":=", message("meth", ["a<Text>"]), { do_something })
 
-meth(a) -> r, e: 0 := { do_something } se traduit par :
+meth(a) -> (r, e: 0) := { do_something } se traduit par :
 
 message(":=", message("meth", inputs: ["a"], outputs: ["r", e: 0]), { do_something })
 

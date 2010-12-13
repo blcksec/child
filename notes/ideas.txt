@@ -2,7 +2,7 @@ NodeData
     Node _origin
     QList<Node> *_extensions;
     QHash<QString, Node> *_children;
-    QHash<NodePtr, uint> *_parents;
+    QHash<NodePointer, uint> *_parents;
     uint _refCount;
 
     const Node &appendChild(const QString &name, const Node &node);
@@ -198,7 +198,7 @@ Language
     Token
 
 OperatorTable
-    List<OperatorPtr>
-    Hash<Pair<String, Type>, OperatorPtr> textsAndTypes
+    List<OperatorPointer>
+    Hash<Pair<String, Type>, OperatorPointer> textsAndTypes
     Set<String> texts
     String firstChars

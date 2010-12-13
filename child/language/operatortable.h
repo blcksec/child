@@ -9,24 +9,24 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_PTR_DECLARATION(OperatorTable, List);
+    CHILD_POINTER_DECLARATION(OperatorTable, List);
 
     #define CHILD_OPERATOR_TABLE(ARGS...) \
-    Language::OperatorTablePtr(new Language::OperatorTable( \
+    Language::OperatorTablePointer(new Language::OperatorTable( \
         Node::context()->child("Object", "Language", "OperatorTable"), ##ARGS))
 
-    class OperatorTable : public GenericList<OperatorTablePtr, OperatorPtr> {
+    class OperatorTable : public GenericList<OperatorTablePointer, OperatorPointer> {
         CHILD_DECLARATION(OperatorTable, List);
     public:
-        OperatorTable(const NodePtr &origin) : GenericList<OperatorTablePtr, OperatorPtr>(origin) {}
+        OperatorTable(const Pointer &origin) : GenericList<OperatorTablePointer, OperatorPointer>(origin) {}
 
         static void initRoot() { Language::root()->addChild("OperatorTable", root()); }
-        virtual NodePtr fork() const { return OperatorTablePtr(new OperatorTable(this))->initFork(); };
+        virtual Pointer fork() const { return OperatorTablePointer(new OperatorTable(this))->initFork(); };
 
         void append(const QString &text, Operator::Type type, short precedence,
                          Operator::Associativity associativity = Operator::LeftAssociative,
                          const QString &name = "", const bool isSyntaxElement = false) {
-            GenericList<OperatorTablePtr, OperatorPtr>::append(
+            GenericList<OperatorTablePointer, OperatorPointer>::append(
                         CHILD_OPERATOR(text, type, precedence, associativity, name, isSyntaxElement));
         }
 
@@ -34,7 +34,7 @@ namespace Language {
             return _texts.contains(text);
         }
 
-        OperatorPtr has(const QString &text, const Operator::Type type) const {
+        OperatorPointer has(const QString &text, const Operator::Type type) const {
             return _textsAndTypes.value(QPair<QString, Operator::Type>(text, type));
         }
 
@@ -47,7 +47,7 @@ namespace Language {
             _textsAndTypes.clear();
             _firstChars.clear();
             Iterator i(this);
-            while(OperatorPtr op = i.next()) {
+            while(OperatorPointer op = i.next()) {
                 _texts.insert(op->text);
                 _textsAndTypes.insert(QPair<QString, Operator::Type>(op->text, op->type), op);
                 if(!_firstChars.contains(op->text.at(0))) _firstChars += op->text.at(0);
@@ -55,11 +55,11 @@ namespace Language {
         }
     private:
         QSet<QString> _texts;
-        QHash<QPair<QString, Operator::Type>, OperatorPtr> _textsAndTypes;
+        QHash<QPair<QString, Operator::Type>, OperatorPointer> _textsAndTypes;
         QString _firstChars;
     };
 
-    CHILD_PTR_DEFINITION(OperatorTable, List);
+    CHILD_POINTER_DEFINITION(OperatorTable, List);
 }
 
 CHILD_END

@@ -5,25 +5,26 @@
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Number, Element);
+CHILD_POINTER_DECLARATION(Number, Element);
 
-#define CHILD_NUMBER(ARGS...) NumberPtr(new Number(Node::context()->child("Object", "Number"), ##ARGS))
+#define CHILD_NUMBER(ARGS...) NumberPointer(new Number(Node::context()->child("Object", "Number"), ##ARGS))
 
-class Number : public GenericElement<NumberPtr, double> {
+class Number : public GenericElement<NumberPointer, double> {
     CHILD_DECLARATION(Number, Element);
 public:
-    Number(const NodePtr &origin, const double value = 0) : GenericElement<NumberPtr, double>(origin, value) {}
+    Number(const Pointer &origin, const double value = 0) : GenericElement<NumberPointer, double>(origin, value) {}
 
     static void initRoot() { Object::root()->addChild("Number", root()); }
-    virtual NodePtr fork() const { return new Number(this, value()); }
+    virtual Pointer fork() const { return new Number(this, value()); }
 
-    virtual const QString toString(bool debug = false) const {
+    virtual const QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);
+        Q_UNUSED(level);
         return QString("%1").arg(value());
     }
 };
 
-CHILD_PTR_DEFINITION(Number, Element);
+CHILD_POINTER_DEFINITION(Number, Element);
 
 CHILD_END
 

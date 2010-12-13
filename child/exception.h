@@ -5,12 +5,12 @@
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Exception, Node);
+CHILD_POINTER_DECLARATION(Exception,);
 
-#define CHILD_EXCEPTION(ARGS...) ExceptionPtr(new Exception(Node::context()->child("Exception"), ##ARGS))
+#define CHILD_EXCEPTION(ARGS...) ExceptionPointer(new Exception(Node::context()->child("Exception"), ##ARGS))
 
 #define CHILD_THROW(EXCEPTION, MESSAGE) \
-throw EXCEPTION##Ptr(new EXCEPTION(Node::context()->child(#EXCEPTION), MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO))
+throw EXCEPTION##Pointer(new EXCEPTION(Node::context()->child(#EXCEPTION), MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO))
 
 #define CHILD_TODO \
 CHILD_THROW(Exception, "function not yet implemented")
@@ -23,38 +23,39 @@ public:
     int line;
     QString function;
 
-    Exception(const NodePtr &origin, const QString &message = "", const QString &file = "",
+    Exception(const Pointer &origin, const QString &message = "", const QString &file = "",
               const int line = 0, const QString &function = "") :
         Node(origin), message(message), file(file), line(line), function(function) {}
 
     static void initRoot() { Node::root()->addChild("Exception", root()); }
 
-    virtual NodePtr fork() const { return new Exception(this, message, file, line, function); }
+    virtual Pointer fork() const { return new Exception(this, message, file, line, function); }
 
     const QString report() const;
 
-    virtual const QString toString(bool debug = false) const {
+    virtual const QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);
+        Q_UNUSED(level);
         return report();
     }
 };
 
-CHILD_PTR_DEFINITION(Exception, Node);
+CHILD_POINTER_DEFINITION(Exception,);
 
 #define CHILD_EXCEPTION_DECLARATION(NAME, ORIGIN) \
-CHILD_PTR_DECLARATION(NAME, ORIGIN); \
+CHILD_POINTER_DECLARATION(NAME, ORIGIN); \
 class NAME : public ORIGIN { \
     CHILD_DECLARATION(NAME, ORIGIN); \
 public: \
-    NAME(const NodePtr &origin, const QString &message = "", const QString &file = "", \
+    NAME(const Pointer &origin, const QString &message = "", const QString &file = "", \
          const int line = 0, const QString &function = "") : \
         ORIGIN(origin, message, file, line, function) {} \
     static void initRoot() { Node::root()->addChild(#NAME, root()); } \
-    virtual NodePtr fork() const { \
+    virtual Pointer fork() const { \
         return new NAME(this, message, file, line, function); \
     } \
 }; \
-CHILD_PTR_DEFINITION(NAME, ORIGIN);
+CHILD_POINTER_DEFINITION(NAME, ORIGIN);
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
 CHILD_DEFINITION(NAME, ORIGIN);

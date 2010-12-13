@@ -6,10 +6,10 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_PTR_DECLARATION(Operator, Object);
+    CHILD_POINTER_DECLARATION(Operator, Object);
 
     #define CHILD_OPERATOR(ARGS...) \
-    Language::OperatorPtr(new Language::Operator(Node::context()->child("Object", "Language", "Operator"), ##ARGS))
+    Language::OperatorPointer(new Language::Operator(Node::context()->child("Object", "Language", "Operator"), ##ARGS))
 
     class Operator : public Object {
         CHILD_DECLARATION(Operator, Object);
@@ -25,7 +25,7 @@ namespace Language {
         QString name;
         bool isSyntaxElement;
 
-        Operator(const NodePtr &origin, const QString &text = "", Type type = Null, short precedence = 0,
+        Operator(const Pointer &origin, const QString &text = "", Type type = Null, short precedence = 0,
                 Associativity associativity = LeftAssociative, const QString &name = "", const bool isSyntaxElement = false) :
             Object(origin), text(text), type(type), precedence(precedence), associativity(associativity),
             name(name), isSyntaxElement(isSyntaxElement) {
@@ -34,19 +34,20 @@ namespace Language {
 
         static void initRoot() { Language::root()->addChild("Operator", root()); }
 
-        virtual NodePtr fork() const {
+        virtual Pointer fork() const {
             return new Operator(this, text, type, precedence, associativity, name, isSyntaxElement);
         }
 
         const bool isNull() const { return type == Null; }
 
-        virtual const QString toString(bool debug = false) const {
+        virtual const QString toString(bool debug = false, short level = 0) const {
             Q_UNUSED(debug);
+            Q_UNUSED(level);
             return QString("\"%1\"").arg(name);
         }
     };
 
-    CHILD_PTR_DEFINITION(Operator, Object);
+    CHILD_POINTER_DEFINITION(Operator, Object);
 }
 
 CHILD_END

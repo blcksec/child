@@ -6,19 +6,19 @@
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Object, Node);
+CHILD_POINTER_DECLARATION(Object,);
 
-#define CHILD_OBJECT(ARGS...) ObjectPtr(new Object(Node::context()->child("Object"), ##ARGS))
+#define CHILD_OBJECT(ARGS...) ObjectPointer(new Object(Node::context()->child("Object"), ##ARGS))
 
 class Object : public Node {
     CHILD_DECLARATION(Object, Node);
 public:
-    Object(const NodePtr &origin) : Node(origin) {}
+    Object(const Pointer &origin) : Node(origin) {}
     static void initRoot() { Node::root()->addChild("Object", root()); }
-    virtual NodePtr fork() const { return new Object(this); }
+    virtual Pointer fork() const { return new Object(this); }
 };
 
-CHILD_PTR_DEFINITION(Object, Node);
+CHILD_POINTER_DEFINITION(Object,);
 
 CHILD_END
 

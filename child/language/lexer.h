@@ -7,19 +7,19 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_PTR_DECLARATION(Lexer, Object);
+    CHILD_POINTER_DECLARATION(Lexer, Object);
 
     #define CHILD_LEXER(ARGS...) \
-    Language::LexerPtr(new Language::Lexer(Node::context()->child("Object", "Language", "Lexer"), ##ARGS))
+    Language::LexerPointer(new Language::Lexer(Node::context()->child("Object", "Language", "Lexer"), ##ARGS))
 
     class Lexer : public Object {
         CHILD_DECLARATION(Lexer, Object);
     public:
-        Lexer(const NodePtr &origin) : Object(origin) {}
+        Lexer(const Pointer &origin) : Object(origin) {}
         static void initRoot() { Language::root()->addChild("Lexer", root()); }
-        virtual NodePtr fork() const { return new Lexer(this); } // TODO
+        virtual Pointer fork() const { return new Lexer(this); } // TODO
 
-        OperatorTablePtr operatorTable() const {
+        OperatorTablePointer operatorTable() const {
             if(!_operatorTable) const_cast<Lexer *>(this)->_operatorTable = context()->child("operatorTable");
             return _operatorTable;
         }
@@ -31,7 +31,7 @@ namespace Language {
         const QString resourceName() const { return _resourceName; }
 
         void rewind();
-        TokenPtr nextToken();
+        TokenPointer nextToken();
 
         void consume();
 
@@ -39,7 +39,7 @@ namespace Language {
             _tokenPosition = _position;
         }
 
-        TokenPtr finishToken(const Token::Type type) {
+        TokenPointer finishToken(const Token::Type type) {
             return CHILD_TOKEN(type, tokenTextRef());
         }
 
@@ -47,7 +47,7 @@ namespace Language {
             return _source.midRef(_tokenPosition, _position - _tokenPosition);
         }
 
-        TokenPtr scan(const Token::Type type) { // Simple one char tokens
+        TokenPointer scan(const Token::Type type) { // Simple one char tokens
             startToken();
             consume();
             return finishToken(type);
@@ -69,7 +69,7 @@ namespace Language {
             return _currentChar == '\r' || _currentChar == '\n';
         }
 
-        TokenPtr scanNewline() {
+        TokenPointer scanNewline() {
             startToken();
             do consume(); while(isNewline() || isSpace());
             return finishToken(Token::Newline);
@@ -91,29 +91,29 @@ namespace Language {
             return _currentChar.isLetter() || _currentChar == '_';
         }
 
-        TokenPtr scanName();
+        TokenPointer scanName();
 
         bool isOperator() const {
             return operatorTable()->hasOperatorStartingWith(_currentChar);
         }
 
-        TokenPtr scanOperator();
+        TokenPointer scanOperator();
 
         bool isNumber() const {
             return _currentChar.isNumber();
         }
 
-        TokenPtr scanNumber();
+        TokenPointer scanNumber();
 
-        TokenPtr scanCharacter();
-        TokenPtr scanText();
+        TokenPointer scanCharacter();
+        TokenPointer scanText();
 
         void consumeEscapeSequence();
         void consumeEscapeSequenceNumber();
 
-        LexerExceptionPtr lexerException(QString message) const;
+        LexerExceptionPointer lexerException(QString message) const;
 
-        virtual const QString toString(bool debug = false) const;
+        virtual const QString toString(bool debug = false, short level = 0) const;
 
 //        void test() {
 //            setSource("[a, b] = [c, d]");
@@ -135,7 +135,7 @@ namespace Language {
 //            }
 //        }
     private:
-        OperatorTablePtr _operatorTable;
+        OperatorTablePointer _operatorTable;
         QString _source;
         QString _resourceName;
         int _position;
@@ -145,7 +145,7 @@ namespace Language {
         int _tokenPosition;
     };
 
-    CHILD_PTR_DEFINITION(Lexer, Object);
+    CHILD_POINTER_DEFINITION(Lexer, Object);
 }
 
 CHILD_END

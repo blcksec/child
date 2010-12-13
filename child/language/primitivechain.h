@@ -7,28 +7,28 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_PTR_DECLARATION(PrimitiveChain, List);
+    CHILD_POINTER_DECLARATION(PrimitiveChain, List);
 
     #define CHILD_PRIMITIVE_CHAIN(ARGS...) \
-    Language::PrimitiveChainPtr(new Language::PrimitiveChain( \
+    Language::PrimitiveChainPointer(new Language::PrimitiveChain( \
         Node::context()->child("Object", "Language", "PrimitiveChain"), ##ARGS))
 
-    class PrimitiveChain : public GenericList<PrimitiveChainPtr, PrimitivePtr> {
+    class PrimitiveChain : public GenericList<PrimitiveChainPointer, PrimitivePointer> {
         CHILD_DECLARATION(PrimitiveChain, List);
     public:
-        PrimitiveChain(const NodePtr &origin) :
-            GenericList<PrimitiveChainPtr, PrimitivePtr>(origin) {}
+        PrimitiveChain(const Pointer &origin) :
+            GenericList<PrimitiveChainPointer, PrimitivePointer>(origin) {}
 
-        PrimitiveChain(const NodePtr &origin, const PrimitivePtr &primitive) :
-            GenericList<PrimitiveChainPtr, PrimitivePtr>(origin, primitive) {}
+        PrimitiveChain(const Pointer &origin, const PrimitivePointer &primitive) :
+            GenericList<PrimitiveChainPointer, PrimitivePointer>(origin, primitive) {}
 
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
-        virtual NodePtr fork() const { return PrimitiveChainPtr(new PrimitiveChain(this))->initFork(); }
+        virtual Pointer fork() const { return PrimitiveChainPointer(new PrimitiveChain(this))->initFork(); }
 
-        virtual const QString toString(bool debug = false) const { return join(" ", "", "", debug); }
+        virtual const QString toString(bool debug = false, short level = 0) const { return join(" ", "", "", debug, level); }
     };
 
-    CHILD_PTR_DEFINITION(PrimitiveChain, List);
+    CHILD_POINTER_DEFINITION(PrimitiveChain, List);
 }
 
 CHILD_END

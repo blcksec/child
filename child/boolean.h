@@ -5,25 +5,26 @@
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Boolean, Element);
+CHILD_POINTER_DECLARATION(Boolean, Element);
 
-#define CHILD_BOOLEAN(ARGS...) BooleanPtr(new Boolean(Node::context()->child("Object", "Boolean"), ##ARGS))
+#define CHILD_BOOLEAN(ARGS...) BooleanPointer(new Boolean(Node::context()->child("Object", "Boolean"), ##ARGS))
 
-class Boolean : public GenericElement<BooleanPtr, bool> {
+class Boolean : public GenericElement<BooleanPointer, bool> {
     CHILD_DECLARATION(Boolean, Element);
 public:
-    Boolean(const NodePtr &origin, const bool value = false) : GenericElement<BooleanPtr, bool>(origin, value) {}
+    Boolean(const Pointer &origin, const bool value = false) : GenericElement<BooleanPointer, bool>(origin, value) {}
 
     static void initRoot() { Object::root()->addChild("Boolean", root()); }
-    virtual NodePtr fork() const { return new Boolean(this, value()); }
+    virtual Pointer fork() const { return new Boolean(this, value()); }
 
-    virtual const QString toString(bool debug = false) const {
+    virtual const QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);
+        Q_UNUSED(level);
         return value() ? "true" : "false";
     }
 };
 
-CHILD_PTR_DEFINITION(Boolean, Element);
+CHILD_POINTER_DEFINITION(Boolean, Element);
 
 CHILD_END
 

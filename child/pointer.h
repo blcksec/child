@@ -8,6 +8,9 @@ CHILD_BEGIN
 #define CHILD_POINTER_CHECK_DATA \
 if(!data()) CHILD_THROW_NULL_POINTER_EXCEPTION("NULL pointer dereferenced")
 
+#define CHILD_POINTER_CHECK_CAST(NAME, DATA) \
+if((DATA) && !dynamic_cast<const NAME *>(DATA)) CHILD_THROW_TYPECAST_EXCEPTION("typecasting failed")
+
 template<typename T>
 class GenericPointer {
 public:
@@ -50,9 +53,60 @@ private:
 
 class Node;
 typedef GenericPointer<Node> Pointer;
-//inline bool operator==(const GenericPointer &a, const GenericPointer &b) { return a.data() == b.data(); }
-//inline bool operator!=(const GenericPointer &a, const GenericPointer &b) { return a.data() != b.data(); }
-//inline uint qHash(const GenericPointer &node) { return ::qHash(node.data()); }
+
+class Reference : public Pointer { // Can be used as key in hash (comparisons by value)
+public:
+    Reference() : Pointer() {}
+    Reference(const Pointer &other) : Pointer(other) {}
+};
+
+#define CHILD_POINTER_DECLARATION(NAME, ORIGIN) \
+class NAME; \
+class NAME##Pointer : public ORIGIN##Pointer { \
+public: \
+    NAME##Pointer() {} \
+    explicit NAME##Pointer(const NAME &other); \
+    explicit NAME##Pointer(const Node &other, bool dynamicCast = false); \
+    NAME##Pointer(const NAME *other); \
+    NAME##Pointer(const NAME##Pointer &other); \
+    NAME##Pointer(const Pointer &other, bool dynamicCast = false); \
+    static NAME##Pointer dynamicCast(const Pointer &other); \
+    \
+    NAME &operator*(); \
+    const NAME &operator*() const; \
+    NAME *operator->(); \
+    const NAME *operator->() const; \
+    NAME##Pointer &operator=(const NAME##Pointer &other); \
+    static const NAME##Pointer &null() { static const NAME##Pointer _null; return _null; }; \
+};
+
+#define CHILD_POINTER_DEFINITION(NAME, ORIGIN) \
+inline NAME##Pointer::NAME##Pointer(const NAME &other) { initData(&other); } \
+inline NAME##Pointer::NAME##Pointer(const Node &other, bool dynamicCast) { \
+    if(dynamicCast) \
+        initData(dynamic_cast<const NAME *>(&other)); \
+    else { \
+        CHILD_POINTER_CHECK_CAST(NAME, &other); \
+        initData(&other); \
+    } \
+} \
+inline NAME##Pointer::NAME##Pointer(const NAME *other) { CHILD_POINTER_CHECK_CAST(NAME, other); initData(other); } \
+inline NAME##Pointer::NAME##Pointer(const NAME##Pointer &other) : ORIGIN##Pointer(other) {} \
+inline NAME##Pointer::NAME##Pointer(const Pointer &other, bool dynamicCast) { \
+    if(dynamicCast) \
+        initData(dynamic_cast<const NAME *>(other.data())); \
+    else { \
+        CHILD_POINTER_CHECK_CAST(NAME, other.data()); \
+        initData(other.data()); \
+    } \
+} \
+inline NAME##Pointer NAME##Pointer::dynamicCast(const Pointer &other) { return dynamic_cast<const NAME *>(other.data()); } \
+\
+inline NAME &NAME##Pointer::operator*() { CHILD_POINTER_CHECK_DATA; return *static_cast<NAME *>(data()); }; \
+inline const NAME &NAME##Pointer::operator*() const { CHILD_POINTER_CHECK_DATA; return *static_cast<const NAME *>(data()); }; \
+inline NAME *NAME##Pointer::operator->() { CHILD_POINTER_CHECK_DATA; return static_cast<NAME *>(data()); }; \
+inline const NAME *NAME##Pointer::operator->() const { CHILD_POINTER_CHECK_DATA; return static_cast<const NAME *>(data()); }; \
+inline NAME##Pointer &NAME##Pointer::operator=(const NAME##Pointer &other) { CHILD_POINTER_CHECK_CAST(NAME, other.data()); setData(other.data()); return *this; }
 
 CHILD_END
 

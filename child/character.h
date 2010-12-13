@@ -5,23 +5,26 @@
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Character, Element);
+CHILD_POINTER_DECLARATION(Character, Element);
 
-#define CHILD_CHARACTER(ARGS...) CharacterPtr(new Character(Node::context()->child("Object", "Character"), ##ARGS))
+#define CHILD_CHARACTER(ARGS...) CharacterPointer(new Character(Node::context()->child("Object", "Character"), ##ARGS))
 
-class Character : public GenericElement<CharacterPtr, QChar> {
+class Character : public GenericElement<CharacterPointer, QChar> {
     CHILD_DECLARATION(Character, Element);
 public:
-    Character(const NodePtr &origin, const QChar &value = QChar::Null) :
-        GenericElement<CharacterPtr, QChar>(origin, value) {}
+    Character(const Pointer &origin, const QChar &value = QChar::Null) :
+        GenericElement<CharacterPointer, QChar>(origin, value) {}
 
     static void initRoot() { Object::root()->addChild("Character", root()); }
-    virtual NodePtr fork() const { return new Character(this, value()); }
+    virtual Pointer fork() const { return new Character(this, value()); }
 
-    virtual const QString toString(bool debug = false) const { return debug ? ("'" + QString(value()) + "'") : value(); }
+    virtual const QString toString(bool debug = false, short level = 0) const {
+        Q_UNUSED(level);
+        return debug ? ("'" + QString(value()) + "'") : value();
+    }
 };
 
-CHILD_PTR_DEFINITION(Character, Element);
+CHILD_POINTER_DEFINITION(Character, Element);
 
 CHILD_END
 

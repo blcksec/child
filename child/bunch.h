@@ -5,33 +5,35 @@
 
 CHILD_BEGIN
 
-CHILD_PTR_DECLARATION(Bunch, List);
+CHILD_POINTER_DECLARATION(Bunch, List);
 
-#define CHILD_BUNCH(ARGS...) BunchPtr(new Bunch(Node::context()->child("Object", "Bunch"), ##ARGS))
+#define CHILD_BUNCH(ARGS...) BunchPointer(new Bunch(Node::context()->child("Object", "Bunch"), ##ARGS))
 
-class Bunch : public GenericList<BunchPtr, NodePtr> {
+class Bunch : public GenericList<BunchPointer, Pointer> {
     CHILD_DECLARATION(Bunch, List);
 public:
-    Bunch(const NodePtr &origin) : GenericList<BunchPtr, NodePtr>(origin, true) {}
+    Bunch(const Pointer &origin) : GenericList<BunchPointer, Pointer>(origin, true) {}
 
-    Bunch(const NodePtr &origin, const NodePtr &value) : GenericList<BunchPtr, NodePtr>(origin, value, true) {}
+    Bunch(const Pointer &origin, const Pointer &value) : GenericList<BunchPointer, Pointer>(origin, value, true) {}
 
-    Bunch(const NodePtr &origin, const NodePtr &value1, const NodePtr &value2) :
-        GenericList<BunchPtr, NodePtr>(origin, value1, value2, true) {}
+    Bunch(const Pointer &origin, const Pointer &value1, const Pointer &value2) :
+        GenericList<BunchPointer, Pointer>(origin, value1, value2, true) {}
 
-    Bunch(const NodePtr &origin, const NodePtr &value1, const NodePtr &value2, const NodePtr &value3) :
-        GenericList<BunchPtr, NodePtr>(origin, value1, value2, value3, true) {}
+    Bunch(const Pointer &origin, const Pointer &value1, const Pointer &value2, const Pointer &value3) :
+        GenericList<BunchPointer, Pointer>(origin, value1, value2, value3, true) {}
 
-    Bunch(const Bunch &other) : GenericList<BunchPtr, NodePtr>(other) {}
+    Bunch(const Bunch &other) : GenericList<BunchPointer, Pointer>(other) {}
 
     static void initRoot() { Object::root()->addChild("Bunch", root()); }
 
-    virtual NodePtr fork() const { return BunchPtr(new Bunch(this))->initFork(); }
+    virtual Pointer fork() const { return BunchPointer(new Bunch(this))->initFork(); }
 
-    virtual const QString toString(bool debug = false) const { return "[" + join(", ", "", "", debug) + "]"; }
+    virtual const QString toString(bool debug = false, short level = 0) const {
+        return "[" + join(", ", "", "", debug, level) + "]";
+    }
 };
 
-CHILD_PTR_DEFINITION(Bunch, List);
+CHILD_POINTER_DEFINITION(Bunch, List);
 
 CHILD_END
 

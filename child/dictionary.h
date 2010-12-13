@@ -14,7 +14,7 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 template<class C, class K, class V>
 class GenericDictionary : public Object {
 public:
-    GenericDictionary(const NodePtr &origin, const QHash<K, V> &other = (QHash<K, V>())) : Object(origin), _hash(NULL) {
+    GenericDictionary(const Pointer &origin, const QHash<K, V> &other = (QHash<K, V>())) : Object(origin), _hash(NULL) {
         if(!other.isEmpty()) {
             QHashIterator<K, V> i(other);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()); }
@@ -88,12 +88,12 @@ public:
         foreach(K key, keys()) remove(key);
     }
 
-    virtual const QString toString(bool debug = false) const {
+    virtual const QString toString(bool debug = false, short level = 0) const {
         QString str = "[";
         bool first = true;
         foreach(K key, keys()) {
             if(!first) str += ", "; else first = false;
-            str += QString("%1: %2").arg(key->toString(debug), get(key)->toString(debug));
+            str += QString("%1: %2").arg(key->toString(debug, level), get(key)->toString(debug, level));
         }
         str.append("]");
         return str;
@@ -102,25 +102,25 @@ private:
     QHash<K, V> *_hash;
 };
 
-CHILD_PTR_DECLARATION(Dictionary, Object);
+CHILD_POINTER_DECLARATION(Dictionary, Object);
 
-#define CHILD_DICTIONARY(ARGS...) DictionaryPtr(new Dictionary(Node::context()->child("Object", "Dictionary"), ##ARGS))
+#define CHILD_DICTIONARY(ARGS...) DictionaryPointer(new Dictionary(Node::context()->child("Object", "Dictionary"), ##ARGS))
 
-class Dictionary : public GenericDictionary<DictionaryPtr, NodeRef, NodePtr> {
+class Dictionary : public GenericDictionary<DictionaryPointer, Reference, Pointer> {
     CHILD_DECLARATION(Dictionary, Object);
 public:
-    Dictionary(const NodePtr &origin, const NodeHash &other = NodeHash()) :
-        GenericDictionary<DictionaryPtr, NodeRef, NodePtr>(origin, other) {}
+    Dictionary(const Pointer &origin, const ReferenceHash &other = ReferenceHash()) :
+        GenericDictionary<DictionaryPointer, Reference, Pointer>(origin, other) {}
 
     Dictionary(const Dictionary &other) :
-        GenericDictionary<DictionaryPtr, NodeRef, NodePtr>(other) {}
+        GenericDictionary<DictionaryPointer, Reference, Pointer>(other) {}
 
     static void initRoot() { Object::root()->addChild("Dictionary", root()); }
 
-    virtual NodePtr fork() const { return DictionaryPtr(new Dictionary(this))->initFork(); };
+    virtual Pointer fork() const { return DictionaryPointer(new Dictionary(this))->initFork(); };
 };
 
-CHILD_PTR_DEFINITION(Dictionary, Object);
+CHILD_POINTER_DEFINITION(Dictionary, Object);
 
 CHILD_END
 

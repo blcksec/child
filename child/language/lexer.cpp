@@ -14,7 +14,7 @@ namespace Language {
         consume();
     }
 
-    TokenPtr Lexer::nextToken() {
+    TokenPointer Lexer::nextToken() {
         while(true) {
             switch(_currentChar.toAscii()) {
             case '\'': return scanCharacter();
@@ -72,7 +72,7 @@ namespace Language {
         consume(); // Slash
     }
 
-    TokenPtr Lexer::scanName() {
+    TokenPointer Lexer::scanName() {
         startToken();
         consume();
         while(_currentChar.isLetterOrNumber() || _currentChar == '_' || _currentChar == '!' || _currentChar == '?')
@@ -82,7 +82,7 @@ namespace Language {
         return finishToken(Token::Name);
     }
 
-    TokenPtr Lexer::scanOperator() {
+    TokenPointer Lexer::scanOperator() {
         startToken();
         QString text(_currentChar);
         do {
@@ -92,7 +92,7 @@ namespace Language {
         return finishToken(Token::Operator);
     }
 
-    TokenPtr Lexer::scanNumber() {
+    TokenPointer Lexer::scanNumber() {
         startToken();
         consume();
         short base = 10;
@@ -147,7 +147,7 @@ namespace Language {
         return finishToken(Token::Number);
     }
 
-    TokenPtr Lexer::scanCharacter() {
+    TokenPointer Lexer::scanCharacter() {
         startToken();
         consume(); // left single quote
         if(isEof()) throw lexerException("unexpected EOF found in a character literal");
@@ -160,7 +160,7 @@ namespace Language {
         return finishToken(Token::Character);
     }
 
-    TokenPtr Lexer::scanText() {
+    TokenPointer Lexer::scanText() {
         startToken();
         consume(); // left double quote
         while(_currentChar != '"') {
@@ -214,7 +214,7 @@ namespace Language {
         if(type != 'u' && code > 0xFF) throw lexerException("invalid number in escape sequence");
     }
 
-    LexerExceptionPtr Lexer::lexerException(QString message) const {
+    LexerExceptionPointer Lexer::lexerException(QString message) const {
         int column, line;
         computeColumnAndLineForPosition(_source, _position, column, line);
         QString text = extractLine(_source, line);
@@ -225,14 +225,14 @@ namespace Language {
         return new LexerException(context()->child("LexerException"), message, _resourceName, line);
     }
 
-    const QString Lexer::toString(bool debug) const {
+    const QString Lexer::toString(bool debug, short level) const {
         QString str;
         const_cast<Lexer *>(this)->rewind();
         while(true) {
-            TokenPtr token = const_cast<Lexer *>(this)->nextToken();
+            TokenPointer token = const_cast<Lexer *>(this)->nextToken();
             if(token->type == Token::Eof) break;
             if(!str.isEmpty()) str += ", ";
-            str += token->toString(debug);
+            str += token->toString(debug, level);
         }
         return "[" + str + "]";
     }

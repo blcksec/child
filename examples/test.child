@@ -1,1 +1,3 @@
-Person(first: "Manu", last: "Vila", age: 38);
+    "Hello World!"
+body:
+    Person(first: "Manu", last: "Vila", age: 38) { print }

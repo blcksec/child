@@ -35,6 +35,8 @@ throwNullPointerException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 #define CHILD_THROW_TYPECAST_EXCEPTION(MESSAGE) \
 throwTypecastException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 
+typedef unsigned long long int HugeUnsignedInteger;
+
 QString readTextFile(const QString &name);
 QString concatenateStrings(const QString &first, const QString &separator, const QString &second);
 QString escapeTabsAndNewlines(QString text);
