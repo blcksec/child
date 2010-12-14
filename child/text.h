@@ -2,6 +2,8 @@
 #define CHILD_TEXT_H
 
 #include "child/element.h"
+#include "child/number.h"
+#include "child/language/argument.h"
 
 CHILD_BEGIN
 
@@ -17,8 +19,16 @@ public:
     static void initRoot() {
         Object::root()->addChild("Text", root());
         CHILD_ADD_NATIVE_METHOD(Text, upcase);
+        CHILD_ADD_NATIVE_METHOD(Text, concatenate); root()->aliasChild("concatenate", "+");
+        CHILD_ADD_NATIVE_METHOD(Text, multiply); root()->aliasChild("multiply", "*");
     }
     virtual Pointer fork() const { return new Text(this, value()); }
+
+    TextPointer concatenate(const TextPointer &other) const { return CHILD_TEXT(value() + other->value()); }
+    CHILD_NATIVE_METHOD_DECLARE(concatenate) { return concatenate(inputs->first()->run()); }
+
+    TextPointer multiply(const NumberPointer &other) const { return CHILD_TEXT(value().repeated(other->value())); }
+    CHILD_NATIVE_METHOD_DECLARE(multiply) { return multiply(inputs->first()->run()); }
 
     TextPointer upcase() { return CHILD_TEXT(value().toUpper()); }
     CHILD_NATIVE_METHOD_DECLARE(upcase) { Q_UNUSED(inputs); return upcase(); }

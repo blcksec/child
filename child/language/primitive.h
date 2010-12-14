@@ -2,7 +2,6 @@
 #define CHILD_LANGUAGE_PRIMITIVE_H
 
 #include "child/element.h"
-#include "child/text.h"
 #include "child/language.h"
 
 CHILD_BEGIN

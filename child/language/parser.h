@@ -268,7 +268,7 @@ namespace Language {
             consumeNewline();
             PrimitiveChainPointer unary = CHILD_PRIMITIVE_CHAIN();
             scanUnaryExpression(unary);
-            message->inputs()->append(unary);
+            primitiveChain->append(unary);
             primitiveChain->append(primitive);
         }
 

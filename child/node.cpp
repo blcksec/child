@@ -31,6 +31,7 @@ Pointer &Node::root() {
 void Node::initRoot() {
     root()->addChild("Node", root());
     CHILD_ADD_NATIVE_METHOD(Node, print);
+    CHILD_ADD_NATIVE_METHOD(Node, inspect);
 }
 
 void Node::setOrigin(const Pointer &node) {

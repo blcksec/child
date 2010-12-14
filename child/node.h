@@ -102,6 +102,10 @@ public:
         return _children ? _children->key(value) : QString();
     }
 
+    void aliasChild(const QString &source, const QString &destination) {
+        addChild(destination, child(source));
+    }
+
     bool hasDirectParent(const Pointer &parent) const {
         CHILD_CHECK_POINTER(parent);
         return _parents && _parents->contains(parent.data());
@@ -118,11 +122,13 @@ public:
     Pointer print() const { P(toString().toUtf8()); return this; }
     CHILD_NATIVE_METHOD_DECLARE(print) { Q_UNUSED(inputs); return print(); }
 
-    const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
-    const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
-    virtual const QString toString(bool debug = false, short level = 0) const;
     Pointer inspect() const { P(toString(true).toUtf8()); return this; }
     CHILD_NATIVE_METHOD_DECLARE(inspect) { Q_UNUSED(inputs); return inspect(); }
+
+    const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
+    const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
+
+    virtual const QString toString(bool debug = false, short level = 0) const;
 
     virtual Comparison compare(const Node &other) const { return this == &other ? Equal : Different; }
     virtual uint hash() const { return ::qHash(this); }

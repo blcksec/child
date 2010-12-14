@@ -50,8 +50,10 @@ public:
     void setBlock(const BlockPointer &block) { _block = block; }
 
     virtual Pointer run(const Pointer &receiver = context()) {
-        Pointer node = receiver->child(name());
-        return this;
+        Pointer result = receiver->child(name());
+        NativeMethodPointer nativeMethod(result, true);
+        if(nativeMethod) result = ((*const_cast<Node *>(receiver.data())).*nativeMethod->method())(inputs(false));
+        return result;
     }
 
     virtual const QString toString(bool debug = false, short level = 0) const {
