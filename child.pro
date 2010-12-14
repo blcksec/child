@@ -48,7 +48,8 @@ SOURCES += main.cpp \
     child/language/section.cpp \
     child/language/sourcecode.cpp \
     child/language/lexer.cpp \
-    child/language/parser.cpp
+    child/language/parser.cpp \
+    child/envelope.cpp
 
 HEADERS += \
     child.h \
@@ -88,7 +89,8 @@ HEADERS += \
     child/language/lexer.h \
     child/language/parser.h \
     tests/testbegin.h \
-    tests/testend.h
+    tests/testend.h \
+    child/envelope.h
 
 OTHER_FILES += \
     notes/ideas.txt \

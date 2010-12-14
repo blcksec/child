@@ -1,8 +1,6 @@
 #ifndef CHILD_LANGUAGE_SOURCE_CODE_H
 #define CHILD_LANGUAGE_SOURCE_CODE_H
 
-#include <QtCore/QFileInfo>
-
 #include "child/text.h"
 #include "child/dictionary.h"
 #include "child/block.h"
@@ -50,7 +48,16 @@ namespace Language {
         void parse(const QString &newText = "") {
             if(!newText.isEmpty()) setText(newText);
             ParserPointer parser = context()->child("parser");
-            setBlock(parser->parse(text(), QFileInfo(url()).fileName()));
+            setBlock(parser->parse(text(), url()));
+        }
+
+        virtual Pointer run(const Pointer &receiver = context()) {
+            try {
+                return block() ? block()->run(receiver) : Pointer::null();
+            } catch(ExceptionPointer e) {
+                e->file = _url;
+                throw;
+            }
         }
 
         virtual const QString toString(bool debug = false, short level = 0) const {

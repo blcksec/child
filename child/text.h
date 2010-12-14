@@ -9,8 +9,6 @@ CHILD_POINTER_DECLARATION(Text, Element);
 
 #define CHILD_TEXT(ARGS...) TextPointer(new Text(Node::context()->child("Object", "Text"), ##ARGS))
 
-class MessagePointer;
-
 class Text : public GenericElement<TextPointer, QString> {
     CHILD_DECLARATION(Text, Element);
 public:
@@ -18,15 +16,12 @@ public:
 
     static void initRoot() {
         Object::root()->addChild("Text", root());
-        root()->addChild("upcase", new NativeMethod(NativeMethod::root(), static_cast<MethodPtr>(&Text::_upcase_)));
+        CHILD_ADD_NATIVE_METHOD(Text, upcase);
     }
     virtual Pointer fork() const { return new Text(this, value()); }
 
     TextPointer upcase() { return CHILD_TEXT(value().toUpper()); }
-    Pointer _upcase_(const MessagePointer &message) {
-        Q_UNUSED(message);
-        return upcase();
-    }
+    CHILD_NATIVE_METHOD_DECLARE(upcase) { Q_UNUSED(inputs); return upcase(); }
 
     virtual Comparison compare(const Node &other) const {
         if(this == &other) return Equal;

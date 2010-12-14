@@ -1,6 +1,8 @@
 #ifndef CHILD_LEXER_H
 #define CHILD_LEXER_H
 
+#include <QtCore/QFileInfo>
+
 #include "child/language/token.h"
 #include "child/language/operatortable.h"
 
@@ -15,7 +17,7 @@ namespace Language {
     class Lexer : public Object {
         CHILD_DECLARATION(Lexer, Object);
     public:
-        Lexer(const Pointer &origin) : Object(origin) {}
+        Lexer(const Pointer &origin) : Object(origin), _source(NULL) {}
         static void initRoot() { Language::root()->addChild("Lexer", root()); }
         virtual Pointer fork() const { return new Lexer(this); } // TODO
 
@@ -24,11 +26,12 @@ namespace Language {
             return _operatorTable;
         }
 
-        void setSource(const QString source) { _source = source; rewind(); }
-        const QString source() const { return _source; }
+        void setSource(const QString &source) { _source = &source; rewind(); }
+        const QString &source() const { return *_source; }
 
-        void setResourceName(const QString &name) { _resourceName = name;}
-        const QString resourceName() const { return _resourceName; }
+        void setResourceUrl(const QString &name) { _resourceUrl = name;}
+        const QString resourceUrl() const { return _resourceUrl; }
+        const QString resourceName() const { return QFileInfo(resourceUrl()).fileName(); }
 
         void rewind();
         TokenPointer nextToken();
@@ -44,7 +47,7 @@ namespace Language {
         }
 
         const QStringRef tokenTextRef() const {
-            return _source.midRef(_tokenPosition, _position - _tokenPosition);
+            return source().midRef(_tokenPosition, _position - _tokenPosition);
         }
 
         TokenPointer scan(const Token::Type type) { // Simple one char tokens
@@ -136,8 +139,8 @@ namespace Language {
 //        }
     private:
         OperatorTablePointer _operatorTable;
-        QString _source;
-        QString _resourceName;
+        const QString *_source;
+        QString _resourceUrl;
         int _position;
         QChar _previousChar;
         QChar _currentChar;

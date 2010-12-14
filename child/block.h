@@ -21,16 +21,7 @@ public:
     virtual Pointer fork() const { return BlockPointer(new Block(this))->initFork(); }
 
     virtual Pointer run(const Pointer &receiver = context()) {
-        Pointer result;
-        Section::Iterator i(bodySection());
-        while(PrimitiveChainPointer chain = i.next()) {
-            result = receiver;
-            PrimitiveChain::Iterator j(chain);
-            while(PrimitivePointer primitive = j.next()) {
-                result = primitive->run(result);
-            }
-        }
-        return result;
+        return bodySection()->run(receiver);
     }
 
     SectionPointer docSection() {

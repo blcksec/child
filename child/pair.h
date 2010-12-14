@@ -11,8 +11,6 @@ public:
     GenericPair(const Pointer &origin, const T1 &first = NULL, const T2 &second = NULL) :
         Object(origin), _first(first), _second(second) {}
 
-    virtual Pointer fork() const { return new GenericPair(this, _first->fork(), _second->fork()); }
-
     T1 first() const { return _first; }
     void setFirst(const T1 &first) { _first = first; }
     T2 second() const { return _second; }
@@ -45,9 +43,7 @@ public:
     static void initRoot() { Object::root()->addChild("Pair", root()); }
 
     virtual Pointer fork() const {
-        return new Pair(this,
-                        first() ? first()->fork() : Pointer::null(),
-                        second() ? second()->fork() : Pointer::null());
+        return new Pair(this, forkIfNotNull(first()), forkIfNotNull(second()));
     }
 };
 

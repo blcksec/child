@@ -29,9 +29,9 @@ namespace Language {
             return _lexer;
         }
 
-        BlockPointer parse(const QString &source, const QString &resourceName = "") {
+        BlockPointer parse(const QString &source, const QString &resourceUrl = "") {
             lexer()->setSource(source);
-            lexer()->setResourceName(resourceName);
+            lexer()->setResourceUrl(resourceUrl);
             clearOpenedTokens();
             consume();
             return scanBlock();

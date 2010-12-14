@@ -22,6 +22,15 @@ namespace Language {
         PrimitiveChainPointer label() const { return _label; }
         void setLabel(const PrimitiveChainPointer &label) { _label = label; }
 
+        virtual Pointer run(const Pointer &receiver = context()) {
+            Pointer result;
+            Iterator i(this);
+            while(PrimitiveChainPointer chain = i.next()) {
+                result = chain->run(receiver);
+            }
+            return result;
+        }
+
         virtual const QString toString(bool debug = false, short level = 0) const {
             QString str;
             if(label() && label()->isNotEmpty()) str += QString("    ").repeated(level - 1) + label()->toString(debug, level) + ":";

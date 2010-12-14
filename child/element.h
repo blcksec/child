@@ -29,7 +29,7 @@ class Element : public GenericElement<ElementPointer, Pointer> {
 public:
     Element(const Pointer &origin, const Pointer &value = NULL) : GenericElement<ElementPointer, Pointer>(origin, value) {}
     static void initRoot() { Object::root()->addChild("Element", root()); }
-    virtual Pointer fork() const { return new Element(this, value()->fork()); }
+    virtual Pointer fork() const { return new Element(this, forkIfNotNull(value())); }
     virtual const QString toString(bool debug = false, short level = 0) const {
         return value() ? value()->toString(debug, level) : "NULL";
     }

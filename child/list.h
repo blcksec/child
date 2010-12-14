@@ -210,11 +210,7 @@ public:
 
     static void initRoot() { Object::root()->addChild("List", root()); }
 
-    virtual Pointer fork() const {
-        ListPointer list = new List(this);
-        list->initFork();
-        return list;
-    }
+    virtual Pointer fork() const { return ListPointer(new List(this))->initFork(); }
 };
 
 CHILD_POINTER_DEFINITION(List, Object);

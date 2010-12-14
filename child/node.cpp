@@ -2,6 +2,7 @@
 
 #include "child/node.h"
 #include "child/exception.h"
+#include "child/nativemethod.h"
 
 CHILD_BEGIN
 
@@ -25,6 +26,11 @@ Pointer &Node::root() {
         initRoot();
     }
     return _root;
+}
+
+void Node::initRoot() {
+    root()->addChild("Node", root());
+    CHILD_ADD_NATIVE_METHOD(Node, print);
 }
 
 void Node::setOrigin(const Pointer &node) {

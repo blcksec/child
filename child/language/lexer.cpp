@@ -43,10 +43,10 @@ namespace Language {
     void Lexer::consume() {
         _previousChar = _currentChar;
         _position++;
-        if(_position < _source.length()) {
-            _currentChar = _source.at(_position);
-            if(_position + 1 < _source.length())
-                _nextChar = _source.at(_position + 1);
+        if(_position < source().length()) {
+            _currentChar = source().at(_position);
+            if(_position + 1 < source().length())
+                _nextChar = source().at(_position + 1);
             else
                 _nextChar = QChar::Null;
         } else {
@@ -216,13 +216,13 @@ namespace Language {
 
     LexerExceptionPointer Lexer::lexerException(QString message) const {
         int column, line;
-        computeColumnAndLineForPosition(_source, _position, column, line);
-        QString text = extractLine(_source, line);
+        computeColumnAndLineForPosition(source(), _position, column, line);
+        QString text = extractLine(source(), line);
         if(!text.isEmpty()) {
             QString cursor = QString(" ").repeated(column - 1).append("^");
             message += "\n" + text + "\n" + cursor;
         }
-        return new LexerException(context()->child("LexerException"), message, _resourceName, line);
+        return new LexerException(context()->child("LexerException"), message, resourceName(), line);
     }
 
     const QString Lexer::toString(bool debug, short level) const {

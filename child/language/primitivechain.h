@@ -25,6 +25,17 @@ namespace Language {
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
         virtual Pointer fork() const { return PrimitiveChainPointer(new PrimitiveChain(this))->initFork(); }
 
+        virtual Pointer run(const Pointer &receiver = context()) {
+            Pointer result;
+            Pointer currentReceiver = receiver;
+            Iterator i(this);
+            while(PrimitivePointer primitive = i.next()) {
+                result = primitive->run(currentReceiver);
+                currentReceiver = result;
+            }
+            return result;
+        }
+
         virtual const QString toString(bool debug = false, short level = 0) const { return join(" ", "", "", debug, level); }
     };
 

@@ -9,6 +9,12 @@
 
 CHILD_BEGIN
 
+namespace Language { class ArgumentBunchPointer; }
+using namespace Language;
+
+#define CHILD_NATIVE_METHOD_DECLARE(METHOD) \
+Pointer _##METHOD##_(const ArgumentBunchPointer &inputs)
+
 #define CHILD_NODE(ARGS...) Pointer(new Node(Node::context()->child("Node"), ##ARGS))
 
 #define CHILD_CHECK_POINTER(POINTER) \
@@ -16,6 +22,7 @@ if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Pointer is NULL")
 
 typedef QList<Pointer> PointerList;
 typedef QHash<Reference, Pointer> ReferenceHash;
+typedef Pointer (Node::*_MethodPointer_)(const ArgumentBunchPointer &);
 
 class Node {
 public:
@@ -42,8 +49,9 @@ public:
 
     static Pointer &root();
     virtual const QString className() const { return "Node"; }
-    static void initRoot() { root()->addChild("Node", root()); }
+    static void initRoot();
     virtual Pointer fork() const { return new Node(this); }
+    static Pointer forkIfNotNull(const Pointer &node) { return node ? node->fork() : node; }
 
     const Pointer &origin() const { return _origin; }
     void setOrigin(const Pointer &node);
@@ -107,6 +115,15 @@ public:
         return this;
     }
 
+    Pointer print() const { P(toString().toUtf8()); return this; }
+    CHILD_NATIVE_METHOD_DECLARE(print) { Q_UNUSED(inputs); return print(); }
+
+    const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
+    const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
+    virtual const QString toString(bool debug = false, short level = 0) const;
+    Pointer inspect() const { P(toString(true).toUtf8()); return this; }
+    CHILD_NATIVE_METHOD_DECLARE(inspect) { Q_UNUSED(inputs); return inspect(); }
+
     virtual Comparison compare(const Node &other) const { return this == &other ? Equal : Different; }
     virtual uint hash() const { return ::qHash(this); }
 
@@ -134,11 +151,6 @@ public:
         static QStack<Pointer> _contextStack;
         return _contextStack;
     }
-
-    const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
-    const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
-    virtual const QString toString(bool debug = false, short level = 0) const;
-    void inspect() const { P(toString(true).toUtf8()); }
 private:
     Pointer _origin;
     PointerList *_extensions;

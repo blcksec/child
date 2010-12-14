@@ -50,8 +50,7 @@ public:
     void setBlock(const BlockPointer &block) { _block = block; }
 
     virtual Pointer run(const Pointer &receiver = context()) {
-        Q_UNUSED(receiver);
-        PP;
+        Pointer node = receiver->child(name());
         return this;
     }
 
