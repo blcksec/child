@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINITION(Parser, Object);
+    CHILD_DEFINE(Parser, Object);
 }
 
 CHILD_END

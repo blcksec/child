@@ -5,12 +5,12 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARATION(Character, Element);
+CHILD_POINTER_DECLARE(Character, Element);
 
 #define CHILD_CHARACTER(ARGS...) CharacterPointer(new Character(Node::context()->child("Object", "Character"), ##ARGS))
 
 class Character : public GenericElement<CharacterPointer, QChar> {
-    CHILD_DECLARATION(Character, Element);
+    CHILD_DECLARE(Character, Element);
 public:
     Character(const Pointer &origin, const QChar &value = QChar::Null) :
         GenericElement<CharacterPointer, QChar>(origin, value) {}
@@ -24,7 +24,7 @@ public:
     }
 };
 
-CHILD_POINTER_DEFINITION(Character, Element);
+CHILD_POINTER_DEFINE(Character, Element);
 
 CHILD_END
 

@@ -6,13 +6,13 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(Section, List);
+    CHILD_POINTER_DECLARE(Section, List);
 
     #define CHILD_SECTION(ARGS...) \
     Language::SectionPointer(new Language::Section(Node::context()->child("Object", "Language", "Section"), ##ARGS))
 
     class Section : public GenericList<SectionPointer, PrimitiveChainPointer> {
-        CHILD_DECLARATION(Section, List);
+        CHILD_DECLARE(Section, List);
     public:
         Section(const Pointer &origin) : GenericList<SectionPointer, PrimitiveChainPointer>(origin) {}
 
@@ -41,7 +41,7 @@ namespace Language {
         PrimitiveChainPointer _label;
     };
 
-    CHILD_POINTER_DEFINITION(Section, List);
+    CHILD_POINTER_DEFINE(Section, List);
 }
 
 CHILD_END

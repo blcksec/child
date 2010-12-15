@@ -3,6 +3,7 @@
 #include "child/node.h"
 #include "child/exception.h"
 #include "child/nativemethod.h"
+#include "child/boolean.h"
 #include "child/language/argument.h"
 
 CHILD_BEGIN
@@ -33,8 +34,11 @@ Pointer &Node::root() {
 
 void Node::initRoot() {
     root()->addChild("Node", root());
-    CHILD_ADD_NATIVE_METHOD(Node, print);
-    CHILD_ADD_NATIVE_METHOD(Node, inspect);
+    CHILD_NATIVE_METHOD_ADD(Node, or, ||);
+    CHILD_NATIVE_METHOD_ADD(Node, and, &&);
+    CHILD_NATIVE_METHOD_ADD(Node, not, !);
+    CHILD_NATIVE_METHOD_ADD(Node, print);
+    CHILD_NATIVE_METHOD_ADD(Node, inspect);
 }
 
 void Node::setOrigin(const Pointer &node) {
@@ -158,6 +162,21 @@ void Node::_removeParent(const Node *parent) const {
         _parents->remove(parent);
     else
         CHILD_THROW(NotFoundException, "parent not found");
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, or) {
+    CHILD_CHECK_INPUT_SIZE(1);
+    return CHILD_BOOLEAN(toBool() || inputs->first()->run()->toBool());
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, and) {
+    CHILD_CHECK_INPUT_SIZE(1);
+    return CHILD_BOOLEAN(toBool() && inputs->first()->run()->toBool());
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, not) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    return CHILD_BOOLEAN(!toBool());
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, print) {

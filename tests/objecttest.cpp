@@ -3,8 +3,8 @@
 CHILD_BEGIN
 
 void ObjectTest::initialize() {
-    QCOMPARE(Object::root()->origin(), Node::root());
-    QCOMPARE(Node::root()->child("Object"), Object::root());
+    QVERIFY(Object::root()->origin() == Node::root());
+    QVERIFY(Node::root()->child("Object") == Object::root());
 }
 
 CHILD_END

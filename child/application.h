@@ -10,13 +10,13 @@ CHILD_BEGIN
 
 using namespace Language;
 
-CHILD_POINTER_DECLARATION(Application, Object);
+CHILD_POINTER_DECLARE(Application, Object);
 
 #define CHILD_APPLICATION(ARGS...) \
 ApplicationPointer(new Application(Node::context()->child("Object", "Application"), ##ARGS))
 
 class Application : public Object {
-    CHILD_DECLARATION(Application, Object);
+    CHILD_DECLARE(Application, Object);
 public:
     Application(const Pointer &origin) : Object(origin) {}
 
@@ -60,7 +60,7 @@ private:
     ParserPointer _parser;
 };
 
-CHILD_POINTER_DEFINITION(Application, Object);
+CHILD_POINTER_DEFINE(Application, Object);
 
 CHILD_END
 

@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINITION(Lexer, Object);
+    CHILD_DEFINE(Lexer, Object);
 
     void Lexer::rewind() {
         _operatorTable.clear();

@@ -102,12 +102,12 @@ private:
     QHash<K, V> *_hash;
 };
 
-CHILD_POINTER_DECLARATION(Dictionary, Object);
+CHILD_POINTER_DECLARE(Dictionary, Object);
 
 #define CHILD_DICTIONARY(ARGS...) DictionaryPointer(new Dictionary(Node::context()->child("Object", "Dictionary"), ##ARGS))
 
 class Dictionary : public GenericDictionary<DictionaryPointer, Reference, Pointer> {
-    CHILD_DECLARATION(Dictionary, Object);
+    CHILD_DECLARE(Dictionary, Object);
 public:
     Dictionary(const Pointer &origin, const ReferenceHash &other = ReferenceHash()) :
         GenericDictionary<DictionaryPointer, Reference, Pointer>(origin, other) {}
@@ -120,7 +120,7 @@ public:
     virtual Pointer fork() const { return DictionaryPointer(new Dictionary(this))->initFork(); };
 };
 
-CHILD_POINTER_DEFINITION(Dictionary, Object);
+CHILD_POINTER_DEFINE(Dictionary, Object);
 
 CHILD_END
 

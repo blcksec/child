@@ -3,8 +3,8 @@
 CHILD_BEGIN
 
 void DictionaryTest::initialize() {
-    QCOMPARE(Dictionary::root()->origin(), Object::root());
-    QCOMPARE(Object::root()->child("Dictionary"), Dictionary::root());
+    QVERIFY(Dictionary::root()->origin() == Object::root());
+    QVERIFY(Object::root()->child("Dictionary") == Dictionary::root());
 }
 
 void DictionaryTest::getAndSet() { // TODO: more tests with fork and/or removed key
@@ -19,30 +19,30 @@ void DictionaryTest::getAndSet() { // TODO: more tests with fork and/or removed 
     dict->set(k1, t1);
     QCOMPARE(dict->size(), 1);
     QVERIFY(dict->isNotEmpty());
-    QCOMPARE(dict->get(k1), t1);
-    QCOMPARE(dict->get(CHILD_TEXT("key1")), t1);
+    QVERIFY(dict->get(k1) == t1);
+    QVERIFY(dict->get(CHILD_TEXT("key1")) = t1);
     QVERIFY(t1->hasDirectParent(dict));
     TextPointer t2 = CHILD_TEXT("val2");
     dict->set(k1, t2);
     QCOMPARE(dict->size(), 1);
-    QCOMPARE(dict->get(k1), t2);
+    QVERIFY(dict->get(k1) == t2);
     QVERIFY(!t1->hasDirectParent(dict));
     QVERIFY(t2->hasDirectParent(dict));
     dict->set(CHILD_TEXT("key1"), t2);
     QCOMPARE(dict->size(), 1);
-    QCOMPARE(dict->get(k1), t2);
+    QVERIFY(dict->get(k1) == t2);
     QVERIFY(!t1->hasDirectParent(dict));
     QVERIFY(t2->hasDirectParent(dict));
     TextPointer t3 = CHILD_TEXT("val3");
     TextPointer k2 = CHILD_TEXT("key2");
     dict->set(k2, t3);
     QCOMPARE(dict->size(), 2);
-    QCOMPARE(dict->get(k2), t3);
+    QVERIFY(dict->get(k2) == t3);
 
     DictionaryPointer newDict(dict->fork());
     QCOMPARE(newDict->size(), 2);
-    QCOMPARE(newDict->get(k1)->origin(), t2);
-    QCOMPARE(newDict->get(k2)->origin(), t3);
+    QVERIFY(newDict->get(k1)->origin() == t2);
+    QVERIFY(newDict->get(k2)->origin() == t3);
 }
 
 void DictionaryTest::keys() { // TODO: test with fork and/or removed key
@@ -83,7 +83,7 @@ void DictionaryTest::remove() { // TODO: test with fork
     dict->set(k3, t3);
     QCOMPARE(dict->size(), 3);
     QVERIFY(dict->hasKey(k1));
-    QCOMPARE(dict->get(k1), t1);
+    QVERIFY(dict->get(k1) == t1);
     QVERIFY(t1->hasDirectParent(dict));
     QCATCH(dict->remove(Pointer()), NullPointerException);
     QCATCH(dict->remove(CHILD_TEXT("missing")), NotFoundException);

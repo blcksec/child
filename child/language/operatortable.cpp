@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINITION(OperatorTable, List);
+    CHILD_DEFINE(OperatorTable, List);
 
 //    void OperatorTable::append(const QString &text, Operator::Type type, short precedence,
 //                     Operator::Associativity associativity, const QString &name) {

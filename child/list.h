@@ -113,7 +113,7 @@ public:
         CHILD_CHECK_VALUE(value);
         if(_list)
             foreach(T node, *_list)
-                if(node->compare(*value) == Equal) return true;
+                if(node->compare(*value) == 0) return true;
         return false;
     }
 
@@ -188,12 +188,12 @@ private:
     bool _isBunched;
 };
 
-CHILD_POINTER_DECLARATION(List, Object);
+CHILD_POINTER_DECLARE(List, Object);
 
 #define CHILD_LIST(ARGS...) ListPointer(new List(Node::context()->child("Object", "List"), ##ARGS))
 
 class List : public GenericList<ListPointer, Pointer> {
-    CHILD_DECLARATION(List, Object);
+    CHILD_DECLARE(List, Object);
 public:
     List(const Pointer &origin, const PointerList &other = PointerList()) :
         GenericList<ListPointer, Pointer>(origin, other) {}
@@ -213,7 +213,7 @@ public:
     virtual Pointer fork() const { return ListPointer(new List(this))->initFork(); }
 };
 
-CHILD_POINTER_DEFINITION(List, Object);
+CHILD_POINTER_DEFINE(List, Object);
 
 CHILD_END
 

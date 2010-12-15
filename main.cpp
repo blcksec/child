@@ -18,7 +18,8 @@ int main() { // int argc, char *argv[]
         app->init();
         SourceCodePointer source = app->loadSourceCode("../child/examples/test.child");
         source->inspect();
-        source->run();
+        P("--");
+        P("-> " + source->run()->toString(true));
 //        TextPointer t(CHILD_TEXT("hello"));
 //        ((*t).*NativeMethodPointer(t->child("print"))->method())(CHILD_ARGUMENT_BUNCH());
         Node::popContext();

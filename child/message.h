@@ -8,13 +8,13 @@ CHILD_BEGIN
 
 using namespace Language;
 
-CHILD_POINTER_DECLARATION(Message, Object);
+CHILD_POINTER_DECLARE(Message, Object);
 
 #define CHILD_MESSAGE(ARGS...) \
 MessagePointer(new Message(Node::context()->child("Object", "Message"), ##ARGS))
 
 class Message : public Object {
-    CHILD_DECLARATION(Message, Object);
+    CHILD_DECLARE(Message, Object);
 public:
     Message(const Pointer &origin, const QString &name = "") : Object(origin), _name(name) {}
 
@@ -72,7 +72,7 @@ private:
     BlockPointer _block;
 };
 
-CHILD_POINTER_DEFINITION(Message, Object);
+CHILD_POINTER_DEFINE(Message, Object);
 
 CHILD_END
 

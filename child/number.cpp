@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Number, Element);
+CHILD_DEFINE(Number, Element);
 
 CHILD_END

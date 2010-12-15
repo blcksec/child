@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Dictionary, Object);
+CHILD_DEFINE(Dictionary, Object);
 
 CHILD_END

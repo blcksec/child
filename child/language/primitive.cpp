@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINITION(Primitive, Element);
+    CHILD_DEFINE(Primitive, Element);
 }
 
 CHILD_END

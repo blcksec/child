@@ -7,14 +7,14 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(PrimitiveChain, List);
+    CHILD_POINTER_DECLARE(PrimitiveChain, List);
 
     #define CHILD_PRIMITIVE_CHAIN(ARGS...) \
     Language::PrimitiveChainPointer(new Language::PrimitiveChain( \
         Node::context()->child("Object", "Language", "PrimitiveChain"), ##ARGS))
 
     class PrimitiveChain : public GenericList<PrimitiveChainPointer, PrimitivePointer> {
-        CHILD_DECLARATION(PrimitiveChain, List);
+        CHILD_DECLARE(PrimitiveChain, List);
     public:
         PrimitiveChain(const Pointer &origin) :
             GenericList<PrimitiveChainPointer, PrimitivePointer>(origin) {}
@@ -39,7 +39,7 @@ namespace Language {
         virtual const QString toString(bool debug = false, short level = 0) const { return join(" ", "", "", debug, level); }
     };
 
-    CHILD_POINTER_DEFINITION(PrimitiveChain, List);
+    CHILD_POINTER_DEFINE(PrimitiveChain, List);
 }
 
 CHILD_END

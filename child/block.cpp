@@ -3,7 +3,7 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Block, List);
+CHILD_DEFINE(Block, List);
 
 SectionPointer Block::findSection(const QString &label) {
     Iterator i(this);

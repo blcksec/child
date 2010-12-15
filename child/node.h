@@ -31,8 +31,6 @@ class Node {
 public:
     friend class GenericPointer<Node>;
 
-    enum Comparison { Smaller = -2, SmallerOrEqual, Equal, GreaterOrEqual, Greater, Different };
-
     static const bool isInitialized;
 
     Node(const Pointer &origin) : _origin(origin), _extensions(NULL), // default constructor
@@ -105,10 +103,6 @@ public:
         return _children ? _children->key(value) : QString();
     }
 
-    void aliasChild(const QString &source, const QString &destination) {
-        addChild(destination, child(source));
-    }
-
     bool hasDirectParent(const Pointer &parent) const {
         CHILD_CHECK_POINTER(parent);
         return _parents && _parents->contains(parent.data());
@@ -122,6 +116,10 @@ public:
         return this;
     }
 
+    CHILD_NATIVE_METHOD_DECLARE(or);
+    CHILD_NATIVE_METHOD_DECLARE(and);
+    CHILD_NATIVE_METHOD_DECLARE(not);
+
     Pointer print() const { P(toString().toUtf8()); return this; }
     CHILD_NATIVE_METHOD_DECLARE(print);
 
@@ -131,14 +129,16 @@ public:
     const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
 
+    virtual const bool toBool() const { return true; };
+
     virtual const double toDouble() const {
         CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Number").arg(className()));
-        return(0);
+        return 0;
     };
 
     virtual const QString toString(bool debug = false, short level = 0) const;
 
-    virtual Comparison compare(const Node &other) const { return this == &other ? Equal : Different; }
+    virtual short compare(const Node &other) const { return this == &other ? 0 : 1; }
     virtual uint hash() const { return ::qHash(this); }
 
     static const Pointer &empty() { static const Pointer _empty(new Node(Node::root())); return _empty; };
@@ -180,19 +180,19 @@ private:
     void release() const { if(--_refCount == 0) delete this; }
 };
 
-inline bool operator==(const Node &a, const Node &b) { return a.compare(b) == Node::Equal; }
-inline bool operator!=(const Node &a, const Node &b) { return a.compare(b) != Node::Equal; }
+inline bool operator==(const Node &a, const Node &b) { return a.compare(b) == 0; }
+inline bool operator!=(const Node &a, const Node &b) { return a.compare(b) != 0; }
 inline uint qHash(const Node &node) { return node.hash(); }
 
 inline bool operator==(const Pointer &a, const Pointer &b) { return a.data() == b.data(); }
 inline bool operator!=(const Pointer &a, const Pointer &b) { return a.data() != b.data(); }
 inline uint qHash(const Pointer &node) { return ::qHash(node.data()); }
 
-inline bool operator==(const Reference &a, const Reference &b) { return a->compare(*b) == Node::Equal; }
-inline bool operator!=(const Reference &a, const Reference &b) { return a->compare(*b) != Node::Equal; }
+inline bool operator==(const Reference &a, const Reference &b) { return a->compare(*b) == 0; }
+inline bool operator!=(const Reference &a, const Reference &b) { return a->compare(*b) != 0; }
 inline uint qHash(const Reference &node) { return node->hash(); }
 
-#define CHILD_DECLARATION(NAME, ORIGIN) \
+#define CHILD_DECLARE(NAME, ORIGIN) \
 public: \
     static NAME##Pointer &root(); \
     virtual const QString className() const { return #NAME; } \
@@ -200,7 +200,7 @@ public: \
     static const NAME##Pointer &empty() { static const NAME##Pointer _empty(new NAME(NAME::root())); return _empty; }; \
 private:
 
-#define CHILD_DEFINITION(NAME, ORIGIN) \
+#define CHILD_DEFINE(NAME, ORIGIN) \
 const bool NAME::isInitialized = NAME::root().isNotNull(); \
 NAME##Pointer &NAME::root() { \
     static NAME##Pointer _root; \

@@ -3,8 +3,8 @@
 CHILD_BEGIN
 
 void ListTest::initialize() {
-    QCOMPARE(List::root()->origin(), Object::root());
-    QCOMPARE(Object::root()->child("List"), List::root());
+    QVERIFY(List::root()->origin() == Object::root());
+    QVERIFY(Object::root()->child("List") == List::root());
 }
 
 void ListTest::insertGetAndSet() { // TODO: more tests with fork
@@ -22,24 +22,24 @@ void ListTest::insertGetAndSet() { // TODO: more tests with fork
     list->insert(0, t1);
     QCOMPARE(list->size(), 1);
     QVERIFY(list->isNotEmpty());
-    QCOMPARE(list->get(0), t1);
+    QVERIFY(list->get(0) == t1);
     QVERIFY(t1->hasDirectParent(list));
     TextPointer t2 = CHILD_TEXT("val2");
     list->set(0, t2);
     QCOMPARE(list->size(), 1);
-    QCOMPARE(list->get(0), t2);
+    QVERIFY(list->get(0) == t2);
     QVERIFY(!t1->hasDirectParent(list));
     QVERIFY(t2->hasDirectParent(list));
     TextPointer t3 = CHILD_TEXT("val3");
     list->insert(0, t3);
     QCOMPARE(list->size(), 2);
-    QCOMPARE(list->get(0), t3);
-    QCOMPARE(list->get(1), t2);
+    QVERIFY(list->get(0) == t3);
+    QVERIFY(list->get(1) == t2);
 
     ListPointer newList = list->fork();
     QCOMPARE(newList->size(), 2);
-    QCOMPARE(newList->get(0)->origin(), t3);
-    QCOMPARE(newList->get(1)->origin(), t2);
+    QVERIFY(newList->get(0)->origin() == t3);
+    QVERIFY(newList->get(1)->origin() == t2);
     QVERIFY(newList->get(0)->hasDirectParent(newList));
     QVERIFY(newList->get(1)->hasDirectParent(newList));
 }
@@ -53,20 +53,20 @@ void ListTest::remove() { // TODO: test with fork
     list->append(t2);
     list->append(t3);
     QCOMPARE(list->size(), 3);
-    QCOMPARE(list->get(0), t1);
+    QVERIFY(list->get(0) == t1);
     QVERIFY(t1->hasDirectParent(list));
-    QCOMPARE(list->get(1), t2);
-    QCOMPARE(list->get(2), t3);
+    QVERIFY(list->get(1) == t2);
+    QVERIFY(list->get(2) == t3);
     QCATCH(list->remove(-1), IndexOutOfBoundsException);
     QCATCH(list->remove(3), IndexOutOfBoundsException);
     list->remove(0);
     QCOMPARE(list->size(), 2);
     QVERIFY(!t1->hasDirectParent(list));
-    QCOMPARE(list->get(0), t2);
-    QCOMPARE(list->get(1), t3);
+    QVERIFY(list->get(0) == t2);
+    QVERIFY(list->get(1) == t3);
     list->remove(1);
     QCOMPARE(list->size(), 1);
-    QCOMPARE(list->get(0), t2);
+    QVERIFY(list->get(0) == t2);
     list->remove(0);
     QCOMPARE(list->size(), 0);
 }

@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(List, Object);
+CHILD_DEFINE(List, Object);
 
 CHILD_END

@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINITION(PrimitiveChain, List);
+    CHILD_DEFINE(PrimitiveChain, List);
 }
 
 CHILD_END

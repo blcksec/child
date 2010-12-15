@@ -5,7 +5,7 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARATION(Exception,);
+CHILD_POINTER_DECLARE(Exception,);
 
 #define CHILD_EXCEPTION(ARGS...) ExceptionPointer(new Exception(Node::context()->child("Exception"), ##ARGS))
 
@@ -16,7 +16,7 @@ throw EXCEPTION##Pointer(new EXCEPTION(Node::context()->child(#EXCEPTION), MESSA
 CHILD_THROW(Exception, "function not yet implemented")
 
 class Exception : public Node {
-    CHILD_DECLARATION(Exception, Node);
+    CHILD_DECLARE(Exception, Node);
 public:
     QString message;
     QString file;
@@ -40,12 +40,12 @@ public:
     }
 };
 
-CHILD_POINTER_DEFINITION(Exception,);
+CHILD_POINTER_DEFINE(Exception,);
 
 #define CHILD_EXCEPTION_DECLARATION(NAME, ORIGIN) \
-CHILD_POINTER_DECLARATION(NAME, ORIGIN); \
+CHILD_POINTER_DECLARE(NAME, ORIGIN); \
 class NAME : public ORIGIN { \
-    CHILD_DECLARATION(NAME, ORIGIN); \
+    CHILD_DECLARE(NAME, ORIGIN); \
 public: \
     NAME(const Pointer &origin, const QString &message = "", const QString &file = "", \
          const int line = 0, const QString &function = "") : \
@@ -55,10 +55,10 @@ public: \
         return new NAME(this, message, file, line, function); \
     } \
 }; \
-CHILD_POINTER_DEFINITION(NAME, ORIGIN);
+CHILD_POINTER_DEFINE(NAME, ORIGIN);
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
-CHILD_DEFINITION(NAME, ORIGIN);
+CHILD_DEFINE(NAME, ORIGIN);
 
 CHILD_EXCEPTION_DECLARATION(LexerException, Exception);
 CHILD_EXCEPTION_DECLARATION(ParserException, Exception);

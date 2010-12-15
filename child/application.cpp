@@ -2,7 +2,7 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Application, Object);
+CHILD_DEFINE(Application, Object);
 
 void Application::initOperatorTable() {
     using namespace Language;

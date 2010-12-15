@@ -3,8 +3,8 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINITION(Argument, Pair);
-    CHILD_DEFINITION(ArgumentBunch, Bunch);
+    CHILD_DEFINE(Argument, Pair);
+    CHILD_DEFINE(ArgumentBunch, Bunch);
 
     void ArgumentBunch::checkSpecifiedSize(short size, short min, short max) {
         if(max == -1) max = min;

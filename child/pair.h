@@ -30,12 +30,12 @@ private:
     T2 _second;
 };
 
-CHILD_POINTER_DECLARATION(Pair, Object);
+CHILD_POINTER_DECLARE(Pair, Object);
 
 #define CHILD_PAIR(ARGS...) PairPointer(new Pair(Node::context()->child("Object", "Pair"), ##ARGS))
 
 class Pair : public GenericPair<PairPointer, Pointer, Pointer> {
-    CHILD_DECLARATION(Pair, Object);
+    CHILD_DECLARE(Pair, Object);
 public:
     Pair(const Pointer &origin, const Pointer &first = NULL, const Pointer &second = NULL) :
         GenericPair<PairPointer, Pointer, Pointer>(origin, first, second) {}
@@ -47,7 +47,7 @@ public:
     }
 };
 
-CHILD_POINTER_DEFINITION(Pair, Object);
+CHILD_POINTER_DEFINE(Pair, Object);
 
 CHILD_END
 

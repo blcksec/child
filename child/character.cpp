@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Character, Element);
+CHILD_DEFINE(Character, Element);
 
 CHILD_END

@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(NativeMethod, Node);
+CHILD_DEFINE(NativeMethod, Node);
 
 CHILD_END

@@ -6,13 +6,13 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(Token, Object);
+    CHILD_POINTER_DECLARE(Token, Object);
 
     #define CHILD_TOKEN(ARGS...) \
     Language::TokenPointer(new Language::Token(Node::context()->child("Object", "Language", "Token"), ##ARGS))
 
     class Token : public Object {
-        CHILD_DECLARATION(Token, Object);
+        CHILD_DECLARE(Token, Object);
     public:
         enum Type {
             Null,
@@ -55,7 +55,7 @@ namespace Language {
         }
     };
 
-    CHILD_POINTER_DEFINITION(Token, Object);
+    CHILD_POINTER_DEFINE(Token, Object);
 }
 
 CHILD_END

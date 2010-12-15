@@ -9,14 +9,14 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(OperatorTable, List);
+    CHILD_POINTER_DECLARE(OperatorTable, List);
 
     #define CHILD_OPERATOR_TABLE(ARGS...) \
     Language::OperatorTablePointer(new Language::OperatorTable( \
         Node::context()->child("Object", "Language", "OperatorTable"), ##ARGS))
 
     class OperatorTable : public GenericList<OperatorTablePointer, OperatorPointer> {
-        CHILD_DECLARATION(OperatorTable, List);
+        CHILD_DECLARE(OperatorTable, List);
     public:
         OperatorTable(const Pointer &origin) : GenericList<OperatorTablePointer, OperatorPointer>(origin) {}
 
@@ -59,7 +59,7 @@ namespace Language {
         QString _firstChars;
     };
 
-    CHILD_POINTER_DEFINITION(OperatorTable, List);
+    CHILD_POINTER_DEFINE(OperatorTable, List);
 }
 
 CHILD_END

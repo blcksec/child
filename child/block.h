@@ -7,13 +7,13 @@ CHILD_BEGIN
 
 using namespace Language;
 
-CHILD_POINTER_DECLARATION(Block, List);
+CHILD_POINTER_DECLARE(Block, List);
 
 #define CHILD_BLOCK(ARGS...) \
 BlockPointer(new Block(Node::context()->child("Object", "Block"), ##ARGS))
 
 class Block : public GenericList<BlockPointer, SectionPointer> {
-    CHILD_DECLARATION(Block, List);
+    CHILD_DECLARE(Block, List);
 public:
     Block(const Pointer &origin) : GenericList<BlockPointer, SectionPointer>(origin) {}
 
@@ -72,7 +72,7 @@ private:
     SectionPointer _body;
 };
 
-CHILD_POINTER_DEFINITION(Block, List);
+CHILD_POINTER_DEFINE(Block, List);
 
 CHILD_END
 

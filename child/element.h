@@ -20,12 +20,12 @@ private:
     T _value;
 };
 
-CHILD_POINTER_DECLARATION(Element, Object);
+CHILD_POINTER_DECLARE(Element, Object);
 
 #define CHILD_ELEMENT(ARGS...) ElementPointer(new Element(Node::context()->child("Object", "Element"), ##ARGS))
 
 class Element : public GenericElement<ElementPointer, Pointer> {
-    CHILD_DECLARATION(Element, Object);
+    CHILD_DECLARE(Element, Object);
 public:
     Element(const Pointer &origin, const Pointer &value = NULL) : GenericElement<ElementPointer, Pointer>(origin, value) {}
     static void initRoot() { Object::root()->addChild("Element", root()); }
@@ -35,7 +35,7 @@ public:
     }
 };
 
-CHILD_POINTER_DEFINITION(Element, Object);
+CHILD_POINTER_DEFINE(Element, Object);
 
 CHILD_END
 

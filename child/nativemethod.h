@@ -6,15 +6,16 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARATION(NativeMethod,);
+CHILD_POINTER_DECLARE(NativeMethod,);
 
 #define CHILD_NATIVE_METHOD(ARGS...) NativeMethodPointer(new NativeMethod(Node::context()->child("NativeMethod"), ##ARGS))
 
-#define CHILD_ADD_NATIVE_METHOD(NAME, METHOD) \
-NAME::root()->addChild(#METHOD, new NativeMethod(NativeMethod::root(), static_cast<_MethodPointer_>(&NAME::_##METHOD##_)))
+#define CHILD_NATIVE_METHOD_ADD(CLASS, METHOD, NAME...) \
+CLASS::root()->addChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
+    new NativeMethod(NativeMethod::root(), static_cast<_MethodPointer_>(&CLASS::_##METHOD##_)))
 
 class NativeMethod : public Node {
-    CHILD_DECLARATION(NativeMethod, Node);
+    CHILD_DECLARE(NativeMethod, Node);
 public:
     NativeMethod(const Pointer &origin, const _MethodPointer_ &method = NULL) : Node(origin), _method(method) {}
     static void initRoot() { Node::root()->addChild("NativeMethod", root()); }
@@ -26,7 +27,7 @@ private:
     _MethodPointer_ _method;
 };
 
-CHILD_POINTER_DEFINITION(NativeMethod,);
+CHILD_POINTER_DEFINE(NativeMethod,);
 
 CHILD_END
 

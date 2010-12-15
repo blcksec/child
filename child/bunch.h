@@ -5,12 +5,12 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARATION(Bunch, List);
+CHILD_POINTER_DECLARE(Bunch, List);
 
 #define CHILD_BUNCH(ARGS...) BunchPointer(new Bunch(Node::context()->child("Object", "Bunch"), ##ARGS))
 
 class Bunch : public GenericList<BunchPointer, Pointer> {
-    CHILD_DECLARATION(Bunch, List);
+    CHILD_DECLARE(Bunch, List);
 public:
     Bunch(const Pointer &origin) : GenericList<BunchPointer, Pointer>(origin, true) {}
 
@@ -33,7 +33,7 @@ public:
     }
 };
 
-CHILD_POINTER_DEFINITION(Bunch, List);
+CHILD_POINTER_DEFINE(Bunch, List);
 
 CHILD_END
 

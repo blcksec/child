@@ -2,7 +2,7 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Text, Element);
+CHILD_DEFINE(Text, Element);
 
 QString Text::unescapeSequence(const QString &source) {
     QString result;

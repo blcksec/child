@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Envelope, Primitive);
+CHILD_DEFINE(Envelope, Primitive);
 
 CHILD_END

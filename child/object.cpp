@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Object, Node);
+CHILD_DEFINE(Object, Node);
 
 CHILD_END

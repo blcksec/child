@@ -12,13 +12,13 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(Parser, Object);
+    CHILD_POINTER_DECLARE(Parser, Object);
 
     #define CHILD_PARSER(ARGS...) \
     Language::ParserPointer(new Language::Parser(Node::context()->child("Object", "Language", "Parser"), ##ARGS))
 
     class Parser : public Object {
-        CHILD_DECLARATION(Parser, Object);
+        CHILD_DECLARE(Parser, Object);
     public:
         Parser(const Pointer &origin) : Object(origin) {}
         static void initRoot() { Language::root()->addChild("Parser", root()); }
@@ -363,7 +363,7 @@ namespace Language {
         QStack<Token::Type> _openedTokens;
     };
 
-    CHILD_POINTER_DEFINITION(Parser, Object);
+    CHILD_POINTER_DEFINE(Parser, Object);
 }
 
 CHILD_END

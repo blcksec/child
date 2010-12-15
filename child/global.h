@@ -45,6 +45,7 @@ QString concatenateStrings(const QString &first, const QString &separator, const
 QString escapeTabsAndNewlines(QString text);
 QString extractLine(const QString &text, int requestedLine);
 const bool computeColumnAndLineForPosition(const QString &text, const int position, int &column, int &line);
+QString preferSecondArgumentIfNotEmpty(const QString &a, const QString &b);
 
 void throwRuntimeException(const QString &message = "", const QString &file = "", const int line = 0, const QString &function = "");
 void throwNullPointerException(const QString &message = "", const QString &file = "", const int line = 0, const QString &function = "");

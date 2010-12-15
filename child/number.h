@@ -8,25 +8,26 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARATION(Number, Element);
+CHILD_POINTER_DECLARE(Number, Element);
 
 #define CHILD_NUMBER(ARGS...) NumberPointer(new Number(Node::context()->child("Object", "Number"), ##ARGS))
 
 class Number : public GenericElement<NumberPointer, double> {
-    CHILD_DECLARATION(Number, Element);
+    CHILD_DECLARE(Number, Element);
 public:
     Number(const Pointer &origin, const double value = 0) : GenericElement<NumberPointer, double>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Number", root());
-        CHILD_ADD_NATIVE_METHOD(Number, add); root()->aliasChild("add", "+");
-        CHILD_ADD_NATIVE_METHOD(Number, subtract); root()->aliasChild("subtract", "-");
-        CHILD_ADD_NATIVE_METHOD(Number, multiply); root()->aliasChild("multiply", "*");
-        CHILD_ADD_NATIVE_METHOD(Number, divide); root()->aliasChild("divide", "/");
-        CHILD_ADD_NATIVE_METHOD(Number, modulo); root()->aliasChild("modulo", "%");
-        CHILD_ADD_NATIVE_METHOD(Number, unary_plus);
-        CHILD_ADD_NATIVE_METHOD(Number, unary_minus);
+        CHILD_NATIVE_METHOD_ADD(Number, add, +);
+        CHILD_NATIVE_METHOD_ADD(Number, subtract, -);
+        CHILD_NATIVE_METHOD_ADD(Number, multiply, *);
+        CHILD_NATIVE_METHOD_ADD(Number, divide, /);
+        CHILD_NATIVE_METHOD_ADD(Number, modulo, %);
+        CHILD_NATIVE_METHOD_ADD(Number, unary_plus);
+        CHILD_NATIVE_METHOD_ADD(Number, unary_minus);
     }
+
     virtual Pointer fork() const { return new Number(this, value()); }
 
     CHILD_NATIVE_METHOD_DECLARE(add) {
@@ -64,7 +65,7 @@ public:
         return CHILD_NUMBER(-value());
     }
 
-    virtual const double toDouble() const { return(value()); };
+    virtual const double toDouble() const { return value(); };
 
     virtual const QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);
@@ -73,7 +74,7 @@ public:
     }
 };
 
-CHILD_POINTER_DEFINITION(Number, Element);
+CHILD_POINTER_DEFINE(Number, Element);
 
 CHILD_END
 

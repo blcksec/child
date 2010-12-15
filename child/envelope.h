@@ -7,12 +7,12 @@ CHILD_BEGIN
 
 using namespace Language;
 
-CHILD_POINTER_DECLARATION(Envelope, Primitive);
+CHILD_POINTER_DECLARE(Envelope, Primitive);
 
 #define CHILD_ENVELOPE(ARGS...) EnvelopePointer(new Envelope(Node::context()->child("Object", "Envelope"), ##ARGS))
 
 class Envelope : public Primitive {
-    CHILD_DECLARATION(Envelope, Primitive);
+    CHILD_DECLARE(Envelope, Primitive);
 public:
     Envelope(const Pointer &origin, const Pointer &contents = NULL, const QStringRef &sourceCodeRef = QStringRef(),
              const Pointer &sender = NULL, const Pointer &receiver = NULL) :
@@ -41,7 +41,7 @@ private:
     Pointer _receiver;
 };
 
-CHILD_POINTER_DEFINITION(Envelope, Primitive);
+CHILD_POINTER_DEFINE(Envelope, Primitive);
 
 CHILD_END
 

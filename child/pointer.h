@@ -60,7 +60,7 @@ public:
     Reference(const Pointer &other) : Pointer(other) {}
 };
 
-#define CHILD_POINTER_DECLARATION(NAME, ORIGIN) \
+#define CHILD_POINTER_DECLARE(NAME, ORIGIN) \
 class NAME; \
 class NAME##Pointer : public ORIGIN##Pointer { \
 public: \
@@ -80,7 +80,7 @@ public: \
     static const NAME##Pointer &null() { static const NAME##Pointer _null; return _null; }; \
 };
 
-#define CHILD_POINTER_DEFINITION(NAME, ORIGIN) \
+#define CHILD_POINTER_DEFINE(NAME, ORIGIN) \
 inline NAME##Pointer::NAME##Pointer(const NAME &other) { initData(&other); } \
 inline NAME##Pointer::NAME##Pointer(const Node &other, bool dynamicCast) { \
     if(dynamicCast) \

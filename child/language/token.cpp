@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINITION(Token, Object);
+    CHILD_DEFINE(Token, Object);
 
     const char *Token::typeNames[] = {
         "<NULL>",

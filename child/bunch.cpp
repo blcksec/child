@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Bunch, List);
+CHILD_DEFINE(Bunch, List);
 
 CHILD_END

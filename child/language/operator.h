@@ -6,13 +6,13 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(Operator, Object);
+    CHILD_POINTER_DECLARE(Operator, Object);
 
     #define CHILD_OPERATOR(ARGS...) \
     Language::OperatorPointer(new Language::Operator(Node::context()->child("Object", "Language", "Operator"), ##ARGS))
 
     class Operator : public Object {
-        CHILD_DECLARATION(Operator, Object);
+        CHILD_DECLARE(Operator, Object);
     public:
         enum Type { Null, Prefix, Postfix, Binary };
         enum Associativity { LeftAssociative, RightAssociative, NonAssociative };
@@ -47,7 +47,7 @@ namespace Language {
         }
     };
 
-    CHILD_POINTER_DEFINITION(Operator, Object);
+    CHILD_POINTER_DEFINE(Operator, Object);
 }
 
 CHILD_END

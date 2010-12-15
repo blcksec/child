@@ -1,1 +1,1 @@
-("Hello" upcase * 34) inspect
+3.14 * 2

@@ -9,13 +9,13 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(SourceCode, Object);
+    CHILD_POINTER_DECLARE(SourceCode, Object);
 
     #define CHILD_SOURCE_CODE(ARGS...) \
     Language::SourceCodePointer(new Language::SourceCode(Node::context()->child("Object", "Language", "SourceCode"), ##ARGS))
 
     class SourceCode : public Object {
-        CHILD_DECLARATION(SourceCode, Object);
+        CHILD_DECLARE(SourceCode, Object);
     public:
         SourceCode(const Pointer &origin, const QString &url = "",
                    const QString &txt = "", const BlockPointer &block = NULL) :
@@ -72,18 +72,18 @@ namespace Language {
         BlockPointer _block;
     };
 
-    CHILD_POINTER_DEFINITION(SourceCode, Object);
+    CHILD_POINTER_DEFINE(SourceCode, Object);
 
     // === SourceCodeDictionary ===
 
-    CHILD_POINTER_DECLARATION(SourceCodeDictionary, Dictionary);
+    CHILD_POINTER_DECLARE(SourceCodeDictionary, Dictionary);
 
     #define CHILD_SOURCE_CODE_DICTIONARY(ARGS...) \
     Language::SourceCodeDictionaryPointer(new Language::SourceCodeDictionary( \
         Node::context()->child("Object", "Language", "SourceCodeDictionary"), ##ARGS))
 
     class SourceCodeDictionary : public GenericDictionary<SourceCodeDictionaryPointer, Reference, SourceCodePointer> {
-        CHILD_DECLARATION(SourceCodeDictionary, Dictionary);
+        CHILD_DECLARE(SourceCodeDictionary, Dictionary);
     public:
         SourceCodeDictionary(const Pointer &origin) :
             GenericDictionary<SourceCodeDictionaryPointer, Reference, SourceCodePointer>(origin) {}
@@ -92,7 +92,7 @@ namespace Language {
         virtual Pointer fork() const { return SourceCodeDictionaryPointer(new SourceCodeDictionary(this))->initFork(); };
     };
 
-    CHILD_POINTER_DEFINITION(SourceCodeDictionary, Dictionary);
+    CHILD_POINTER_DEFINE(SourceCodeDictionary, Dictionary);
 }
 
 CHILD_END

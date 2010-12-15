@@ -7,13 +7,13 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(Primitive, Element);
+    CHILD_POINTER_DECLARE(Primitive, Element);
 
     #define CHILD_PRIMITIVE(ARGS...) \
     Language::PrimitivePointer(new Language::Primitive(Node::context()->child("Object", "Language", "Primitive"), ##ARGS))
 
     class Primitive : public Element {
-        CHILD_DECLARATION(Primitive, Element);
+        CHILD_DECLARE(Primitive, Element);
     public:
         Primitive(const Pointer &origin, const Pointer &value = NULL, const QStringRef &sourceCodeRef = QStringRef()) :
             Element(origin, value), _sourceCodeRef(sourceCodeRef) {}
@@ -47,7 +47,7 @@ namespace Language {
         QStringRef _sourceCodeRef;
     };
 
-    CHILD_POINTER_DEFINITION(Primitive, Element);
+    CHILD_POINTER_DEFINE(Primitive, Element);
 }
 
 CHILD_END

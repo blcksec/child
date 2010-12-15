@@ -3,8 +3,8 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINITION(SourceCode, Object);
-    CHILD_DEFINITION(SourceCodeDictionary, Dictionary);
+    CHILD_DEFINE(SourceCode, Object);
+    CHILD_DEFINE(SourceCodeDictionary, Dictionary);
 }
 
 CHILD_END

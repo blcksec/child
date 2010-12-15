@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Message, Object);
+CHILD_DEFINE(Message, Object);
 
 CHILD_END

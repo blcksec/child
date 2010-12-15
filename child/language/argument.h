@@ -8,13 +8,13 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(Argument, Pair);
+    CHILD_POINTER_DECLARE(Argument, Pair);
 
     #define CHILD_ARGUMENT(ARGS...) \
     Language::ArgumentPointer(new Language::Argument(Node::context()->child("Object", "Language", "Argument"), ##ARGS))
 
     class Argument : public GenericPair<ArgumentPointer, PrimitiveChainPointer, PrimitiveChainPointer> {
-        CHILD_DECLARATION(Argument, Pair);
+        CHILD_DECLARE(Argument, Pair);
     public:
         Argument(const Pointer &origin, const PrimitiveChainPointer &label = NULL, const PrimitiveChainPointer &value = NULL) :
             GenericPair<ArgumentPointer, PrimitiveChainPointer, PrimitiveChainPointer>(origin, label, value) {}
@@ -42,11 +42,11 @@ namespace Language {
         }
     };
 
-    CHILD_POINTER_DEFINITION(Argument, Pair);
+    CHILD_POINTER_DEFINE(Argument, Pair);
 
     // === ArgumentBunch ===
 
-    CHILD_POINTER_DECLARATION(ArgumentBunch, Bunch);
+    CHILD_POINTER_DECLARE(ArgumentBunch, Bunch);
 
     #define CHILD_ARGUMENT_BUNCH(ARGS...) \
     Language::ArgumentBunchPointer(new Language::ArgumentBunch( \
@@ -56,7 +56,7 @@ namespace Language {
     ArgumentBunch::checkSpecifiedSize(inputs ? inputs->size() : 0, ##ARGS)
 
     class ArgumentBunch : public GenericList<ArgumentBunchPointer, ArgumentPointer> {
-        CHILD_DECLARATION(ArgumentBunch, Bunch);
+        CHILD_DECLARE(ArgumentBunch, Bunch);
     public:
         ArgumentBunch(const Pointer &origin) : GenericList<ArgumentBunchPointer, ArgumentPointer>(origin, true) {}
 
@@ -91,7 +91,7 @@ namespace Language {
         virtual const QString toString(bool debug = false, short level = 0) const { return join(", ", "", "", debug, level); }
     };
 
-    CHILD_POINTER_DEFINITION(ArgumentBunch, Bunch);
+    CHILD_POINTER_DEFINE(ArgumentBunch, Bunch);
 }
 
 CHILD_END

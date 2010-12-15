@@ -77,6 +77,11 @@ const bool computeColumnAndLineForPosition(const QString &text, const int positi
     return false;
 }
 
+QString preferSecondArgumentIfNotEmpty(const QString &a, const QString &b) {
+    return b.isEmpty() ? a : b;
+}
+
+
 #define CHILD_THROW_FUNCTION(EXCEPTION) \
 void throw##EXCEPTION(const QString &message, const QString &file, const int line, const QString &function) { \
     throw EXCEPTION##Pointer(new EXCEPTION(Node::context()->child(#EXCEPTION), message, file, line, function)); \

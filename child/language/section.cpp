@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINITION(Section, List);
+    CHILD_DEFINE(Section, List);
 }
 
 CHILD_END

@@ -9,13 +9,13 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARATION(Lexer, Object);
+    CHILD_POINTER_DECLARE(Lexer, Object);
 
     #define CHILD_LEXER(ARGS...) \
     Language::LexerPointer(new Language::Lexer(Node::context()->child("Object", "Language", "Lexer"), ##ARGS))
 
     class Lexer : public Object {
-        CHILD_DECLARATION(Lexer, Object);
+        CHILD_DECLARE(Lexer, Object);
     public:
         Lexer(const Pointer &origin) : Object(origin), _source(NULL) {}
         static void initRoot() { Language::root()->addChild("Lexer", root()); }
@@ -148,7 +148,7 @@ namespace Language {
         int _tokenPosition;
     };
 
-    CHILD_POINTER_DEFINITION(Lexer, Object);
+    CHILD_POINTER_DEFINE(Lexer, Object);
 }
 
 CHILD_END

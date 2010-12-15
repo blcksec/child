@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Pair, Object);
+CHILD_DEFINE(Pair, Object);
 
 CHILD_END

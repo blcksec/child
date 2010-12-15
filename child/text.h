@@ -7,20 +7,20 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARATION(Text, Element);
+CHILD_POINTER_DECLARE(Text, Element);
 
 #define CHILD_TEXT(ARGS...) TextPointer(new Text(Node::context()->child("Object", "Text"), ##ARGS))
 
 class Text : public GenericElement<TextPointer, QString> {
-    CHILD_DECLARATION(Text, Element);
+    CHILD_DECLARE(Text, Element);
 public:
     Text(const Pointer &origin, const QString &value = "") : GenericElement<TextPointer, QString>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Text", root());
-        CHILD_ADD_NATIVE_METHOD(Text, upcase);
-        CHILD_ADD_NATIVE_METHOD(Text, concatenate); root()->aliasChild("concatenate", "+");
-        CHILD_ADD_NATIVE_METHOD(Text, multiply); root()->aliasChild("multiply", "*");
+        CHILD_NATIVE_METHOD_ADD(Text, concatenate, +);
+        CHILD_NATIVE_METHOD_ADD(Text, multiply, *);
+        CHILD_NATIVE_METHOD_ADD(Text, upcase);
     }
     virtual Pointer fork() const { return new Text(this, value()); }
 
@@ -39,14 +39,14 @@ public:
         return CHILD_TEXT(value().toUpper());
     }
 
-    virtual Comparison compare(const Node &other) const {
-        if(this == &other) return Equal;
+    virtual short compare(const Node &other) const {
+        if(this == &other) return 0;
         TextPointer otherText(other, true);
-        if(!otherText) return Different;
+        if(!otherText) return 1;
         int result = value().compare(otherText->value());
-        if(result > 0) return Greater;
-        else if(result < 0) return Smaller;
-        else return Equal;
+        if(result > 0) return 1;
+        else if(result < 0) return -1;
+        else return 0;
     }
 
     static QString unescapeSequence(const QString &source);
@@ -56,7 +56,7 @@ public:
         bool ok;
         double number = value().toDouble(&ok);
         if(!ok) CHILD_THROW_CONVERSION_EXCEPTION(QString("conversion to Number failed"));
-        return(number);
+        return number;
     };
 
     virtual const QString toString(bool debug = false, short level = 0) const {
@@ -65,7 +65,7 @@ public:
     }
 };
 
-CHILD_POINTER_DEFINITION(Text, Element);
+CHILD_POINTER_DEFINE(Text, Element);
 
 CHILD_END
 

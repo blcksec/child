@@ -2,6 +2,6 @@
 
 CHILD_BEGIN
 
-CHILD_DEFINITION(Element, Object);
+CHILD_DEFINE(Element, Object);
 
 CHILD_END
