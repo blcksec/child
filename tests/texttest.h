@@ -12,7 +12,6 @@ class TextTest : public QObject {
     void initialize();
     void fork();
     void compare();
-    void upcase();
 };
 
 #include "tests/testend.h"

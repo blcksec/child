@@ -15,6 +15,9 @@ using namespace Language;
 #define CHILD_NATIVE_METHOD_DECLARE(METHOD) \
 Pointer _##METHOD##_(const ArgumentBunchPointer &inputs)
 
+#define CHILD_NATIVE_METHOD_DEFINE(NAME, METHOD) \
+Pointer NAME::_##METHOD##_(const ArgumentBunchPointer &inputs)
+
 #define CHILD_NODE(ARGS...) Pointer(new Node(Node::context()->child("Node"), ##ARGS))
 
 #define CHILD_CHECK_POINTER(POINTER) \
@@ -120,13 +123,18 @@ public:
     }
 
     Pointer print() const { P(toString().toUtf8()); return this; }
-    CHILD_NATIVE_METHOD_DECLARE(print) { Q_UNUSED(inputs); return print(); }
+    CHILD_NATIVE_METHOD_DECLARE(print);
 
     Pointer inspect() const { P(toString(true).toUtf8()); return this; }
-    CHILD_NATIVE_METHOD_DECLARE(inspect) { Q_UNUSED(inputs); return inspect(); }
+    CHILD_NATIVE_METHOD_DECLARE(inspect);
 
     const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
+
+    virtual const double toDouble() const {
+        CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Number").arg(className()));
+        return(0);
+    };
 
     virtual const QString toString(bool debug = false, short level = 0) const;
 

@@ -69,6 +69,7 @@ CHILD_EXCEPTION_DECLARATION(IndexOutOfBoundsException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(NotFoundException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(DuplicateException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(TypecastException, RuntimeException);
+CHILD_EXCEPTION_DECLARATION(ConversionException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(OperatingSystemException, Exception);
 CHILD_EXCEPTION_DECLARATION(FileSystemException, OperatingSystemException);
 

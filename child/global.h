@@ -35,6 +35,9 @@ throwNullPointerException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 #define CHILD_THROW_TYPECAST_EXCEPTION(MESSAGE) \
 throwTypecastException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 
+#define CHILD_THROW_CONVERSION_EXCEPTION(MESSAGE) \
+throwConversionException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
+
 typedef unsigned long long int HugeUnsignedInteger;
 
 QString readTextFile(const QString &name);
@@ -46,6 +49,7 @@ const bool computeColumnAndLineForPosition(const QString &text, const int positi
 void throwRuntimeException(const QString &message = "", const QString &file = "", const int line = 0, const QString &function = "");
 void throwNullPointerException(const QString &message = "", const QString &file = "", const int line = 0, const QString &function = "");
 void throwTypecastException(const QString &message = "", const QString &file = "", const int line = 0, const QString &function = "");
+void throwConversionException(const QString &message = "", const QString &file = "", const int line = 0, const QString &function = "");
 
 CHILD_END
 

@@ -36,9 +36,4 @@ void TextTest::compare() {
     QCOMPARE(t5->compare(*t4), Node::Greater);
 }
 
-void TextTest::upcase() {
-//    TextPointer text = CHILD_TEXT("Hello");
-//    QCOMPARE(text->upcase()->value(), QString("HELLO"));
-}
-
 CHILD_END

@@ -17,7 +17,7 @@ int main() { // int argc, char *argv[]
         Node::pushContext(app);
         app->init();
         SourceCodePointer source = app->loadSourceCode("../child/examples/test.child");
-//        source->inspect();
+        source->inspect();
         source->run();
 //        TextPointer t(CHILD_TEXT("hello"));
 //        ((*t).*NativeMethodPointer(t->child("print"))->method())(CHILD_ARGUMENT_BUNCH());

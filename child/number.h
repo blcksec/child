@@ -29,26 +29,42 @@ public:
     }
     virtual Pointer fork() const { return new Number(this, value()); }
 
-    NumberPointer add(const NumberPointer &other) const { return CHILD_NUMBER(value() + other->value()); }
-    CHILD_NATIVE_METHOD_DECLARE(add) { return add(inputs->first()->run()); }
+    CHILD_NATIVE_METHOD_DECLARE(add) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_NUMBER(value() + inputs->first()->run()->toDouble());
+    }
 
-    NumberPointer subtract(const NumberPointer &other) const { return CHILD_NUMBER(value() - other->value()); }
-    CHILD_NATIVE_METHOD_DECLARE(subtract) { return subtract(inputs->first()->run()); }
+    CHILD_NATIVE_METHOD_DECLARE(subtract) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_NUMBER(value() - inputs->first()->run()->toDouble());
+    }
 
-    NumberPointer multiply(const NumberPointer &other) const { return CHILD_NUMBER(value() * other->value()); }
-    CHILD_NATIVE_METHOD_DECLARE(multiply) { return multiply(inputs->first()->run()); }
+    CHILD_NATIVE_METHOD_DECLARE(multiply) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_NUMBER(value() * inputs->first()->run()->toDouble());
+    }
 
-    NumberPointer divide(const NumberPointer &other) const { return CHILD_NUMBER(value() / other->value()); }
-    CHILD_NATIVE_METHOD_DECLARE(divide) { return divide(inputs->first()->run()); }
+    CHILD_NATIVE_METHOD_DECLARE(divide) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_NUMBER(value() / inputs->first()->run()->toDouble());
+    }
 
-    NumberPointer modulo(const NumberPointer &other) const { return CHILD_NUMBER(llround(value()) % llround(other->value())); }
-    CHILD_NATIVE_METHOD_DECLARE(modulo) { return modulo(inputs->first()->run()); }
+    CHILD_NATIVE_METHOD_DECLARE(modulo) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_NUMBER(llround(value()) % llround(inputs->first()->run()->toDouble()));
+    }
 
-    NumberPointer unary_plus() const { return CHILD_NUMBER(value()); }
-    CHILD_NATIVE_METHOD_DECLARE(unary_plus) { Q_UNUSED(inputs); return unary_plus(); }
+    CHILD_NATIVE_METHOD_DECLARE(unary_plus) {
+        CHILD_CHECK_INPUT_SIZE(0);
+        return CHILD_NUMBER(value());
+    }
 
-    NumberPointer unary_minus() const { return CHILD_NUMBER(-value()); }
-    CHILD_NATIVE_METHOD_DECLARE(unary_minus) { Q_UNUSED(inputs); return unary_minus(); }
+    CHILD_NATIVE_METHOD_DECLARE(unary_minus) {
+        CHILD_CHECK_INPUT_SIZE(0);
+        return CHILD_NUMBER(-value());
+    }
+
+    virtual const double toDouble() const { return(value()); };
 
     virtual const QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);

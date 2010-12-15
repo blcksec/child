@@ -3,8 +3,11 @@
 #include "child/node.h"
 #include "child/exception.h"
 #include "child/nativemethod.h"
+#include "child/language/argument.h"
 
 CHILD_BEGIN
+
+using namespace Language;
 
 const bool Node::isInitialized = Node::root().isNotNull();
 
@@ -155,6 +158,16 @@ void Node::_removeParent(const Node *parent) const {
         _parents->remove(parent);
     else
         CHILD_THROW(NotFoundException, "parent not found");
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, print) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    return print();
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, inspect) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    return inspect();
 }
 
 const QString Node::toString(bool debug, short level) const {

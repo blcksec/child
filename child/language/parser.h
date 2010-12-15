@@ -283,12 +283,15 @@ namespace Language {
 
         OperatorPointer isBinaryOperator() const { return isOperator(Operator::Binary); }
 
-        PrimitiveChainPointer scanBinaryOperator(PrimitiveChainPointer leftHandSide, OperatorPointer &currentOp, const short minPrecedence) {
+        PrimitiveChainPointer scanBinaryOperator(PrimitiveChainPointer leftHandSide, OperatorPointer &currentOp,
+                                                 const short minPrecedence) {
             do {
                 QStringRef sourceCodeRef = token()->sourceCodeRef;
                 consume();
                 if(currentOp->name != ":") consumeNewline();
                 PrimitiveChainPointer rightHandSide = scanUnaryExpressionChain();
+                if(rightHandSide->isEmpty())
+                    throw parserException("expecting right-hand side expression, found " + tokenTypeName());
                 OperatorPointer nextOp;
                 while((nextOp = isBinaryOperator()) && (
                           operatorPrecedence(nextOp) > operatorPrecedence(currentOp) ||

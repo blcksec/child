@@ -52,6 +52,9 @@ namespace Language {
     Language::ArgumentBunchPointer(new Language::ArgumentBunch( \
         Node::context()->child("Object", "Language", "ArgumentBunch"), ##ARGS))
 
+    #define CHILD_CHECK_INPUT_SIZE(ARGS...) \
+    ArgumentBunch::checkSpecifiedSize(inputs ? inputs->size() : 0, ##ARGS)
+
     class ArgumentBunch : public GenericList<ArgumentBunchPointer, ArgumentPointer> {
         CHILD_DECLARATION(ArgumentBunch, Bunch);
     public:
@@ -81,6 +84,9 @@ namespace Language {
             Bunch::Iterator i(bunch);
             while(Pointer value = i.next()) append(PrimitiveChainPointer(value));
         }
+
+        void checkSize(short min, short max = -1) { checkSpecifiedSize(size(), min, max); }
+        static void checkSpecifiedSize(short size, short min, short max = -1);
 
         virtual const QString toString(bool debug = false, short level = 0) const { return join(", ", "", "", debug, level); }
     };

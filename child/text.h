@@ -24,14 +24,20 @@ public:
     }
     virtual Pointer fork() const { return new Text(this, value()); }
 
-    TextPointer concatenate(const TextPointer &other) const { return CHILD_TEXT(value() + other->value()); }
-    CHILD_NATIVE_METHOD_DECLARE(concatenate) { return concatenate(inputs->first()->run()); }
+    CHILD_NATIVE_METHOD_DECLARE(concatenate) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_TEXT(value() + inputs->first()->run()->toString());
+    }
 
-    TextPointer multiply(const NumberPointer &other) const { return CHILD_TEXT(value().repeated(other->value())); }
-    CHILD_NATIVE_METHOD_DECLARE(multiply) { return multiply(inputs->first()->run()); }
+    CHILD_NATIVE_METHOD_DECLARE(multiply) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_TEXT(value().repeated(inputs->first()->run()->toDouble()));
+    }
 
-    TextPointer upcase() { return CHILD_TEXT(value().toUpper()); }
-    CHILD_NATIVE_METHOD_DECLARE(upcase) { Q_UNUSED(inputs); return upcase(); }
+    CHILD_NATIVE_METHOD_DECLARE(upcase) {
+        CHILD_CHECK_INPUT_SIZE(0);
+        return CHILD_TEXT(value().toUpper());
+    }
 
     virtual Comparison compare(const Node &other) const {
         if(this == &other) return Equal;
@@ -45,6 +51,13 @@ public:
 
     static QString unescapeSequence(const QString &source);
     static QChar unescapeSequenceNumber(const QString &source, int &i);
+
+    virtual const double toDouble() const {
+        bool ok;
+        double number = value().toDouble(&ok);
+        if(!ok) CHILD_THROW_CONVERSION_EXCEPTION(QString("conversion to Number failed"));
+        return(number);
+    };
 
     virtual const QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(level);

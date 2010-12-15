@@ -85,5 +85,6 @@ void throw##EXCEPTION(const QString &message, const QString &file, const int lin
 CHILD_THROW_FUNCTION(RuntimeException);
 CHILD_THROW_FUNCTION(NullPointerException);
 CHILD_THROW_FUNCTION(TypecastException);
+CHILD_THROW_FUNCTION(ConversionException);
 
 CHILD_END
