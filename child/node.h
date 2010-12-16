@@ -9,14 +9,13 @@
 
 CHILD_BEGIN
 
-namespace Language { class ArgumentBunchPointer; }
-using namespace Language;
+class MessagePointer;
 
 #define CHILD_NATIVE_METHOD_DECLARE(METHOD) \
-Pointer _##METHOD##_(const ArgumentBunchPointer &inputs)
+Pointer _##METHOD##_(const MessagePointer &message)
 
 #define CHILD_NATIVE_METHOD_DEFINE(NAME, METHOD) \
-Pointer NAME::_##METHOD##_(const ArgumentBunchPointer &inputs)
+Pointer NAME::_##METHOD##_(const MessagePointer &message)
 
 #define CHILD_NODE(ARGS...) Pointer(new Node(Node::context()->child("Node"), ##ARGS))
 
@@ -25,7 +24,6 @@ if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Pointer is NULL")
 
 typedef QList<Pointer> PointerList;
 typedef QHash<Reference, Pointer> ReferenceHash;
-typedef Pointer (Node::*_MethodPointer_)(const ArgumentBunchPointer &);
 
 class Node {
 public:
@@ -33,7 +31,7 @@ public:
 
     static const bool isInitialized;
 
-    Node(const Pointer &origin) : _origin(origin), _extensions(NULL), // default constructor
+    explicit Node(const Pointer &origin) : _origin(origin), _extensions(NULL), // default constructor
         _children(NULL), _parents(NULL), _refCount(0) { nodeCount()++; }
 
     Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
@@ -120,6 +118,10 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(and);
     CHILD_NATIVE_METHOD_DECLARE(not);
 
+    virtual bool isEqualTo(const Pointer &other) const { return this == other.data(); }
+    CHILD_NATIVE_METHOD_DECLARE(equal_to);
+    CHILD_NATIVE_METHOD_DECLARE(different_from);
+
     Pointer print() const { P(toString().toUtf8()); return this; }
     CHILD_NATIVE_METHOD_DECLARE(print);
 
@@ -136,9 +138,13 @@ public:
         return 0;
     };
 
+    virtual const QChar toChar() const {
+        CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Character").arg(className()));
+        return 0;
+    };
+
     virtual const QString toString(bool debug = false, short level = 0) const;
 
-    virtual short compare(const Node &other) const { return this == &other ? 0 : 1; }
     virtual uint hash() const { return ::qHash(this); }
 
     static const Pointer &empty() { static const Pointer _empty(new Node(Node::root())); return _empty; };
@@ -180,16 +186,16 @@ private:
     void release() const { if(--_refCount == 0) delete this; }
 };
 
-inline bool operator==(const Node &a, const Node &b) { return a.compare(b) == 0; }
-inline bool operator!=(const Node &a, const Node &b) { return a.compare(b) != 0; }
+inline bool operator==(const Node &a, const Node &b) { return a.isEqualTo(Pointer(b)); }
+inline bool operator!=(const Node &a, const Node &b) { return !a.isEqualTo(Pointer(b)); }
 inline uint qHash(const Node &node) { return node.hash(); }
 
 inline bool operator==(const Pointer &a, const Pointer &b) { return a.data() == b.data(); }
 inline bool operator!=(const Pointer &a, const Pointer &b) { return a.data() != b.data(); }
 inline uint qHash(const Pointer &node) { return ::qHash(node.data()); }
 
-inline bool operator==(const Reference &a, const Reference &b) { return a->compare(*b) == 0; }
-inline bool operator!=(const Reference &a, const Reference &b) { return a->compare(*b) != 0; }
+inline bool operator==(const Reference &a, const Reference &b) { return a->isEqualTo(b); }
+inline bool operator!=(const Reference &a, const Reference &b) { return !a->isEqualTo(b); }
 inline uint qHash(const Reference &node) { return node->hash(); }
 
 #define CHILD_DECLARE(NAME, ORIGIN) \

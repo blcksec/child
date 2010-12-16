@@ -4,7 +4,8 @@
 #include <math.h>
 
 #include "child/element.h"
-#include "child/language/argument.h"
+#include "child/boolean.h"
+#include "child/message.h"
 
 CHILD_BEGIN
 
@@ -26,33 +27,35 @@ public:
         CHILD_NATIVE_METHOD_ADD(Number, modulo, %);
         CHILD_NATIVE_METHOD_ADD(Number, unary_plus);
         CHILD_NATIVE_METHOD_ADD(Number, unary_minus);
+        CHILD_NATIVE_METHOD_SET(Number, equal_to, ==);
+        CHILD_NATIVE_METHOD_ADD(Number, compare, <=>);
     }
 
     virtual Pointer fork() const { return new Number(this, value()); }
 
     CHILD_NATIVE_METHOD_DECLARE(add) {
         CHILD_CHECK_INPUT_SIZE(1);
-        return CHILD_NUMBER(value() + inputs->first()->run()->toDouble());
+        return CHILD_NUMBER(value() + message->runFirstInput()->toDouble());
     }
 
     CHILD_NATIVE_METHOD_DECLARE(subtract) {
         CHILD_CHECK_INPUT_SIZE(1);
-        return CHILD_NUMBER(value() - inputs->first()->run()->toDouble());
+        return CHILD_NUMBER(value() - message->runFirstInput()->toDouble());
     }
 
     CHILD_NATIVE_METHOD_DECLARE(multiply) {
         CHILD_CHECK_INPUT_SIZE(1);
-        return CHILD_NUMBER(value() * inputs->first()->run()->toDouble());
+        return CHILD_NUMBER(value() * message->runFirstInput()->toDouble());
     }
 
     CHILD_NATIVE_METHOD_DECLARE(divide) {
         CHILD_CHECK_INPUT_SIZE(1);
-        return CHILD_NUMBER(value() / inputs->first()->run()->toDouble());
+        return CHILD_NUMBER(value() / message->runFirstInput()->toDouble());
     }
 
     CHILD_NATIVE_METHOD_DECLARE(modulo) {
         CHILD_CHECK_INPUT_SIZE(1);
-        return CHILD_NUMBER(llround(value()) % llround(inputs->first()->run()->toDouble()));
+        return CHILD_NUMBER(llround(value()) % llround(message->runFirstInput()->toDouble()));
     }
 
     CHILD_NATIVE_METHOD_DECLARE(unary_plus) {
@@ -65,7 +68,33 @@ public:
         return CHILD_NUMBER(-value());
     }
 
+    virtual bool isEqualTo(const Pointer &other) const {
+        return value() == NumberPointer(other)->value();
+    }
+
+    CHILD_NATIVE_METHOD_DECLARE(equal_to) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_BOOLEAN(value() == message->runFirstInput()->toDouble());
+    }
+
+    virtual short compare(const Pointer &other) const {
+        return compare(NumberPointer(other)->value());
+    }
+
+    short compare(const double &other) const {
+        if(value() > other) return 1;
+        else if(value() < other) return -1;
+        else return 0;
+    }
+
+    CHILD_NATIVE_METHOD_DECLARE(compare) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_NUMBER(compare(message->runFirstInput()->toDouble()));
+    }
+
     virtual const double toDouble() const { return value(); };
+
+    virtual const QChar toChar() const { return QChar(int(value())); };
 
     virtual const QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);

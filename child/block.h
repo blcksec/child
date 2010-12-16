@@ -43,12 +43,20 @@ public:
         if(!_body) {
             if(size() == 1 && hasUnlabeledSection())
                 _body = first();
-            else if(SectionPointer body = findSection("body"))
-                _body = body;
-            else
-                _body = Section::empty();
+            else {
+                _body = findSection("body");
+                if(!_body) _body = Section::empty();
+            }
         }
         return _body;
+    }
+
+    SectionPointer elseSection() {
+        if(!_else) {
+            _else = findSection("else");
+            if(!_else) _else = Section::empty();
+        }
+        return _else;
     }
 
     SectionPointer findSection(const QString &label);
@@ -70,6 +78,7 @@ public:
 private:
     SectionPointer _doc;
     SectionPointer _body;
+    SectionPointer _else;
 };
 
 CHILD_POINTER_DEFINE(Block, List);

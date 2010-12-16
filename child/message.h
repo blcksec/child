@@ -18,6 +18,17 @@ class Message : public Object {
 public:
     Message(const Pointer &origin, const QString &name = "") : Object(origin), _name(name) {}
 
+    Message(const Pointer &origin, const QString &name, const ArgumentBunchPointer &inputs) :
+        Object(origin), _name(name), _inputs(inputs) {}
+
+    Message(const Pointer &origin, const QString &name, const ArgumentBunchPointer &inputs,
+            const ArgumentBunchPointer &outputs) :
+        Object(origin), _name(name), _inputs(inputs), _outputs(outputs) {}
+
+    Message(const Pointer &origin, const QString &name, const ArgumentBunchPointer &inputs,
+            const ArgumentBunchPointer &outputs, const BlockPointer &block) :
+        Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _block(block) {}
+
     static void initRoot() { Object::root()->addChild("Message", root()); }
 
     virtual Pointer fork() const {
@@ -52,9 +63,18 @@ public:
     virtual Pointer run(const Pointer &receiver = context()) {
         Pointer result = receiver->child(name());
         NativeMethodPointer nativeMethod(result, true);
-        if(nativeMethod) result = ((*const_cast<Node *>(receiver.data())).*nativeMethod->method())(inputs(false));
+        if(nativeMethod) result = ((*const_cast<Node *>(receiver.data())).*nativeMethod->method())(this);
         return result;
     }
+
+    ArgumentPointer firstInput() const { return inputs(false)->first(); }
+    virtual Pointer runFirstInput(const Pointer &receiver = context()) const { return firstInput()->run(receiver); }
+
+    ArgumentPointer secondInput() const { return inputs(false)->second(); }
+    virtual Pointer runSecondInput(const Pointer &receiver = context()) const { return secondInput()->run(receiver); }
+
+    ArgumentPointer thirdInput() const { return inputs(false)->third(); }
+    virtual Pointer runThirdInput(const Pointer &receiver = context()) const { return thirdInput()->run(receiver); }
 
     virtual const QString toString(bool debug = false, short level = 0) const {
         QString str = name();

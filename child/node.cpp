@@ -4,7 +4,7 @@
 #include "child/exception.h"
 #include "child/nativemethod.h"
 #include "child/boolean.h"
-#include "child/language/argument.h"
+#include "child/message.h"
 
 CHILD_BEGIN
 
@@ -37,6 +37,8 @@ void Node::initRoot() {
     CHILD_NATIVE_METHOD_ADD(Node, or, ||);
     CHILD_NATIVE_METHOD_ADD(Node, and, &&);
     CHILD_NATIVE_METHOD_ADD(Node, not, !);
+    CHILD_NATIVE_METHOD_ADD(Node, equal_to, ==);
+    CHILD_NATIVE_METHOD_ADD(Node, different_from, !=);
     CHILD_NATIVE_METHOD_ADD(Node, print);
     CHILD_NATIVE_METHOD_ADD(Node, inspect);
 }
@@ -166,17 +168,26 @@ void Node::_removeParent(const Node *parent) const {
 
 CHILD_NATIVE_METHOD_DEFINE(Node, or) {
     CHILD_CHECK_INPUT_SIZE(1);
-    return CHILD_BOOLEAN(toBool() || inputs->first()->run()->toBool());
+    return CHILD_BOOLEAN(toBool() || message->runFirstInput()->toBool());
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, and) {
     CHILD_CHECK_INPUT_SIZE(1);
-    return CHILD_BOOLEAN(toBool() && inputs->first()->run()->toBool());
+    return CHILD_BOOLEAN(toBool() && message->runFirstInput()->toBool());
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, not) {
     CHILD_CHECK_INPUT_SIZE(0);
     return CHILD_BOOLEAN(!toBool());
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, equal_to) {
+    CHILD_CHECK_INPUT_SIZE(1);
+    return CHILD_BOOLEAN(isEqualTo(message->runFirstInput()));
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, different_from) {
+    return CHILD_BOOLEAN(!BooleanPointer(CHILD_MESSAGE("==", message->inputs(false))->run(this))->value());
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, print) {

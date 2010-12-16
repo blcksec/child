@@ -21,9 +21,9 @@ void TextTest::compare() {
     TextPointer t2 = CHILD_TEXT("Hello");
     TextPointer t3 = CHILD_TEXT("Salut");
     Pointer n = CHILD_NODE();
-    QVERIFY(t1->compare(*t2) == 0);
-    QVERIFY(t1->compare(*t3) != 0);
-    QVERIFY(t1->compare(*n) != 0);
+    QVERIFY(t1->compare(t2) == 0);
+    QVERIFY(t1->compare(t3) != 0);
+    QVERIFY(t1->compare(n) != 0);
     QVERIFY(t1 != t2);
     QCOMPARE(*t1, *t2);
     QVERIFY(*t1 == *t2);
@@ -32,8 +32,8 @@ void TextTest::compare() {
     TextPointer t4 = CHILD_TEXT("Jean");
     TextPointer t5 = CHILD_TEXT("Pierre");
     QVERIFY(*t4 != *t5);
-    QCOMPARE(t4->compare(*t5), short(-1));
-    QCOMPARE(t5->compare(*t4), short(1));
+    QCOMPARE(t4->compare(t5), short(-1));
+    QCOMPARE(t5->compare(t4), short(1));
 }
 
 CHILD_END

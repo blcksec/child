@@ -6,6 +6,8 @@
 
 CHILD_BEGIN
 
+class MessagePointer;
+
 CHILD_POINTER_DECLARE(NativeMethod,);
 
 #define CHILD_NATIVE_METHOD(ARGS...) NativeMethodPointer(new NativeMethod(Node::context()->child("NativeMethod"), ##ARGS))
@@ -13,6 +15,12 @@ CHILD_POINTER_DECLARE(NativeMethod,);
 #define CHILD_NATIVE_METHOD_ADD(CLASS, METHOD, NAME...) \
 CLASS::root()->addChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
     new NativeMethod(NativeMethod::root(), static_cast<_MethodPointer_>(&CLASS::_##METHOD##_)))
+
+#define CHILD_NATIVE_METHOD_SET(CLASS, METHOD, NAME...) \
+CLASS::root()->setChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
+    new NativeMethod(NativeMethod::root(), static_cast<_MethodPointer_>(&CLASS::_##METHOD##_)))
+
+typedef Pointer (Node::*_MethodPointer_)(const MessagePointer &);
 
 class NativeMethod : public Node {
     CHILD_DECLARE(NativeMethod, Node);

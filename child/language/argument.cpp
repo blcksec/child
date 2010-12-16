@@ -11,9 +11,9 @@ namespace Language {
         if(min == max && size != min)
             CHILD_THROW(RuntimeException, QString("wrong number of arguments (should be %1)").arg(min));
         if(size < min)
-            CHILD_THROW(RuntimeException, QString("wrong number of arguments (should be %1 or more)").arg(min));
+            CHILD_THROW(RuntimeException, QString("wrong number of arguments (the minimum is %1)").arg(min));
         if(size > max)
-            CHILD_THROW(RuntimeException, QString("wrong number of arguments (should be %1 or less)").arg(max));
+            CHILD_THROW(RuntimeException, QString("wrong number of arguments (the maximum is %1)").arg(max));
     }
 }
 

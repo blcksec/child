@@ -113,7 +113,7 @@ public:
         CHILD_CHECK_VALUE(value);
         if(_list)
             foreach(T node, *_list)
-                if(node->compare(*value) == 0) return true;
+                if(node->isEqualTo(value)) return true;
         return false;
     }
 

@@ -2,7 +2,7 @@
 #define CHILD_BOOLEAN_H
 
 #include "child/element.h"
-#include "child/language/argument.h"
+#include "child/message.h"
 
 CHILD_BEGIN
 
@@ -17,9 +17,19 @@ public:
 
     static void initRoot() {
         Object::root()->addChild("Boolean", root());
+        CHILD_NATIVE_METHOD_SET(Boolean, equal_to, ==);
     }
 
     virtual Pointer fork() const { return new Boolean(this, value()); }
+
+    virtual bool isEqualTo(const Pointer &other) const {
+        return value() == BooleanPointer(other)->value();
+    }
+
+    CHILD_NATIVE_METHOD_DECLARE(equal_to) {
+        CHILD_CHECK_INPUT_SIZE(1);
+        return CHILD_BOOLEAN(value() == message->runFirstInput()->toBool());
+    }
 
     virtual const bool toBool() const { return value(); };
 

@@ -53,7 +53,7 @@ namespace Language {
         Node::context()->child("Object", "Language", "ArgumentBunch"), ##ARGS))
 
     #define CHILD_CHECK_INPUT_SIZE(ARGS...) \
-    ArgumentBunch::checkSpecifiedSize(inputs ? inputs->size() : 0, ##ARGS)
+    ArgumentBunch::checkSpecifiedSize(message->inputs(false) ? message->inputs()->size() : 0, ##ARGS)
 
     class ArgumentBunch : public GenericList<ArgumentBunchPointer, ArgumentPointer> {
         CHILD_DECLARE(ArgumentBunch, Bunch);

@@ -15,8 +15,25 @@ class Object : public Node {
     CHILD_DECLARE(Object, Node);
 public:
     Object(const Pointer &origin) : Node(origin) {}
-    static void initRoot() { Node::root()->addChild("Object", root()); }
+
+    static void initRoot() {
+        Node::root()->addChild("Object", root());
+        CHILD_NATIVE_METHOD_ADD(Object, less_than, <);
+        CHILD_NATIVE_METHOD_ADD(Object, less_than_or_equal_to, <=);
+        CHILD_NATIVE_METHOD_ADD(Object, greater_than, >);
+        CHILD_NATIVE_METHOD_ADD(Object, greater_than_or_equal_to, >=);
+
+        CHILD_NATIVE_METHOD_ADD(Object, if);
+    }
+
     virtual Pointer fork() const { return new Object(this); }
+
+    CHILD_NATIVE_METHOD_DECLARE(less_than);
+    CHILD_NATIVE_METHOD_DECLARE(less_than_or_equal_to);
+    CHILD_NATIVE_METHOD_DECLARE(greater_than);
+    CHILD_NATIVE_METHOD_DECLARE(greater_than_or_equal_to);
+
+    CHILD_NATIVE_METHOD_DECLARE(if);
 };
 
 CHILD_POINTER_DEFINE(Object,);
