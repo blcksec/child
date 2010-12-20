@@ -88,7 +88,7 @@ public:
         foreach(K key, keys()) remove(key);
     }
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         QString str = "[";
         bool first = true;
         foreach(K key, keys()) {

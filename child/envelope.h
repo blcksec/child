@@ -34,7 +34,7 @@ public:
     Pointer sender() const { return _sender; }
     void setSender(const Pointer &sender) { _sender = sender; }
 
-    Pointer receiver() const { return _sender; }
+    Pointer receiver() const { return _receiver; }
     void setReceiver(const Pointer &receiver) { _receiver = receiver; }
 private:
     Pointer _sender;

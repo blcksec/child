@@ -78,19 +78,19 @@ public:
     static QString unescapeSequence(const QString &source);
     static QChar unescapeSequenceNumber(const QString &source, int &i);
 
-    virtual const double toDouble() const {
+    virtual double toDouble() const {
         bool ok;
         double number = value().toDouble(&ok);
         if(!ok) CHILD_THROW_CONVERSION_EXCEPTION("conversion from Text to Number failed");
         return number;
     };
 
-    virtual const QChar toChar() const {
+    virtual QChar toChar() const {
         if(value().size() != 1) CHILD_THROW_CONVERSION_EXCEPTION("conversion from Text to Character failed (size should be equal to 1)");
         return value().at(0);
     };
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(level);
         return debug ? "\"" + value() + "\"" : value();
     }

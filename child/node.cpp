@@ -80,20 +80,20 @@ bool Node::hasExtension(const Pointer &node) const {
     CHILD_CHECK_POINTER(node); return _extensions && _extensions->contains(node);
 }
 
-const Pointer Node::child(const QString &name) const {
+Pointer Node::child(const QString &name) const {
     Pointer node = hasChild(name);
     if(!node) CHILD_THROW(NotFoundException, "child not found");
     return node;
 }
 
-const Pointer Node::addChild(const QString &name, const Pointer &value) {
+Pointer Node::addChild(const QString &name, const Pointer &value) {
     CHILD_CHECK_POINTER(value);
     if(hasChild(name, false)) CHILD_THROW(DuplicateException, "child with same name is already there");
     _setChild(name, value);
     return value;
 }
 
-const Pointer Node::setChild(const QString &name, const Pointer &value) {
+Pointer Node::setChild(const QString &name, const Pointer &value) {
     CHILD_CHECK_POINTER(value);
     bool isDirect;
     if(Pointer current = hasChild(name, true, false, &isDirect)) {
@@ -114,7 +114,7 @@ void Node::removeChild(const QString &name) {
     _setChild(name, NULL);
 }
 
-const Pointer Node::hasChild(const QString &name, bool searchInParents,
+Pointer Node::hasChild(const QString &name, bool searchInParents,
                              bool forkChildFoundInFirstOrigin, bool *isDirectPointer) const {
     bool isRemoved;
     Pointer node = hasDirectChild(name, &isRemoved);
@@ -129,7 +129,7 @@ const Pointer Node::hasChild(const QString &name, bool searchInParents,
     return node;
 }
 
-const QHash<QString, Pointer> Node::children() const {
+QHash<QString, Pointer> Node::children() const {
     QHash<QString, Pointer> children;
     if(_children) {
         QHashIterator<QString, Pointer> i(*_children);
@@ -138,7 +138,7 @@ const QHash<QString, Pointer> Node::children() const {
     return children;
 }
 
-const QList<Pointer> Node::parents() const {
+QList<Pointer> Node::parents() const {
     QList<Pointer> parents;
     if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(parent);
     return parents;
@@ -170,6 +170,16 @@ void Node::_removeParent(const Node *parent) const {
         CHILD_THROW(NotFoundException, "parent not found");
 }
 
+Pointer Node::run(const Pointer &receiver, const MessagePointer &message) {
+    Q_UNUSED(receiver);
+    if(message->inputs(false) || message->outputs(false) || message->block()) {
+        MessagePointer forkMessage = message->fork();
+        forkMessage->setName("fork");
+        return forkMessage->run(this);
+    } else
+        return this;
+}
+
 CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
     Pointer node = fork();
     if(node->hasChild("init")) {
@@ -180,22 +190,20 @@ CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
     return node;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, define) {
+Pointer Node::defineOrAssign(const MessagePointer &message, bool isDefine) {
     CHILD_CHECK_INPUT_SIZE(2);
     PrimitiveChainPointer chain = message->firstInput()->value();
     Pointer context = chain->runExceptLast();
     MessagePointer msg(chain->last()->value(), true);
     if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
-    return context->addChild(msg->name(), message->runSecondInput());
-}
-
-CHILD_NATIVE_METHOD_DEFINE(Node, assign) {
-    CHILD_CHECK_INPUT_SIZE(2);
-    PrimitiveChainPointer chain = message->firstInput()->value();
-    Pointer context = chain->runExceptLast();
-    MessagePointer msg(chain->last()->value(), true);
-    if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
-    return context->setChild(msg->name(), message->runSecondInput());
+    Pointer value = message->runSecondInput();
+    Pointer result;
+    if(isDefine)
+        result = context->addChild(msg->name(), value);
+    else
+        result = context->setChild(msg->name(), value);
+    value->hasBeenAssigned(msg);
+    return result;
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, or) {
@@ -240,7 +248,7 @@ CHILD_NATIVE_METHOD_DEFINE(Node, inspect) {
     return inspect();
 }
 
-const QString Node::toString(bool debug, short level) const {
+QString Node::toString(bool debug, short level) const {
     Q_UNUSED(debug);
     Q_UNUSED(level);
     return QString("%1: [%2]").arg(hexMemoryAddress(), QStringList(children().keys()).join(", "));

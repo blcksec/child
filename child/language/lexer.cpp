@@ -225,7 +225,7 @@ namespace Language {
         return new LexerException(context()->child("LexerException"), message, resourceName(), line);
     }
 
-    const QString Lexer::toString(bool debug, short level) const {
+    QString Lexer::toString(bool debug, short level) const {
         QString str;
         const_cast<Lexer *>(this)->rewind();
         while(true) {

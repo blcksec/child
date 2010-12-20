@@ -21,10 +21,6 @@ public:
     void setKey(const T1 &key) { _first = key; }
     T2 value() const { return _second; }
     void setValue(const T2 &value) { _second = value; }
-
-    virtual const QString toString(bool debug = false, short level = 0) const {
-        return QString("%1: %2").arg(first()->toString(debug, level), second()->toString(debug, level));
-    }
 private:
     T1 _first;
     T2 _second;
@@ -44,6 +40,10 @@ public:
 
     virtual Pointer fork() const {
         return new Pair(this, forkIfNotNull(first()), forkIfNotNull(second()));
+    }
+
+    virtual QString toString(bool debug = false, short level = 0) const {
+        return QString("%1: %2").arg(first()->toString(debug, level), second()->toString(debug, level));
     }
 };
 

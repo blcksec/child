@@ -68,7 +68,7 @@ public:
             return SectionPointer::null();
     }
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         QString str;
         if(level > 0) str += "{\n";
         str += join("\n", "", "", debug, level + 1);

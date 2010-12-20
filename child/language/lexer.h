@@ -116,7 +116,7 @@ namespace Language {
 
         LexerExceptionPointer lexerException(QString message) const;
 
-        virtual const QString toString(bool debug = false, short level = 0) const;
+        virtual QString toString(bool debug = false, short level = 0) const;
 
 //        void test() {
 //            setSource("[a, b] = [c, d]");

@@ -50,31 +50,6 @@ public:
 
     void setInputs(const ArgumentBunchPointer &inputs) { _inputs = inputs; }
 
-    ArgumentBunchPointer outputs(bool createIfNull = true) const {
-        if(!_outputs && createIfNull) const_cast<Message *>(this)->_outputs = CHILD_ARGUMENT_BUNCH();
-        return(_outputs);
-    }
-
-    void setOutputs(const ArgumentBunchPointer &outputs) { _outputs = outputs; }
-
-    BlockPointer block() const { return _block; }
-    void setBlock(const BlockPointer &block) { _block = block; }
-
-    virtual Pointer run(const Pointer &receiver = context()) {
-        Pointer result = receiver->child(name());
-        NativeMethodPointer nativeMethod(result, true);
-        if(nativeMethod)
-            result = ((*const_cast<Node *>(receiver.data())).*nativeMethod->method())(this);
-        else {
-            if(inputs(false) || outputs(false) || block()) {
-                MessagePointer forkMessage = fork();
-                forkMessage->setName("fork");
-                result = forkMessage->run(result);
-            }
-        }
-        return result;
-    }
-
     ArgumentPointer input(short i) const { return inputs(false)->get(i); }
     bool hasInput(short i) const { return inputs(false) && inputs()->hasIndex(i); }
     Pointer runInput(short i, const Pointer &receiver = context()) const { return input(i)->run(receiver); }
@@ -87,6 +62,21 @@ public:
 
     ArgumentPointer thirdInput() const { return inputs(false)->third(); }
     Pointer runThirdInput(const Pointer &receiver = context()) const { return thirdInput()->run(receiver); }
+
+    ArgumentBunchPointer outputs(bool createIfNull = true) const {
+        if(!_outputs && createIfNull) const_cast<Message *>(this)->_outputs = CHILD_ARGUMENT_BUNCH();
+        return(_outputs);
+    }
+
+    void setOutputs(const ArgumentBunchPointer &outputs) { _outputs = outputs; }
+
+    BlockPointer block() const { return _block; }
+    void setBlock(const BlockPointer &block) { _block = block; }
+    bool hasBlock() const { return block(); }
+
+    virtual Pointer run(const Pointer &receiver = context()) {
+        return receiver->child(name())->run(receiver, this);
+    }
 
     Pointer runInputOrSection(const short inputIndex, const QString &sectionLabel,
                               const Pointer &defaultResult = Pointer::null(),
@@ -108,7 +98,7 @@ public:
             return Pointer::null();
     }
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         QString str = name();
         if(inputs(false) && inputs()->isNotEmpty())
             str += "(" + inputs()->toString(debug, level) + ")";

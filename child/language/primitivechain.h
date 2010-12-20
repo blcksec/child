@@ -44,7 +44,7 @@ namespace Language {
             return result;
         }
 
-        virtual const QString toString(bool debug = false, short level = 0) const { return join(" ", "", "", debug, level); }
+        virtual QString toString(bool debug = false, short level = 0) const { return join(" ", "", "", debug, level); }
     };
 
     CHILD_POINTER_DEFINE(PrimitiveChain, List);

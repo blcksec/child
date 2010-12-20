@@ -1,2 +1,4 @@
-a := Text(123)
-a print
+meth(a) := Method {
+    "Yo" print
+}
+

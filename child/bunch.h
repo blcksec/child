@@ -28,7 +28,7 @@ public:
 
     virtual Pointer fork() const { return BunchPointer(new Bunch(this))->initFork(); }
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         return "[" + join(", ", "", "", debug, level) + "]";
     }
 };

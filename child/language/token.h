@@ -49,7 +49,7 @@ namespace Language {
 
         static const QString typeName(const Type type) { return typeNames[type]; }
 
-        virtual const QString toString(bool debug = false, short level = 0) const {
+        virtual QString toString(bool debug = false, short level = 0) const {
             Q_UNUSED(level);
             return QString("%1: '%2'").arg(typeName(), debug ? escapeTabsAndNewlines(text()) : text());
         }

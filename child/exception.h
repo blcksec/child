@@ -33,7 +33,7 @@ public:
 
     const QString report() const;
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);
         Q_UNUSED(level);
         return report();

@@ -64,7 +64,7 @@ namespace Language {
             #endif
         }
 
-        virtual const QString toString(bool debug = false, short level = 0) const {
+        virtual QString toString(bool debug = false, short level = 0) const {
             QString str;
             if(!url().isEmpty()) str += QString("/* %1 */\n").arg(url());
             if(block()) str += block()->toString(debug, level);

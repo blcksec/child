@@ -50,7 +50,8 @@ SOURCES += main.cpp \
     child/language/sourcecode.cpp \
     child/language/lexer.cpp \
     child/language/parser.cpp \
-    child/envelope.cpp
+    child/envelope.cpp \
+    child/language/parameter.cpp
 
 HEADERS += \
     child.h \
@@ -92,7 +93,8 @@ HEADERS += \
     child/language/parser.h \
     tests/testbegin.h \
     tests/testend.h \
-    child/envelope.h
+    child/envelope.h \
+    child/language/parameter.h
 
 OTHER_FILES += \
     notes/ideas.txt \

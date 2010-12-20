@@ -50,11 +50,11 @@ public:
         return CHILD_NUMBER(compare(message->runFirstInput()->toChar()));
     }
 
-    virtual const double toDouble() const { return value().unicode(); };
+    virtual double toDouble() const { return value().unicode(); };
 
-    virtual const QChar toChar() const { return value(); };
+    virtual QChar toChar() const { return value(); };
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(level);
         return debug ? ("'" + QString(value()) + "'") : value();
     }

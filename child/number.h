@@ -92,11 +92,11 @@ public:
         return CHILD_NUMBER(compare(message->runFirstInput()->toDouble()));
     }
 
-    virtual const double toDouble() const { return value(); };
+    virtual double toDouble() const { return value(); };
 
-    virtual const QChar toChar() const { return QChar(int(value())); };
+    virtual QChar toChar() const { return QChar(int(value())); };
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);
         Q_UNUSED(level);
         return QString("%1").arg(value());

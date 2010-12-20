@@ -31,11 +31,11 @@ public:
         return CHILD_BOOLEAN(value() == message->runFirstInput()->toBool());
     }
 
-    virtual const bool toBool() const { return value(); };
+    virtual bool toBool() const { return value(); };
 
-    virtual const double toDouble() const { return value() ? 1 : 0; };
+    virtual double toDouble() const { return value() ? 1 : 0; };
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);
         Q_UNUSED(level);
         return value() ? "true" : "false";

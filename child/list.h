@@ -157,7 +157,7 @@ public:
 
     virtual void hasChanged() {}
 
-    virtual const QString toString(bool debug = false, short level = 0) const {
+    virtual QString toString(bool debug = false, short level = 0) const {
         return "[" + join(", ", "", "", debug, level) + "]";
     }
 

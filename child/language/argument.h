@@ -22,9 +22,7 @@ namespace Language {
         static void initRoot() { Language::root()->addChild("Argument", root()); }
 
         virtual Pointer fork() const {
-            return new Argument(this,
-                                label() ? label()->fork() : Pointer::null(),
-                                value() ? value()->fork() : Pointer::null());
+            return new Argument(this, forkIfNotNull(label()), forkIfNotNull(value()));
         }
 
         // aliases...
@@ -35,7 +33,7 @@ namespace Language {
             return value()->run(receiver);
         }
 
-        virtual const QString toString(bool debug = false, short level = 0) const {
+        virtual QString toString(bool debug = false, short level = 0) const {
             return concatenateStrings(label() ? label()->toString(debug, level) + ":" : "",
                                       " ",
                                       value() ? value()->toString(debug, level) : "");
@@ -63,9 +61,7 @@ namespace Language {
         static void initRoot() { Language::root()->addChild("ArgumentBunch", root()); }
         virtual Pointer fork() const { return ArgumentBunchPointer(new ArgumentBunch(this))->initFork(); }
 
-        ArgumentPointer append(const ArgumentPointer &argument) {
-            return GenericList<ArgumentBunchPointer, ArgumentPointer>::append(argument);
-        }
+        using GenericList<ArgumentBunchPointer, ArgumentPointer>::append;
 
         void append(const PrimitiveChainPointer &value) {
             if(PairPointer pair = PairPointer(value->first()->value(), true))
@@ -88,7 +84,7 @@ namespace Language {
         void checkSize(short min, short max = -1) { checkSpecifiedSize(size(), min, max); }
         static void checkSpecifiedSize(short size, short min, short max = -1);
 
-        virtual const QString toString(bool debug = false, short level = 0) const { return join(", ", "", "", debug, level); }
+        virtual QString toString(bool debug = false, short level = 0) const { return join(", ", "", "", debug, level); }
     };
 
     CHILD_POINTER_DEFINE(ArgumentBunch, Bunch);

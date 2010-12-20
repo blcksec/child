@@ -31,6 +31,10 @@ public:
 
     _MethodPointer_ method() const { return _method; }
     NativeMethodPointer setMethod(const _MethodPointer_ &method) { _method = method; return this; }
+
+    virtual Pointer run(const Pointer &receiver, const MessagePointer &message) {
+        return ((*const_cast<Node *>(receiver.data())).*method())(message);
+    }
 private:
     _MethodPointer_ _method;
 };

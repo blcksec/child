@@ -63,18 +63,18 @@ public:
     void removeAllExtensions();
     bool hasExtension(const Pointer &node) const;
 
-    const Pointer child(const QString &name) const;
+    Pointer child(const QString &name) const;
 
-    const Pointer child(const QString &name1, const QString &name2) const {
+    Pointer child(const QString &name1, const QString &name2) const {
         return child(name1)->child(name2);
     }
 
-    const Pointer child(const QString &name1, const QString &name2, const QString &name3) const {
+    Pointer child(const QString &name1, const QString &name2, const QString &name3) const {
         return child(name1)->child(name2)->child(name3);
     }
 
-    const Pointer addChild(const QString &name, const Pointer &value);
-    const Pointer setChild(const QString &name, const Pointer &value);
+    Pointer addChild(const QString &name, const Pointer &value);
+    Pointer setChild(const QString &name, const Pointer &value);
     void removeChild(const QString &name);
 
     void addAnonymousChild(const Pointer &value) {
@@ -87,17 +87,17 @@ public:
         value->_removeParent(this);
     }
 
-    const Pointer hasChild(const QString &name, bool searchInParents = true,
+    Pointer hasChild(const QString &name, bool searchInParents = true,
                            bool forkChildFoundInFirstOrigin = true, bool *isDirectPointer = NULL) const;
 
-    const Pointer hasDirectChild(const QString &name, bool *isRemovedPointer = NULL) const {
+    Pointer hasDirectChild(const QString &name, bool *isRemovedPointer = NULL) const {
         Pointer child;
         if(_children) child = _children->value(name);
         if(isRemovedPointer) *isRemovedPointer = !child && _children && _children->contains(name);
         return child;
     }
 
-    const QString hasDirectChild(const Pointer &value) const {
+    QString hasDirectChild(const Pointer &value) const {
         return _children ? _children->key(value) : QString();
     }
 
@@ -106,18 +106,26 @@ public:
         return _parents && _parents->contains(parent.data());
     }
 
-    const QHash<QString, Pointer> children() const;
-    const PointerList parents() const;
+    QHash<QString, Pointer> children() const;
+    PointerList parents() const;
 
     virtual Pointer run(const Pointer &receiver = context()) {
         Q_UNUSED(receiver);
         return this;
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(fork);
+    virtual Pointer run(const Pointer &receiver, const MessagePointer &message);
 
-    CHILD_NATIVE_METHOD_DECLARE(define);
-    CHILD_NATIVE_METHOD_DECLARE(assign);
+    CHILD_NATIVE_METHOD_DECLARE(fork);
+private:
+    Pointer defineOrAssign(const MessagePointer &message, bool isDefine);
+public:
+    CHILD_NATIVE_METHOD_DECLARE(define) { return(defineOrAssign(message, true)); }
+    CHILD_NATIVE_METHOD_DECLARE(assign) { return(defineOrAssign(message, false)); }
+
+    virtual void hasBeenAssigned(const MessagePointer &message) const {
+        Q_UNUSED(message);
+    }
 
     CHILD_NATIVE_METHOD_DECLARE(or);
     CHILD_NATIVE_METHOD_DECLARE(and);
@@ -135,22 +143,22 @@ public:
     Pointer inspect() const { P(toString(true).toUtf8()); return this; }
     CHILD_NATIVE_METHOD_DECLARE(inspect);
 
-    const long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
-    const QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
+    long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
+    QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
 
-    virtual const bool toBool() const { return true; };
+    virtual bool toBool() const { return true; };
 
-    virtual const double toDouble() const {
+    virtual double toDouble() const {
         CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Number").arg(className()));
         return 0;
     };
 
-    virtual const QChar toChar() const {
+    virtual QChar toChar() const {
         CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Character").arg(className()));
         return 0;
     };
 
-    virtual const QString toString(bool debug = false, short level = 0) const;
+    virtual QString toString(bool debug = false, short level = 0) const;
 
     virtual uint hash() const { return ::qHash(this); }
 
@@ -161,7 +169,7 @@ public:
         return _nodeCount;
     }
 
-    static const Pointer context() {
+    static Pointer context() {
         if(contextStack().isEmpty())
             qFatal("Fatal error: context stack is empty!");
         return contextStack().top();
@@ -169,7 +177,7 @@ public:
 
     static void pushContext(const Pointer &node) { contextStack().push(node); }
 
-    static const Pointer popContext() {
+    static Pointer popContext() {
         if(contextStack().isEmpty()) qFatal("Fatal error: context stack is empty!");
         return contextStack().pop();
     }

@@ -31,7 +31,7 @@ namespace Language {
             return result;
         }
 
-        virtual const QString toString(bool debug = false, short level = 0) const {
+        virtual QString toString(bool debug = false, short level = 0) const {
             QString str;
             if(label() && label()->isNotEmpty()) str += QString("    ").repeated(level - 1) + label()->toString(debug, level) + ":";
             str = concatenateStrings(str, "\n", join("\n", QString("    ").repeated(level), "", debug, level));
