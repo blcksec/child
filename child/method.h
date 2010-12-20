@@ -41,6 +41,10 @@ public:
 
     void setInputs(const ParameterListPointer &inputs) { _inputs = inputs; }
 
+    ParameterPointer input(short i) const { return inputs(false)->get(i); }
+    bool hasInput(short i) const { return inputs(false) && inputs()->hasIndex(i); }
+    bool hasInput(const QString &label) const { return inputs(false) && inputs()->hasLabel(label); }
+
     ParameterListPointer outputs(bool createIfNull = true) const {
         if(!_outputs && createIfNull) const_cast<Method *>(this)->_outputs = CHILD_PARAMETER_LIST();
         return(_outputs);
@@ -51,8 +55,37 @@ public:
     virtual Pointer run(const Pointer &receiver, const MessagePointer &message) {
         if(!block()) // method creation
             return Node::run(receiver, message);
-        else // method execution
-            return block()->run(receiver);
+        else { // method execution
+            BlockPointer forkedBlock = block()->fork();
+            QHash<QString, ParameterPointer> labels(inputs()->labels());
+            if(message->inputs(false)) {
+                ArgumentBunch::Iterator iterator(message->inputs());
+                short i = -1;
+                bool labelFound = false;
+                while(ArgumentPointer argument = iterator.next()) {
+                    QString label;
+                    if(argument->label()) {
+                        label = argument->labelName();
+                        if(!hasInput(label)) CHILD_THROW(NotFoundException, "unknown parameter label");
+                        if(!labels.contains(label)) CHILD_THROW(DuplicateException, "duplicated parameter label");
+                        labelFound = true;
+                    } else {
+                        if(labelFound) CHILD_THROW(ArgumentException, "positional arguments are forbidden after labeled ones");
+                        i++;
+                        if(!hasInput(i)) CHILD_THROW(IndexOutOfBoundsException, "too many arguments");
+                        label = input(i)->label();
+                    }
+                    forkedBlock->addChild(label, argument->run());
+                    labels.remove(label);
+                }
+            }
+            foreach(ParameterPointer parameter, labels) {
+                if(!parameter->defaultValue()) CHILD_THROW(ArgumentException, "missing mandatory parameter");
+                forkedBlock->addChild(parameter->label(), parameter->run());
+            }
+            ContextPusher pusher(forkedBlock);
+            return forkedBlock->run();
+        }
     }
 
     virtual void hasBeenAssigned(const MessagePointer &message) const {

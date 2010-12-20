@@ -186,6 +186,15 @@ public:
         static QStack<Pointer> _contextStack;
         return _contextStack;
     }
+
+    class ContextPusher {
+    public:
+        explicit ContextPusher(const Pointer &node) { pushContext(node); }
+        ~ContextPusher() { popContext(); }
+    private:
+        ContextPusher(const ContextPusher &); // prevent copying
+        ContextPusher &operator=(const ContextPusher &);
+    };
 private:
     Pointer _origin;
     PointerList *_extensions;

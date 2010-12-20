@@ -1,3 +1,4 @@
+#include "child/message.h"
 #include "child/language/argument.h"
 
 CHILD_BEGIN
@@ -5,6 +6,13 @@ CHILD_BEGIN
 namespace Language {
     CHILD_DEFINE(Argument, Pair);
     CHILD_DEFINE(ArgumentBunch, Bunch);
+
+    QString Argument::labelName() const {
+        if(label()->size() != 1) CHILD_THROW(ArgumentException, "illegal parameter label");
+        MessagePointer labelMessage(label()->first()->value(), true);
+        if(!labelMessage) CHILD_THROW(ArgumentException, "illegal parameter label");
+        return labelMessage->name();
+    }
 
     void ArgumentBunch::checkSpecifiedSize(short size, short min, short max) {
         if(max == -1) max = min;

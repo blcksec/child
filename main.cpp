@@ -1,6 +1,6 @@
 #include <QtCore/QDebug>
 
-// #define CHILD_CATCH_EXCEPTIONS
+#define CHILD_CATCH_EXCEPTIONS
 
 #include "child.h"
 #include "child/node.h"

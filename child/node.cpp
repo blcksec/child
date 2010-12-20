@@ -196,7 +196,12 @@ Pointer Node::defineOrAssign(const MessagePointer &message, bool isDefine) {
     Pointer context = chain->runExceptLast();
     MessagePointer msg(chain->last()->value(), true);
     if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
-    Pointer value = message->runSecondInput();
+    Pointer value;
+    BlockPointer block(message->secondInput()->value()->first()->value(), true);
+    if(block) // if rhs is a block, its a method definition shorthand
+        value = CHILD_MESSAGE("Method", NULL, NULL, block)->run();
+    else // rhs is not a block
+        value = message->runSecondInput();
     Pointer result;
     if(isDefine)
         result = context->addChild(msg->name(), value);

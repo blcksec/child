@@ -29,6 +29,8 @@ namespace Language {
         PrimitiveChainPointer label() const { return key(); }
         void setLabel(const PrimitiveChainPointer &label) { setKey(label); }
 
+        QString labelName() const;
+
         virtual Pointer run(const Pointer &receiver = context()) {
             return value()->run(receiver);
         }

@@ -17,7 +17,13 @@ namespace Language {
         Section(const Pointer &origin) : GenericList<SectionPointer, PrimitiveChainPointer>(origin) {}
 
         static void initRoot() { Language::root()->addChild("Section", root()); }
-        virtual Pointer fork() const { return SectionPointer(new Section(this))->initFork(); }
+
+        virtual Pointer fork() const {
+            SectionPointer forkedSection = new Section(this);
+            forkedSection->initFork();
+            forkedSection->setLabel(label());
+            return forkedSection;
+        }
 
         PrimitiveChainPointer label() const { return _label; }
         void setLabel(const PrimitiveChainPointer &label) { _label = label; }

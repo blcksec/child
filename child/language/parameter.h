@@ -61,7 +61,22 @@ namespace Language {
         static void initRoot() { Language::root()->addChild("ParameterList", root()); }
         virtual Pointer fork() const { return ParameterListPointer(new ParameterList(this))->initFork(); }
 
+        QHash<QString, ParameterPointer> labels() { return _labels; }
+        ParameterPointer hasLabel(const QString &label) { return _labels.value(label); }
+
+        virtual void hasChanged() {
+            _labels.clear();
+            Iterator i(this);
+            while(ParameterPointer parameter = i.next()) {
+                if(_labels.contains(parameter->label()))
+                    CHILD_THROW(DuplicateException, "duplicated label found in parameter list");
+                _labels.insert(parameter->label(), parameter);
+            }
+        }
+
         virtual QString toString(bool debug = false, short level = 0) const { return join(", ", "", "", debug, level); }
+    private:
+        QHash<QString, ParameterPointer> _labels;
     };
 
     CHILD_POINTER_DEFINE(ParameterList, List);

@@ -1,4 +1,3 @@
-meth(a) := Method {
-    "Yo" print
-}
+diff(a, b) := { a - b }
 
+diff(5, 2)
