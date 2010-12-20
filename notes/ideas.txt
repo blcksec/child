@@ -1,8 +1,26 @@
+body:
+    Text {
+    test:
+        ?: "" empty?
+        ?: "hello" upcase == "HELLO"
+    }
+
+    Number {
+    test:
+        ?: 1 + 2 == 3
+        ?: throwed?(MathException, 1 / 0)
+    }
+test:
+    ?: "1" + 1 == 2
+
+meth1(a) := Method { ... }
+
+meth2(a, b) := \meth1 fork
+
 Envelope : Primitive
     sender
     receiver
     contents (alias de value)
-
 
 NodeData
     Node _origin

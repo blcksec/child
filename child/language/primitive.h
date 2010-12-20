@@ -25,8 +25,11 @@ namespace Language {
         void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }
 
         virtual Pointer run(const Pointer &receiver = context()) {
+            #ifdef CHILD_CATCH_EXCEPTIONS
             try {
+            #endif
                 return value()->run(receiver);
+            #ifdef CHILD_CATCH_EXCEPTIONS
             } catch(ExceptionPointer e) {
                 if(!sourceCodeRef().isNull()) {
                     const QString &source = *(sourceCodeRef().string());
@@ -42,6 +45,7 @@ namespace Language {
                 }
                 throw;
             }
+            #endif
         }
     private:
         QStringRef _sourceCodeRef;

@@ -266,9 +266,17 @@ namespace Language {
             PrimitivePointer primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
             consume();
             consumeNewline();
-            PrimitiveChainPointer unary = CHILD_PRIMITIVE_CHAIN();
-            scanUnaryExpression(unary);
-            primitiveChain->append(unary);
+            PrimitiveChainPointer chain;
+            if(currentOp->isSpecial) {
+                if(currentOp->name == "?:")
+                    chain = scanExpression();
+                else
+                    throw parserException("unimplemented special operator");
+            } else {
+                chain = CHILD_PRIMITIVE_CHAIN();
+                scanUnaryExpression(chain);
+            }
+            primitiveChain->append(chain);
             primitiveChain->append(primitive);
         }
 
@@ -290,8 +298,6 @@ namespace Language {
                 consume();
                 if(currentOp->name != ":") consumeNewline();
                 PrimitiveChainPointer rightHandSide = scanUnaryExpressionChain();
-                if(rightHandSide->isEmpty())
-                    throw parserException("expecting right-hand side expression, found " + tokenTypeName());
                 OperatorPointer nextOp;
                 while((nextOp = isBinaryOperator()) && (
                           operatorPrecedence(nextOp) > operatorPrecedence(currentOp) ||
@@ -309,11 +315,12 @@ namespace Language {
                                                     const OperatorPointer &op,
                                                     const PrimitiveChainPointer &rightHandSide,
                                                     const QStringRef &sourceCodeRef) {
-            if(op->isSyntaxElement) {
+            if(op->isSpecial) {
                 if(op->name == ":") {
                     PrimitivePointer primitive = CHILD_PRIMITIVE(CHILD_PAIR(leftHandSide, rightHandSide), sourceCodeRef);
                     leftHandSide = CHILD_PRIMITIVE_CHAIN(primitive);
                 } else if(op->name == ",") {
+                    checkRightHandSide(rightHandSide);
                     BunchPointer bunch(leftHandSide->first()->value(), true);
                     if(!bunch) {
                         PrimitivePointer primitive = CHILD_PRIMITIVE(CHILD_BUNCH(leftHandSide, rightHandSide), sourceCodeRef);
@@ -322,19 +329,31 @@ namespace Language {
                         bunch->append(rightHandSide);
                     }
                 } else if(op->name == "->") {
+                    checkRightHandSide(rightHandSide);
                     MessagePointer message(leftHandSide->last()->value(), true);
                     if(!message) throw parserException("message expected before '->'");
                     message->outputs()->append(rightHandSide);
                 } else
-                    throw parserException("unimplemented syntax operator");
+                    throw parserException("unimplemented special operator");
             } else {
-                MessagePointer message = CHILD_MESSAGE(op->name);
-                PrimitivePointer primitive = CHILD_PRIMITIVE(message, sourceCodeRef);
-                message->inputs()->append(rightHandSide);
-                leftHandSide = CHILD_PRIMITIVE_CHAIN(CHILD_PRIMITIVE(leftHandSide, QStringRef())); // TODO: proper sourceCodeRef
-                leftHandSide->append(primitive);
+                checkRightHandSide(rightHandSide);
+                if(op->useLeftHandSideAsReceiver) {
+                    MessagePointer message = CHILD_MESSAGE(op->name);
+                    message->inputs()->append(rightHandSide);
+                    leftHandSide->append(CHILD_PRIMITIVE(message, sourceCodeRef));
+                } else {
+                    MessagePointer message = CHILD_MESSAGE(op->name);
+                    message->inputs()->append(leftHandSide);
+                    message->inputs()->append(rightHandSide);
+                    leftHandSide = CHILD_PRIMITIVE_CHAIN(CHILD_PRIMITIVE(message, sourceCodeRef));
+                }
             }
             return leftHandSide;
+        }
+
+        void checkRightHandSide(const PrimitiveChainPointer &rightHandSide) {
+            if(!rightHandSide || rightHandSide->isEmpty())
+                throw parserException("expecting right-hand side expression, found " + tokenTypeName());
         }
 
         short operatorPrecedence(const OperatorPointer &op) const {

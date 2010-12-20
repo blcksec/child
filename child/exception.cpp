@@ -26,6 +26,7 @@ CHILD_EXCEPTION_DEFINITION(NotFoundException, RuntimeException);
 CHILD_EXCEPTION_DEFINITION(DuplicateException, RuntimeException);
 CHILD_EXCEPTION_DEFINITION(TypecastException, RuntimeException);
 CHILD_EXCEPTION_DEFINITION(ConversionException, RuntimeException);
+CHILD_EXCEPTION_DEFINITION(AssertionException, RuntimeException);
 CHILD_EXCEPTION_DEFINITION(OperatingSystemException, Exception);
 CHILD_EXCEPTION_DEFINITION(FileSystemException, OperatingSystemException);
 

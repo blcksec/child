@@ -1,4 +1,2 @@
-if(1 < 2) {
-    "Yeah"
-else: "Boo"
-}
+a := Text(123)
+a print

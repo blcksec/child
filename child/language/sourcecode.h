@@ -52,12 +52,16 @@ namespace Language {
         }
 
         virtual Pointer run(const Pointer &receiver = context()) {
+            #ifdef CHILD_CATCH_EXCEPTIONS
             try {
+            #endif
                 return block() ? block()->run(receiver) : Pointer::null();
+            #ifdef CHILD_CATCH_EXCEPTIONS
             } catch(ExceptionPointer e) {
                 e->file = _url;
                 throw;
             }
+            #endif
         }
 
         virtual const QString toString(bool debug = false, short level = 0) const {

@@ -15,58 +15,60 @@ void Application::initOperatorTable() {
     ops->append(".", Operator::Binary, Operator::namePrecedence);
     ops->append("...", Operator::Postfix, Operator::namePrecedence);
 
-    ops->append("+", Operator::Prefix, 411, Operator::RightAssociative, "unary_plus");
-    ops->append("-", Operator::Prefix, 411, Operator::RightAssociative, "unary_minus");
-    ops->append("!", Operator::Prefix, 411, Operator::RightAssociative);
+    ops->append("\\", Operator::Prefix, 521);
+    ops->append("@", Operator::Prefix, 531);
+    ops->append("#", Operator::Prefix, 511);
+    ops->append("$", Operator::Prefix, 511);
 
-    ops->append("\\", Operator::Prefix, 421);
-    ops->append("@", Operator::Prefix, 431);
-    ops->append("#", Operator::Prefix, 411);
-    ops->append("$", Operator::Prefix, 411);
+    ops->append("+", Operator::Prefix, 511, Operator::RightAssociative, true, false, "unary_plus");
+    ops->append("-", Operator::Prefix, 511, Operator::RightAssociative, true, false, "unary_minus");
+    ops->append("!", Operator::Prefix, 511, Operator::RightAssociative);
 
-    ops->append("+", Operator::Binary, 351);
-    ops->append("-", Operator::Binary, 351);
-    ops->append("*", Operator::Binary, 361);
-    ops->append("/", Operator::Binary, 361);
-    ops->append("%", Operator::Binary, 361);
+    ops->append("+", Operator::Binary, 451);
+    ops->append("-", Operator::Binary, 451);
+    ops->append("*", Operator::Binary, 461);
+    ops->append("/", Operator::Binary, 461);
+    ops->append("%", Operator::Binary, 461);
 
-    ops->append("&", Operator::Binary, 361);
-    ops->append("|", Operator::Binary, 351);
-    ops->append("^", Operator::Binary, 351);
-    ops->append("<<", Operator::Binary, 361);
-    ops->append(">>", Operator::Binary, 361);
+    ops->append("&", Operator::Binary, 461);
+    ops->append("|", Operator::Binary, 451);
+    ops->append("^", Operator::Binary, 451);
+    ops->append("<<", Operator::Binary, 461);
+    ops->append(">>", Operator::Binary, 461);
 
-    ops->append("..", Operator::Binary, 351);
+    ops->append("..", Operator::Binary, 451);
 
-    ops->append("<=>", Operator::Binary, 341);
+    ops->append("<=>", Operator::Binary, 441);
 
-    ops->append("==", Operator::Binary, 331, Operator::NonAssociative);
-    ops->append("!=", Operator::Binary, 331, Operator::NonAssociative);
-    ops->append("<", Operator::Binary, 331, Operator::NonAssociative);
-    ops->append(">", Operator::Binary, 331, Operator::NonAssociative);
-    ops->append("<=", Operator::Binary, 331, Operator::NonAssociative);
-    ops->append(">=", Operator::Binary, 331, Operator::NonAssociative);
+    ops->append("==", Operator::Binary, 431, Operator::NonAssociative);
+    ops->append("!=", Operator::Binary, 431, Operator::NonAssociative);
+    ops->append("<", Operator::Binary, 431, Operator::NonAssociative);
+    ops->append(">", Operator::Binary, 431, Operator::NonAssociative);
+    ops->append("<=", Operator::Binary, 431, Operator::NonAssociative);
+    ops->append(">=", Operator::Binary, 431, Operator::NonAssociative);
 
-    ops->append("&&", Operator::Binary, 321);
-    ops->append("||", Operator::Binary, 311);
+    ops->append("&&", Operator::Binary, 421);
+    ops->append("||", Operator::Binary, 411);
 
-    ops->append(",", Operator::Binary, 221, Operator::LeftAssociative, "", true);
-    ops->append("->", Operator::Binary, 211, Operator::LeftAssociative, "", true);
+    ops->append(",", Operator::Binary, 321, Operator::LeftAssociative, false, true);
+    ops->append("->", Operator::Binary, 311, Operator::LeftAssociative, false, true);
 
-    ops->append(":=", Operator::Binary, 111, Operator::RightAssociative);
-    ops->append("=", Operator::Binary, 121, Operator::RightAssociative);
-    ops->append("+=", Operator::Binary, 151, Operator::RightAssociative);
-    ops->append("-=", Operator::Binary, 151, Operator::RightAssociative);
-    ops->append("*=", Operator::Binary, 161, Operator::RightAssociative);
-    ops->append("/=", Operator::Binary, 161, Operator::RightAssociative);
-    ops->append("%=", Operator::Binary, 161, Operator::RightAssociative);
-    ops->append("&=", Operator::Binary, 141, Operator::RightAssociative);
-    ops->append("|=", Operator::Binary, 131, Operator::RightAssociative);
-    ops->append("^=", Operator::Binary, 151, Operator::RightAssociative);
-    ops->append("<<=", Operator::Binary, 161, Operator::RightAssociative);
-    ops->append(">>=", Operator::Binary, 161, Operator::RightAssociative);
+    ops->append(":=", Operator::Binary, 211, Operator::RightAssociative, false);
+    ops->append("=", Operator::Binary, 221, Operator::RightAssociative, false);
+    ops->append("+=", Operator::Binary, 251, Operator::RightAssociative, false);
+    ops->append("-=", Operator::Binary, 251, Operator::RightAssociative, false);
+    ops->append("*=", Operator::Binary, 261, Operator::RightAssociative, false);
+    ops->append("/=", Operator::Binary, 261, Operator::RightAssociative, false);
+    ops->append("%=", Operator::Binary, 261, Operator::RightAssociative, false);
+    ops->append("&=", Operator::Binary, 241, Operator::RightAssociative, false);
+    ops->append("|=", Operator::Binary, 231, Operator::RightAssociative, false);
+    ops->append("^=", Operator::Binary, 251, Operator::RightAssociative, false);
+    ops->append("<<=", Operator::Binary, 261, Operator::RightAssociative, false);
+    ops->append(">>=", Operator::Binary, 261, Operator::RightAssociative, false);
 
-    ops->append(":", Operator::Binary, 11, Operator::NonAssociative, "", true);
+    ops->append("?:", Operator::Prefix, 121, Operator::NonAssociative, false, true);
+
+    ops->append(":", Operator::Binary, 111, Operator::NonAssociative, false, true);
 
     _operatorTable = ops;
     addChild("operatorTable", _operatorTable);

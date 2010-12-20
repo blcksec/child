@@ -24,10 +24,11 @@ namespace Language {
         virtual Pointer fork() const { return OperatorTablePointer(new OperatorTable(this))->initFork(); };
 
         void append(const QString &text, Operator::Type type, short precedence,
-                         Operator::Associativity associativity = Operator::LeftAssociative,
-                         const QString &name = "", const bool isSyntaxElement = false) {
+                    Operator::Associativity associativity = Operator::LeftAssociative,
+                    const bool useLeftHandSideAsReceiver = true, const bool isSpecial = false,
+                    const QString &name = "") {
             GenericList<OperatorTablePointer, OperatorPointer>::append(
-                        CHILD_OPERATOR(text, type, precedence, associativity, name, isSyntaxElement));
+                        CHILD_OPERATOR(text, type, precedence, associativity, useLeftHandSideAsReceiver, isSpecial, name));
         }
 
         bool has(const QString &text) const {

@@ -35,9 +35,10 @@ SOURCES += main.cpp \
     child/bunch.cpp \
     child/dictionary.cpp \
     tests/dictionarytest.cpp \
-    child/application.cpp \
     child/block.cpp \
+    child/method.cpp \
     child/message.cpp \
+    child/application.cpp \
     child/language.cpp \
     child/language/token.cpp \
     child/language/operator.cpp \
@@ -74,9 +75,10 @@ HEADERS += \
     child/bunch.h \
     child/dictionary.h \
     tests/dictionarytest.h \
-    child/application.h \
     child/block.h \
+    child/method.h \
     child/message.h \
+    child/application.h \
     child/language.h \
     child/language/token.h \
     child/language/operator.h \

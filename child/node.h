@@ -114,6 +114,11 @@ public:
         return this;
     }
 
+    CHILD_NATIVE_METHOD_DECLARE(fork);
+
+    CHILD_NATIVE_METHOD_DECLARE(define);
+    CHILD_NATIVE_METHOD_DECLARE(assign);
+
     CHILD_NATIVE_METHOD_DECLARE(or);
     CHILD_NATIVE_METHOD_DECLARE(and);
     CHILD_NATIVE_METHOD_DECLARE(not);
@@ -121,6 +126,8 @@ public:
     virtual bool isEqualTo(const Pointer &other) const { return this == other.data(); }
     CHILD_NATIVE_METHOD_DECLARE(equal_to);
     CHILD_NATIVE_METHOD_DECLARE(different_from);
+
+    CHILD_NATIVE_METHOD_DECLARE(assert);
 
     Pointer print() const { P(toString().toUtf8()); return this; }
     CHILD_NATIVE_METHOD_DECLARE(print);

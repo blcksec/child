@@ -19,6 +19,7 @@ public:
 
     static void initRoot() {
         Object::root()->addChild("Text", root());
+        CHILD_NATIVE_METHOD_ADD(Text, init);
         CHILD_NATIVE_METHOD_ADD(Text, concatenate, +);
         CHILD_NATIVE_METHOD_ADD(Text, multiply, *);
         CHILD_NATIVE_METHOD_ADD(Text, upcase);
@@ -27,6 +28,12 @@ public:
     }
 
     virtual Pointer fork() const { return new Text(this, value()); }
+
+    CHILD_NATIVE_METHOD_DECLARE(init) {
+        CHILD_CHECK_INPUT_SIZE(0, 1);
+        if(message->hasInput(0)) setValue(message->runFirstInput()->toString());
+        return this;
+    }
 
     CHILD_NATIVE_METHOD_DECLARE(concatenate) {
         CHILD_CHECK_INPUT_SIZE(1);

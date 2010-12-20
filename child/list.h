@@ -109,6 +109,8 @@ public:
         hasChanged();
     }
 
+    bool hasIndex(int i) { return i >= 0 && i < size(); }
+
     bool hasValue(const T &value) const {
         CHILD_CHECK_VALUE(value);
         if(_list)

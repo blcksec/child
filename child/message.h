@@ -63,18 +63,50 @@ public:
     virtual Pointer run(const Pointer &receiver = context()) {
         Pointer result = receiver->child(name());
         NativeMethodPointer nativeMethod(result, true);
-        if(nativeMethod) result = ((*const_cast<Node *>(receiver.data())).*nativeMethod->method())(this);
+        if(nativeMethod)
+            result = ((*const_cast<Node *>(receiver.data())).*nativeMethod->method())(this);
+        else {
+            if(inputs(false) || outputs(false) || block()) {
+                MessagePointer forkMessage = fork();
+                forkMessage->setName("fork");
+                result = forkMessage->run(result);
+            }
+        }
         return result;
     }
 
+    ArgumentPointer input(short i) const { return inputs(false)->get(i); }
+    bool hasInput(short i) const { return inputs(false) && inputs()->hasIndex(i); }
+    Pointer runInput(short i, const Pointer &receiver = context()) const { return input(i)->run(receiver); }
+
     ArgumentPointer firstInput() const { return inputs(false)->first(); }
-    virtual Pointer runFirstInput(const Pointer &receiver = context()) const { return firstInput()->run(receiver); }
+    Pointer runFirstInput(const Pointer &receiver = context()) const { return firstInput()->run(receiver); }
 
     ArgumentPointer secondInput() const { return inputs(false)->second(); }
-    virtual Pointer runSecondInput(const Pointer &receiver = context()) const { return secondInput()->run(receiver); }
+    Pointer runSecondInput(const Pointer &receiver = context()) const { return secondInput()->run(receiver); }
 
     ArgumentPointer thirdInput() const { return inputs(false)->third(); }
-    virtual Pointer runThirdInput(const Pointer &receiver = context()) const { return thirdInput()->run(receiver); }
+    Pointer runThirdInput(const Pointer &receiver = context()) const { return thirdInput()->run(receiver); }
+
+    Pointer runInputOrSection(const short inputIndex, const QString &sectionLabel,
+                              const Pointer &defaultResult = Pointer::null(),
+                              const Pointer &receiver = context()) const {
+        Pointer code = hasInputOrSection(inputIndex, sectionLabel);
+        return code ? code->run(receiver) : defaultResult;
+    }
+
+    Pointer hasInputOrSection(const short inputIndex, const QString &sectionLabel) const {
+        SectionPointer section = block() ? block()->section(sectionLabel) : SectionPointer::null();
+        if(hasInput(inputIndex)) {
+            if(section)
+                CHILD_THROW(ArgumentException, "ambiguous alternative forms, cannot choose between \"code passed by argument\""
+                            " and \"code passed by block\"");
+            return input(inputIndex);
+        } else if(section)
+            return section;
+        else
+            return Pointer::null();
+    }
 
     virtual const QString toString(bool debug = false, short level = 0) const {
         QString str = name();

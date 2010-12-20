@@ -34,11 +34,15 @@ Pointer &Node::root() {
 
 void Node::initRoot() {
     root()->addChild("Node", root());
+    CHILD_NATIVE_METHOD_ADD(Node, fork);
+    CHILD_NATIVE_METHOD_ADD(Node, define, :=);
+    CHILD_NATIVE_METHOD_ADD(Node, assign, =);
     CHILD_NATIVE_METHOD_ADD(Node, or, ||);
     CHILD_NATIVE_METHOD_ADD(Node, and, &&);
     CHILD_NATIVE_METHOD_ADD(Node, not, !);
     CHILD_NATIVE_METHOD_ADD(Node, equal_to, ==);
     CHILD_NATIVE_METHOD_ADD(Node, different_from, !=);
+    CHILD_NATIVE_METHOD_ADD(Node, assert, ?:);
     CHILD_NATIVE_METHOD_ADD(Node, print);
     CHILD_NATIVE_METHOD_ADD(Node, inspect);
 }
@@ -166,6 +170,34 @@ void Node::_removeParent(const Node *parent) const {
         CHILD_THROW(NotFoundException, "parent not found");
 }
 
+CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
+    Pointer node = fork();
+    if(node->hasChild("init")) {
+        MessagePointer init = message->fork();
+        init->setName("init");
+        init->run(node);
+    }
+    return node;
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, define) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    PrimitiveChainPointer chain = message->firstInput()->value();
+    Pointer context = chain->runExceptLast();
+    MessagePointer msg(chain->last()->value(), true);
+    if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
+    return context->addChild(msg->name(), message->runSecondInput());
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, assign) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    PrimitiveChainPointer chain = message->firstInput()->value();
+    Pointer context = chain->runExceptLast();
+    MessagePointer msg(chain->last()->value(), true);
+    if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
+    return context->setChild(msg->name(), message->runSecondInput());
+}
+
 CHILD_NATIVE_METHOD_DEFINE(Node, or) {
     CHILD_CHECK_INPUT_SIZE(1);
     return CHILD_BOOLEAN(toBool() || message->runFirstInput()->toBool());
@@ -188,6 +220,14 @@ CHILD_NATIVE_METHOD_DEFINE(Node, equal_to) {
 
 CHILD_NATIVE_METHOD_DEFINE(Node, different_from) {
     return CHILD_BOOLEAN(!BooleanPointer(CHILD_MESSAGE("==", message->inputs(false))->run(this))->value());
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, assert) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    if(toBool())
+        return this;
+    else
+        CHILD_THROW(AssertionException, "assertion failed");
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, print) {

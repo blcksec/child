@@ -36,6 +36,14 @@ namespace Language {
             return result;
         }
 
+        Pointer runExceptLast(const Pointer &receiver = context()) {
+            Pointer result = receiver;
+            Iterator i(this);
+            while(PrimitivePointer primitive = i.next())
+                if(i.hasNext()) result = primitive->run(result);
+            return result;
+        }
+
         virtual const QString toString(bool debug = false, short level = 0) const { return join(" ", "", "", debug, level); }
     };
 

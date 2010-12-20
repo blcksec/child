@@ -15,52 +15,52 @@ BlockPointer(new Block(Node::context()->child("Object", "Block"), ##ARGS))
 class Block : public GenericList<BlockPointer, SectionPointer> {
     CHILD_DECLARE(Block, List);
 public:
-    Block(const Pointer &origin) : GenericList<BlockPointer, SectionPointer>(origin) {}
+    Block(const Pointer &origin) : GenericList<BlockPointer, SectionPointer>(origin),
+        _docIsCached(false), _bodyIsCached(false), _elseIsCached(false) {}
 
     static void initRoot() { Object::root()->addChild("Block", root()); }
     virtual Pointer fork() const { return BlockPointer(new Block(this))->initFork(); }
 
     virtual Pointer run(const Pointer &receiver = context()) {
-        return bodySection()->run(receiver);
+        return bodySection() ? bodySection()->run(receiver) : Pointer::null();
+    }
+
+    SectionPointer section(const QString &label) {
+        if(label.isEmpty()) return hasUnlabeledSection();
+        else if(label == "doc") return docSection();
+        else if(label == "body") return bodySection();
+        else if(label == "else") return elseSection();
+        else return findSection(label);
     }
 
     SectionPointer docSection() {
-        if(!_doc) {
-            SectionPointer unlabeledSection = hasUnlabeledSection();
-            if(SectionPointer doc = findSection("doc")) {
-                if(unlabeledSection)
-                    CHILD_THROW(DuplicateException, "a block cannot have both an unlabeled section and an explicit doc section"); // TODO: proper error report with resource filename and line number
-                _doc = doc;
-            } else if(size() > 1 && unlabeledSection)
-                _doc = unlabeledSection;
-            else
-                _doc = Section::empty();
+        if(!_docIsCached) {
+            _doc = findSection("doc");
+            if(!_doc && findSection("body")) _doc = hasUnlabeledSection();
+            _docIsCached = true;
         }
         return _doc;
     }
 
     SectionPointer bodySection() {
-        if(!_body) {
-            if(size() == 1 && hasUnlabeledSection())
-                _body = first();
-            else {
-                _body = findSection("body");
-                if(!_body) _body = Section::empty();
-            }
+        if(!_bodyIsCached) {
+            _body = findSection("body");
+            if(!_body) _body = hasUnlabeledSection();
+            _bodyIsCached = true;
         }
         return _body;
     }
 
     SectionPointer elseSection() {
-        if(!_else) {
+        if(!_elseIsCached) {
             _else = findSection("else");
-            if(!_else) _else = Section::empty();
+            _elseIsCached = true;
         }
         return _else;
     }
-
+private:
     SectionPointer findSection(const QString &label);
-
+public:
     SectionPointer hasUnlabeledSection() {
         if(isNotEmpty() && (!first()->label() || first()->label()->isEmpty()))
             return first();
@@ -77,8 +77,11 @@ public:
     }
 private:
     SectionPointer _doc;
+    bool _docIsCached;
     SectionPointer _body;
+    bool _bodyIsCached;
     SectionPointer _else;
+    bool _elseIsCached;
 };
 
 CHILD_POINTER_DEFINE(Block, List);

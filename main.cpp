@@ -1,5 +1,7 @@
 #include <QtCore/QDebug>
 
+// #define CHILD_CATCH_EXCEPTIONS
+
 #include "child.h"
 #include "child/node.h"
 #include "child/exception.h"
@@ -12,7 +14,9 @@ using namespace Language;
 int main() { // int argc, char *argv[]
     init();
     runAllTests();
+    #ifdef CHILD_CATCH_EXCEPTIONS
     try {
+    #endif
         ApplicationPointer app = Application::root();
         Node::pushContext(app);
         app->init();
@@ -23,9 +27,11 @@ int main() { // int argc, char *argv[]
 //        TextPointer t(CHILD_TEXT("hello"));
 //        ((*t).*NativeMethodPointer(t->child("print"))->method())(CHILD_ARGUMENT_BUNCH());
         Node::popContext();
+    #ifdef CHILD_CATCH_EXCEPTIONS
     } catch(ExceptionPointer e) {
         qDebug() << e->report().toUtf8();
     }
+    #endif
 //    NodeRef r2(t2);
 //    try {
 //        CHILD_THROW(LexerException, "key not found");
