@@ -14,7 +14,7 @@ CHILD_POINTER_DECLARE(Envelope, Primitive);
 class Envelope : public Primitive {
     CHILD_DECLARE(Envelope, Primitive);
 public:
-    Envelope(const Pointer &origin, const Pointer &contents = NULL, const QStringRef &sourceCodeRef = QStringRef(),
+    explicit Envelope(const Pointer &origin, const Pointer &contents = NULL, const QStringRef &sourceCodeRef = QStringRef(),
              const Pointer &sender = NULL, const Pointer &receiver = NULL) :
         Primitive(origin, contents, sourceCodeRef), _sender(sender), _receiver(receiver) {}
 

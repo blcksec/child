@@ -18,17 +18,17 @@ namespace Language {
     class OperatorTable : public GenericList<OperatorTablePointer, OperatorPointer> {
         CHILD_DECLARE(OperatorTable, List);
     public:
-        OperatorTable(const Pointer &origin) : GenericList<OperatorTablePointer, OperatorPointer>(origin) {}
+        explicit OperatorTable(const Pointer &origin) : GenericList<OperatorTablePointer, OperatorPointer>(origin) {}
 
         static void initRoot() { Language::root()->addChild("OperatorTable", root()); }
         virtual Pointer fork() const { return OperatorTablePointer(new OperatorTable(this))->initFork(); };
 
         void append(const QString &text, Operator::Type type, short precedence,
                     Operator::Associativity associativity = Operator::LeftAssociative,
-                    const bool useLeftHandSideAsReceiver = true, const bool isSpecial = false,
+                    const bool useLHSAsReceiver = true, const bool isSpecial = false,
                     const QString &name = "") {
             GenericList<OperatorTablePointer, OperatorPointer>::append(
-                        CHILD_OPERATOR(text, type, precedence, associativity, useLeftHandSideAsReceiver, isSpecial, name));
+                        CHILD_OPERATOR(text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name));
         }
 
         bool has(const QString &text) const {

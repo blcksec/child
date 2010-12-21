@@ -9,7 +9,11 @@
 
 class DictionaryTest : public QObject {
     Q_OBJECT
-    CHILD_TEST
+private:
+    HugeUnsignedInteger _initialNodeCount;
+private slots:
+    void init() { _initialNodeCount = Node::nodeCount(); }
+    void cleanup() { QVERIFY(Node::nodeCount() == _initialNodeCount); }
 
     void initialize();
     void getAndSet();

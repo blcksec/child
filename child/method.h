@@ -15,7 +15,7 @@ CHILD_POINTER_DECLARE(Method, Element);
 class Method : public GenericElement<MethodPointer, BlockPointer> {
     CHILD_DECLARE(Method, Element);
 public:
-    Method(const Pointer &origin, const BlockPointer &block = BlockPointer::null()) :
+    explicit Method(const Pointer &origin, const BlockPointer &block = BlockPointer::null()) :
         GenericElement<MethodPointer, BlockPointer>(origin, block) {}
 
     static void initRoot() {
@@ -84,7 +84,11 @@ public:
                 forkedBlock->addChild(parameter->label(), parameter->run());
             }
             ContextPusher pusher(forkedBlock);
-            return forkedBlock->run();
+            Pointer result;
+            try {
+                result = forkedBlock->run();
+            } catch(Return ret) { result = ret.result; }
+            return result;
         }
     }
 

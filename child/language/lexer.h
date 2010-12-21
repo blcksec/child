@@ -17,7 +17,7 @@ namespace Language {
     class Lexer : public Object {
         CHILD_DECLARE(Lexer, Object);
     public:
-        Lexer(const Pointer &origin) : Object(origin), _source(NULL) {}
+        explicit Lexer(const Pointer &origin) : Object(origin), _source(NULL) {}
         static void initRoot() { Language::root()->addChild("Lexer", root()); }
         virtual Pointer fork() const { return new Lexer(this); } // TODO
 

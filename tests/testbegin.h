@@ -14,13 +14,6 @@ do { \
     if(!exceptionThrown) { QFAIL("'" #EXCEPTION "' has not been thrown"); } \
 } while(false)
 
-#define CHILD_TEST \
-private: \
-    HugeUnsignedInteger _initialNodeCount; \
-private slots: \
-    void init() { _initialNodeCount = Node::nodeCount(); } \
-    void cleanup() { QVERIFY(Node::nodeCount() == _initialNodeCount); }
-
 #endif // CHILD_TEST_BEGIN_H
 
 #ifdef CHILD_IS_NAMESPACED

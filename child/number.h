@@ -16,7 +16,7 @@ CHILD_POINTER_DECLARE(Number, Element);
 class Number : public GenericElement<NumberPointer, double> {
     CHILD_DECLARE(Number, Element);
 public:
-    Number(const Pointer &origin, const double value = 0) : GenericElement<NumberPointer, double>(origin, value) {}
+    explicit Number(const Pointer &origin, const double value = 0) : GenericElement<NumberPointer, double>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Number", root());
@@ -25,9 +25,14 @@ public:
         CHILD_NATIVE_METHOD_ADD(Number, multiply, *);
         CHILD_NATIVE_METHOD_ADD(Number, divide, /);
         CHILD_NATIVE_METHOD_ADD(Number, modulo, %);
-        CHILD_NATIVE_METHOD_ADD(Number, unary_plus);
-        CHILD_NATIVE_METHOD_ADD(Number, unary_minus);
-        CHILD_NATIVE_METHOD_SET(Number, equal_to, ==);
+
+        CHILD_NATIVE_METHOD_ADD(Number, unary_plus, unary+);
+        CHILD_NATIVE_METHOD_ADD(Number, unary_minus, unary-);
+
+        CHILD_NATIVE_METHOD_ADD(Number, prefix_increment, prefix++);
+        CHILD_NATIVE_METHOD_ADD(Number, prefix_decrement, prefix--);
+
+        CHILD_NATIVE_METHOD_ADD(Number, equal_to, ==);
         CHILD_NATIVE_METHOD_ADD(Number, compare, <=>);
     }
 
@@ -66,6 +71,18 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(unary_minus) {
         CHILD_CHECK_INPUT_SIZE(0);
         return CHILD_NUMBER(-value());
+    }
+
+    CHILD_NATIVE_METHOD_DECLARE(prefix_increment) {
+        CHILD_CHECK_INPUT_SIZE(0);
+        setValue(value() + 1);
+        return this;
+    }
+
+    CHILD_NATIVE_METHOD_DECLARE(prefix_decrement) {
+        CHILD_CHECK_INPUT_SIZE(0);
+        setValue(value() - 1);
+        return this;
     }
 
     virtual bool isEqualTo(const Pointer &other) const {

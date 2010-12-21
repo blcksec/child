@@ -14,7 +14,7 @@ namespace Language {
     class Section : public GenericList<SectionPointer, PrimitiveChainPointer> {
         CHILD_DECLARE(Section, List);
     public:
-        Section(const Pointer &origin) : GenericList<SectionPointer, PrimitiveChainPointer>(origin) {}
+        explicit Section(const Pointer &origin) : GenericList<SectionPointer, PrimitiveChainPointer>(origin) {}
 
         static void initRoot() { Language::root()->addChild("Section", root()); }
 

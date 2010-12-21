@@ -16,11 +16,14 @@ namespace Language {
     class PrimitiveChain : public GenericList<PrimitiveChainPointer, PrimitivePointer> {
         CHILD_DECLARE(PrimitiveChain, List);
     public:
-        PrimitiveChain(const Pointer &origin) :
+        explicit PrimitiveChain(const Pointer &origin) :
             GenericList<PrimitiveChainPointer, PrimitivePointer>(origin) {}
 
         PrimitiveChain(const Pointer &origin, const PrimitivePointer &primitive) :
             GenericList<PrimitiveChainPointer, PrimitivePointer>(origin, primitive) {}
+
+        PrimitiveChain(const Pointer &origin, const Pointer &node) :
+            GenericList<PrimitiveChainPointer, PrimitivePointer>(origin, CHILD_PRIMITIVE(node)) {}
 
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
         virtual Pointer fork() const { return PrimitiveChainPointer(new PrimitiveChain(this))->initFork(); }

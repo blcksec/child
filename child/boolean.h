@@ -13,11 +13,11 @@ CHILD_POINTER_DECLARE(Boolean, Element);
 class Boolean : public GenericElement<BooleanPointer, bool> {
     CHILD_DECLARE(Boolean, Element);
 public:
-    Boolean(const Pointer &origin, const bool value = false) : GenericElement<BooleanPointer, bool>(origin, value) {}
+    explicit Boolean(const Pointer &origin, const bool value = false) : GenericElement<BooleanPointer, bool>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Boolean", root());
-        CHILD_NATIVE_METHOD_SET(Boolean, equal_to, ==);
+        CHILD_NATIVE_METHOD_ADD(Boolean, equal_to, ==);
     }
 
     virtual Pointer fork() const { return new Boolean(this, value()); }

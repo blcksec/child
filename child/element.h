@@ -10,7 +10,7 @@ inline uint qHash(const double &number) { CHILD_TODO; return number; }
 template<class P, class T>
 class GenericElement : public Object {
 public:
-    GenericElement(const Pointer &origin, const T &value = NULL) : Object(origin), _value(value) {}
+    explicit GenericElement(const Pointer &origin, const T &value = NULL) : Object(origin), _value(value) {}
 
     T value() const { return _value; }
     void setValue(const T &value) { _value = value; }
@@ -27,7 +27,8 @@ CHILD_POINTER_DECLARE(Element, Object);
 class Element : public GenericElement<ElementPointer, Pointer> {
     CHILD_DECLARE(Element, Object);
 public:
-    Element(const Pointer &origin, const Pointer &value = NULL) : GenericElement<ElementPointer, Pointer>(origin, value) {}
+    explicit Element(const Pointer &origin, const Pointer &value = NULL) :
+        GenericElement<ElementPointer, Pointer>(origin, value) {}
     static void initRoot() { Object::root()->addChild("Element", root()); }
     virtual Pointer fork() const { return new Element(this, forkIfNotNull(value())); }
     virtual QString toString(bool debug = false, short level = 0) const {

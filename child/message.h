@@ -16,8 +16,9 @@ MessagePointer(new Message(Node::context()->child("Object", "Message"), ##ARGS))
 class Message : public Object {
     CHILD_DECLARE(Message, Object);
 public:
-    Message(const Pointer &origin, const QString &name = "") : Object(origin), _name(name) {}
+    explicit Message(const Pointer &origin, const QString &name = "") : Object(origin), _name(name) {}
 
+    // TODO: use implicit conversion to limit the number of constructors
     Message(const Pointer &origin, const QString &name, const ArgumentBunchPointer &inputs) :
         Object(origin), _name(name), _inputs(inputs) {}
 
@@ -28,6 +29,24 @@ public:
     Message(const Pointer &origin, const QString &name, const ArgumentBunchPointer &inputs,
             const ArgumentBunchPointer &outputs, const BlockPointer &block) :
         Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _block(block) {}
+
+    Message(const Pointer &origin, const QString &name, const ArgumentPointer &input) :
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)) {}
+
+    Message(const Pointer &origin, const QString &name, const ArgumentPointer &input1, const ArgumentPointer &input2) :
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)) {}
+
+    Message(const Pointer &origin, const QString &name, const Pointer &input) :
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)) {}
+
+    Message(const Pointer &origin, const QString &name, const ArgumentPointer &input1, const Pointer &input2) :
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))) {}
+
+    Message(const Pointer &origin, const QString &name, const Pointer &input1, const ArgumentPointer &input2) :
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)) {}
+
+    Message(const Pointer &origin, const QString &name, const Pointer &input1, const Pointer &input2) :
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)) {}
 
     static void initRoot() { Object::root()->addChild("Message", root()); }
 

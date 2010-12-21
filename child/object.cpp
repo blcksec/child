@@ -7,6 +7,46 @@ CHILD_BEGIN
 
 CHILD_DEFINE(Object, Node);
 
+CHILD_NATIVE_METHOD_DEFINE(Object, postfix_increment) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    CHILD_TODO;
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Object, postfix_decrement) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    CHILD_TODO;
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Object, add_assign) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    Pointer result = CHILD_MESSAGE("+", message->secondInput())->run(message->runFirstInput());
+    return CHILD_MESSAGE("=", message->firstInput(), result)->run();
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Object, subtract_assign) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    Pointer result = CHILD_MESSAGE("-", message->secondInput())->run(message->runFirstInput());
+    return CHILD_MESSAGE("=", message->firstInput(), result)->run();
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Object, multiply_assign) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    Pointer result = CHILD_MESSAGE("*", message->secondInput())->run(message->runFirstInput());
+    return CHILD_MESSAGE("=", message->firstInput(), result)->run();
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Object, divide_assign) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    Pointer result = CHILD_MESSAGE("/", message->secondInput())->run(message->runFirstInput());
+    return CHILD_MESSAGE("=", message->firstInput(), result)->run();
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Object, modulo_assign) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    Pointer result = CHILD_MESSAGE("%", message->secondInput())->run(message->runFirstInput());
+    return CHILD_MESSAGE("=", message->firstInput(), result)->run();
+}
+
 CHILD_NATIVE_METHOD_DEFINE(Object, less_than) {
     return CHILD_BOOLEAN(NumberPointer(CHILD_MESSAGE("<=>", message->inputs(false))->run(this))->value() < 0);
 }
@@ -49,20 +89,22 @@ CHILD_NATIVE_METHOD_DEFINE(Object, loop) {
 Pointer Object::whileOrUntil(const MessagePointer &message, bool isWhile) {
     CHILD_CHECK_INPUT_SIZE(1, 2);
     Pointer result;
-    Pointer test;
-    Pointer code = message->hasInputOrSection(1, "body");
-    while(true) {
-        if(isWhile) {
-            test = message->runFirstInput();
-            if(test->toBool()) result = test; else break;
+    try {
+        Pointer test;
+        Pointer code = message->hasInputOrSection(1, "body");
+        while(true) {
+            if(isWhile) {
+                test = message->runFirstInput();
+                if(test->toBool()) result = test; else break;
+            }
+            if(code) result = code->run();
+            if(!isWhile) {
+                test = message->runFirstInput();
+                if(test->toBool()) break;
+            }
         }
-        if(code) result = code->run();
-        if(!isWhile) {
-            test = message->runFirstInput();
-            if(test->toBool()) break;
-        }
-    }
-    if(!code) result = test;
+        if(!code) result = test;
+    } catch(Break brk) { result = brk.result; }
     return result;
 }
 
@@ -70,6 +112,12 @@ CHILD_NATIVE_METHOD_DEFINE(Object, break) {
     CHILD_CHECK_INPUT_SIZE(0, 1);
     Pointer result = message->hasInput(0) ? message->runFirstInput() : Pointer::null();
     throw Break(result);
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Object, return) {
+    CHILD_CHECK_INPUT_SIZE(0, 1);
+    Pointer result = message->hasInput(0) ? message->runFirstInput() : Pointer::null();
+    throw Return(result);
 }
 
 CHILD_END

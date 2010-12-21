@@ -15,7 +15,7 @@ BlockPointer(new Block(Node::context()->child("Object", "Block"), ##ARGS))
 class Block : public GenericList<BlockPointer, SectionPointer> {
     CHILD_DECLARE(Block, List);
 public:
-    Block(const Pointer &origin) : GenericList<BlockPointer, SectionPointer>(origin),
+    explicit Block(const Pointer &origin) : GenericList<BlockPointer, SectionPointer>(origin),
         _docIsCached(false), _bodyIsCached(false), _elseIsCached(false) {}
 
     static void initRoot() { Object::root()->addChild("Block", root()); }

@@ -18,7 +18,7 @@ ApplicationPointer(new Application(Node::context()->child("Object", "Application
 class Application : public Object {
     CHILD_DECLARE(Application, Object);
 public:
-    Application(const Pointer &origin) : Object(origin) {}
+    explicit Application(const Pointer &origin) : Object(origin) {}
 
     static void initRoot() { Object::root()->addChild("Application", root()); }
     virtual Pointer fork() const { CHILD_TODO; return new Application(this); }

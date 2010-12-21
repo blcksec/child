@@ -16,8 +16,17 @@ namespace Language {
     class Argument : public GenericPair<ArgumentPointer, PrimitiveChainPointer, PrimitiveChainPointer> {
         CHILD_DECLARE(Argument, Pair);
     public:
-        Argument(const Pointer &origin, const PrimitiveChainPointer &label = NULL, const PrimitiveChainPointer &value = NULL) :
+        explicit Argument(const Pointer &origin) :
+            GenericPair<ArgumentPointer, PrimitiveChainPointer, PrimitiveChainPointer>(origin) {}
+
+        Argument(const Pointer &origin, const PrimitiveChainPointer &value) :
+            GenericPair<ArgumentPointer, PrimitiveChainPointer, PrimitiveChainPointer>(origin, NULL, value) {}
+
+        Argument(const Pointer &origin, const PrimitiveChainPointer &label, const PrimitiveChainPointer &value) :
             GenericPair<ArgumentPointer, PrimitiveChainPointer, PrimitiveChainPointer>(origin, label, value) {}
+
+        Argument(const Pointer &origin, const Pointer &node) :
+            GenericPair<ArgumentPointer, PrimitiveChainPointer, PrimitiveChainPointer>(origin, NULL, CHILD_PRIMITIVE_CHAIN(node)) {}
 
         static void initRoot() { Language::root()->addChild("Argument", root()); }
 
@@ -58,7 +67,20 @@ namespace Language {
     class ArgumentBunch : public GenericList<ArgumentBunchPointer, ArgumentPointer> {
         CHILD_DECLARE(ArgumentBunch, Bunch);
     public:
-        ArgumentBunch(const Pointer &origin) : GenericList<ArgumentBunchPointer, ArgumentPointer>(origin, true) {}
+        explicit ArgumentBunch(const Pointer &origin) : GenericList<ArgumentBunchPointer, ArgumentPointer>(origin, true) {}
+
+        ArgumentBunch(const Pointer &origin, const ArgumentPointer &argument) :
+            GenericList<ArgumentBunchPointer, ArgumentPointer>(origin, argument, true) {}
+
+        ArgumentBunch(const Pointer &origin, const ArgumentPointer &argument1, const ArgumentPointer &argument2) :
+            GenericList<ArgumentBunchPointer, ArgumentPointer>(origin, argument1, argument2, true) {}
+
+        ArgumentBunch(const Pointer &origin, const Pointer &argument) :
+            GenericList<ArgumentBunchPointer, ArgumentPointer>(origin, CHILD_ARGUMENT(argument), true) {}
+
+        ArgumentBunch(const Pointer &origin, const Pointer &argument1, const Pointer &argument2) :
+            GenericList<ArgumentBunchPointer, ArgumentPointer>(
+                origin, CHILD_ARGUMENT(argument1), CHILD_ARGUMENT(argument2), true) {}
 
         static void initRoot() { Language::root()->addChild("ArgumentBunch", root()); }
         virtual Pointer fork() const { return ArgumentBunchPointer(new ArgumentBunch(this))->initFork(); }

@@ -17,7 +17,7 @@ namespace Language {
     class SourceCode : public Object {
         CHILD_DECLARE(SourceCode, Object);
     public:
-        SourceCode(const Pointer &origin, const QString &url = "",
+        explicit SourceCode(const Pointer &origin, const QString &url = "",
                    const QString &txt = "", const BlockPointer &block = NULL) :
             Object(origin), _url(url), _text(txt), _block(block) {
             if(!url.isEmpty() && txt.isEmpty()) load();

@@ -15,7 +15,7 @@ CHILD_POINTER_DECLARE(Text, Element);
 class Text : public GenericElement<TextPointer, QString> {
     CHILD_DECLARE(Text, Element);
 public:
-    Text(const Pointer &origin, const QString &value = "") : GenericElement<TextPointer, QString>(origin, value) {}
+    explicit Text(const Pointer &origin, const QString &value = "") : GenericElement<TextPointer, QString>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Text", root());
@@ -23,7 +23,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Text, concatenate, +);
         CHILD_NATIVE_METHOD_ADD(Text, multiply, *);
         CHILD_NATIVE_METHOD_ADD(Text, upcase);
-        CHILD_NATIVE_METHOD_SET(Text, equal_to, ==);
+        CHILD_NATIVE_METHOD_ADD(Text, equal_to, ==);
         CHILD_NATIVE_METHOD_ADD(Text, compare, <=>);
     }
 

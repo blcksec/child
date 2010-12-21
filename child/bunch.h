@@ -12,7 +12,7 @@ CHILD_POINTER_DECLARE(Bunch, List);
 class Bunch : public GenericList<BunchPointer, Pointer> {
     CHILD_DECLARE(Bunch, List);
 public:
-    Bunch(const Pointer &origin) : GenericList<BunchPointer, Pointer>(origin, true) {}
+    explicit Bunch(const Pointer &origin) : GenericList<BunchPointer, Pointer>(origin, true) {}
 
     Bunch(const Pointer &origin, const Pointer &value) : GenericList<BunchPointer, Pointer>(origin, value, true) {}
 

@@ -38,7 +38,7 @@ namespace Language {
         Type type;
         QStringRef sourceCodeRef;
 
-        Token(const Pointer &origin, const Type type = Null, const QStringRef &sourceCodeRef = QStringRef()) :
+        explicit Token(const Pointer &origin, const Type type = Null, const QStringRef &sourceCodeRef = QStringRef()) :
             Object(origin), type(type), sourceCodeRef(sourceCodeRef) {}
 
         static void initRoot() { Language::root()->addChild("Token", root()); }

@@ -14,10 +14,19 @@ CHILD_POINTER_DECLARE(Object,);
 class Object : public Node {
     CHILD_DECLARE(Object, Node);
 public:
-    Object(const Pointer &origin) : Node(origin) {}
+    explicit Object(const Pointer &origin) : Node(origin) {}
 
     static void initRoot() {
         Node::root()->addChild("Object", root());
+        CHILD_NATIVE_METHOD_ADD(Object, postfix_increment, postfix++);
+        CHILD_NATIVE_METHOD_ADD(Object, postfix_decrement, postfix--);
+
+        CHILD_NATIVE_METHOD_ADD(Object, add_assign, +=);
+        CHILD_NATIVE_METHOD_ADD(Object, subtract_assign, -=);
+        CHILD_NATIVE_METHOD_ADD(Object, multiply_assign, *=);
+        CHILD_NATIVE_METHOD_ADD(Object, divide_assign, /=);
+        CHILD_NATIVE_METHOD_ADD(Object, modulo_assign, %=);
+
         CHILD_NATIVE_METHOD_ADD(Object, less_than, <);
         CHILD_NATIVE_METHOD_ADD(Object, less_than_or_equal_to, <=);
         CHILD_NATIVE_METHOD_ADD(Object, greater_than, >);
@@ -29,9 +38,19 @@ public:
         CHILD_NATIVE_METHOD_ADD(Object, while);
         CHILD_NATIVE_METHOD_ADD(Object, until);
         CHILD_NATIVE_METHOD_ADD(Object, break);
+        CHILD_NATIVE_METHOD_ADD(Object, return);
     }
 
     virtual Pointer fork() const { return new Object(this); }
+
+    CHILD_NATIVE_METHOD_DECLARE(postfix_increment);
+    CHILD_NATIVE_METHOD_DECLARE(postfix_decrement);
+
+    CHILD_NATIVE_METHOD_DECLARE(add_assign);
+    CHILD_NATIVE_METHOD_DECLARE(subtract_assign);
+    CHILD_NATIVE_METHOD_DECLARE(multiply_assign);
+    CHILD_NATIVE_METHOD_DECLARE(divide_assign);
+    CHILD_NATIVE_METHOD_DECLARE(modulo_assign);
 
     CHILD_NATIVE_METHOD_DECLARE(less_than);
     CHILD_NATIVE_METHOD_DECLARE(less_than_or_equal_to);
@@ -56,7 +75,14 @@ public:
         Break(Pointer const &result = Pointer::null()) : result(result) {}
     };
 
+    class Return {
+    public:
+        Pointer result;
+        Return(Pointer const &result = Pointer::null()) : result(result) {}
+    };
+
     CHILD_NATIVE_METHOD_DECLARE(break);
+    CHILD_NATIVE_METHOD_DECLARE(return);
 };
 
 CHILD_POINTER_DEFINE(Object,);

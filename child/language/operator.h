@@ -16,28 +16,28 @@ namespace Language {
     public:
         enum Type { Null, Prefix, Postfix, Binary };
         enum Associativity { LeftAssociative, RightAssociative, NonAssociative };
-        static const short namePrecedence = 611;
+        static const short namePrecedence = 911;
 
         QString text;
         Type type;
         short precedence;
         Associativity associativity;
-        bool useLeftHandSideAsReceiver;
+        bool useLHSAsReceiver;
         bool isSpecial;
         QString name;
 
-        Operator(const Pointer &origin, const QString &text = "", Type type = Null, short precedence = 0,
-                Associativity associativity = LeftAssociative, const bool useLeftHandSideAsReceiver = true,
+        explicit Operator(const Pointer &origin, const QString &text = "", Type type = Null, short precedence = 0,
+                Associativity associativity = LeftAssociative, const bool useLHSAsReceiver = true,
                  const bool isSpecial = false, const QString &name = "") :
             Object(origin), text(text), type(type), precedence(precedence), associativity(associativity),
-            useLeftHandSideAsReceiver(useLeftHandSideAsReceiver), isSpecial(isSpecial), name(name) {
+            useLHSAsReceiver(useLHSAsReceiver), isSpecial(isSpecial), name(name) {
             if(name.isEmpty()) this->name = text;
         }
 
         static void initRoot() { Language::root()->addChild("Operator", root()); }
 
         virtual Pointer fork() const {
-            return new Operator(this, text, type, precedence, associativity, useLeftHandSideAsReceiver, isSpecial, name);
+            return new Operator(this, text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name);
         }
 
         const bool isNull() const { return type == Null; }

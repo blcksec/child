@@ -16,7 +16,7 @@ namespace Language {
     class Parameter : public GenericPair<ParameterPointer, QString, PrimitiveChainPointer> {
         CHILD_DECLARE(Parameter, Pair);
     public:
-        Parameter(const Pointer &origin, const QString &label = NULL,
+        explicit Parameter(const Pointer &origin, const QString &label = NULL,
                   const PrimitiveChainPointer &defaultValue = NULL) :
             GenericPair<ParameterPointer, QString, PrimitiveChainPointer>(origin, label, defaultValue) {}
 
@@ -56,7 +56,7 @@ namespace Language {
     class ParameterList : public GenericList<ParameterListPointer, ParameterPointer> {
         CHILD_DECLARE(ParameterList, List);
     public:
-        ParameterList(const Pointer &origin) : GenericList<ParameterListPointer, ParameterPointer>(origin) {}
+        explicit ParameterList(const Pointer &origin) : GenericList<ParameterListPointer, ParameterPointer>(origin) {}
 
         static void initRoot() { Language::root()->addChild("ParameterList", root()); }
         virtual Pointer fork() const { return ParameterListPointer(new ParameterList(this))->initFork(); }

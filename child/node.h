@@ -74,7 +74,12 @@ public:
     }
 
     Pointer addChild(const QString &name, const Pointer &value);
-    Pointer setChild(const QString &name, const Pointer &value);
+    Pointer setChild(const QString &name, const Pointer &value, bool addOrSetMode = false);
+
+    Pointer addOrSetChild(const QString &name, const Pointer &value) {
+        return setChild(name, value, true);
+    }
+
     void removeChild(const QString &name);
 
     void addAnonymousChild(const Pointer &value) {
@@ -86,6 +91,10 @@ public:
         CHILD_CHECK_POINTER(value);
         value->_removeParent(this);
     }
+
+private:
+    void _setChild(const QString &name, const Pointer &value);
+public:
 
     Pointer hasChild(const QString &name, bool searchInParents = true,
                            bool forkChildFoundInFirstOrigin = true, bool *isDirectPointer = NULL) const;
@@ -105,6 +114,11 @@ public:
         CHILD_CHECK_POINTER(parent);
         return _parents && _parents->contains(parent.data());
     }
+
+private:
+    void _addParent(const Node *parent) const;
+    void _removeParent(const Node *parent) const;
+public:
 
     QHash<QString, Pointer> children() const;
     PointerList parents() const;
@@ -130,6 +144,9 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(or);
     CHILD_NATIVE_METHOD_DECLARE(and);
     CHILD_NATIVE_METHOD_DECLARE(not);
+
+    CHILD_NATIVE_METHOD_DECLARE(or_assign);
+    CHILD_NATIVE_METHOD_DECLARE(and_assign);
 
     virtual bool isEqualTo(const Pointer &other) const { return this == other.data(); }
     CHILD_NATIVE_METHOD_DECLARE(equal_to);
@@ -201,10 +218,6 @@ private:
     QHash<QString, Pointer> *_children;
     mutable QHash<const Node *, HugeUnsignedInteger> *_parents;
     mutable HugeUnsignedInteger _refCount;
-
-    void _setChild(const QString &name, const Pointer &value);
-    void _addParent(const Node *parent) const;
-    void _removeParent(const Node *parent) const;
 
     void retain() const { _refCount++; }
     void release() const { if(--_refCount == 0) delete this; }

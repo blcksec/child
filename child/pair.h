@@ -8,7 +8,7 @@ CHILD_BEGIN
 template<class C, class T1, class T2>
 class GenericPair : public Object {
 public:
-    GenericPair(const Pointer &origin, const T1 &first = NULL, const T2 &second = NULL) :
+    explicit GenericPair(const Pointer &origin, const T1 &first = NULL, const T2 &second = NULL) :
         Object(origin), _first(first), _second(second) {}
 
     T1 first() const { return _first; }
@@ -33,7 +33,7 @@ CHILD_POINTER_DECLARE(Pair, Object);
 class Pair : public GenericPair<PairPointer, Pointer, Pointer> {
     CHILD_DECLARE(Pair, Object);
 public:
-    Pair(const Pointer &origin, const Pointer &first = NULL, const Pointer &second = NULL) :
+    explicit Pair(const Pointer &origin, const Pointer &first = NULL, const Pointer &second = NULL) :
         GenericPair<PairPointer, Pointer, Pointer>(origin, first, second) {}
 
     static void initRoot() { Object::root()->addChild("Pair", root()); }

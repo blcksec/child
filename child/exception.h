@@ -23,7 +23,7 @@ public:
     int line;
     QString function;
 
-    Exception(const Pointer &origin, const QString &message = "", const QString &file = "",
+    explicit Exception(const Pointer &origin, const QString &message = "", const QString &file = "",
               const int line = 0, const QString &function = "") :
         Node(origin), message(message), file(file), line(line), function(function) {}
 
@@ -47,7 +47,7 @@ CHILD_POINTER_DECLARE(NAME, ORIGIN); \
 class NAME : public ORIGIN { \
     CHILD_DECLARE(NAME, ORIGIN); \
 public: \
-    NAME(const Pointer &origin, const QString &message = "", const QString &file = "", \
+    explicit NAME(const Pointer &origin, const QString &message = "", const QString &file = "", \
          const int line = 0, const QString &function = "") : \
         ORIGIN(origin, message, file, line, function) {} \
     static void initRoot() { Node::root()->addChild(#NAME, root()); } \

@@ -37,9 +37,14 @@ void Node::initRoot() {
     CHILD_NATIVE_METHOD_ADD(Node, fork);
     CHILD_NATIVE_METHOD_ADD(Node, define, :=);
     CHILD_NATIVE_METHOD_ADD(Node, assign, =);
+
     CHILD_NATIVE_METHOD_ADD(Node, or, ||);
     CHILD_NATIVE_METHOD_ADD(Node, and, &&);
     CHILD_NATIVE_METHOD_ADD(Node, not, !);
+
+    CHILD_NATIVE_METHOD_ADD(Node, or_assign, ||=);
+    CHILD_NATIVE_METHOD_ADD(Node, and_assign, &&=);
+
     CHILD_NATIVE_METHOD_ADD(Node, equal_to, ==);
     CHILD_NATIVE_METHOD_ADD(Node, different_from, !=);
     CHILD_NATIVE_METHOD_ADD(Node, assert, ?:);
@@ -93,17 +98,23 @@ Pointer Node::addChild(const QString &name, const Pointer &value) {
     return value;
 }
 
-Pointer Node::setChild(const QString &name, const Pointer &value) {
+Pointer Node::setChild(const QString &name, const Pointer &value, bool addOrSetMode) {
     CHILD_CHECK_POINTER(value);
     bool isDirect;
-    if(Pointer current = hasChild(name, true, false, &isDirect)) {
+    if(Pointer current = hasChild(name, !addOrSetMode, false, &isDirect)) {
         if(isDirect) {
             if(current == value) return value;
             current->_removeParent(this);
         }
-    } else CHILD_THROW(NotFoundException, "child not found");
+    } else if(!addOrSetMode) CHILD_THROW(NotFoundException, "child not found");
     _setChild(name, value);
     return value;
+}
+
+void Node::_setChild(const QString &name, const Pointer &value) {
+    if(!_children) _children = new QHash<QString, Pointer>;
+    _children->insert(name, value);
+    if(value) value->_addParent(this);
 }
 
 void Node::removeChild(const QString &name) {
@@ -129,27 +140,6 @@ Pointer Node::hasChild(const QString &name, bool searchInParents,
     return node;
 }
 
-QHash<QString, Pointer> Node::children() const {
-    QHash<QString, Pointer> children;
-    if(_children) {
-        QHashIterator<QString, Pointer> i(*_children);
-        while(i.hasNext()) if(i.next().value()) children.insert(i.key(), i.value());
-    }
-    return children;
-}
-
-QList<Pointer> Node::parents() const {
-    QList<Pointer> parents;
-    if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(parent);
-    return parents;
-}
-
-void Node::_setChild(const QString &name, const Pointer &value) {
-    if(!_children) _children = new QHash<QString, Pointer>;
-    _children->insert(name, value);
-    if(value) value->_addParent(this);
-}
-
 void Node::_addParent(const Node *parent) const {
     HugeUnsignedInteger count = 0;
     if(_parents)
@@ -168,6 +158,21 @@ void Node::_removeParent(const Node *parent) const {
         _parents->remove(parent);
     else
         CHILD_THROW(NotFoundException, "parent not found");
+}
+
+QHash<QString, Pointer> Node::children() const {
+    QHash<QString, Pointer> children;
+    if(_children) {
+        QHashIterator<QString, Pointer> i(*_children);
+        while(i.hasNext()) if(i.next().value()) children.insert(i.key(), i.value());
+    }
+    return children;
+}
+
+QList<Pointer> Node::parents() const {
+    QList<Pointer> parents;
+    if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(parent);
+    return parents;
 }
 
 Pointer Node::run(const Pointer &receiver, const MessagePointer &message) {
@@ -202,11 +207,7 @@ Pointer Node::defineOrAssign(const MessagePointer &message, bool isDefine) {
         value = CHILD_MESSAGE("Method", NULL, NULL, block)->run();
     else // rhs is not a block
         value = message->runSecondInput();
-    Pointer result;
-    if(isDefine)
-        result = context->addChild(msg->name(), value);
-    else
-        result = context->setChild(msg->name(), value);
+    Pointer result = context->setChild(msg->name(), value, isDefine);
     value->hasBeenAssigned(msg);
     return result;
 }
@@ -224,6 +225,24 @@ CHILD_NATIVE_METHOD_DEFINE(Node, and) {
 CHILD_NATIVE_METHOD_DEFINE(Node, not) {
     CHILD_CHECK_INPUT_SIZE(0);
     return CHILD_BOOLEAN(!toBool());
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, or_assign) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    Pointer lhs = message->runFirstInput();
+    if(!lhs->toBool())
+        return CHILD_MESSAGE("=", message->firstInput(), message->secondInput())->run();
+    else
+        return lhs;
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, and_assign) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    Pointer lhs = message->runFirstInput();
+    if(lhs->toBool())
+        return CHILD_MESSAGE("=", message->firstInput(), message->secondInput())->run();
+    else
+        return lhs;
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, equal_to) {

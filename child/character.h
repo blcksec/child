@@ -15,12 +15,12 @@ CHILD_POINTER_DECLARE(Character, Element);
 class Character : public GenericElement<CharacterPointer, QChar> {
     CHILD_DECLARE(Character, Element);
 public:
-    Character(const Pointer &origin, const QChar &value = QChar::Null) :
+    explicit Character(const Pointer &origin, const QChar &value = QChar::Null) :
         GenericElement<CharacterPointer, QChar>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Character", root());
-        CHILD_NATIVE_METHOD_SET(Character, equal_to, ==);
+        CHILD_NATIVE_METHOD_ADD(Character, equal_to, ==);
         CHILD_NATIVE_METHOD_ADD(Character, compare, <=>);
     }
 

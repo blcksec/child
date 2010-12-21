@@ -14,7 +14,7 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 template<class C, class K, class V>
 class GenericDictionary : public Object {
 public:
-    GenericDictionary(const Pointer &origin, const QHash<K, V> &other = (QHash<K, V>())) : Object(origin), _hash(NULL) {
+    explicit GenericDictionary(const Pointer &origin, const QHash<K, V> &other = (QHash<K, V>())) : Object(origin), _hash(NULL) {
         if(!other.isEmpty()) {
             QHashIterator<K, V> i(other);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()); }
@@ -109,7 +109,7 @@ CHILD_POINTER_DECLARE(Dictionary, Object);
 class Dictionary : public GenericDictionary<DictionaryPointer, Reference, Pointer> {
     CHILD_DECLARE(Dictionary, Object);
 public:
-    Dictionary(const Pointer &origin, const ReferenceHash &other = ReferenceHash()) :
+    explicit Dictionary(const Pointer &origin, const ReferenceHash &other = ReferenceHash()) :
         GenericDictionary<DictionaryPointer, Reference, Pointer>(origin, other) {}
 
     Dictionary(const Dictionary &other) :

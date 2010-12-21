@@ -11,7 +11,7 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 template<class C, class T>
 class GenericList : public Object {
 public:
-    GenericList(const Pointer &origin, const bool isBunched = false) :
+    explicit GenericList(const Pointer &origin, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) {}
 
     GenericList(const Pointer &origin, const T &value, const bool isBunched = false) :
@@ -197,7 +197,7 @@ CHILD_POINTER_DECLARE(List, Object);
 class List : public GenericList<ListPointer, Pointer> {
     CHILD_DECLARE(List, Object);
 public:
-    List(const Pointer &origin, const PointerList &other = PointerList()) :
+    explicit List(const Pointer &origin, const PointerList &other = PointerList()) :
         GenericList<ListPointer, Pointer>(origin, other) {}
 
     List(const Pointer &origin, const QList<Reference> &other) :

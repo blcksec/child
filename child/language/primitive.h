@@ -15,7 +15,7 @@ namespace Language {
     class Primitive : public Element {
         CHILD_DECLARE(Primitive, Element);
     public:
-        Primitive(const Pointer &origin, const Pointer &value = NULL, const QStringRef &sourceCodeRef = QStringRef()) :
+        explicit Primitive(const Pointer &origin, const Pointer &value = NULL, const QStringRef &sourceCodeRef = QStringRef()) :
             Element(origin, value), _sourceCodeRef(sourceCodeRef) {}
 
         static void initRoot() { Language::root()->addChild("Primitive", root()); }
