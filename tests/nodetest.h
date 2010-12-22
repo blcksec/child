@@ -24,6 +24,7 @@ private slots:
     void removeChild();
     void hasDirectChild();
     void hasChild();
+    void referenceCycling();
 };
 
 #include "tests/testend.h"

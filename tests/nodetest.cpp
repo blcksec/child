@@ -166,4 +166,11 @@ void NodeTest::hasChild() {
     QVERIFY(newNewWorld->hasChild("France"));
 }
 
+void NodeTest::referenceCycling() {
+    Pointer eric = CHILD_NODE();
+    Pointer marc = CHILD_NODE();
+    eric->addChild("brother", marc);
+    marc->addChild("brother", eric);
+}
+
 CHILD_END
