@@ -25,7 +25,7 @@ if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Pointer is NULL")
 typedef QList<Pointer> PointerList;
 typedef QHash<Reference, Pointer> ReferenceHash;
 
-class Node {
+class Node : public gc_cleanup {
 public:
     friend class GenericPointer<Node>;
 
@@ -34,7 +34,7 @@ public:
     explicit Node(const Pointer &origin) : _origin(origin), _extensions(NULL), // default constructor
         _children(NULL), _parents(NULL), _refCount(0) { nodeCount()++; }
 
-    Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
+    Node(const Node &other) : gc_cleanup(), _origin(other._origin), _extensions(NULL), // copy constructor
         _children(NULL), _parents(NULL), _refCount(0) {
         if(other._extensions) _extensions = new PointerList(*other._extensions);
         if(other._children) {
@@ -119,7 +119,6 @@ private:
     void _addParent(const Node *parent) const;
     void _removeParent(const Node *parent) const;
 public:
-
     QHash<QString, Pointer> children() const;
     PointerList parents() const;
 
@@ -128,37 +127,37 @@ public:
         return this;
     }
 
-    virtual Pointer run(const Pointer &receiver, const MessagePointer &message);
+//    virtual Pointer run(const Pointer &receiver, const MessagePointer &message);
 
-    CHILD_NATIVE_METHOD_DECLARE(fork);
-private:
-    Pointer defineOrAssign(const MessagePointer &message, bool isDefine);
-public:
-    CHILD_NATIVE_METHOD_DECLARE(define) { return(defineOrAssign(message, true)); }
-    CHILD_NATIVE_METHOD_DECLARE(assign) { return(defineOrAssign(message, false)); }
+//    CHILD_NATIVE_METHOD_DECLARE(fork);
+//private:
+//    Pointer defineOrAssign(const MessagePointer &message, bool isDefine);
+//public:
+//    CHILD_NATIVE_METHOD_DECLARE(define) { return(defineOrAssign(message, true)); }
+//    CHILD_NATIVE_METHOD_DECLARE(assign) { return(defineOrAssign(message, false)); }
 
-    virtual void hasBeenAssigned(const MessagePointer &message) const {
-        Q_UNUSED(message);
-    }
+//    virtual void hasBeenAssigned(const MessagePointer &message) const {
+//        Q_UNUSED(message);
+//    }
 
-    CHILD_NATIVE_METHOD_DECLARE(or);
-    CHILD_NATIVE_METHOD_DECLARE(and);
-    CHILD_NATIVE_METHOD_DECLARE(not);
+//    CHILD_NATIVE_METHOD_DECLARE(or);
+//    CHILD_NATIVE_METHOD_DECLARE(and);
+//    CHILD_NATIVE_METHOD_DECLARE(not);
 
-    CHILD_NATIVE_METHOD_DECLARE(or_assign);
-    CHILD_NATIVE_METHOD_DECLARE(and_assign);
+//    CHILD_NATIVE_METHOD_DECLARE(or_assign);
+//    CHILD_NATIVE_METHOD_DECLARE(and_assign);
 
     virtual bool isEqualTo(const Pointer &other) const { return this == other.data(); }
-    CHILD_NATIVE_METHOD_DECLARE(equal_to);
-    CHILD_NATIVE_METHOD_DECLARE(different_from);
+//    CHILD_NATIVE_METHOD_DECLARE(equal_to);
+//    CHILD_NATIVE_METHOD_DECLARE(different_from);
 
-    CHILD_NATIVE_METHOD_DECLARE(assert);
+//    CHILD_NATIVE_METHOD_DECLARE(assert);
 
     Pointer print() const { P(toString().toUtf8()); return this; }
-    CHILD_NATIVE_METHOD_DECLARE(print);
+//    CHILD_NATIVE_METHOD_DECLARE(print);
 
     Pointer inspect() const { P(toString(true).toUtf8()); return this; }
-    CHILD_NATIVE_METHOD_DECLARE(inspect);
+//    CHILD_NATIVE_METHOD_DECLARE(inspect);
 
     long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }

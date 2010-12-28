@@ -2,13 +2,13 @@
 
 #include "child/node.h"
 #include "child/exception.h"
-#include "child/nativemethod.h"
-#include "child/boolean.h"
-#include "child/message.h"
+//#include "child/nativemethod.h"
+//#include "child/boolean.h"
+//#include "child/message.h"
 
 CHILD_BEGIN
 
-using namespace Language;
+//using namespace Language;
 
 const bool Node::isInitialized = Node::root().isNotNull();
 
@@ -25,6 +25,7 @@ Node::~Node() {
 Pointer &Node::root() {
     static Pointer _root;
     if(!_root) {
+        GC_INIT();
         _root = new Node(NULL);
         empty(); // anticipate the _empty local static initialization
         initRoot();
@@ -34,22 +35,22 @@ Pointer &Node::root() {
 
 void Node::initRoot() {
     root()->addChild("Node", root());
-    CHILD_NATIVE_METHOD_ADD(Node, fork);
-    CHILD_NATIVE_METHOD_ADD(Node, define, :=);
-    CHILD_NATIVE_METHOD_ADD(Node, assign, =);
+//    CHILD_NATIVE_METHOD_ADD(Node, fork);
+//    CHILD_NATIVE_METHOD_ADD(Node, define, :=);
+//    CHILD_NATIVE_METHOD_ADD(Node, assign, =);
 
-    CHILD_NATIVE_METHOD_ADD(Node, or, ||);
-    CHILD_NATIVE_METHOD_ADD(Node, and, &&);
-    CHILD_NATIVE_METHOD_ADD(Node, not, !);
+//    CHILD_NATIVE_METHOD_ADD(Node, or, ||);
+//    CHILD_NATIVE_METHOD_ADD(Node, and, &&);
+//    CHILD_NATIVE_METHOD_ADD(Node, not, !);
 
-    CHILD_NATIVE_METHOD_ADD(Node, or_assign, ||=);
-    CHILD_NATIVE_METHOD_ADD(Node, and_assign, &&=);
+//    CHILD_NATIVE_METHOD_ADD(Node, or_assign, ||=);
+//    CHILD_NATIVE_METHOD_ADD(Node, and_assign, &&=);
 
-    CHILD_NATIVE_METHOD_ADD(Node, equal_to, ==);
-    CHILD_NATIVE_METHOD_ADD(Node, different_from, !=);
-    CHILD_NATIVE_METHOD_ADD(Node, assert, ?:);
-    CHILD_NATIVE_METHOD_ADD(Node, print);
-    CHILD_NATIVE_METHOD_ADD(Node, inspect);
+//    CHILD_NATIVE_METHOD_ADD(Node, equal_to, ==);
+//    CHILD_NATIVE_METHOD_ADD(Node, different_from, !=);
+//    CHILD_NATIVE_METHOD_ADD(Node, assert, ?:);
+//    CHILD_NATIVE_METHOD_ADD(Node, print);
+//    CHILD_NATIVE_METHOD_ADD(Node, inspect);
 }
 
 void Node::setOrigin(const Pointer &node) {
@@ -175,102 +176,102 @@ QList<Pointer> Node::parents() const {
     return parents;
 }
 
-Pointer Node::run(const Pointer &receiver, const MessagePointer &message) {
-    Q_UNUSED(receiver);
-    if(message->inputs(false) || message->outputs(false) || message->block()) {
-        MessagePointer forkMessage = message->fork();
-        forkMessage->setName("fork");
-        return forkMessage->run(this);
-    } else
-        return this;
-}
+//Pointer Node::run(const Pointer &receiver, const MessagePointer &message) {
+//    Q_UNUSED(receiver);
+//    if(message->inputs(false) || message->outputs(false) || message->block()) {
+//        MessagePointer forkMessage = message->fork();
+//        forkMessage->setName("fork");
+//        return forkMessage->run(this);
+//    } else
+//        return this;
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
-    Pointer node = fork();
-    if(node->hasChild("init")) {
-        MessagePointer init = message->fork();
-        init->setName("init");
-        init->run(node);
-    }
-    return node;
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
+//    Pointer node = fork();
+//    if(node->hasChild("init")) {
+//        MessagePointer init = message->fork();
+//        init->setName("init");
+//        init->run(node);
+//    }
+//    return node;
+//}
 
-Pointer Node::defineOrAssign(const MessagePointer &message, bool isDefine) {
-    CHILD_CHECK_INPUT_SIZE(2);
-    PrimitiveChainPointer chain = message->firstInput()->value();
-    Pointer context = chain->runExceptLast();
-    MessagePointer msg(chain->last()->value(), true);
-    if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
-    Pointer value;
-    BlockPointer block(message->secondInput()->value()->first()->value(), true);
-    if(block) // if rhs is a block, its a method definition shorthand
-        value = CHILD_MESSAGE("Method", NULL, NULL, block)->run();
-    else // rhs is not a block
-        value = message->runSecondInput();
-    Pointer result = context->setChild(msg->name(), value, isDefine);
-    value->hasBeenAssigned(msg);
-    return result;
-}
+//Pointer Node::defineOrAssign(const MessagePointer &message, bool isDefine) {
+//    CHILD_CHECK_INPUT_SIZE(2);
+//    PrimitiveChainPointer chain = message->firstInput()->value();
+//    Pointer context = chain->runExceptLast();
+//    MessagePointer msg(chain->last()->value(), true);
+//    if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
+//    Pointer value;
+//    BlockPointer block(message->secondInput()->value()->first()->value(), true);
+//    if(block) // if rhs is a block, its a method definition shorthand
+//        value = CHILD_MESSAGE("Method", NULL, NULL, block)->run();
+//    else // rhs is not a block
+//        value = message->runSecondInput();
+//    Pointer result = context->setChild(msg->name(), value, isDefine);
+//    value->hasBeenAssigned(msg);
+//    return result;
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, or) {
-    CHILD_CHECK_INPUT_SIZE(1);
-    return CHILD_BOOLEAN(toBool() || message->runFirstInput()->toBool());
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, or) {
+//    CHILD_CHECK_INPUT_SIZE(1);
+//    return CHILD_BOOLEAN(toBool() || message->runFirstInput()->toBool());
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, and) {
-    CHILD_CHECK_INPUT_SIZE(1);
-    return CHILD_BOOLEAN(toBool() && message->runFirstInput()->toBool());
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, and) {
+//    CHILD_CHECK_INPUT_SIZE(1);
+//    return CHILD_BOOLEAN(toBool() && message->runFirstInput()->toBool());
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, not) {
-    CHILD_CHECK_INPUT_SIZE(0);
-    return CHILD_BOOLEAN(!toBool());
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, not) {
+//    CHILD_CHECK_INPUT_SIZE(0);
+//    return CHILD_BOOLEAN(!toBool());
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, or_assign) {
-    CHILD_CHECK_INPUT_SIZE(2);
-    Pointer lhs = message->runFirstInput();
-    if(!lhs->toBool())
-        return CHILD_MESSAGE("=", message->firstInput(), message->secondInput())->run();
-    else
-        return lhs;
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, or_assign) {
+//    CHILD_CHECK_INPUT_SIZE(2);
+//    Pointer lhs = message->runFirstInput();
+//    if(!lhs->toBool())
+//        return CHILD_MESSAGE("=", message->firstInput(), message->secondInput())->run();
+//    else
+//        return lhs;
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, and_assign) {
-    CHILD_CHECK_INPUT_SIZE(2);
-    Pointer lhs = message->runFirstInput();
-    if(lhs->toBool())
-        return CHILD_MESSAGE("=", message->firstInput(), message->secondInput())->run();
-    else
-        return lhs;
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, and_assign) {
+//    CHILD_CHECK_INPUT_SIZE(2);
+//    Pointer lhs = message->runFirstInput();
+//    if(lhs->toBool())
+//        return CHILD_MESSAGE("=", message->firstInput(), message->secondInput())->run();
+//    else
+//        return lhs;
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, equal_to) {
-    CHILD_CHECK_INPUT_SIZE(1);
-    return CHILD_BOOLEAN(isEqualTo(message->runFirstInput()));
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, equal_to) {
+//    CHILD_CHECK_INPUT_SIZE(1);
+//    return CHILD_BOOLEAN(isEqualTo(message->runFirstInput()));
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, different_from) {
-    return CHILD_BOOLEAN(!BooleanPointer(CHILD_MESSAGE("==", message->inputs(false))->run(this))->value());
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, different_from) {
+//    return CHILD_BOOLEAN(!BooleanPointer(CHILD_MESSAGE("==", message->inputs(false))->run(this))->value());
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, assert) {
-    CHILD_CHECK_INPUT_SIZE(0);
-    if(toBool())
-        return this;
-    else
-        CHILD_THROW(AssertionException, "assertion failed");
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, assert) {
+//    CHILD_CHECK_INPUT_SIZE(0);
+//    if(toBool())
+//        return this;
+//    else
+//        CHILD_THROW(AssertionException, "assertion failed");
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, print) {
-    CHILD_CHECK_INPUT_SIZE(0);
-    return print();
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, print) {
+//    CHILD_CHECK_INPUT_SIZE(0);
+//    return print();
+//}
 
-CHILD_NATIVE_METHOD_DEFINE(Node, inspect) {
-    CHILD_CHECK_INPUT_SIZE(0);
-    return inspect();
-}
+//CHILD_NATIVE_METHOD_DEFINE(Node, inspect) {
+//    CHILD_CHECK_INPUT_SIZE(0);
+//    return inspect();
+//}
 
 QString Node::toString(bool debug, short level) const {
     Q_UNUSED(debug);

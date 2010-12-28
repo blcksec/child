@@ -5,33 +5,34 @@
 #include "child.h"
 #include "child/node.h"
 #include "child/exception.h"
-#include "tests/runalltests.h"
-#include "child/application.h"
+//#include "tests/runalltests.h"
+//#include "child/application.h"
 
 CHILD_USE
-using namespace Language;
+//using namespace Language;
 
 int main() { // int argc, char *argv[]
     init();
-    runAllTests();
-    #ifdef CHILD_CATCH_EXCEPTIONS
-    try {
-    #endif
-        ApplicationPointer app = Application::root();
-        Node::pushContext(app);
-        app->init();
-        SourceCodePointer source = app->loadSourceCode("../child/examples/test.child");
-        source->inspect();
-        P("--");
-        P("-> " + source->run()->toString(true));
-//        TextPointer t(CHILD_TEXT("hello"));
-//        ((*t).*NativeMethodPointer(t->child("print"))->method())(CHILD_ARGUMENT_BUNCH());
-        Node::popContext();
-    #ifdef CHILD_CATCH_EXCEPTIONS
-    } catch(ExceptionPointer e) {
-        qDebug() << e->report().toUtf8();
-    }
-    #endif
+    Node::root()->inspect();
+//    runAllTests();
+//    #ifdef CHILD_CATCH_EXCEPTIONS
+//    try {
+//    #endif
+//        ApplicationPointer app = Application::root();
+//        Node::pushContext(app);
+//        app->init();
+//        SourceCodePointer source = app->loadSourceCode("../child/examples/test.child");
+//        source->inspect();
+//        P("--");
+//        P("-> " + source->run()->toString(true));
+////        TextPointer t(CHILD_TEXT("hello"));
+////        ((*t).*NativeMethodPointer(t->child("print"))->method())(CHILD_ARGUMENT_BUNCH());
+//        Node::popContext();
+//    #ifdef CHILD_CATCH_EXCEPTIONS
+//    } catch(ExceptionPointer e) {
+//        qDebug() << e->report().toUtf8();
+//    }
+//    #endif
 //    NodeRef r2(t2);
 //    try {
 //        CHILD_THROW(LexerException, "key not found");
