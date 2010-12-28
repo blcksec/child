@@ -2,7 +2,7 @@
 
 #include "child/node.h"
 #include "child/exception.h"
-//#include "child/nativemethod.h"
+#include "child/nativemethod.h"
 //#include "child/boolean.h"
 //#include "child/message.h"
 
@@ -10,24 +10,22 @@ CHILD_BEGIN
 
 //using namespace Language;
 
-const bool Node::isInitialized = Node::root().isNotNull();
+const bool Node::isInitialized = Node::root();
 
 Node::~Node() {
     if(_extensions) delete _extensions;
     if(_children) {
-        foreach(Pointer child, *_children) if(child) child->_removeParent(this);
+        foreach(Node *child, *_children) if(child) child->_removeParent(this);
         delete _children;
     }
     if(_parents) delete _parents;
-    nodeCount()--;
 }
 
-Pointer &Node::root() {
-    static Pointer _root;
+Node *Node::root() {
+    static Node *_root = NULL;
     if(!_root) {
         GC_INIT();
         _root = new Node(NULL);
-        empty(); // anticipate the _empty local static initialization
         initRoot();
     }
     return _root;
@@ -53,26 +51,26 @@ void Node::initRoot() {
 //    CHILD_NATIVE_METHOD_ADD(Node, inspect);
 }
 
-void Node::setOrigin(const Pointer &node) {
+void Node::setOrigin(Node *node) {
     CHILD_CHECK_POINTER(node);
     _origin = node;
 }
 
-void Node::addExtension(const Pointer &node) {
+void Node::addExtension(Node *node) {
     CHILD_CHECK_POINTER(node);
-    if(!_extensions) { _extensions = new QList<Pointer>; }
+    if(!_extensions) { _extensions = new QList<Node *>; }
     if(hasExtension(node)) CHILD_THROW(DuplicateException, "cannot add an extension which is already there");
     _extensions->append(node);
 }
 
-void Node::prependExtension(const Pointer &node)  {
+void Node::prependExtension(Node *node)  {
     CHILD_CHECK_POINTER(node);
-    if(!_extensions) { _extensions = new QList<Pointer>; }
+    if(!_extensions) { _extensions = new QList<Node *>; }
     if(hasExtension(node)) CHILD_THROW(DuplicateException, "cannot add an extension which is already there");
     _extensions->prepend(node);
 }
 
-void Node::removeExtension(const Pointer &node)  {
+void Node::removeExtension(Node *node)  {
     CHILD_CHECK_POINTER(node);
     if(!hasExtension(node)) CHILD_THROW(NotFoundException, "cannot remove an extension which is not there");
     _extensions->removeOne(node);
@@ -82,27 +80,27 @@ void Node::removeAllExtensions() {
     _extensions->clear();
 }
 
-bool Node::hasExtension(const Pointer &node) const {
+bool Node::hasExtension(Node *node) const {
     CHILD_CHECK_POINTER(node); return _extensions && _extensions->contains(node);
 }
 
-Pointer Node::child(const QString &name) const {
-    Pointer node = hasChild(name);
+Node *Node::child(const QString &name) const {
+    Node *node = hasChild(name);
     if(!node) CHILD_THROW(NotFoundException, "child not found");
     return node;
 }
 
-Pointer Node::addChild(const QString &name, const Pointer &value) {
+Node *Node::addChild(const QString &name, Node *value) {
     CHILD_CHECK_POINTER(value);
     if(hasChild(name, false)) CHILD_THROW(DuplicateException, "child with same name is already there");
     _setChild(name, value);
     return value;
 }
 
-Pointer Node::setChild(const QString &name, const Pointer &value, bool addOrSetMode) {
+Node *Node::setChild(const QString &name, Node *value, bool addOrSetMode) {
     CHILD_CHECK_POINTER(value);
     bool isDirect;
-    if(Pointer current = hasChild(name, !addOrSetMode, false, &isDirect)) {
+    if(Node *current = hasChild(name, !addOrSetMode, false, &isDirect)) {
         if(isDirect) {
             if(current == value) return value;
             current->_removeParent(this);
@@ -112,45 +110,45 @@ Pointer Node::setChild(const QString &name, const Pointer &value, bool addOrSetM
     return value;
 }
 
-void Node::_setChild(const QString &name, const Pointer &value) {
-    if(!_children) _children = new QHash<QString, Pointer>;
+void Node::_setChild(const QString &name, Node *value) {
+    if(!_children) _children = new QHash<QString, Node *>;
     _children->insert(name, value);
     if(value) value->_addParent(this);
 }
 
 void Node::removeChild(const QString &name) {
     bool isDirect;
-    if(Pointer current = hasChild(name, true, false, &isDirect)) {
+    if(Node *current = hasChild(name, true, false, &isDirect)) {
         if(isDirect) current->_removeParent(this);
     } else CHILD_THROW(NotFoundException, "child not found");
     _setChild(name, NULL);
 }
 
-Pointer Node::hasChild(const QString &name, bool searchInParents,
-                             bool forkChildFoundInFirstOrigin, bool *isDirectPointer) const {
+Node *Node::hasChild(const QString &name, bool searchInParents,
+                             bool forkChildFoundInFirstOrigin, bool *isDirectPtr) const {
     bool isRemoved;
-    Pointer node = hasDirectChild(name, &isRemoved);
-    bool isDirect = !node.isNull() || isRemoved;
+    Node *node = hasDirectChild(name, &isRemoved);
+    bool isDirect = node || isRemoved;
     if(!isDirect)
         if(origin() && (node = origin()->hasChild(name, searchInParents)))
             if(forkChildFoundInFirstOrigin) {
                 node = node->fork();
-                const_cast<Node *>(this)->_setChild(name, node);
+                constCast(this)->_setChild(name, node);
             }
-    if(isDirectPointer) *isDirectPointer = isDirect;
+    if(isDirectPtr) *isDirectPtr = isDirect;
     return node;
 }
 
-void Node::_addParent(const Node *parent) const {
+void Node::_addParent(Node *parent) const {
     HugeUnsignedInteger count = 0;
     if(_parents)
         count = _parents->value(parent);
     else
-        _parents = new QHash<const Node *, HugeUnsignedInteger>;
+        _parents = new QHash<Node *, HugeUnsignedInteger>;
     _parents->insert(parent, count + 1);
 }
 
-void Node::_removeParent(const Node *parent) const {
+void Node::_removeParent(Node *parent) const {
     if(!_parents) CHILD_THROW(NotFoundException, "parent not found");
     HugeUnsignedInteger count = _parents->value(parent) - 1;
     if(count > 0)
@@ -161,25 +159,25 @@ void Node::_removeParent(const Node *parent) const {
         CHILD_THROW(NotFoundException, "parent not found");
 }
 
-QHash<QString, Pointer> Node::children() const {
-    QHash<QString, Pointer> children;
+QHash<QString, Node *> Node::children() const {
+    QHash<QString, Node *> children;
     if(_children) {
-        QHashIterator<QString, Pointer> i(*_children);
+        QHashIterator<QString, Node *> i(*_children);
         while(i.hasNext()) if(i.next().value()) children.insert(i.key(), i.value());
     }
     return children;
 }
 
-QList<Pointer> Node::parents() const {
-    QList<Pointer> parents;
-    if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(parent);
+QList<Node *> Node::parents() const {
+    QList<Node *> parents;
+    if(_parents) foreach(Node *parent, _parents->keys()) parents.append(parent);
     return parents;
 }
 
-//Pointer Node::run(const Pointer &receiver, const MessagePointer &message) {
+//Node *Node::run(Node *receiver, Message *message) {
 //    Q_UNUSED(receiver);
 //    if(message->inputs(false) || message->outputs(false) || message->block()) {
-//        MessagePointer forkMessage = message->fork();
+//        Message *forkMessage = message->fork();
 //        forkMessage->setName("fork");
 //        return forkMessage->run(this);
 //    } else
@@ -187,28 +185,28 @@ QList<Pointer> Node::parents() const {
 //}
 
 //CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
-//    Pointer node = fork();
+//    Node *node = fork();
 //    if(node->hasChild("init")) {
-//        MessagePointer init = message->fork();
+//        Message* init = message->fork();
 //        init->setName("init");
 //        init->run(node);
 //    }
 //    return node;
 //}
 
-//Pointer Node::defineOrAssign(const MessagePointer &message, bool isDefine) {
+//Node *Node::defineOrAssign(Message *message, bool isDefine) {
 //    CHILD_CHECK_INPUT_SIZE(2);
-//    PrimitiveChainPointer chain = message->firstInput()->value();
-//    Pointer context = chain->runExceptLast();
-//    MessagePointer msg(chain->last()->value(), true);
+//    PrimitiveChain *chain = message->firstInput()->value();
+//    Node *context = chain->runExceptLast();
+//    Message *msg(chain->last()->value(), true);
 //    if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
-//    Pointer value;
-//    BlockPointer block(message->secondInput()->value()->first()->value(), true);
+//    Node *value;
+//    Block *block(message->secondInput()->value()->first()->value(), true);
 //    if(block) // if rhs is a block, its a method definition shorthand
 //        value = CHILD_MESSAGE("Method", NULL, NULL, block)->run();
 //    else // rhs is not a block
 //        value = message->runSecondInput();
-//    Pointer result = context->setChild(msg->name(), value, isDefine);
+//    Node *result = context->setChild(msg->name(), value, isDefine);
 //    value->hasBeenAssigned(msg);
 //    return result;
 //}
@@ -230,7 +228,7 @@ QList<Pointer> Node::parents() const {
 
 //CHILD_NATIVE_METHOD_DEFINE(Node, or_assign) {
 //    CHILD_CHECK_INPUT_SIZE(2);
-//    Pointer lhs = message->runFirstInput();
+//    Node *lhs = message->runFirstInput();
 //    if(!lhs->toBool())
 //        return CHILD_MESSAGE("=", message->firstInput(), message->secondInput())->run();
 //    else
@@ -239,7 +237,7 @@ QList<Pointer> Node::parents() const {
 
 //CHILD_NATIVE_METHOD_DEFINE(Node, and_assign) {
 //    CHILD_CHECK_INPUT_SIZE(2);
-//    Pointer lhs = message->runFirstInput();
+//    Node *lhs = message->runFirstInput();
 //    if(lhs->toBool())
 //        return CHILD_MESSAGE("=", message->firstInput(), message->secondInput())->run();
 //    else
@@ -252,7 +250,7 @@ QList<Pointer> Node::parents() const {
 //}
 
 //CHILD_NATIVE_METHOD_DEFINE(Node, different_from) {
-//    return CHILD_BOOLEAN(!BooleanPointer(CHILD_MESSAGE("==", message->inputs(false))->run(this))->value());
+//    return CHILD_BOOLEAN(!Boolean::cast(CHILD_MESSAGE("==", message->inputs(false))->run(this))->value());
 //}
 
 //CHILD_NATIVE_METHOD_DEFINE(Node, assert) {

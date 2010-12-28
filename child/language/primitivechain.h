@@ -7,50 +7,45 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARE(PrimitiveChain, List);
-
     #define CHILD_PRIMITIVE_CHAIN(ARGS...) \
-    Language::PrimitiveChainPointer(new Language::PrimitiveChain( \
-        Node::context()->child("Object", "Language", "PrimitiveChain"), ##ARGS))
+    new Language::PrimitiveChain(Node::context()->child("Object", "Language", "PrimitiveChain"), ##ARGS)
 
-    class PrimitiveChain : public GenericList<PrimitiveChainPointer, PrimitivePointer> {
+    class PrimitiveChain : public GenericList<Primitive *> {
         CHILD_DECLARE(PrimitiveChain, List);
     public:
-        explicit PrimitiveChain(const Pointer &origin) :
-            GenericList<PrimitiveChainPointer, PrimitivePointer>(origin) {}
+        explicit PrimitiveChain(const Node *origin) :
+            GenericList<Primitive *>(origin) {}
 
-        PrimitiveChain(const Pointer &origin, const PrimitivePointer &primitive) :
-            GenericList<PrimitiveChainPointer, PrimitivePointer>(origin, primitive) {}
+        PrimitiveChain(const Node *origin, const Primitive *primitive) :
+            GenericList<Primitive *>(origin, primitive) {}
 
-        PrimitiveChain(const Pointer &origin, const Pointer &node) :
-            GenericList<PrimitiveChainPointer, PrimitivePointer>(origin, CHILD_PRIMITIVE(node)) {}
+        PrimitiveChain(const Node *origin, const Node *node) :
+            GenericList<Primitive *>(origin, CHILD_PRIMITIVE(node)) {}
 
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
-        virtual Pointer fork() const { return PrimitiveChainPointer(new PrimitiveChain(this))->initFork(); }
+        virtual Node *fork() const { return (new PrimitiveChain(this))->initFork(); }
 
-        virtual Pointer run(const Pointer &receiver = context()) {
-            Pointer result;
-            Pointer currentReceiver = receiver;
+        virtual Node *run(const Node *receiver = context()) {
+            Node *result = NULL;
+            Node *currentReceiver = receiver;
             Iterator i(this);
-            while(PrimitivePointer primitive = i.next()) {
+            while(Primitive *primitive = i.next()) {
                 result = primitive->run(currentReceiver);
                 currentReceiver = result;
             }
             return result;
         }
 
-        Pointer runExceptLast(const Pointer &receiver = context()) {
-            Pointer result = receiver;
+        Node *runExceptLast(const Node *receiver = context()) {
+            Node *result = receiver;
             Iterator i(this);
-            while(PrimitivePointer primitive = i.next())
+            while(Primitive *primitive = i.next())
                 if(i.hasNext()) result = primitive->run(result);
             return result;
         }
 
         virtual QString toString(bool debug = false, short level = 0) const { return join(" ", "", "", debug, level); }
     };
-
-    CHILD_POINTER_DEFINE(PrimitiveChain, List);
 }
 
 CHILD_END

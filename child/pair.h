@@ -8,7 +8,7 @@ CHILD_BEGIN
 template<class C, class T1, class T2>
 class GenericPair : public Object {
 public:
-    explicit GenericPair(const Pointer &origin, const T1 &first = NULL, const T2 &second = NULL) :
+    explicit GenericPair(const Node *origin, const T1 &first = NULL, const T2 &second = NULL) :
         Object(origin), _first(first), _second(second) {}
 
     T1 first() const { return _first; }
@@ -26,19 +26,17 @@ private:
     T2 _second;
 };
 
-CHILD_POINTER_DECLARE(Pair, Object);
+#define CHILD_PAIR(ARGS...) new Pair(Node::context()->child("Object", "Pair"), ##ARGS)
 
-#define CHILD_PAIR(ARGS...) PairPointer(new Pair(Node::context()->child("Object", "Pair"), ##ARGS))
-
-class Pair : public GenericPair<PairPointer, Pointer, Pointer> {
+class Pair : public GenericPair<Node *, Node *> {
     CHILD_DECLARE(Pair, Object);
 public:
-    explicit Pair(const Pointer &origin, const Pointer &first = NULL, const Pointer &second = NULL) :
-        GenericPair<PairPointer, Pointer, Pointer>(origin, first, second) {}
+    explicit Pair(const Node *origin, const Node *first = NULL, const Node *second = NULL) :
+        GenericPair<Node *, Node *>(origin, first, second) {}
 
     static void initRoot() { Object::root()->addChild("Pair", root()); }
 
-    virtual Pointer fork() const {
+    virtual Node *fork() const {
         return new Pair(this, forkIfNotNull(first()), forkIfNotNull(second()));
     }
 
@@ -46,8 +44,6 @@ public:
         return QString("%1: %2").arg(first()->toString(debug, level), second()->toString(debug, level));
     }
 };
-
-CHILD_POINTER_DEFINE(Pair, Object);
 
 CHILD_END
 

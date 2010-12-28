@@ -14,7 +14,7 @@ namespace Language {
         consume();
     }
 
-    TokenPointer Lexer::nextToken() {
+    Token *Lexer::nextToken() {
         while(true) {
             switch(_currentChar.toAscii()) {
             case '\'': return scanCharacter();
@@ -72,7 +72,7 @@ namespace Language {
         consume(); // Slash
     }
 
-    TokenPointer Lexer::scanName() {
+    Token *Lexer::scanName() {
         startToken();
         consume();
         while(_currentChar.isLetterOrNumber() || _currentChar == '_' || _currentChar == '!' || _currentChar == '?')
@@ -82,7 +82,7 @@ namespace Language {
         return finishToken(Token::Name);
     }
 
-    TokenPointer Lexer::scanOperator() {
+    Token *Lexer::scanOperator() {
         startToken();
         QString text(_currentChar);
         do {
@@ -92,7 +92,7 @@ namespace Language {
         return finishToken(Token::Operator);
     }
 
-    TokenPointer Lexer::scanNumber() {
+    Token *Lexer::scanNumber() {
         startToken();
         consume();
         short base = 10;
@@ -147,7 +147,7 @@ namespace Language {
         return finishToken(Token::Number);
     }
 
-    TokenPointer Lexer::scanCharacter() {
+    Token *Lexer::scanCharacter() {
         startToken();
         consume(); // left single quote
         if(isEof()) throw lexerException("unexpected EOF found in a character literal");
@@ -160,7 +160,7 @@ namespace Language {
         return finishToken(Token::Character);
     }
 
-    TokenPointer Lexer::scanText() {
+    Token *Lexer::scanText() {
         startToken();
         consume(); // left double quote
         while(_currentChar != '"') {
@@ -214,7 +214,7 @@ namespace Language {
         if(type != 'u' && code > 0xFF) throw lexerException("invalid number in escape sequence");
     }
 
-    LexerExceptionPointer Lexer::lexerException(QString message) const {
+    LexerException Lexer::lexerException(QString message) const {
         int column, line;
         computeColumnAndLineForPosition(source(), _position, column, line);
         QString text = extractLine(source(), line);
@@ -222,14 +222,14 @@ namespace Language {
             QString cursor = QString(" ").repeated(column - 1).append("^");
             message += "\n" + text + "\n" + cursor;
         }
-        return new LexerException(context()->child("LexerException"), message, resourceName(), line);
+        return LexerException(context()->child("LexerException"), message, resourceName(), line);
     }
 
     QString Lexer::toString(bool debug, short level) const {
         QString str;
         const_cast<Lexer *>(this)->rewind();
         while(true) {
-            TokenPointer token = const_cast<Lexer *>(this)->nextToken();
+            Token *token = const_cast<Lexer *>(this)->nextToken();
             if(token->type == Token::Eof) break;
             if(!str.isEmpty()) str += ", ";
             str += token->toString(debug, level);

@@ -5,15 +5,15 @@ CHILD_BEGIN
 
 CHILD_DEFINE(Block, List);
 
-SectionPointer Block::findSection(const QString &label) {
+Section *Block::findSection(const QString &label) {
     Iterator i(this);
-    while(SectionPointer section = i.next()) {
+    while(Section *section = i.next()) {
         if(section->label() && section->label()->size() == 1) {
-            MessagePointer message(section->label()->first()->value(), true);
+            Message *message(section->label()->first()->value(), true);
             if(message && message->name() == label) return section;
         }
     }
-    return SectionPointer::null();
+    return NULL;
 }
 
 CHILD_END

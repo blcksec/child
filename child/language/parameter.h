@@ -8,31 +8,29 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARE(Parameter, Pair);
-
     #define CHILD_PARAMETER(ARGS...) \
-    Language::ParameterPointer(new Language::Parameter(Node::context()->child("Object", "Language", "Parameter"), ##ARGS))
+    new Language::Parameter(Node::context()->child("Object", "Language", "Parameter"), ##ARGS)
 
-    class Parameter : public GenericPair<ParameterPointer, QString, PrimitiveChainPointer> {
+    class Parameter : public GenericPair<QString, PrimitiveChain *> {
         CHILD_DECLARE(Parameter, Pair);
     public:
-        explicit Parameter(const Pointer &origin, const QString &label = NULL,
-                  const PrimitiveChainPointer &defaultValue = NULL) :
-            GenericPair<ParameterPointer, QString, PrimitiveChainPointer>(origin, label, defaultValue) {}
+        explicit Parameter(const Node *origin, const QString &label = NULL,
+                  const PrimitiveChain *defaultValue = NULL) :
+            GenericPair<QString, PrimitiveChain *>(origin, label, defaultValue) {}
 
         static void initRoot() { Language::root()->addChild("Parameter", root()); }
 
-        virtual Pointer fork() const {
+        virtual Node *fork() const {
             return new Parameter(this, label(), forkIfNotNull(defaultValue()));
         }
 
         // aliases...
         QString label() const { return key(); }
         void setLabel(const QString &label) { setKey(label); }
-        PrimitiveChainPointer defaultValue() const { return value(); }
-        void setDefaultValue(const PrimitiveChainPointer &defaultValue) { setValue(defaultValue); }
+        PrimitiveChain *defaultValue() const { return value(); }
+        void setDefaultValue(const PrimitiveChain *defaultValue) { setValue(defaultValue); }
 
-        virtual Pointer run(const Pointer &receiver = context()) {
+        virtual Node *run(const Node *receiver = context()) {
             return defaultValue()->run(receiver);
         }
 
@@ -50,24 +48,23 @@ namespace Language {
     CHILD_POINTER_DECLARE(ParameterList, List);
 
     #define CHILD_PARAMETER_LIST(ARGS...) \
-    Language::ParameterListPointer(new Language::ParameterList( \
-        Node::context()->child("Object", "Language", "ParameterList"), ##ARGS))
+    new Language::ParameterList(Node::context()->child("Object", "Language", "ParameterList"), ##ARGS)
 
-    class ParameterList : public GenericList<ParameterListPointer, ParameterPointer> {
+    class ParameterList : public GenericList<Parameter *> {
         CHILD_DECLARE(ParameterList, List);
     public:
-        explicit ParameterList(const Pointer &origin) : GenericList<ParameterListPointer, ParameterPointer>(origin) {}
+        explicit ParameterList(const Node *origin) : GenericList<Parameter *>(origin) {}
 
         static void initRoot() { Language::root()->addChild("ParameterList", root()); }
-        virtual Pointer fork() const { return ParameterListPointer(new ParameterList(this))->initFork(); }
+        virtual Node *fork() const { return (new ParameterList(this))->initFork(); }
 
-        QHash<QString, ParameterPointer> labels() { return _labels; }
-        ParameterPointer hasLabel(const QString &label) { return _labels.value(label); }
+        QHash<QString, Parameter *> labels() { return _labels; }
+        Parameter *hasLabel(const QString &label) { return _labels.value(label); }
 
         virtual void hasChanged() {
             _labels.clear();
             Iterator i(this);
-            while(ParameterPointer parameter = i.next()) {
+            while(Parameter *parameter = i.next()) {
                 if(_labels.contains(parameter->label()))
                     CHILD_THROW(DuplicateException, "duplicated label found in parameter list");
                 _labels.insert(parameter->label(), parameter);
@@ -76,10 +73,8 @@ namespace Language {
 
         virtual QString toString(bool debug = false, short level = 0) const { return join(", ", "", "", debug, level); }
     private:
-        QHash<QString, ParameterPointer> _labels;
+        QHash<QString, Parameter *> _labels;
     };
-
-    CHILD_POINTER_DEFINE(ParameterList, List);
 }
 
 CHILD_END

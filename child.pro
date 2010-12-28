@@ -20,11 +20,11 @@ SOURCES += main.cpp \
     child.cpp \
     child/global.cpp \
     child/node.cpp \
-#    tests/nodetest.cpp \
-    child/exception.cpp
-#    child/nativemethod.cpp \
-#    child/object.cpp \
-#    tests/objecttest.cpp \
+    child/exception.cpp \
+    tests/nodetest.cpp \
+    child/nativemethod.cpp \
+    child/object.cpp \
+    tests/objecttest.cpp \
 #    child/element.cpp \
 #    child/boolean.cpp \
 #    child/number.cpp \
@@ -48,24 +48,24 @@ SOURCES += main.cpp \
 #    child/language/primitive.cpp \
 #    child/language/primitivechain.cpp \
 #    child/language/argument.cpp \
+#    child/language/parameter.cpp \
 #    child/language/section.cpp \
 #    child/language/sourcecode.cpp \
 #    child/language/lexer.cpp \
-#    child/language/parser.cpp \
-#    child/envelope.cpp \
-#    child/language/parameter.cpp
+#    child/language/parser.cpp
 
 HEADERS += \
     child.h \
     child/global.h \
-#    child/pointer.h \
     child/node.h \
-#    tests/nodetest.h \
-    child/exception.h
-#    tests/runalltests.h \
-#    child/nativemethod.h \
-#    child/object.h \
-#    tests/objecttest.h \
+    child/exception.h \
+    tests/testbegin.h \
+    tests/testend.h \
+    tests/runalltests.h \
+    tests/nodetest.h \
+    child/nativemethod.h \
+    child/object.h \
+    tests/objecttest.h \
 #    child/element.h \
 #    child/boolean.h \
 #    child/number.h \
@@ -89,14 +89,11 @@ HEADERS += \
 #    child/language/primitive.h \
 #    child/language/primitivechain.h \
 #    child/language/argument.h \
+#    child/language/parameter.h \
 #    child/language/section.h \
 #    child/language/sourcecode.h \
 #    child/language/lexer.h \
-#    child/language/parser.h \
-#    tests/testbegin.h \
-#    tests/testend.h \
-#    child/envelope.h \
-#    child/language/parameter.h
+#    child/language/parser.h
 
 OTHER_FILES += \
     notes/ideas.txt \

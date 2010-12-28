@@ -3,9 +3,9 @@
 CHILD_BEGIN
 
 namespace Language {
-    ObjectPointer &root() {
+    Object *root() {
         Q_UNUSED(isInitialized);
-        static ObjectPointer _root;
+        static Object *_root = NULL;
         if(!_root) {
             _root = Object::root()->fork();
             Object::root()->addChild("Language", _root);

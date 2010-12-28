@@ -8,15 +8,13 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARE(Character, Element);
+#define CHILD_CHARACTER(ARGS...) new Character(Node::context()->child("Object", "Character"), ##ARGS)
 
-#define CHILD_CHARACTER(ARGS...) CharacterPointer(new Character(Node::context()->child("Object", "Character"), ##ARGS))
-
-class Character : public GenericElement<CharacterPointer, QChar> {
+class Character : public GenericElement<QChar> {
     CHILD_DECLARE(Character, Element);
 public:
-    explicit Character(const Pointer &origin, const QChar &value = QChar::Null) :
-        GenericElement<CharacterPointer, QChar>(origin, value) {}
+    explicit Character(const Node *origin, const QChar &value = QChar::Null) :
+        GenericElement<QChar>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Character", root());
@@ -24,10 +22,10 @@ public:
         CHILD_NATIVE_METHOD_ADD(Character, compare, <=>);
     }
 
-    virtual Pointer fork() const { return new Character(this, value()); }
+    virtual Node *fork() const { return new Character(this, value()); }
 
-    virtual bool isEqualTo(const Pointer &other) const {
-        return value() == CharacterPointer(other)->value();
+    virtual bool isEqualTo(const Node *other) const {
+        return value() == cast(other)->value();
     }
 
     CHILD_NATIVE_METHOD_DECLARE(equal_to) {
@@ -35,8 +33,8 @@ public:
         return CHILD_BOOLEAN(value() == message->runFirstInput()->toChar());
     }
 
-    virtual short compare(const Pointer &other) const {
-        return compare(CharacterPointer(other)->value());
+    virtual short compare(const Node *other) const {
+        return compare(cast(other)->value());
     }
 
     short compare(const QChar &other) const {
@@ -59,8 +57,6 @@ public:
         return debug ? ("'" + QString(value()) + "'") : value();
     }
 };
-
-CHILD_POINTER_DEFINE(Character, Element);
 
 CHILD_END
 

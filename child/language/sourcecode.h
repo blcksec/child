@@ -9,16 +9,14 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARE(SourceCode, Object);
-
     #define CHILD_SOURCE_CODE(ARGS...) \
-    Language::SourceCodePointer(new Language::SourceCode(Node::context()->child("Object", "Language", "SourceCode"), ##ARGS))
+    new Language::SourceCode(Node::context()->child("Object", "Language", "SourceCode"), ##ARGS)
 
     class SourceCode : public Object {
         CHILD_DECLARE(SourceCode, Object);
     public:
-        explicit SourceCode(const Pointer &origin, const QString &url = "",
-                   const QString &txt = "", const BlockPointer &block = NULL) :
+        explicit SourceCode(const Node *origin, const QString &url = "",
+                   const QString &txt = "", const Block *block = NULL) :
             Object(origin), _url(url), _text(txt), _block(block) {
             if(!url.isEmpty() && txt.isEmpty()) load();
             if(!text().isEmpty() && block.isNull()) parse();
@@ -26,7 +24,7 @@ namespace Language {
 
         static void initRoot() { Language::root()->addChild("SourceCode", root()); }
 
-        virtual Pointer fork() const {
+        virtual Node *fork() const {
             return new SourceCode(this, url(), text(), block() ? block()->fork() : block());
         }
 
@@ -36,8 +34,8 @@ namespace Language {
         const QString &text() const { return _text; }
         void setText(const QString &text) { _text = text; }
 
-        BlockPointer block() const { return _block; }
-        void setBlock(const BlockPointer &block) { _block = block; }
+        Block *block() const { return _block; }
+        void setBlock(const Block *block) { _block = block; }
 
         void load(const QString &newUrl = "") {
             if(!newUrl.isEmpty()) setUrl(newUrl);
@@ -47,15 +45,15 @@ namespace Language {
 
         void parse(const QString &newText = "") {
             if(!newText.isEmpty()) setText(newText);
-            ParserPointer parser = context()->child("parser");
+            Parser *parser = context()->child("parser");
             setBlock(parser->parse(text(), url()));
         }
 
-        virtual Pointer run(const Pointer &receiver = context()) {
+        virtual Node *run(const Node *receiver = context()) {
             #ifdef CHILD_CATCH_EXCEPTIONS
             try {
             #endif
-                return block() ? block()->run(receiver) : Pointer::null();
+                return block() ? block()->run(receiver) : NULL;
             #ifdef CHILD_CATCH_EXCEPTIONS
             } catch(ExceptionPointer e) {
                 e->file = _url;
@@ -73,30 +71,23 @@ namespace Language {
     private:
         QString _url;
         QString _text;
-        BlockPointer _block;
+        Block *_block;
     };
-
-    CHILD_POINTER_DEFINE(SourceCode, Object);
 
     // === SourceCodeDictionary ===
 
-    CHILD_POINTER_DECLARE(SourceCodeDictionary, Dictionary);
-
     #define CHILD_SOURCE_CODE_DICTIONARY(ARGS...) \
-    Language::SourceCodeDictionaryPointer(new Language::SourceCodeDictionary( \
-        Node::context()->child("Object", "Language", "SourceCodeDictionary"), ##ARGS))
+    new Language::SourceCodeDictionary(Node::context()->child("Object", "Language", "SourceCodeDictionary"), ##ARGS)
 
-    class SourceCodeDictionary : public GenericDictionary<SourceCodeDictionaryPointer, Reference, SourceCodePointer> {
+    class SourceCodeDictionary : public GenericDictionary<Reference, SourceCode *> {
         CHILD_DECLARE(SourceCodeDictionary, Dictionary);
     public:
-        SourceCodeDictionary(const Pointer &origin) :
-            GenericDictionary<SourceCodeDictionaryPointer, Reference, SourceCodePointer>(origin) {}
+        SourceCodeDictionary(const Node *origin) :
+            GenericDictionary<Reference, SourceCode *>(origin) {}
 
         static void initRoot() { Language::root()->addChild("SourceCodeDictionary", root()); }
-        virtual Pointer fork() const { return SourceCodeDictionaryPointer(new SourceCodeDictionary(this))->initFork(); };
+        virtual Node *fork() const { return (new SourceCodeDictionary(this))->initFork(); };
     };
-
-    CHILD_POINTER_DEFINE(SourceCodeDictionary, Dictionary);
 }
 
 CHILD_END

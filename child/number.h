@@ -9,14 +9,12 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARE(Number, Element);
+#define CHILD_NUMBER(ARGS...) new Number(Node::context()->child("Object", "Number"), ##ARGS)
 
-#define CHILD_NUMBER(ARGS...) NumberPointer(new Number(Node::context()->child("Object", "Number"), ##ARGS))
-
-class Number : public GenericElement<NumberPointer, double> {
+class Number : public GenericElement<double> {
     CHILD_DECLARE(Number, Element);
 public:
-    explicit Number(const Pointer &origin, const double value = 0) : GenericElement<NumberPointer, double>(origin, value) {}
+    explicit Number(const Node *origin, const double value = 0) : GenericElement<double>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Number", root());
@@ -36,7 +34,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Number, compare, <=>);
     }
 
-    virtual Pointer fork() const { return new Number(this, value()); }
+    virtual Node *fork() const { return new Number(this, value()); }
 
     CHILD_NATIVE_METHOD_DECLARE(add) {
         CHILD_CHECK_INPUT_SIZE(1);
@@ -85,8 +83,8 @@ public:
         return this;
     }
 
-    virtual bool isEqualTo(const Pointer &other) const {
-        return value() == NumberPointer(other)->value();
+    virtual bool isEqualTo(const Node *other) const {
+        return value() == Number::cast(other)->value();
     }
 
     CHILD_NATIVE_METHOD_DECLARE(equal_to) {
@@ -94,8 +92,8 @@ public:
         return CHILD_BOOLEAN(value() == message->runFirstInput()->toDouble());
     }
 
-    virtual short compare(const Pointer &other) const {
-        return compare(NumberPointer(other)->value());
+    virtual short compare(const Node *other) const {
+        return compare(Number::cast(other)->value());
     }
 
     short compare(const double &other) const {
@@ -119,8 +117,6 @@ public:
         return QString("%1").arg(value());
     }
 };
-
-CHILD_POINTER_DEFINE(Number, Element);
 
 CHILD_END
 

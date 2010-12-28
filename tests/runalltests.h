@@ -3,9 +3,9 @@
 
 #include "tests/nodetest.h"
 #include "tests/objecttest.h"
-#include "tests/texttest.h"
-#include "tests/listtest.h"
-#include "tests/dictionarytest.h"
+//#include "tests/texttest.h"
+//#include "tests/listtest.h"
+//#include "tests/dictionarytest.h"
 
 CHILD_BEGIN
 
@@ -33,12 +33,12 @@ static void runAllTests() {
         beginTests();
         test(new NodeTest);
         test(new ObjectTest);
-        test(new TextTest);
-        test(new ListTest);
-        test(new DictionaryTest);
+//        test(new TextTest);
+//        test(new ListTest);
+//        test(new DictionaryTest);
         endTests();
-    } catch(ExceptionPointer e) {
-        qDebug() << e->report().toUtf8();
+    } catch(const Exception &e) {
+        qDebug() << e.report().toUtf8();
     }
 }
 

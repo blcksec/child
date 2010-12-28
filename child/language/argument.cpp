@@ -9,7 +9,7 @@ namespace Language {
 
     QString Argument::labelName() const {
         if(label()->size() != 1) CHILD_THROW(ArgumentException, "illegal parameter label");
-        MessagePointer labelMessage(label()->first()->value(), true);
+        Message *labelMessage = Message::dynamicCast(label()->first()->value());
         if(!labelMessage) CHILD_THROW(ArgumentException, "illegal parameter label");
         return labelMessage->name();
     }

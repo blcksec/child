@@ -10,18 +10,17 @@ CHILD_BEGIN
 
 using namespace Language;
 
-CHILD_POINTER_DECLARE(Application, Object);
-
 #define CHILD_APPLICATION(ARGS...) \
-ApplicationPointer(new Application(Node::context()->child("Object", "Application"), ##ARGS))
+new Application(Node::context()->child("Object", "Application"), ##ARGS)
 
 class Application : public Object {
     CHILD_DECLARE(Application, Object);
 public:
-    explicit Application(const Pointer &origin) : Object(origin) {}
+    explicit Application(const Node *origin) :
+        Object(origin), _sourceCodes(NULL), _operatorTable(NULL), _lexer(NULL), _parser(NULL) {}
 
     static void initRoot() { Object::root()->addChild("Application", root()); }
-    virtual Pointer fork() const { CHILD_TODO; return new Application(this); }
+    virtual Node *fork() const { CHILD_TODO; return new Application(this); }
 
     void init() {
         _sourceCodes = CHILD_SOURCE_CODE_DICTIONARY();
@@ -34,14 +33,14 @@ public:
 
     void initOperatorTable();
 
-    SourceCodeDictionaryPointer sourceCodes() const { return _sourceCodes; }
-    OperatorTablePointer operatorTable() const { return _operatorTable; }
-    LexerPointer lexer() const { return _lexer; }
-    ParserPointer parser() const { return _parser; }
+    SourceCodeDictionary *sourceCodes() const { return _sourceCodes; }
+    OperatorTable *operatorTable() const { return _operatorTable; }
+    Lexer *lexer() const { return _lexer; }
+    Parser *parser() const { return _parser; }
 
-    SourceCodePointer loadSourceCode(QString url) {
+    SourceCode *loadSourceCode(QString url) {
         url = QFileInfo(url).absoluteFilePath();
-        SourceCodePointer source;
+        SourceCode *source;
         if(!(source = sourceCodeIsAlreadyLoaded(url))) {
             source = CHILD_SOURCE_CODE(url);
             sourceCodes()->set(CHILD_TEXT(url), source);
@@ -49,18 +48,16 @@ public:
         return source;
     }
 
-    SourceCodePointer sourceCodeIsAlreadyLoaded(QString url) {
+    SourceCode *sourceCodeIsAlreadyLoaded(QString url) {
         url = QFileInfo(url).absoluteFilePath();
         return sourceCodes()->hasKey(CHILD_TEXT(url));
     }
 private:
-    SourceCodeDictionaryPointer _sourceCodes;
-    OperatorTablePointer _operatorTable;
-    LexerPointer _lexer;
-    ParserPointer _parser;
+    SourceCodeDictionary *_sourceCodes;
+    OperatorTable *_operatorTable;
+    Lexer *_lexer;
+    Parser *_parser;
 };
-
-CHILD_POINTER_DEFINE(Application, Object);
 
 CHILD_END
 

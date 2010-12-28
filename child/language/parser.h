@@ -12,24 +12,22 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARE(Parser, Object);
-
     #define CHILD_PARSER(ARGS...) \
-    Language::ParserPointer(new Language::Parser(Node::context()->child("Object", "Language", "Parser"), ##ARGS))
+    new Language::Parser(Node::context()->child("Object", "Language", "Parser"), ##ARGS)
 
     class Parser : public Object {
         CHILD_DECLARE(Parser, Object);
     public:
-        explicit Parser(const Pointer &origin) : Object(origin) {}
+        explicit Parser(const Node *origin) : Object(origin), _lexer(NULL), _currentToken(NULL) {}
         static void initRoot() { Language::root()->addChild("Parser", root()); }
-        virtual Pointer fork() const { return new Parser(this); } // TODO
+        virtual Node *fork() const { return new Parser(this); } // TODO
 
-        LexerPointer lexer() const {
+        Lexer *lexer() const {
             if(!_lexer) const_cast<Parser *>(this)->_lexer = context()->child("lexer");
             return _lexer;
         }
 
-        BlockPointer parse(const QString &source, const QString &resourceUrl = "") {
+        Block *parse(const QString &source, const QString &resourceUrl = "") {
             lexer()->setSource(source);
             lexer()->setResourceUrl(resourceUrl);
             clearOpenedTokens();
@@ -37,7 +35,7 @@ namespace Language {
             return scanBlock();
         }
 
-        const TokenPointer token() const { return _currentToken; }
+        const Token *token() const { return _currentToken; }
         const Token::Type tokenType() const { return _currentToken->type; }
         const QString tokenTypeName() const { return _currentToken->typeName(); }
         const QString tokenText() const { return _currentToken->text(); }
@@ -76,13 +74,13 @@ namespace Language {
                do consume(); while(is(Token::Newline));
         }
 
-        BlockPointer scanBlock(const Token::Type terminator = Token::Eof) {
-            BlockPointer block = CHILD_BLOCK();
-            SectionPointer section;
+        Block *scanBlock(const Token::Type terminator = Token::Eof) {
+            Block *block = CHILD_BLOCK();
+            Section *section = NULL;
             consumeNewline();
             while(!is(terminator)) {
-                PrimitiveChainPointer expression = scanExpression();
-                if(PairPointer pair = PairPointer(expression->first()->value(), true)) {
+                PrimitiveChain *expression = scanExpression();
+                if(Pair *pair = Pair::dynamicCast(expression->first()->value())) {
                     section = CHILD_SECTION();
                     section->setLabel(pair->first());
                     expression = pair->second();
@@ -100,16 +98,16 @@ namespace Language {
             return block;
         }
 
-        PrimitiveChainPointer scanExpression() {
-            PrimitiveChainPointer primitiveChain = scanUnaryExpressionChain();
+        PrimitiveChain *scanExpression() {
+            PrimitiveChain *primitiveChain = scanUnaryExpressionChain();
             if(primitiveChain->isEmpty()) throw parserException("expecting UnaryExpression, found " + tokenTypeName());
-            if(OperatorPointer op = isBinaryOperator())
+            if(Operator *op = isBinaryOperator())
                 return scanBinaryOperator(primitiveChain, op, 0);
             return primitiveChain;
         }
 
-        PrimitiveChainPointer scanUnaryExpressionChain() {
-            PrimitiveChainPointer primitiveChain = CHILD_PRIMITIVE_CHAIN();
+        PrimitiveChain *scanUnaryExpressionChain() {
+            PrimitiveChain *primitiveChain = CHILD_PRIMITIVE_CHAIN();
             while(isUnaryExpression()) {
                 scanUnaryExpression(primitiveChain);
                 if(isBinaryOperator()) break;
@@ -119,8 +117,8 @@ namespace Language {
 
         const bool isUnaryExpression() const { return isPrefixOperator() || isPrimaryExpression(); }
 
-        void scanUnaryExpression(PrimitiveChainPointer &primitiveChain) {
-            if(OperatorPointer op = isPrefixOperator())
+        void scanUnaryExpression(PrimitiveChain *primitiveChain) {
+            if(Operator *op = isPrefixOperator())
                 scanPrefixOperator(primitiveChain, op);
             else
                 scanPrimaryExpression(primitiveChain);
@@ -128,15 +126,15 @@ namespace Language {
 
         const bool isPrimaryExpression() const { return isOperand(); }
 
-        void scanPrimaryExpression(PrimitiveChainPointer &primitiveChain) {
+        void scanPrimaryExpression(PrimitiveChain *primitiveChain) {
             primitiveChain->append(scanOperand());
-            while(OperatorPointer op = isPostfixOperator())
+            while(Operator *op = isPostfixOperator())
                 primitiveChain->append(scanPostfixOperator(op));
         }
 
         const bool isOperand() const { return isName() || isLiteral() || isSubexpression() || isNestedBlock(); }
 
-        PrimitivePointer scanOperand() {
+        Primitive *scanOperand() {
             if(isName()) {
                 return scanName();
             } else if(isLiteral()) {
@@ -151,9 +149,9 @@ namespace Language {
 
         const bool isName() const { return is(Token::Name); }
 
-        PrimitivePointer scanName() {
-            MessagePointer message = CHILD_MESSAGE(tokenText());
-            PrimitivePointer primitive = CHILD_PRIMITIVE(message);
+        Primitive *scanName() {
+            Message *message = CHILD_MESSAGE(tokenText());
+            Primitive *primitive = CHILD_PRIMITIVE(message);
             int begin = token()->sourceCodeRef.position();
             consume();
             if(is(Token::LeftParenthesis)) {
@@ -161,7 +159,7 @@ namespace Language {
                 consume();
                 consumeNewline();
                 if(!is(Token::RightParenthesis)) {
-                    PrimitiveChainPointer chain = scanExpression();
+                    PrimitiveChain *chain = scanExpression();
                     message->inputs()->append(chain);
                 }
                 closeToken();
@@ -180,8 +178,8 @@ namespace Language {
                    type == Token::Character || type == Token::Text);
         }
 
-        PrimitivePointer scanLiteral() {
-            Pointer value;
+        Primitive *scanLiteral() {
+            Node *value;
             QChar c;
             QString s;
             switch(tokenType()) {
@@ -202,7 +200,7 @@ namespace Language {
             default:
                 throw parserException("unimplemented token");
             }
-            PrimitivePointer primitive = CHILD_PRIMITIVE(value, token()->sourceCodeRef);
+            Primitive *primitive = CHILD_PRIMITIVE(value, token()->sourceCodeRef);
             consume();
             consumeUselessNewline();
             return primitive;
@@ -210,8 +208,8 @@ namespace Language {
 
         const bool isSubexpression() const { return is(Token::LeftParenthesis); }
 
-        PrimitivePointer scanSubexpression() {
-            PrimitivePointer primitive = CHILD_PRIMITIVE();
+        Primitive *scanSubexpression() {
+            Primitive *primitive = CHILD_PRIMITIVE();
             int begin = token()->sourceCodeRef.position();
             openToken();
             consume(); // Left parenthesis
@@ -226,8 +224,8 @@ namespace Language {
 
         const bool isNestedBlock() const { return is(Token::LeftBrace); }
 
-        PrimitivePointer scanNestedBlock() {
-            PrimitivePointer primitive = CHILD_PRIMITIVE();
+        Primitive *scanNestedBlock() {
+            Primitive *primitive = CHILD_PRIMITIVE();
             int begin = token()->sourceCodeRef.position();
             openToken();
             consume(); // Left brace
@@ -240,19 +238,19 @@ namespace Language {
             return primitive;
         }
 
-        OperatorPointer isOperator(Operator::Type type) const {
+        Operator *isOperator(Operator::Type type) const {
             if(!is(Token::Operator)) return NULL;
             return lexer()->operatorTable()->has(tokenText(), type);
         }
 
-        OperatorPointer isPrefixOperator() const { return isOperator(Operator::Prefix); }
+        Operator *isPrefixOperator() const { return isOperator(Operator::Prefix); }
 
-        void scanPrefixOperator(PrimitiveChainPointer &primitiveChain, OperatorPointer &currentOp) {
-            MessagePointer message = CHILD_MESSAGE(currentOp->name);
-            PrimitivePointer primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
+        void scanPrefixOperator(PrimitiveChain *primitiveChain, Operator *currentOp) {
+            Message *message = CHILD_MESSAGE(currentOp->name);
+            Primitive *primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
             consume();
             consumeNewline();
-            PrimitiveChainPointer chain;
+            PrimitiveChain *chain;
             if(currentOp->isSpecial) {
                 if(currentOp->name == "?:")
                     chain = scanExpression();
@@ -266,25 +264,25 @@ namespace Language {
             primitiveChain->append(primitive);
         }
 
-        OperatorPointer isPostfixOperator() const { return isOperator(Operator::Postfix); }
+        Operator *isPostfixOperator() const { return isOperator(Operator::Postfix); }
 
-        PrimitivePointer scanPostfixOperator(OperatorPointer &currentOp) {
-            PrimitivePointer primitive = CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), token()->sourceCodeRef);
+        Primitive *scanPostfixOperator(Operator *currentOp) {
+            Primitive *primitive = CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), token()->sourceCodeRef);
             consume();
             consumeUselessNewline();
             return primitive;
         }
 
-        OperatorPointer isBinaryOperator() const { return isOperator(Operator::Binary); }
+        Operator *isBinaryOperator() const { return isOperator(Operator::Binary); }
 
-        PrimitiveChainPointer scanBinaryOperator(PrimitiveChainPointer lhs, OperatorPointer &currentOp,
+        PrimitiveChain *scanBinaryOperator(PrimitiveChain *lhs, Operator *currentOp,
                                                  const short minPrecedence) {
             do {
                 QStringRef sourceCodeRef = token()->sourceCodeRef;
                 consume();
                 if(currentOp->name != ":") consumeNewline();
-                PrimitiveChainPointer rhs = scanUnaryExpressionChain();
-                OperatorPointer nextOp;
+                PrimitiveChain *rhs = scanUnaryExpressionChain();
+                Operator *nextOp;
                 while((nextOp = isBinaryOperator()) && (
                           operatorPrecedence(nextOp) > operatorPrecedence(currentOp) ||
                           (nextOp->associativity == Operator::RightAssociative &&
@@ -297,26 +295,26 @@ namespace Language {
             return lhs;
         }
 
-        PrimitiveChainPointer resolveBinaryOperator(PrimitiveChainPointer lhs,
-                                                    const OperatorPointer &op,
-                                                    const PrimitiveChainPointer &rhs,
+        PrimitiveChain *resolveBinaryOperator(PrimitiveChain *lhs,
+                                                    const Operator *op,
+                                                    const PrimitiveChain *rhs,
                                                     const QStringRef &sourceCodeRef) {
             if(op->isSpecial) {
                 if(op->name == ":") {
-                    PrimitivePointer primitive = CHILD_PRIMITIVE(CHILD_PAIR(lhs, rhs), sourceCodeRef);
+                    Primitive *primitive = CHILD_PRIMITIVE(CHILD_PAIR(lhs, rhs), sourceCodeRef);
                     lhs = CHILD_PRIMITIVE_CHAIN(primitive);
                 } else if(op->name == ",") {
                     checkRightHandSide(rhs);
-                    BunchPointer bunch(lhs->first()->value(), true);
+                    Bunch *bunch(lhs->first()->value(), true);
                     if(!bunch) {
-                        PrimitivePointer primitive = CHILD_PRIMITIVE(CHILD_BUNCH(lhs, rhs), sourceCodeRef);
+                        Primitive *primitive = CHILD_PRIMITIVE(CHILD_BUNCH(lhs, rhs), sourceCodeRef);
                         lhs = CHILD_PRIMITIVE_CHAIN(primitive);
                     } else {
                         bunch->append(rhs);
                     }
                 } else if(op->name == "->") {
                     checkRightHandSide(rhs);
-                    MessagePointer message(lhs->last()->value(), true);
+                    Message *message == Message::dynamicCast(lhs->last()->value());
                     if(!message) throw parserException("message expected before '->'");
                     message->outputs()->append(rhs);
                 } else
@@ -324,11 +322,11 @@ namespace Language {
             } else {
                 checkRightHandSide(rhs);
                 if(op->useLHSAsReceiver) {
-                    MessagePointer message = CHILD_MESSAGE(op->name);
+                    Message *message = CHILD_MESSAGE(op->name);
                     message->inputs()->append(rhs);
                     lhs->append(CHILD_PRIMITIVE(message, sourceCodeRef));
                 } else {
-                    MessagePointer message = CHILD_MESSAGE(op->name);
+                    Message *message = CHILD_MESSAGE(op->name);
                     message->inputs()->append(lhs);
                     message->inputs()->append(rhs);
                     lhs = CHILD_PRIMITIVE_CHAIN(CHILD_PRIMITIVE(message, sourceCodeRef));
@@ -337,12 +335,12 @@ namespace Language {
             return lhs;
         }
 
-        void checkRightHandSide(const PrimitiveChainPointer &rhs) {
+        void checkRightHandSide(const PrimitiveChain *rhs) {
             if(!rhs || rhs->isEmpty())
                 throw parserException("expecting right-hand side expression, found " + tokenTypeName());
         }
 
-        short operatorPrecedence(const OperatorPointer &op) const {
+        short operatorPrecedence(const Operator *op) const {
             short precedence = op->precedence;
             if(op->name == ",") {
                 Token::Type type = topToken();
@@ -352,7 +350,7 @@ namespace Language {
             return precedence;
         }
 
-        ParserExceptionPointer parserException(QString message) const {
+        ParserException parserException(QString message) const {
             int column, line;
             computeColumnAndLineForPosition(lexer()->source(), token()->sourceCodeRef.position(), column, line);
             QString text = extractLine(lexer()->source(), line);
@@ -360,15 +358,13 @@ namespace Language {
                 QString cursor = QString(" ").repeated(column - 1).append("^");
                 message += "\n" + text + "\n" + cursor;
             }
-            return new ParserException(context()->child("ParserException"),message, lexer()->resourceName(), line);
+            return ParserException(context()->child("ParserException"), message, lexer()->resourceName(), line);
         }
     private:
-        LexerPointer _lexer;
-        TokenPointer _currentToken;
+        Lexer *_lexer;
+        Token *_currentToken;
         QStack<Token::Type> _openedTokens;
     };
-
-    CHILD_POINTER_DEFINE(Parser, Object);
 }
 
 CHILD_END

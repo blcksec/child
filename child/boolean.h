@@ -6,24 +6,22 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARE(Boolean, Element);
+#define CHILD_BOOLEAN(ARGS...) new Boolean(Node::context()->child("Object", "Boolean"), ##ARGS)
 
-#define CHILD_BOOLEAN(ARGS...) BooleanPointer(new Boolean(Node::context()->child("Object", "Boolean"), ##ARGS))
-
-class Boolean : public GenericElement<BooleanPointer, bool> {
+class Boolean : public GenericElement<bool> {
     CHILD_DECLARE(Boolean, Element);
 public:
-    explicit Boolean(const Pointer &origin, const bool value = false) : GenericElement<BooleanPointer, bool>(origin, value) {}
+    explicit Boolean(const Node *origin, const bool value = false) : GenericElement<bool>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Boolean", root());
         CHILD_NATIVE_METHOD_ADD(Boolean, equal_to, ==);
     }
 
-    virtual Pointer fork() const { return new Boolean(this, value()); }
+    virtual Node *fork() const { return new Boolean(this, value()); }
 
-    virtual bool isEqualTo(const Pointer &other) const {
-        return value() == BooleanPointer(other)->value();
+    virtual bool isEqualTo(const Node *other) const {
+        return value() == cast(other)->value();
     }
 
     CHILD_NATIVE_METHOD_DECLARE(equal_to) {
@@ -41,8 +39,6 @@ public:
         return value() ? "true" : "false";
     }
 };
-
-CHILD_POINTER_DEFINE(Boolean, Element);
 
 CHILD_END
 

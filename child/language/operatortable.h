@@ -9,25 +9,22 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARE(OperatorTable, List);
-
     #define CHILD_OPERATOR_TABLE(ARGS...) \
-    Language::OperatorTablePointer(new Language::OperatorTable( \
-        Node::context()->child("Object", "Language", "OperatorTable"), ##ARGS))
+    new Language::OperatorTable(Node::context()->child("Object", "Language", "OperatorTable"), ##ARGS)
 
-    class OperatorTable : public GenericList<OperatorTablePointer, OperatorPointer> {
+    class OperatorTable : public GenericList<Operator *> {
         CHILD_DECLARE(OperatorTable, List);
     public:
-        explicit OperatorTable(const Pointer &origin) : GenericList<OperatorTablePointer, OperatorPointer>(origin) {}
+        explicit OperatorTable(const Node *origin) : GenericList<Operator *>(origin) {}
 
         static void initRoot() { Language::root()->addChild("OperatorTable", root()); }
-        virtual Pointer fork() const { return OperatorTablePointer(new OperatorTable(this))->initFork(); };
+        virtual Node *fork() const { return (new OperatorTable(this))->initFork(); };
 
         void append(const QString &text, Operator::Type type, short precedence,
                     Operator::Associativity associativity = Operator::LeftAssociative,
                     const bool useLHSAsReceiver = true, const bool isSpecial = false,
                     const QString &name = "") {
-            GenericList<OperatorTablePointer, OperatorPointer>::append(
+            GenericList<Operator *>::append(
                         CHILD_OPERATOR(text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name));
         }
 
@@ -35,7 +32,7 @@ namespace Language {
             return _texts.contains(text);
         }
 
-        OperatorPointer has(const QString &text, const Operator::Type type) const {
+        Operator *has(const QString &text, const Operator::Type type) const {
             return _textsAndTypes.value(QPair<QString, Operator::Type>(text, type));
         }
 
@@ -48,7 +45,7 @@ namespace Language {
             _textsAndTypes.clear();
             _firstChars.clear();
             Iterator i(this);
-            while(OperatorPointer op = i.next()) {
+            while(Operator *op = i.next()) {
                 _texts.insert(op->text);
                 _textsAndTypes.insert(QPair<QString, Operator::Type>(op->text, op->type), op);
                 if(!_firstChars.contains(op->text.at(0))) _firstChars += op->text.at(0);
@@ -56,11 +53,9 @@ namespace Language {
         }
     private:
         QSet<QString> _texts;
-        QHash<QPair<QString, Operator::Type>, OperatorPointer> _textsAndTypes;
+        QHash<QPair<QString, Operator::Type>, Operator *> _textsAndTypes;
         QString _firstChars;
     };
-
-    CHILD_POINTER_DEFINE(OperatorTable, List);
 }
 
 CHILD_END

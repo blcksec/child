@@ -6,32 +6,30 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARE(Section, List);
-
     #define CHILD_SECTION(ARGS...) \
-    Language::SectionPointer(new Language::Section(Node::context()->child("Object", "Language", "Section"), ##ARGS))
+    new Language::Section(Node::context()->child("Object", "Language", "Section"), ##ARGS)
 
-    class Section : public GenericList<SectionPointer, PrimitiveChainPointer> {
+    class Section : public GenericList<PrimitiveChain *> {
         CHILD_DECLARE(Section, List);
     public:
-        explicit Section(const Pointer &origin) : GenericList<SectionPointer, PrimitiveChainPointer>(origin) {}
+        explicit Section(const Node *origin) : GenericList<PrimitiveChain *>(origin), _label(NULL) {}
 
         static void initRoot() { Language::root()->addChild("Section", root()); }
 
-        virtual Pointer fork() const {
-            SectionPointer forkedSection = new Section(this);
+        virtual Node *fork() const {
+            Section *forkedSection = new Section(this);
             forkedSection->initFork();
             forkedSection->setLabel(label());
             return forkedSection;
         }
 
-        PrimitiveChainPointer label() const { return _label; }
-        void setLabel(const PrimitiveChainPointer &label) { _label = label; }
+        PrimitiveChain *label() const { return _label; }
+        void setLabel(const PrimitiveChain *label) { _label = label; }
 
-        virtual Pointer run(const Pointer &receiver = context()) {
-            Pointer result;
+        virtual Node *run(const Node *receiver = context()) {
+            Node *result = NULL;
             Iterator i(this);
-            while(PrimitiveChainPointer chain = i.next()) {
+            while(PrimitiveChain *chain = i.next()) {
                 result = chain->run(receiver);
             }
             return result;
@@ -44,10 +42,8 @@ namespace Language {
             return str;
         }
     private:
-        PrimitiveChainPointer _label;
+        PrimitiveChain *_label;
     };
-
-    CHILD_POINTER_DEFINE(Section, List);
 }
 
 CHILD_END

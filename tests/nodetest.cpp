@@ -3,31 +3,31 @@
 CHILD_BEGIN
 
 void NodeTest::initialize() {
-    QVERIFY(Node::root()->origin().isNull());
+    QVERIFY(!Node::root()->origin());
     QVERIFY(Node::root()->hasDirectParent(Node::root()));
 }
 
 void NodeTest::setOrigin() {
-    Pointer obj1 = CHILD_NODE();
-    Pointer obj2 = CHILD_NODE();
+    Node *obj1 = CHILD_NODE();
+    Node *obj2 = CHILD_NODE();
     QCOMPARE(obj2->origin(), Node::context()->child("Node"));
-    QCATCH(obj2->setOrigin(Pointer()), NullPointerException);
+    QCATCH(obj2->setOrigin(NULL), NullPointerException);
     obj2->setOrigin(obj1);
     QCOMPARE(obj2->origin(), obj1);
 }
 
 void NodeTest::fork() {
-    Pointer obj1 = CHILD_NODE();
-    Pointer obj2 = obj1->fork();
+    Node *obj1 = CHILD_NODE();
+    Node *obj2 = obj1->fork();
     QCOMPARE(obj2->origin(), obj1);
 }
 
 void NodeTest::addExtension() {
-    Pointer node1 = CHILD_NODE();
-    Pointer node2 = CHILD_NODE();
-    Pointer obj = CHILD_NODE();
+    Node *node1 = CHILD_NODE();
+    Node *node2 = CHILD_NODE();
+    Node *obj = CHILD_NODE();
     QCOMPARE(obj->extensions().size(), 0);
-    QCATCH(obj->addExtension(Pointer()), NullPointerException);
+    QCATCH(obj->addExtension(NULL), NullPointerException);
     obj->addExtension(node1);
     QCOMPARE(obj->extensions().size(), 1);
     QCOMPARE(obj->extensions()[0], node1);
@@ -39,13 +39,13 @@ void NodeTest::addExtension() {
 }
 
 void NodeTest::removeExtension() {
-    Pointer node1 = CHILD_NODE();
-    Pointer node2 = CHILD_NODE();
-    Pointer obj = CHILD_NODE();
+    Node *node1 = CHILD_NODE();
+    Node *node2 = CHILD_NODE();
+    Node *obj = CHILD_NODE();
     QCOMPARE(obj->extensions().size(), 0);
     obj->addExtension(node1);
     QCOMPARE(obj->extensions().size(), 1);
-    QCATCH(obj->removeExtension(Pointer()), NullPointerException);
+    QCATCH(obj->removeExtension(NULL), NullPointerException);
     QCATCH(obj->removeExtension(node2), NotFoundException);
     obj->removeExtension(node1);
     QCOMPARE(obj->extensions().size(), 0);
@@ -59,11 +59,11 @@ void NodeTest::removeExtension() {
 }
 
 void NodeTest::hasExtension() {
-    Pointer node1 = CHILD_NODE();
-    Pointer node2 = CHILD_NODE();
-    Pointer obj = CHILD_NODE();
+    Node *node1 = CHILD_NODE();
+    Node *node2 = CHILD_NODE();
+    Node *obj = CHILD_NODE();
     obj->addExtension(node1);
-    QCATCH(obj->hasExtension(Pointer()), NullPointerException);
+    QCATCH(obj->hasExtension(NULL), NullPointerException);
     QVERIFY(obj->hasExtension(node1));
     QVERIFY(!obj->hasExtension(node2));
     obj->addExtension(node2);
@@ -71,28 +71,28 @@ void NodeTest::hasExtension() {
 }
 
 void NodeTest::addChild() {
-    Pointer world = CHILD_NODE();
-    Pointer country1 = CHILD_NODE();
-    Pointer country2 = CHILD_NODE();
-    QCATCH(world->addChild("France", Pointer()), NullPointerException);
+    Node *world = CHILD_NODE();
+    Node *country1 = CHILD_NODE();
+    Node *country2 = CHILD_NODE();
+    QCATCH(world->addChild("France", NULL), NullPointerException);
     world->addChild("France", country1);
     QCOMPARE(world->child("France"), country1);
     QCATCH(world->addChild("France", country1), DuplicateException);
     world->addChild("Spain", country2);
     QCOMPARE(world->child("Spain"), country2);
     QCOMPARE(world->children().size(), 2);
-    Pointer newWorld = world->fork();
+    Node *newWorld = world->fork();
     QCATCH(newWorld->addChild("France", country1), DuplicateException);
-    Pointer city = CHILD_NODE();
+    Node *city = CHILD_NODE();
     country1->addChild("France", city);
     QCOMPARE(country1->child("France"), city);
 }
 
 void NodeTest::setChild() {
-    Pointer world = CHILD_NODE();
-    Pointer country1 = CHILD_NODE();
-    Pointer country2 = CHILD_NODE();
-    QCATCH(world->setChild("France", Pointer()), NullPointerException);
+    Node *world = CHILD_NODE();
+    Node *country1 = CHILD_NODE();
+    Node *country2 = CHILD_NODE();
+    QCATCH(world->setChild("France", NULL), NullPointerException);
     QCATCH(world->setChild("France", country1), NotFoundException);
     world->addChild("France", country1);
     QCOMPARE(world->child("France"), country1);
@@ -103,14 +103,14 @@ void NodeTest::setChild() {
     QCOMPARE(world->children().size(), 1);
     QCOMPARE(country2->parents().size(), 1);
     QCOMPARE(country1->parents().size(), 0);
-    Pointer newWorld = world->fork();
+    Node *newWorld = world->fork();
     newWorld->setChild("France", country1);
     QCOMPARE(newWorld->child("France"), country1);
 }
 
 void NodeTest::removeChild() {
-    Pointer world = CHILD_NODE();
-    Pointer country = CHILD_NODE();
+    Node *world = CHILD_NODE();
+    Node *country = CHILD_NODE();
     QCATCH(world->removeChild("France"), NotFoundException);
     world->addChild("France", country);
     QVERIFY(world->hasChild("France"));
@@ -129,7 +129,7 @@ void NodeTest::removeChild() {
     QCOMPARE(world->children().size(), 1);
     QCATCH(world->addChild("France", country), DuplicateException);
     world->removeChild("France");
-    Pointer newWorld = world->fork();
+    Node *newWorld = world->fork();
     QVERIFY(!newWorld->hasChild("France"));
     QCATCH(newWorld->child("France"), NotFoundException);
     QCATCH(newWorld->setChild("France", country), NotFoundException);
@@ -143,8 +143,8 @@ void NodeTest::removeChild() {
 }
 
 void NodeTest::hasDirectChild() {
-    Pointer world = CHILD_NODE();
-    Pointer country = CHILD_NODE();
+    Node *world = CHILD_NODE();
+    Node *country = CHILD_NODE();
     QVERIFY(!world->hasDirectChild("France"));
     QVERIFY(world->hasDirectChild(country).isNull());
     world->addChild("France", country);
@@ -157,20 +157,13 @@ void NodeTest::hasDirectChild() {
 }
 
 void NodeTest::hasChild() {
-    Pointer world = CHILD_NODE();
-    Pointer country = CHILD_NODE();
+    Node *world = CHILD_NODE();
+    Node *country = CHILD_NODE();
     QVERIFY(!world->hasChild("France"));
     world->addChild("France", country);
     QVERIFY(world->hasChild("France"));
-    Pointer newNewWorld = world->fork()->fork();
+    Node *newNewWorld = world->fork()->fork();
     QVERIFY(newNewWorld->hasChild("France"));
-}
-
-void NodeTest::referenceCycling() {
-    Pointer eric = CHILD_NODE();
-    Pointer marc = CHILD_NODE();
-    eric->addChild("brother", marc);
-    marc->addChild("brother", eric);
 }
 
 CHILD_END

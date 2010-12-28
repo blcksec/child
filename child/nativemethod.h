@@ -6,36 +6,32 @@
 
 CHILD_BEGIN
 
-class MessagePointer;
+class Message;
 
-CHILD_POINTER_DECLARE(NativeMethod,);
-
-#define CHILD_NATIVE_METHOD(ARGS...) NativeMethodPointer(new NativeMethod(Node::context()->child("NativeMethod"), ##ARGS))
+#define CHILD_NATIVE_METHOD(ARGS...) new NativeMethod(Node::context()->child("NativeMethod"), ##ARGS)
 
 #define CHILD_NATIVE_METHOD_ADD(CLASS, METHOD, NAME...) \
 CLASS::root()->addOrSetChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
     new NativeMethod(NativeMethod::root(), static_cast<_MethodPointer_>(&CLASS::_##METHOD##_)))
 
-typedef Pointer (Node::*_MethodPointer_)(const MessagePointer &);
+typedef Node *(Node::*_MethodPointer_)(Message *);
 
 class NativeMethod : public Node {
     CHILD_DECLARE(NativeMethod, Node);
 public:
-    explicit NativeMethod(const Pointer &origin, const _MethodPointer_ &method = NULL) : Node(origin), _method(method) {}
+    explicit NativeMethod(Node *origin, const _MethodPointer_ &method = NULL) : Node(origin), _method(method) {}
     static void initRoot() { Node::root()->addChild("NativeMethod", root()); }
-    virtual Pointer fork() const { return new NativeMethod(this, _method); }
+    virtual Node *fork() const { return new NativeMethod(constCast(this), _method); }
 
     _MethodPointer_ method() const { return _method; }
-    NativeMethodPointer setMethod(const _MethodPointer_ &method) { _method = method; return this; }
+    void setMethod(const _MethodPointer_ &method) { _method = method; }
 
-    virtual Pointer run(const Pointer &receiver, const MessagePointer &message) {
-        return ((*const_cast<Node *>(receiver.data())).*method())(message);
+    virtual Node *run(Node *receiver, Message *message) {
+        return (receiver->*method())(message);
     }
 private:
     _MethodPointer_ _method;
 };
-
-CHILD_POINTER_DEFINE(NativeMethod,);
 
 CHILD_END
 

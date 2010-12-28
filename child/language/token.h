@@ -6,10 +6,8 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARE(Token, Object);
-
     #define CHILD_TOKEN(ARGS...) \
-    Language::TokenPointer(new Language::Token(Node::context()->child("Object", "Language", "Token"), ##ARGS))
+    new Language::Token(Node::context()->child("Object", "Language", "Token"), ##ARGS)
 
     class Token : public Object {
         CHILD_DECLARE(Token, Object);
@@ -38,11 +36,11 @@ namespace Language {
         Type type;
         QStringRef sourceCodeRef;
 
-        explicit Token(const Pointer &origin, const Type type = Null, const QStringRef &sourceCodeRef = QStringRef()) :
+        explicit Token(const Node *origin, const Type type = Null, const QStringRef &sourceCodeRef = QStringRef()) :
             Object(origin), type(type), sourceCodeRef(sourceCodeRef) {}
 
         static void initRoot() { Language::root()->addChild("Token", root()); }
-        virtual Pointer fork() const { return new Token(this, type, sourceCodeRef); }
+        virtual Node *fork() const { return new Token(this, type, sourceCodeRef); }
 
         const QString typeName() const { return Token::typeName(type); }
         const QString text() const { return sourceCodeRef.toString(); }
@@ -54,8 +52,6 @@ namespace Language {
             return QString("%1: '%2'").arg(typeName(), debug ? escapeTabsAndNewlines(text()) : text());
         }
     };
-
-    CHILD_POINTER_DEFINE(Token, Object);
 }
 
 CHILD_END

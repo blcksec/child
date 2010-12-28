@@ -5,7 +5,7 @@
 #include "child.h"
 #include "child/node.h"
 #include "child/exception.h"
-//#include "tests/runalltests.h"
+#include "tests/runalltests.h"
 //#include "child/application.h"
 
 CHILD_USE
@@ -13,8 +13,7 @@ CHILD_USE
 
 int main() { // int argc, char *argv[]
     init();
-    Node::root()->inspect();
-//    runAllTests();
+    runAllTests();
 //    #ifdef CHILD_CATCH_EXCEPTIONS
 //    try {
 //    #endif

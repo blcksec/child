@@ -8,18 +8,18 @@ void TextTest::initialize() {
 }
 
 void TextTest::fork() {
-    TextPointer text = CHILD_TEXT("Hello");
+    Text *text = CHILD_TEXT("Hello");
     QVERIFY(text->origin() == Text::root());
     QCOMPARE(text->value(), QString("Hello"));
-    TextPointer newText(text->fork());
+    Text *newText(text->fork());
     QVERIFY(newText->origin() == text);
     QCOMPARE(newText->value(), QString("Hello"));
 }
 
 void TextTest::compare() {
-    TextPointer t1 = CHILD_TEXT("Hello");
-    TextPointer t2 = CHILD_TEXT("Hello");
-    TextPointer t3 = CHILD_TEXT("Salut");
+    Text *t1 = CHILD_TEXT("Hello");
+    Text *t2 = CHILD_TEXT("Hello");
+    Text *t3 = CHILD_TEXT("Salut");
     QVERIFY(t1->compare(t2) == 0);
     QVERIFY(t1->compare(t3) != 0);
     QVERIFY(t1 != t2);
@@ -27,8 +27,8 @@ void TextTest::compare() {
     QVERIFY(*t1 == *t2);
     QVERIFY(!(*t1 != *t2));
     QVERIFY(*t1 != *t3);
-    TextPointer t4 = CHILD_TEXT("Jean");
-    TextPointer t5 = CHILD_TEXT("Pierre");
+    Text *t4 = CHILD_TEXT("Jean");
+    Text *t5 = CHILD_TEXT("Pierre");
     QVERIFY(*t4 != *t5);
     QCOMPARE(t4->compare(t5), short(-1));
     QCOMPARE(t5->compare(t4), short(1));

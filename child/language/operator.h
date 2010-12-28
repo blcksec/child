@@ -6,10 +6,8 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARE(Operator, Object);
-
     #define CHILD_OPERATOR(ARGS...) \
-    Language::OperatorPointer(new Language::Operator(Node::context()->child("Object", "Language", "Operator"), ##ARGS))
+    new Language::Operator(Node::context()->child("Object", "Language", "Operator"), ##ARGS)
 
     class Operator : public Object {
         CHILD_DECLARE(Operator, Object);
@@ -26,7 +24,7 @@ namespace Language {
         bool isSpecial;
         QString name;
 
-        explicit Operator(const Pointer &origin, const QString &text = "", Type type = Null, short precedence = 0,
+        explicit Operator(const Node *origin, const QString &text = "", Type type = Null, short precedence = 0,
                 Associativity associativity = LeftAssociative, const bool useLHSAsReceiver = true,
                  const bool isSpecial = false, const QString &name = "") :
             Object(origin), text(text), type(type), precedence(precedence), associativity(associativity),
@@ -36,7 +34,7 @@ namespace Language {
 
         static void initRoot() { Language::root()->addChild("Operator", root()); }
 
-        virtual Pointer fork() const {
+        virtual Node *fork() const {
             return new Operator(this, text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name);
         }
 
@@ -48,8 +46,6 @@ namespace Language {
             return QString("\"%1\"").arg(name);
         }
     };
-
-    CHILD_POINTER_DEFINE(Operator, Object);
 }
 
 CHILD_END

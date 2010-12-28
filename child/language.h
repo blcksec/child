@@ -6,7 +6,7 @@
 CHILD_BEGIN
 
 namespace Language {
-    ObjectPointer &root();
+    Object *root();
     static bool isInitialized = root().isNotNull();
 }
 

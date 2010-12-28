@@ -8,22 +8,20 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARE(Method, Element);
+#define CHILD_METHOD(ARGS...) new Method(Node::context()->child("Object", "Method"), ##ARGS)
 
-#define CHILD_METHOD(ARGS...) MethodPointer(new Method(Node::context()->child("Object", "Method"), ##ARGS))
-
-class Method : public GenericElement<MethodPointer, BlockPointer> {
+class Method : public GenericElement<Block *> {
     CHILD_DECLARE(Method, Element);
 public:
-    explicit Method(const Pointer &origin, const BlockPointer &block = BlockPointer::null()) :
-        GenericElement<MethodPointer, BlockPointer>(origin, block) {}
+    explicit Method(const Node *origin, const Block *block = NULL) :
+        GenericElement<Block *>(origin, block), _inputs(NULL), _outputs(NULL) {}
 
     static void initRoot() {
         Object::root()->addChild("Method", root());
         CHILD_NATIVE_METHOD_ADD(Method, init);
     }
 
-    virtual Pointer fork() const { return new Method(this, forkIfNotNull(block())); }
+    virtual Node *fork() const { return new Method(this, forkIfNotNull(block())); }
 
     CHILD_NATIVE_METHOD_DECLARE(init) {
         CHILD_CHECK_INPUT_SIZE(0);
@@ -31,38 +29,38 @@ public:
         return this;
     }
 
-    BlockPointer block() const { return value(); } // aliases
-    void setBlock(const BlockPointer &block) { setValue(block); }
+    Block *block() const { return value(); } // aliases
+    void setBlock(const Block *block) { setValue(block); }
 
-    ParameterListPointer inputs(bool createIfNull = true) const {
+    ParameterList *inputs(bool createIfNull = true) const {
         if(!_inputs && createIfNull) const_cast<Method *>(this)->_inputs = CHILD_PARAMETER_LIST();
         return(_inputs);
     }
 
-    void setInputs(const ParameterListPointer &inputs) { _inputs = inputs; }
+    void setInputs(const ParameterList *inputs) { _inputs = inputs; }
 
-    ParameterPointer input(short i) const { return inputs(false)->get(i); }
+    Parameter *input(short i) const { return inputs(false)->get(i); }
     bool hasInput(short i) const { return inputs(false) && inputs()->hasIndex(i); }
     bool hasInput(const QString &label) const { return inputs(false) && inputs()->hasLabel(label); }
 
-    ParameterListPointer outputs(bool createIfNull = true) const {
+    ParameterList *outputs(bool createIfNull = true) const {
         if(!_outputs && createIfNull) const_cast<Method *>(this)->_outputs = CHILD_PARAMETER_LIST();
         return(_outputs);
     }
 
-    void setOutputs(const ParameterListPointer &outputs) { _outputs = outputs; }
+    void setOutputs(const ParameterList *outputs) { _outputs = outputs; }
 
-    virtual Pointer run(const Pointer &receiver, const MessagePointer &message) {
+    virtual Node *run(const Node *receiver, const Message *message) {
         if(!block()) // method creation
             return Node::run(receiver, message);
         else { // method execution
-            BlockPointer forkedBlock = block()->fork();
-            QHash<QString, ParameterPointer> labels(inputs()->labels());
+            Block *forkedBlock = block()->fork();
+            QHash<QString, Parameter *> labels(inputs()->labels());
             if(message->inputs(false)) {
                 ArgumentBunch::Iterator iterator(message->inputs());
                 short i = -1;
                 bool labelFound = false;
-                while(ArgumentPointer argument = iterator.next()) {
+                while(Argument *argument = iterator.next()) {
                     QString label;
                     if(argument->label()) {
                         label = argument->labelName();
@@ -79,12 +77,12 @@ public:
                     labels.remove(label);
                 }
             }
-            foreach(ParameterPointer parameter, labels) {
+            foreach(Parameter *parameter, labels) {
                 if(!parameter->defaultValue()) CHILD_THROW(ArgumentException, "missing mandatory parameter");
                 forkedBlock->addChild(parameter->label(), parameter->run());
             }
             ContextPusher pusher(forkedBlock);
-            Pointer result;
+            Node *result = NULL;
             try {
                 result = forkedBlock->run();
             } catch(Return ret) { result = ret.result; }
@@ -92,19 +90,19 @@ public:
         }
     }
 
-    virtual void hasBeenAssigned(const MessagePointer &message) const {
+    virtual void hasBeenAssigned(const Message *message) const {
         if(message->inputs(false)) {
             ArgumentBunch::Iterator i(message->inputs());
-            while(ArgumentPointer argument = i.next()) {
-                PrimitiveChainPointer label = argument->label();
-                PrimitiveChainPointer defaultValue = argument->value();
+            while(Argument *argument = i.next()) {
+                PrimitiveChain *label = argument->label();
+                PrimitiveChain *defaultValue = argument->value();
                 if(!label) {
                     label = defaultValue;
                     defaultValue.clear();
                 }
                 if(label->size() != 1)
                     CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message");
-                MessagePointer labelMessage(label->first()->value(), true);
+                Message *labelMessage = Message::dynamicCast(label->first()->value());
                 if(!labelMessage)
                     CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message)");
                 inputs()->append(CHILD_PARAMETER(labelMessage->name(), defaultValue));
@@ -122,11 +120,9 @@ public:
         return str;
     }
 private:
-    ParameterListPointer _inputs;
-    ParameterListPointer _outputs;
+    ParameterList *_inputs;
+    ParameterList *_outputs;
 };
-
-CHILD_POINTER_DEFINE(Method, Element);
 
 CHILD_END
 

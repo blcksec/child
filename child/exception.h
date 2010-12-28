@@ -5,12 +5,10 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARE(Exception,);
-
-#define CHILD_EXCEPTION(ARGS...) ExceptionPointer(new Exception(Node::context()->child("Exception"), ##ARGS))
+#define CHILD_EXCEPTION(ARGS...) new Exception(Node::context()->child("Exception"), ##ARGS)
 
 #define CHILD_THROW(EXCEPTION, MESSAGE) \
-throw EXCEPTION##Pointer(new EXCEPTION(Node::context()->child(#EXCEPTION), MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO))
+throw EXCEPTION(Node::context()->child(#EXCEPTION), MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 
 #define CHILD_TODO \
 CHILD_THROW(Exception, "function not yet implemented")
@@ -23,13 +21,13 @@ public:
     int line;
     QString function;
 
-    explicit Exception(const Pointer &origin, const QString &message = "", const QString &file = "",
+    explicit Exception(Node *origin, const QString &message = "", const QString &file = "",
               const int line = 0, const QString &function = "") :
         Node(origin), message(message), file(file), line(line), function(function) {}
 
     static void initRoot() { Node::root()->addChild("Exception", root()); }
 
-    virtual Pointer fork() const { return new Exception(this, message, file, line, function); }
+    virtual Node *fork() const { return new Exception(const_cast<Exception *>(this), message, file, line, function); }
 
     const QString report() const;
 
@@ -40,22 +38,18 @@ public:
     }
 };
 
-CHILD_POINTER_DEFINE(Exception,);
-
 #define CHILD_EXCEPTION_DECLARATION(NAME, ORIGIN) \
-CHILD_POINTER_DECLARE(NAME, ORIGIN); \
 class NAME : public ORIGIN { \
     CHILD_DECLARE(NAME, ORIGIN); \
 public: \
-    explicit NAME(const Pointer &origin, const QString &message = "", const QString &file = "", \
+    explicit NAME(Node *origin, const QString &message = "", const QString &file = "", \
          const int line = 0, const QString &function = "") : \
         ORIGIN(origin, message, file, line, function) {} \
     static void initRoot() { Node::root()->addChild(#NAME, root()); } \
-    virtual Pointer fork() const { \
-        return new NAME(this, message, file, line, function); \
+    virtual Node *fork() const { \
+        return new NAME(constCast(this), message, file, line, function); \
     } \
 }; \
-CHILD_POINTER_DEFINE(NAME, ORIGIN);
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
 CHILD_DEFINE(NAME, ORIGIN);

@@ -7,10 +7,10 @@ CHILD_BEGIN
 
 inline uint qHash(const double &number) { CHILD_TODO; return number; }
 
-template<class P, class T>
+template<class T>
 class GenericElement : public Object {
 public:
-    explicit GenericElement(const Pointer &origin, const T &value = NULL) : Object(origin), _value(value) {}
+    explicit GenericElement(const Node *origin, const T &value = NULL) : Object(origin), _value(value) {}
 
     T value() const { return _value; }
     void setValue(const T &value) { _value = value; }
@@ -20,23 +20,19 @@ private:
     T _value;
 };
 
-CHILD_POINTER_DECLARE(Element, Object);
+#define CHILD_ELEMENT(ARGS...) new Element(Node::context()->child("Object", "Element"), ##ARGS)
 
-#define CHILD_ELEMENT(ARGS...) ElementPointer(new Element(Node::context()->child("Object", "Element"), ##ARGS))
-
-class Element : public GenericElement<ElementPointer, Pointer> {
+class Element : public GenericElement<Node *> {
     CHILD_DECLARE(Element, Object);
 public:
-    explicit Element(const Pointer &origin, const Pointer &value = NULL) :
-        GenericElement<ElementPointer, Pointer>(origin, value) {}
+    explicit Element(const Node *origin, const Node *value = NULL) :
+        GenericElement<Node *>(origin, value) {}
     static void initRoot() { Object::root()->addChild("Element", root()); }
-    virtual Pointer fork() const { return new Element(this, forkIfNotNull(value())); }
+    virtual Node *fork() const { return new Element(this, forkIfNotNull(value())); }
     virtual QString toString(bool debug = false, short level = 0) const {
         return value() ? value()->toString(debug, level) : "NULL";
     }
 };
-
-CHILD_POINTER_DEFINE(Element, Object);
 
 CHILD_END
 

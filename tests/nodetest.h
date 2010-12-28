@@ -7,12 +7,7 @@
 
 class NodeTest : public QObject {
     Q_OBJECT
-private:
-    HugeUnsignedInteger _initialNodeCount;
 private slots:
-    void init() { _initialNodeCount = Node::nodeCount(); }
-    void cleanup() { QVERIFY(Node::nodeCount() == _initialNodeCount); }
-
     void initialize();
     void setOrigin();
     void fork();
@@ -24,7 +19,6 @@ private slots:
     void removeChild();
     void hasDirectChild();
     void hasChild();
-    void referenceCycling();
 };
 
 #include "tests/testend.h"

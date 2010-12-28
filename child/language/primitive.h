@@ -7,24 +7,22 @@
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_POINTER_DECLARE(Primitive, Element);
-
     #define CHILD_PRIMITIVE(ARGS...) \
-    Language::PrimitivePointer(new Language::Primitive(Node::context()->child("Object", "Language", "Primitive"), ##ARGS))
+    new Language::Primitive(Node::context()->child("Object", "Language", "Primitive"), ##ARGS)
 
     class Primitive : public Element {
         CHILD_DECLARE(Primitive, Element);
     public:
-        explicit Primitive(const Pointer &origin, const Pointer &value = NULL, const QStringRef &sourceCodeRef = QStringRef()) :
+        explicit Primitive(const Node *origin, const Node *value = NULL, const QStringRef &sourceCodeRef = QStringRef()) :
             Element(origin, value), _sourceCodeRef(sourceCodeRef) {}
 
         static void initRoot() { Language::root()->addChild("Primitive", root()); }
-        virtual Pointer fork() const { return new Primitive(this, forkIfNotNull(value()), sourceCodeRef()); }
+        virtual Node *fork() const { return new Primitive(this, forkIfNotNull(value()), sourceCodeRef()); }
 
         const QStringRef &sourceCodeRef() const { return _sourceCodeRef; }
         void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }
 
-        virtual Pointer run(const Pointer &receiver = context()) {
+        virtual Node *run(const Node *receiver = context()) {
             #ifdef CHILD_CATCH_EXCEPTIONS
             try {
             #endif
@@ -50,8 +48,6 @@ namespace Language {
     private:
         QStringRef _sourceCodeRef;
     };
-
-    CHILD_POINTER_DEFINE(Primitive, Element);
 }
 
 CHILD_END

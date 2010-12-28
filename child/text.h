@@ -8,14 +8,12 @@
 
 CHILD_BEGIN
 
-CHILD_POINTER_DECLARE(Text, Element);
+#define CHILD_TEXT(ARGS...) new Text(Node::context()->child("Object", "Text"), ##ARGS)
 
-#define CHILD_TEXT(ARGS...) TextPointer(new Text(Node::context()->child("Object", "Text"), ##ARGS))
-
-class Text : public GenericElement<TextPointer, QString> {
+class Text : public GenericElement<QString> {
     CHILD_DECLARE(Text, Element);
 public:
-    explicit Text(const Pointer &origin, const QString &value = "") : GenericElement<TextPointer, QString>(origin, value) {}
+    explicit Text(const Node *origin, const QString &value = "") : GenericElement<QString>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Text", root());
@@ -27,7 +25,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Text, compare, <=>);
     }
 
-    virtual Pointer fork() const { return new Text(this, value()); }
+    virtual Node *fork() const { return new Text(this, value()); }
 
     CHILD_NATIVE_METHOD_DECLARE(init) {
         CHILD_CHECK_INPUT_SIZE(0, 1);
@@ -50,8 +48,8 @@ public:
         return CHILD_TEXT(value().toUpper());
     }
 
-    virtual bool isEqualTo(const Pointer &other) const {
-        return value() == TextPointer(other)->value();
+    virtual bool isEqualTo(const Node *other) const {
+        return value() == Text::cast(other)->value();
     }
 
     CHILD_NATIVE_METHOD_DECLARE(equal_to) {
@@ -59,8 +57,8 @@ public:
         return CHILD_BOOLEAN(value() == message->runFirstInput()->toString());
     }
 
-    virtual short compare(const Pointer &other) const {
-        return compare(TextPointer(other)->value());
+    virtual short compare(const Node *other) const {
+        return compare(Text::cast(other)->value());
     }
 
     short compare(const QString &other) const {
@@ -95,8 +93,6 @@ public:
         return debug ? "\"" + value() + "\"" : value();
     }
 };
-
-CHILD_POINTER_DEFINE(Text, Element);
 
 CHILD_END
 
