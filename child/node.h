@@ -25,97 +25,119 @@ class Node : public gc_cleanup {
 public:
     static const bool isInitialized;
 
-    explicit Node(Node *origin) : _origin(origin), _extensions(NULL), // default constructor
+    explicit Node(const Node *origin) : _origin(origin), _extensions(NULL), // default constructor
         _children(NULL), _parents(NULL) {}
 
     Node(const Node &other) : gc_cleanup(), _origin(other._origin), _extensions(NULL), // copy constructor
         _children(NULL), _parents(NULL) {
-        if(other._extensions) _extensions = new QList<Node *>(*other._extensions);
+        if(other._extensions) _extensions = new QList<const Node *>(*other._extensions);
         if(other._children) {
-            QHashIterator<QString, Node *> i(other.children());
+            QHashIterator<QString, const Node *> i(other.children());
             while(i.hasNext()) { i.next(); addChild(i.key(), i.value()); }
         }
     }
 
     virtual ~Node();
 
-    static Node *constCast(const Node *node) { return const_cast<Node *>(node); }
+    inline static Node *constCast(const Node *node) { return const_cast<Node *>(node); }
 
     static Node *root();
     virtual const QString className() const { return "Node"; }
     static void initRoot();
-    virtual Node *fork() const { return new Node(constCast(this)); }
-    static Node *forkIfNotNull(Node *node) { return node ? node->fork() : node; }
+    virtual Node *fork() const { return new Node(this); }
+    static Node *forkIfNotNull(const Node *node) { return node ? node->fork() : constCast(node); }
 
-    Node *origin() const { return _origin; }
-    void setOrigin(Node *node);
+    const Node *origin() const { return _origin; }
+    Node *origin() { return constCast(_origin); }
+    void setOrigin(const Node *node);
 
-    QList<Node *> extensions() const { return _extensions ? *_extensions : QList<Node *>(); }
-
-    void addExtension(Node *node);
-    void prependExtension(Node *node);
-    void removeExtension(Node *node);
+    void addExtension(const Node *node);
+    void prependExtension(const Node *node);
+    void removeExtension(const Node *node);
     void removeAllExtensions();
-    bool hasExtension(Node *node) const;
+    bool hasExtension(const Node *node) const;
+    QList<Node *> extensions();
+    QList<const Node *> extensions() const;
 
-    Node *child(const QString &name) const;
+    Node *child(const QString &name);
 
-    Node *child(const QString &name1, const QString &name2) const {
+    const Node *child(const QString &name) const {
+        return constCast(this)->child(name);
+    }
+
+    Node *child(const QString &name1, const QString &name2) {
         return child(name1)->child(name2);
     }
 
-    Node *child(const QString &name1, const QString &name2, const QString &name3) const {
+    const Node *child(const QString &name1, const QString &name2) const {
+        return constCast(this)->child(name1)->child(name2);
+    }
+
+    Node *child(const QString &name1, const QString &name2, const QString &name3) {
         return child(name1)->child(name2)->child(name3);
     }
 
-    Node *addChild(const QString &name, Node *value);
-    Node *setChild(const QString &name, Node *value, bool addOrSetMode = false);
-
-    Node *addOrSetChild(const QString &name, Node *value) {
-        return setChild(name, value, true);
+    const Node *child(const QString &name1, const QString &name2, const QString &name3) const {
+        return constCast(this)->child(name1)->child(name2)->child(name3);
     }
+
+    void addChild(const QString &name, const Node *value);
+    void setChild(const QString &name, const Node *value, bool addOrSetMode = false);
+    void addOrSetChild(const QString &name, const Node *value) { setChild(name, value, true); }
 
     void removeChild(const QString &name);
 
-    void addAnonymousChild(Node *value) {
+    void addAnonymousChild(const Node *value) {
         CHILD_CHECK_POINTER(value);
         value->_addParent(this);
     }
 
-    void removeAnonymousChild(Node *value) {
+    void removeAnonymousChild(const Node *value) {
         CHILD_CHECK_POINTER(value);
         value->_removeParent(this);
     }
 
 private:
-    void _setChild(const QString &name, Node *value);
+    void _setChild(const QString &name, const Node *value);
 public:
 
     Node *hasChild(const QString &name, bool searchInParents = true,
-                           bool forkChildFoundInFirstOrigin = true, bool *isDirectPtr = NULL) const;
+                           bool forkChildFoundInFirstOrigin = true, bool *isDirectPtr = NULL);
 
-    Node *hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) const {
+    const Node *hasChild(const QString &name, bool searchInParents = true,
+                           bool forkChildFoundInFirstOrigin = true, bool *isDirectPtr = NULL) const {
+        return constCast(this)->hasChild(name, searchInParents, forkChildFoundInFirstOrigin, isDirectPtr);
+    }
+
+    Node *hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) {
         Node *child = NULL;
-        if(_children) child = _children->value(name);
+        if(_children) child = constCast(_children->value(name));
         if(isRemovedPtr) *isRemovedPtr = !child && _children && _children->contains(name);
         return child;
     }
 
-    QString hasDirectChild(Node *value) const {
+    const Node *hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) const {
+        return constCast(this)->hasDirectChild(name, isRemovedPtr);
+    }
+
+    QString hasDirectChild(const Node *value) const {
         return _children ? _children->key(value) : QString();
     }
 
-    bool hasDirectParent(Node *parent) const {
+    bool hasDirectParent(const Node *parent) const {
         CHILD_CHECK_POINTER(parent);
         return _parents && _parents->contains(parent);
     }
 
 private:
-    void _addParent(Node *parent) const;
-    void _removeParent(Node *parent) const;
+    void _addParent(const Node *parent) const;
+    void _removeParent(const Node *parent) const;
 public:
-    QHash<QString, Node *> children() const;
-    QList<Node *> parents() const;
+
+    QHash<QString, Node *> children();
+    QHash<QString, const Node *> children() const;
+    QList<Node *> parents();
+    QList<const Node *> parents() const;
 
     virtual Node *run(Node *receiver = context()) {
         Q_UNUSED(receiver);
@@ -200,10 +222,10 @@ public:
         ContextPusher &operator=(const ContextPusher &);
     };
 private:
-    Node *_origin;
-    QList<Node *> *_extensions;
-    QHash<QString, Node *> *_children;
-    mutable QHash<Node *, HugeUnsignedInteger> *_parents;
+    const Node *_origin;
+    QList<const Node *> *_extensions;
+    QHash<QString, const Node *> *_children;
+    mutable QHash<const Node *, HugeUnsignedInteger> *_parents;
 };
 
 inline bool operator==(const Node &a, const Node &b) { return a.isEqualTo(&b); }
@@ -216,9 +238,9 @@ inline uint qHash(const Node &node) { return node.hash(); }
 
 #define CHILD_DECLARE(NAME, ORIGIN) \
 public: \
-    static NAME *cast(Node *node) { return static_cast<NAME *>(node); } \
-    static NAME *dynamicCast(Node *node) { return dynamic_cast<NAME *>(node); } \
-    static NAME *constCast(const NAME *node) { return const_cast<NAME *>(node); } \
+    inline static NAME *cast(Node *node) { return static_cast<NAME *>(node); } \
+    inline static NAME *dynamicCast(Node *node) { return dynamic_cast<NAME *>(node); } \
+    inline static NAME *constCast(const NAME *node) { return const_cast<NAME *>(node); } \
     static NAME *root(); \
     virtual const QString className() const { return #NAME; } \
     static const bool isInitialized; \

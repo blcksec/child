@@ -15,7 +15,7 @@ const bool Node::isInitialized = Node::root();
 Node::~Node() {
     if(_extensions) delete _extensions;
     if(_children) {
-        foreach(Node *child, *_children) if(child) child->_removeParent(this);
+        foreach(const Node *child, *_children) if(child) child->_removeParent(this);
         delete _children;
     }
     if(_parents) delete _parents;
@@ -51,26 +51,26 @@ void Node::initRoot() {
 //    CHILD_NATIVE_METHOD_ADD(Node, inspect);
 }
 
-void Node::setOrigin(Node *node) {
+void Node::setOrigin(const Node *node) {
     CHILD_CHECK_POINTER(node);
     _origin = node;
 }
 
-void Node::addExtension(Node *node) {
+void Node::addExtension(const Node *node) {
     CHILD_CHECK_POINTER(node);
-    if(!_extensions) { _extensions = new QList<Node *>; }
+    if(!_extensions) { _extensions = new QList<const Node *>; }
     if(hasExtension(node)) CHILD_THROW(DuplicateException, "cannot add an extension which is already there");
     _extensions->append(node);
 }
 
-void Node::prependExtension(Node *node)  {
+void Node::prependExtension(const Node *node)  {
     CHILD_CHECK_POINTER(node);
-    if(!_extensions) { _extensions = new QList<Node *>; }
+    if(!_extensions) { _extensions = new QList<const Node *>; }
     if(hasExtension(node)) CHILD_THROW(DuplicateException, "cannot add an extension which is already there");
     _extensions->prepend(node);
 }
 
-void Node::removeExtension(Node *node)  {
+void Node::removeExtension(const Node *node)  {
     CHILD_CHECK_POINTER(node);
     if(!hasExtension(node)) CHILD_THROW(NotFoundException, "cannot remove an extension which is not there");
     _extensions->removeOne(node);
@@ -80,38 +80,48 @@ void Node::removeAllExtensions() {
     _extensions->clear();
 }
 
-bool Node::hasExtension(Node *node) const {
+bool Node::hasExtension(const Node *node) const {
     CHILD_CHECK_POINTER(node); return _extensions && _extensions->contains(node);
 }
 
-Node *Node::child(const QString &name) const {
+QList<Node *> Node::extensions() {
+    QList<Node *> list;
+    if(_extensions) foreach (const Node *node, *_extensions) {
+        list.append(constCast(node));
+    }
+    return list;
+}
+
+QList<const Node *> Node::extensions() const {
+    return _extensions ? *_extensions : QList<const Node *>();
+}
+
+Node *Node::child(const QString &name) {
     Node *node = hasChild(name);
     if(!node) CHILD_THROW(NotFoundException, "child not found");
     return node;
 }
 
-Node *Node::addChild(const QString &name, Node *value) {
+void Node::addChild(const QString &name, const Node *value) {
     CHILD_CHECK_POINTER(value);
     if(hasChild(name, false)) CHILD_THROW(DuplicateException, "child with same name is already there");
     _setChild(name, value);
-    return value;
 }
 
-Node *Node::setChild(const QString &name, Node *value, bool addOrSetMode) {
+void Node::setChild(const QString &name, const Node *value, bool addOrSetMode) {
     CHILD_CHECK_POINTER(value);
     bool isDirect;
     if(Node *current = hasChild(name, !addOrSetMode, false, &isDirect)) {
         if(isDirect) {
-            if(current == value) return value;
+            if(current == value) return;
             current->_removeParent(this);
         }
     } else if(!addOrSetMode) CHILD_THROW(NotFoundException, "child not found");
     _setChild(name, value);
-    return value;
 }
 
-void Node::_setChild(const QString &name, Node *value) {
-    if(!_children) _children = new QHash<QString, Node *>;
+void Node::_setChild(const QString &name, const Node *value) {
+    if(!_children) _children = new QHash<QString, const Node *>;
     _children->insert(name, value);
     if(value) value->_addParent(this);
 }
@@ -125,7 +135,7 @@ void Node::removeChild(const QString &name) {
 }
 
 Node *Node::hasChild(const QString &name, bool searchInParents,
-                             bool forkChildFoundInFirstOrigin, bool *isDirectPtr) const {
+                             bool forkChildFoundInFirstOrigin, bool *isDirectPtr) {
     bool isRemoved;
     Node *node = hasDirectChild(name, &isRemoved);
     bool isDirect = node || isRemoved;
@@ -133,22 +143,22 @@ Node *Node::hasChild(const QString &name, bool searchInParents,
         if(origin() && (node = origin()->hasChild(name, searchInParents)))
             if(forkChildFoundInFirstOrigin) {
                 node = node->fork();
-                constCast(this)->_setChild(name, node);
+                _setChild(name, node);
             }
     if(isDirectPtr) *isDirectPtr = isDirect;
     return node;
 }
 
-void Node::_addParent(Node *parent) const {
+void Node::_addParent(const Node *parent) const {
     HugeUnsignedInteger count = 0;
     if(_parents)
         count = _parents->value(parent);
     else
-        _parents = new QHash<Node *, HugeUnsignedInteger>;
+        _parents = new QHash<const Node *, HugeUnsignedInteger>;
     _parents->insert(parent, count + 1);
 }
 
-void Node::_removeParent(Node *parent) const {
+void Node::_removeParent(const Node *parent) const {
     if(!_parents) CHILD_THROW(NotFoundException, "parent not found");
     HugeUnsignedInteger count = _parents->value(parent) - 1;
     if(count > 0)
@@ -159,18 +169,33 @@ void Node::_removeParent(Node *parent) const {
         CHILD_THROW(NotFoundException, "parent not found");
 }
 
-QHash<QString, Node *> Node::children() const {
+QHash<QString, Node *> Node::children() {
     QHash<QString, Node *> children;
     if(_children) {
-        QHashIterator<QString, Node *> i(*_children);
+        QHashIterator<QString, const Node *> i(*_children);
+        while(i.hasNext()) if(i.next().value()) children.insert(i.key(), constCast(i.value()));
+    }
+    return children;
+}
+
+QHash<QString, const Node *> Node::children() const {
+    QHash<QString, const Node *> children;
+    if(_children) {
+        QHashIterator<QString, const Node *> i(*_children);
         while(i.hasNext()) if(i.next().value()) children.insert(i.key(), i.value());
     }
     return children;
 }
 
-QList<Node *> Node::parents() const {
+QList<Node *> Node::parents() {
     QList<Node *> parents;
-    if(_parents) foreach(Node *parent, _parents->keys()) parents.append(parent);
+    if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(constCast(parent));
+    return parents;
+}
+
+QList<const Node *> Node::parents() const {
+    QList<const Node *> parents;
+    if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(parent);
     return parents;
 }
 

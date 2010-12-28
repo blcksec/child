@@ -12,7 +12,7 @@ CHILD_BEGIN
 class Object : public Node {
     CHILD_DECLARE(Object, Node);
 public:
-    explicit Object(Node *origin) : Node(origin) {}
+    explicit Object(const Node *origin) : Node(origin) {}
 
     static void initRoot() {
         Node::root()->addChild("Object", root());
@@ -39,7 +39,7 @@ public:
 //        CHILD_NATIVE_METHOD_ADD(Object, return);
     }
 
-    virtual Node *fork() const { return new Object(constCast(this)); }
+    virtual Node *fork() const { return new Object(this); }
 
 //    CHILD_NATIVE_METHOD_DECLARE(postfix_increment);
 //    CHILD_NATIVE_METHOD_DECLARE(postfix_decrement);
