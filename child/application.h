@@ -20,7 +20,7 @@ public:
         Object(origin), _sourceCodes(NULL), _operatorTable(NULL), _lexer(NULL), _parser(NULL) {}
 
     static void initRoot() { Object::root()->addChild("Application", root()); }
-    virtual Node *fork() const { CHILD_TODO; return new Application(this); }
+    virtual Application *fork() const { CHILD_TODO; return new Application(this); }
 
     void init() {
         _sourceCodes = CHILD_SOURCE_CODE_DICTIONARY();

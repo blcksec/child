@@ -20,10 +20,11 @@ namespace Language {
     public:
         explicit Parser(const Node *origin) : Object(origin), _lexer(NULL), _currentToken(NULL) {}
         static void initRoot() { Language::root()->addChild("Parser", root()); }
-        virtual Node *fork() const { return new Parser(this); } // TODO
+        virtual Parser *fork() const { return new Parser(this); } // TODO
 
         Lexer *lexer() const {
-            if(!_lexer) const_cast<Parser *>(this)->_lexer = context()->child("lexer");
+            if(!_lexer)
+                Parser::constCast(this)->_lexer = Lexer::cast(context()->child("lexer"));
             return _lexer;
         }
 
@@ -82,8 +83,8 @@ namespace Language {
                 PrimitiveChain *expression = scanExpression();
                 if(Pair *pair = Pair::dynamicCast(expression->first()->value())) {
                     section = CHILD_SECTION();
-                    section->setLabel(pair->first());
-                    expression = pair->second();
+                    section->setLabel(PrimitiveChain::cast(pair->first()));
+                    expression = PrimitiveChain::cast(pair->second());
                     block->append(section);
                 }
                 if(expression->isNotEmpty()) {
@@ -165,7 +166,7 @@ namespace Language {
                 closeToken();
                 match(Token::RightParenthesis);
             }
-            if(isNestedBlock()) message->setBlock(scanNestedBlock()->value());
+            if(isNestedBlock()) message->setBlock(Block::cast(scanNestedBlock()->value()));
             int end = token()->sourceCodeRef.position();
             primitive->setSourceCodeRef(lexer()->source().midRef(begin, end - begin));
             consumeUselessNewline();
@@ -297,7 +298,7 @@ namespace Language {
 
         PrimitiveChain *resolveBinaryOperator(PrimitiveChain *lhs,
                                                     const Operator *op,
-                                                    const PrimitiveChain *rhs,
+                                                    PrimitiveChain *rhs,
                                                     const QStringRef &sourceCodeRef) {
             if(op->isSpecial) {
                 if(op->name == ":") {
@@ -305,7 +306,7 @@ namespace Language {
                     lhs = CHILD_PRIMITIVE_CHAIN(primitive);
                 } else if(op->name == ",") {
                     checkRightHandSide(rhs);
-                    Bunch *bunch(lhs->first()->value(), true);
+                    Bunch *bunch = Bunch::dynamicCast(lhs->first()->value());
                     if(!bunch) {
                         Primitive *primitive = CHILD_PRIMITIVE(CHILD_BUNCH(lhs, rhs), sourceCodeRef);
                         lhs = CHILD_PRIMITIVE_CHAIN(primitive);
@@ -314,7 +315,7 @@ namespace Language {
                     }
                 } else if(op->name == "->") {
                     checkRightHandSide(rhs);
-                    Message *message == Message::dynamicCast(lhs->last()->value());
+                    Message *message = Message::dynamicCast(lhs->last()->value());
                     if(!message) throw parserException("message expected before '->'");
                     message->outputs()->append(rhs);
                 } else

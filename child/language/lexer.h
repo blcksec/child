@@ -17,10 +17,11 @@ namespace Language {
     public:
         explicit Lexer(const Node *origin) : Object(origin), _operatorTable(NULL), _source(NULL) {}
         static void initRoot() { Language::root()->addChild("Lexer", root()); }
-        virtual Node *fork() const { return new Lexer(this); } // TODO
+        virtual Lexer *fork() const { return new Lexer(this); } // TODO
 
         OperatorTable *operatorTable() const {
-            if(!_operatorTable) const_cast<Lexer *>(this)->_operatorTable = context()->child("operatorTable");
+            if(!_operatorTable)
+                Lexer::constCast(this)->_operatorTable = OperatorTable::cast(context()->child("operatorTable"));
             return _operatorTable;
         }
 

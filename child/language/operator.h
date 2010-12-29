@@ -34,7 +34,7 @@ namespace Language {
 
         static void initRoot() { Language::root()->addChild("Operator", root()); }
 
-        virtual Node *fork() const {
+        virtual Operator *fork() const {
             return new Operator(this, text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name);
         }
 

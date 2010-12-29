@@ -5,7 +5,7 @@
 
 CHILD_BEGIN
 
-template<class C, class T1, class T2>
+template<class T1, class T2>
 class GenericPair : public Object {
 public:
     explicit GenericPair(const Node *origin, const T1 &first = NULL, const T2 &second = NULL) :
@@ -31,13 +31,13 @@ private:
 class Pair : public GenericPair<Node *, Node *> {
     CHILD_DECLARE(Pair, Object);
 public:
-    explicit Pair(const Node *origin, const Node *first = NULL, const Node *second = NULL) :
+    explicit Pair(const Node *origin, Node *first = NULL, Node *second = NULL) :
         GenericPair<Node *, Node *>(origin, first, second) {}
 
     static void initRoot() { Object::root()->addChild("Pair", root()); }
 
-    virtual Node *fork() const {
-        return new Pair(this, forkIfNotNull(first()), forkIfNotNull(second()));
+    virtual Pair *fork() const {
+        return new Pair(this, CHILD_FORK_IF_NOT_NULL(first()), CHILD_FORK_IF_NOT_NULL(second()));
     }
 
     virtual QString toString(bool debug = false, short level = 0) const {

@@ -12,19 +12,23 @@ class Bunch : public GenericList<Node *> {
 public:
     explicit Bunch(const Node *origin) : GenericList<Node *>(origin, true) {}
 
-    Bunch(const Node *origin, const Node *value) : GenericList<Node *>(origin, value, true) {}
+    Bunch(const Node *origin, Node *value) : GenericList<Node *>(origin, value, true) {}
 
-    Bunch(const Node *origin, const Node *value1, const Node *value2) :
+    Bunch(const Node *origin, Node *value1, Node *value2) :
         GenericList<Node *>(origin, value1, value2, true) {}
 
-    Bunch(const Node *origin, const Node *value1, const Node *value2, const Node *value3) :
+    Bunch(const Node *origin, Node *value1, Node *value2, Node *value3) :
         GenericList<Node *>(origin, value1, value2, value3, true) {}
 
     Bunch(const Bunch &other) : GenericList<Node *>(other) {}
 
     static void initRoot() { Object::root()->addChild("Bunch", root()); }
 
-    virtual Node *fork() const { return (new Bunch(this))->initFork(); }
+    virtual Bunch *fork() const {
+        Bunch *bunch = new Bunch(this);
+        bunch->initFork();
+        return bunch;
+    }
 
     virtual QString toString(bool debug = false, short level = 0) const {
         return "[" + join(", ", "", "", debug, level) + "]";

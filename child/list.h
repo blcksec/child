@@ -8,7 +8,7 @@ CHILD_BEGIN
 #define CHILD_CHECK_VALUE(VALUE) \
 if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 
-template<class C, class T>
+template<class T>
 class GenericList : public Object {
 public:
     explicit GenericList(const Node *origin, const bool isBunched = false) :
@@ -45,13 +45,13 @@ public:
         }
     }
 
-    C initFork() {
-        C orig = origin();
+    GenericList *initFork() {
+        GenericList *orig = static_cast<GenericList *>(origin());
         if(orig->isNotEmpty()) {
             foreach(T node, *orig->_list) _append(node->fork());
             hasChanged();
         }
-        return C(this);
+        return this;
     }
 
     T insert(int i, const T &value) { _insert(i, value); hasChanged(); return value; }
@@ -64,7 +64,7 @@ public:
         addAnonymousChild(value);
     }
 
-    C insert(int i, const C &otherList) {
+    const GenericList *insert(int i, const GenericList *otherList) {
         checkIndex(i, true);
         if(!otherList) CHILD_THROW(NullPointerException, "List pointer is NULL");
         for(int j = 0; j < otherList->size(); j++) {
@@ -76,9 +76,9 @@ public:
 
     T append(const T &value) { return insert(size(), value); }
     T _append(const T &value) { _insert(size(), value); return value; }
-    C append(const C &otherList) { return insert(size(), otherList); }
+    const GenericList *append(const GenericList *otherList) { return insert(size(), otherList); }
     T prepend(const T &value) { return insert(0, value); }
-    C prepend(const C &otherList) { return insert(0, otherList); }
+    const GenericList *prepend(const GenericList *otherList) { return insert(0, otherList); }
 
     T get(int i) const {
         checkIndex(i);
@@ -135,7 +135,7 @@ public:
                        const QString &suffix = "", bool debug = false, short level = 0) const {
         QString str;
         bool first = true;
-        Iterator i(C(this));
+        Iterator i(this);
         while(T value = i.next()) {
             if(!first) str += separator; else first = false;
             str += prefix + value->toString(debug, level) + suffix;
@@ -163,11 +163,11 @@ public:
 
     class Iterator {
     public:
-        Iterator(const C &list) : _iterator(list->_list ? new QListIterator<T>(*list->_list) : NULL) {}
+        Iterator(const GenericList *list) : _iterator(list->_list ? new QListIterator<T>(*list->_list) : NULL) {}
         ~Iterator() { delete _iterator; }
 
         bool hasNext() const { return _iterator && _iterator->hasNext(); }
-        const T &next() { return hasNext() ? _iterator->next() : T::null(); }
+        const T next() { return hasNext() ? _iterator->next() : NULL; }
     private:
         QListIterator<T> *_iterator;
     };
@@ -184,17 +184,13 @@ public:
     explicit List(const Node *origin, const QList<Node *> &other = QList<Node *>()) :
         GenericList<Node *>(origin, other) {}
 
-    List(const Node *origin, const QList<Reference> &other) :
-        GenericList<Node *>(origin) {
-        if(!other.isEmpty()) {
-            foreach(Reference ref, other) _append(ref);
-            hasChanged();
-        }
-    }
-
     static void initRoot() { Object::root()->addChild("List", root()); }
 
-    virtual Node *fork() const { return (new List(this))->initFork(); }
+    virtual List *fork() const {
+        List *list = new List(this);
+        list->initFork();
+        return list;
+    }
 };
 
 CHILD_END

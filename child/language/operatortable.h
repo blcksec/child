@@ -18,7 +18,12 @@ namespace Language {
         explicit OperatorTable(const Node *origin) : GenericList<Operator *>(origin) {}
 
         static void initRoot() { Language::root()->addChild("OperatorTable", root()); }
-        virtual Node *fork() const { return (new OperatorTable(this))->initFork(); };
+
+        virtual OperatorTable *fork() const {
+            OperatorTable *table = new OperatorTable(this);
+            table->initFork();
+            return table;
+        };
 
         void append(const QString &text, Operator::Type type, short precedence,
                     Operator::Associativity associativity = Operator::LeftAssociative,

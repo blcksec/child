@@ -34,7 +34,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Number, compare, <=>);
     }
 
-    virtual Node *fork() const { return new Number(this, value()); }
+    virtual Number *fork() const { return new Number(this, value()); }
 
     CHILD_NATIVE_METHOD_DECLARE(add) {
         CHILD_CHECK_INPUT_SIZE(1);

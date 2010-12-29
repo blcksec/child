@@ -16,7 +16,7 @@ namespace Language {
 
         static void initRoot() { Language::root()->addChild("Section", root()); }
 
-        virtual Node *fork() const {
+        virtual Section *fork() const {
             Section *forkedSection = new Section(this);
             forkedSection->initFork();
             forkedSection->setLabel(label());
@@ -24,9 +24,9 @@ namespace Language {
         }
 
         PrimitiveChain *label() const { return _label; }
-        void setLabel(const PrimitiveChain *label) { _label = label; }
+        void setLabel(PrimitiveChain *label) { _label = label; }
 
-        virtual Node *run(const Node *receiver = context()) {
+        virtual Node *run(Node *receiver = context()) {
             Node *result = NULL;
             Iterator i(this);
             while(PrimitiveChain *chain = i.next()) {

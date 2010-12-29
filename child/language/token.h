@@ -40,7 +40,7 @@ namespace Language {
             Object(origin), type(type), sourceCodeRef(sourceCodeRef) {}
 
         static void initRoot() { Language::root()->addChild("Token", root()); }
-        virtual Node *fork() const { return new Token(this, type, sourceCodeRef); }
+        virtual Token *fork() const { return new Token(this, type, sourceCodeRef); }
 
         const QString typeName() const { return Token::typeName(type); }
         const QString text() const { return sourceCodeRef.toString(); }

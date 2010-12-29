@@ -7,7 +7,7 @@ CHILD_BEGIN
 
 namespace Language {
     Object *root();
-    static bool isInitialized = root().isNotNull();
+    static bool isInitialized = root();
 }
 
 CHILD_END

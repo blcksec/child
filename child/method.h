@@ -13,7 +13,7 @@ CHILD_BEGIN
 class Method : public GenericElement<Block *> {
     CHILD_DECLARE(Method, Element);
 public:
-    explicit Method(const Node *origin, const Block *block = NULL) :
+    explicit Method(const Node *origin, Block *block = NULL) :
         GenericElement<Block *>(origin, block), _inputs(NULL), _outputs(NULL) {}
 
     static void initRoot() {
@@ -21,7 +21,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Method, init);
     }
 
-    virtual Node *fork() const { return new Method(this, forkIfNotNull(block())); }
+    virtual Method *fork() const { return new Method(this, CHILD_FORK_IF_NOT_NULL(block())); }
 
     CHILD_NATIVE_METHOD_DECLARE(init) {
         CHILD_CHECK_INPUT_SIZE(0);
@@ -30,14 +30,14 @@ public:
     }
 
     Block *block() const { return value(); } // aliases
-    void setBlock(const Block *block) { setValue(block); }
+    void setBlock(Block *block) { setValue(block); }
 
     ParameterList *inputs(bool createIfNull = true) const {
         if(!_inputs && createIfNull) const_cast<Method *>(this)->_inputs = CHILD_PARAMETER_LIST();
         return(_inputs);
     }
 
-    void setInputs(const ParameterList *inputs) { _inputs = inputs; }
+    void setInputs(ParameterList *inputs) { _inputs = inputs; }
 
     Parameter *input(short i) const { return inputs(false)->get(i); }
     bool hasInput(short i) const { return inputs(false) && inputs()->hasIndex(i); }
@@ -48,9 +48,9 @@ public:
         return(_outputs);
     }
 
-    void setOutputs(const ParameterList *outputs) { _outputs = outputs; }
+    void setOutputs(ParameterList *outputs) { _outputs = outputs; }
 
-    virtual Node *run(const Node *receiver, const Message *message) {
+    virtual Node *run(Node *receiver, Message *message) {
         if(!block()) // method creation
             return Node::run(receiver, message);
         else { // method execution
@@ -98,7 +98,7 @@ public:
                 PrimitiveChain *defaultValue = argument->value();
                 if(!label) {
                     label = defaultValue;
-                    defaultValue.clear();
+                    defaultValue = NULL;
                 }
                 if(label->size() != 1)
                     CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message");

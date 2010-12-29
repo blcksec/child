@@ -8,6 +8,14 @@
 
 CHILD_BEGIN
 
+#define CHILD_NODE(ARGS...) new Node(Node::context()->child("Node"), ##ARGS)
+
+#define CHILD_FORK_IF_NOT_NULL(NODE) \
+((NODE) ? (NODE)->fork() : NULL)
+
+#define CHILD_CHECK_POINTER(POINTER) \
+if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Node pointer is NULL")
+
 class Message;
 
 #define CHILD_NATIVE_METHOD_DECLARE(METHOD) \
@@ -15,11 +23,6 @@ Node *_##METHOD##_(Message *message)
 
 #define CHILD_NATIVE_METHOD_DEFINE(NAME, METHOD) \
 Node *NAME::_##METHOD##_(Message *message)
-
-#define CHILD_NODE(ARGS...) new Node(Node::context()->child("Node"), ##ARGS)
-
-#define CHILD_CHECK_POINTER(POINTER) \
-if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Node pointer is NULL")
 
 class Node : public gc_cleanup {
 public:
@@ -45,7 +48,6 @@ public:
     virtual const QString className() const { return "Node"; }
     static void initRoot();
     virtual Node *fork() const { return new Node(this); }
-    static Node *forkIfNotNull(const Node *node) { return node ? node->fork() : constCast(node); }
 
     const Node *origin() const { return _origin; }
     Node *origin() { return constCast(_origin); }
@@ -144,37 +146,37 @@ public:
         return this;
     }
 
-//    virtual Node *run(Node *receiver, Message *message);
+    virtual Node *run(Node *receiver, Message *message);
 
-//    CHILD_NATIVE_METHOD_DECLARE(fork);
-//private:
-//    Node *defineOrAssign(Message *message, bool isDefine);
-//public:
-//    CHILD_NATIVE_METHOD_DECLARE(define) { return(defineOrAssign(message, true)); }
-//    CHILD_NATIVE_METHOD_DECLARE(assign) { return(defineOrAssign(message, false)); }
+    CHILD_NATIVE_METHOD_DECLARE(fork);
+private:
+    Node *defineOrAssign(Message *message, bool isDefine);
+public:
+    CHILD_NATIVE_METHOD_DECLARE(define) { return(defineOrAssign(message, true)); }
+    CHILD_NATIVE_METHOD_DECLARE(assign) { return(defineOrAssign(message, false)); }
 
-//    virtual void hasBeenAssigned(Message *message) const {
-//        Q_UNUSED(message);
-//    }
+    virtual void hasBeenAssigned(Message *message) const {
+        Q_UNUSED(message);
+    }
 
-//    CHILD_NATIVE_METHOD_DECLARE(or);
-//    CHILD_NATIVE_METHOD_DECLARE(and);
-//    CHILD_NATIVE_METHOD_DECLARE(not);
+    CHILD_NATIVE_METHOD_DECLARE(or);
+    CHILD_NATIVE_METHOD_DECLARE(and);
+    CHILD_NATIVE_METHOD_DECLARE(not);
 
-//    CHILD_NATIVE_METHOD_DECLARE(or_assign);
-//    CHILD_NATIVE_METHOD_DECLARE(and_assign);
+    CHILD_NATIVE_METHOD_DECLARE(or_assign);
+    CHILD_NATIVE_METHOD_DECLARE(and_assign);
 
     virtual bool isEqualTo(const Node *other) const { return this == other; }
-//    CHILD_NATIVE_METHOD_DECLARE(equal_to);
-//    CHILD_NATIVE_METHOD_DECLARE(different_from);
+    CHILD_NATIVE_METHOD_DECLARE(equal_to);
+    CHILD_NATIVE_METHOD_DECLARE(different_from);
 
-//    CHILD_NATIVE_METHOD_DECLARE(assert);
+    CHILD_NATIVE_METHOD_DECLARE(assert);
 
     void print() const { P(toString().toUtf8()); }
-//    CHILD_NATIVE_METHOD_DECLARE(print);
+    CHILD_NATIVE_METHOD_DECLARE(print);
 
     void inspect() const { P(toString(true).toUtf8()); }
-//    CHILD_NATIVE_METHOD_DECLARE(inspect);
+    CHILD_NATIVE_METHOD_DECLARE(inspect);
 
     long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
@@ -221,6 +223,17 @@ public:
         ContextPusher(const ContextPusher &); // prevent copying
         ContextPusher &operator=(const ContextPusher &);
     };
+
+     class Reference {
+     public:
+         Reference(Node *node) : _node(node) {}
+         Node &operator*() const { return *_node; }
+         Node *operator->() const { return _node; }
+         operator bool() const { return _node; }
+         bool operator!() const { return !_node; }
+     private:
+         Node *_node;
+     };
 private:
     const Node *_origin;
     QList<const Node *> *_extensions;
@@ -232,14 +245,16 @@ inline bool operator==(const Node &a, const Node &b) { return a.isEqualTo(&b); }
 inline bool operator!=(const Node &a, const Node &b) { return !a.isEqualTo(&b); }
 inline uint qHash(const Node &node) { return node.hash(); }
 
-//inline bool operator==(const Reference &a, const Reference &b) { return a->isEqualTo(b); }
-//inline bool operator!=(const Reference &a, const Reference &b) { return !a->isEqualTo(b); }
-//inline uint qHash(const Reference &node) { return node->hash(); }
+inline bool operator==(const Node::Reference &a, const Node::Reference &b) { return a->isEqualTo(&(*b)); }
+inline bool operator!=(const Node::Reference &a, const Node::Reference &b) { return !a->isEqualTo(&(*b)); }
+inline uint qHash(const Node::Reference &node) { return node->hash(); }
 
 #define CHILD_DECLARE(NAME, ORIGIN) \
 public: \
     inline static NAME *cast(Node *node) { return static_cast<NAME *>(node); } \
+    inline static const NAME *cast(const Node *node) { return static_cast<const NAME *>(node); } \
     inline static NAME *dynamicCast(Node *node) { return dynamic_cast<NAME *>(node); } \
+    inline static const NAME *dynamicCast(const Node *node) { return dynamic_cast<const NAME *>(node); } \
     inline static NAME *constCast(const NAME *node) { return const_cast<NAME *>(node); } \
     static NAME *root(); \
     virtual const QString className() const { return #NAME; } \

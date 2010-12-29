@@ -9,7 +9,7 @@ Section *Block::findSection(const QString &label) {
     Iterator i(this);
     while(Section *section = i.next()) {
         if(section->label() && section->label()->size() == 1) {
-            Message *message(section->label()->first()->value(), true);
+            Message *message = Message::dynamicCast(section->label()->first()->value());
             if(message && message->name() == label) return section;
         }
     }

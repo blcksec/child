@@ -17,28 +17,30 @@ namespace Language {
         explicit Argument(const Node *origin) :
             GenericPair<PrimitiveChain *, PrimitiveChain *>(origin) {}
 
-        Argument(const Node *origin, const PrimitiveChain *value) :
+        Argument(const Node *origin, PrimitiveChain *value) :
             GenericPair<PrimitiveChain *, PrimitiveChain *>(origin, NULL, value) {}
 
-        Argument(const Node *origin, const PrimitiveChain *label, const PrimitiveChain *value) :
+        Argument(const Node *origin, PrimitiveChain *label, PrimitiveChain *value) :
             GenericPair<PrimitiveChain *, PrimitiveChain *>(origin, label, value) {}
 
-        Argument(const Node *origin, const Node *node) :
+        Argument(const Node *origin, Node *node) :
             GenericPair<PrimitiveChain *, PrimitiveChain *>(origin, NULL, CHILD_PRIMITIVE_CHAIN(node)) {}
 
         static void initRoot() { Language::root()->addChild("Argument", root()); }
 
-        virtual Node *fork() const {
-            return new Argument(this, forkIfNotNull(label()), forkIfNotNull(value()));
+        virtual Argument *fork() const {
+            return new Argument(this,
+                                PrimitiveChain::cast(CHILD_FORK_IF_NOT_NULL(label())),
+                                PrimitiveChain::cast(CHILD_FORK_IF_NOT_NULL(value())));
         }
 
         // aliases...
         PrimitiveChain *label() const { return key(); }
-        void setLabel(const PrimitiveChain *label) { setKey(label); }
+        void setLabel(PrimitiveChain *label) { setKey(label); }
 
         QString labelName() const;
 
-        virtual Node *run(const Node *receiver = context()) {
+        virtual Node *run(Node *receiver = context()) {
             return value()->run(receiver);
         }
 
@@ -62,34 +64,39 @@ namespace Language {
     public:
         explicit ArgumentBunch(const Node *origin) : GenericList<Argument *>(origin, true) {}
 
-        ArgumentBunch(const Node *origin, const Argument *argument) :
+        ArgumentBunch(const Node *origin, Argument *argument) :
             GenericList<Argument *>(origin, argument, true) {}
 
-        ArgumentBunch(const Node *origin, const Argument *argument1, const Argument *argument2) :
+        ArgumentBunch(const Node *origin, Argument *argument1, Argument *argument2) :
             GenericList<Argument *>(origin, argument1, argument2, true) {}
 
-        ArgumentBunch(const Node *origin, const Node *argument) :
+        ArgumentBunch(const Node *origin, Node *argument) :
             GenericList<Argument *>(origin, CHILD_ARGUMENT(argument), true) {}
 
-        ArgumentBunch(const Node *origin, const Node *argument1, const Node *argument2) :
+        ArgumentBunch(const Node *origin, Node *argument1, Node *argument2) :
             GenericList<Argument *>(
                 origin, CHILD_ARGUMENT(argument1), CHILD_ARGUMENT(argument2), true) {}
 
         static void initRoot() { Language::root()->addChild("ArgumentBunch", root()); }
-        virtual Node *fork() const { return (new ArgumentBunch(this))->initFork(); }
+
+        virtual ArgumentBunch *fork() const {
+            ArgumentBunch *bunch = new ArgumentBunch(this);
+            bunch->initFork();
+            return bunch;
+        }
 
         using GenericList<Argument *>::append;
 
-        void append(const PrimitiveChain *value) {
+        void append(PrimitiveChain *value) {
             if(Pair *pair = Pair::dynamicCast(value->first()->value()))
-                append(pair->first(), pair->second());
+                append(PrimitiveChain::cast(pair->first()), PrimitiveChain::cast(pair->second()));
             else if(Bunch *bunch = Bunch::dynamicCast(value->first()->value()))
                 append(bunch);
             else
                 append(CHILD_ARGUMENT(NULL, value));
         }
 
-        Argument *append(const PrimitiveChain *label, const PrimitiveChain *value) {
+        Argument *append(PrimitiveChain *label, PrimitiveChain *value) {
             return append(CHILD_ARGUMENT(label, value));
         }
 

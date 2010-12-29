@@ -16,15 +16,15 @@ namespace Language {
         CHILD_DECLARE(SourceCode, Object);
     public:
         explicit SourceCode(const Node *origin, const QString &url = "",
-                   const QString &txt = "", const Block *block = NULL) :
+                   const QString &txt = "", Block *block = NULL) :
             Object(origin), _url(url), _text(txt), _block(block) {
             if(!url.isEmpty() && txt.isEmpty()) load();
-            if(!text().isEmpty() && block.isNull()) parse();
+            if(!text().isEmpty() && !block) parse();
         }
 
         static void initRoot() { Language::root()->addChild("SourceCode", root()); }
 
-        virtual Node *fork() const {
+        virtual SourceCode *fork() const {
             return new SourceCode(this, url(), text(), block() ? block()->fork() : block());
         }
 
@@ -35,7 +35,7 @@ namespace Language {
         void setText(const QString &text) { _text = text; }
 
         Block *block() const { return _block; }
-        void setBlock(const Block *block) { _block = block; }
+        void setBlock(Block *block) { _block = block; }
 
         void load(const QString &newUrl = "") {
             if(!newUrl.isEmpty()) setUrl(newUrl);
@@ -45,11 +45,11 @@ namespace Language {
 
         void parse(const QString &newText = "") {
             if(!newText.isEmpty()) setText(newText);
-            Parser *parser = context()->child("parser");
+            Parser *parser = Parser::cast(context()->child("parser"));
             setBlock(parser->parse(text(), url()));
         }
 
-        virtual Node *run(const Node *receiver = context()) {
+        virtual Node *run(Node *receiver = context()) {
             #ifdef CHILD_CATCH_EXCEPTIONS
             try {
             #endif
@@ -79,14 +79,19 @@ namespace Language {
     #define CHILD_SOURCE_CODE_DICTIONARY(ARGS...) \
     new Language::SourceCodeDictionary(Node::context()->child("Object", "Language", "SourceCodeDictionary"), ##ARGS)
 
-    class SourceCodeDictionary : public GenericDictionary<Reference, SourceCode *> {
+    class SourceCodeDictionary : public GenericDictionary<Node::Reference, SourceCode *> {
         CHILD_DECLARE(SourceCodeDictionary, Dictionary);
     public:
         SourceCodeDictionary(const Node *origin) :
-            GenericDictionary<Reference, SourceCode *>(origin) {}
+            GenericDictionary<Node::Reference, SourceCode *>(origin) {}
 
         static void initRoot() { Language::root()->addChild("SourceCodeDictionary", root()); }
-        virtual Node *fork() const { return (new SourceCodeDictionary(this))->initFork(); };
+
+        virtual SourceCodeDictionary *fork() const {
+            SourceCodeDictionary *dict = new SourceCodeDictionary(this);
+            dict->initFork();
+            return dict;
+        };
     };
 }
 

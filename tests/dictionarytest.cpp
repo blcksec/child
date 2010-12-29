@@ -20,7 +20,7 @@ void DictionaryTest::getAndSet() { // TODO: more tests with fork and/or removed 
     QCOMPARE(dict->size(), 1);
     QVERIFY(dict->isNotEmpty());
     QVERIFY(dict->get(k1) == t1);
-    QVERIFY(dict->get(CHILD_TEXT("key1")) = t1);
+    QVERIFY(dict->get(CHILD_TEXT("key1")) == t1);
     QVERIFY(t1->hasDirectParent(dict));
     Text *t2 = CHILD_TEXT("val2");
     dict->set(k1, t2);
@@ -47,7 +47,7 @@ void DictionaryTest::getAndSet() { // TODO: more tests with fork and/or removed 
 
 void DictionaryTest::keys() { // TODO: test with fork and/or removed key
     Dictionary *dict = CHILD_DICTIONARY();
-    QList<Reference> keys = dict->keys();
+    QList<Node::Reference> keys = dict->keys();
     QVERIFY(keys.isEmpty());
     Text *t1 = CHILD_TEXT("val1");
     Text *k1 = CHILD_TEXT("key1");
@@ -60,7 +60,8 @@ void DictionaryTest::keys() { // TODO: test with fork and/or removed key
     dict->set(k3, t3);
     keys = dict->keys();
     QCOMPARE(keys.size(), 3);
-    List *list = CHILD_LIST(keys);
+    List *list = CHILD_LIST();
+    foreach (Node::Reference key, keys) list->append(&(*key));
     QVERIFY(list->hasValue(k1));
     QVERIFY(list->hasValue(CHILD_TEXT("key1")));
     QVERIFY(list->hasValue(k2));

@@ -17,9 +17,14 @@ public:
         _doc(NULL), _docIsCached(false), _body(NULL), _bodyIsCached(false), _else(NULL), _elseIsCached(false) {}
 
     static void initRoot() { Object::root()->addChild("Block", root()); }
-    virtual Node *fork() const { return (new Block(this))->initFork(); }
 
-    virtual Node *run(const Node *receiver = context()) {
+    virtual Block *fork() const {
+        Block *block = new Block(this);
+        block->initFork();
+        return block;
+    }
+
+    virtual Node *run(Node *receiver = context()) {
         return bodySection() ? bodySection()->run(receiver) : NULL;
     }
 

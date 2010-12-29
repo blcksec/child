@@ -25,10 +25,10 @@ private:
 class Element : public GenericElement<Node *> {
     CHILD_DECLARE(Element, Object);
 public:
-    explicit Element(const Node *origin, const Node *value = NULL) :
+    explicit Element(const Node *origin, Node *value = NULL) :
         GenericElement<Node *>(origin, value) {}
     static void initRoot() { Object::root()->addChild("Element", root()); }
-    virtual Node *fork() const { return new Element(this, forkIfNotNull(value())); }
+    virtual Element *fork() const { return new Element(this, CHILD_FORK_IF_NOT_NULL(value())); }
     virtual QString toString(bool debug = false, short level = 0) const {
         return value() ? value()->toString(debug, level) : "NULL";
     }

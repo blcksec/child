@@ -15,22 +15,22 @@ namespace Language {
         CHILD_DECLARE(Parameter, Pair);
     public:
         explicit Parameter(const Node *origin, const QString &label = NULL,
-                  const PrimitiveChain *defaultValue = NULL) :
+                  PrimitiveChain *defaultValue = NULL) :
             GenericPair<QString, PrimitiveChain *>(origin, label, defaultValue) {}
 
         static void initRoot() { Language::root()->addChild("Parameter", root()); }
 
-        virtual Node *fork() const {
-            return new Parameter(this, label(), forkIfNotNull(defaultValue()));
+        virtual Parameter *fork() const {
+            return new Parameter(this, label(), CHILD_FORK_IF_NOT_NULL(defaultValue()));
         }
 
         // aliases...
         QString label() const { return key(); }
         void setLabel(const QString &label) { setKey(label); }
         PrimitiveChain *defaultValue() const { return value(); }
-        void setDefaultValue(const PrimitiveChain *defaultValue) { setValue(defaultValue); }
+        void setDefaultValue(PrimitiveChain *defaultValue) { setValue(defaultValue); }
 
-        virtual Node *run(const Node *receiver = context()) {
+        virtual Node *run(Node *receiver = context()) {
             return defaultValue()->run(receiver);
         }
 
@@ -41,11 +41,7 @@ namespace Language {
         }
     };
 
-    CHILD_POINTER_DEFINE(Parameter, Pair);
-
     // === ParameterList ===
-
-    CHILD_POINTER_DECLARE(ParameterList, List);
 
     #define CHILD_PARAMETER_LIST(ARGS...) \
     new Language::ParameterList(Node::context()->child("Object", "Language", "ParameterList"), ##ARGS)
@@ -56,7 +52,12 @@ namespace Language {
         explicit ParameterList(const Node *origin) : GenericList<Parameter *>(origin) {}
 
         static void initRoot() { Language::root()->addChild("ParameterList", root()); }
-        virtual Node *fork() const { return (new ParameterList(this))->initFork(); }
+
+        virtual ParameterList *fork() const {
+            ParameterList *list = new ParameterList(this);
+            list->initFork();
+            return list;
+        }
 
         QHash<QString, Parameter *> labels() { return _labels; }
         Parameter *hasLabel(const QString &label) { return _labels.value(label); }

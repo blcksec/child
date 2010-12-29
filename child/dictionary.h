@@ -11,7 +11,7 @@ if(!(KEY)) CHILD_THROW(NullPointerException, "key is NULL")
 #define CHILD_CHECK_VALUE(VALUE) \
 if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 
-template<class C, class K, class V>
+template<class K, class V>
 class GenericDictionary : public Object {
 public:
     explicit GenericDictionary(const Node *origin, const QHash<K, V> &other = (QHash<K, V>())) : Object(origin), _hash(NULL) {
@@ -35,13 +35,13 @@ public:
         }
     }
 
-    C initFork() {
-        C orig = origin();
+    GenericDictionary *initFork() {
+        GenericDictionary *orig = static_cast<GenericDictionary *>(origin());
         if(orig->isNotEmpty()) {
             QHashIterator<K, V> i(*orig->_hash);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()->fork()); }
         }
-        return C(this);
+        return this;
     }
 
     V get(const K &key) const {
@@ -104,18 +104,19 @@ private:
 
 #define CHILD_DICTIONARY(ARGS...) new Dictionary(Node::context()->child("Object", "Dictionary"), ##ARGS)
 
-class Dictionary : public GenericDictionary<Reference, Node *> {
+class Dictionary : public GenericDictionary<Node::Reference, Node *> {
     CHILD_DECLARE(Dictionary, Object);
 public:
-    explicit Dictionary(const Node *origin, const ReferenceHash &other = ReferenceHash()) :
-        GenericDictionary<Reference, Node *>(origin, other) {}
-
-    Dictionary(const Dictionary &other) :
-        GenericDictionary<Reference, Node *>(other) {}
+    explicit Dictionary(const Node *origin) :
+        GenericDictionary<Node::Reference, Node *>(origin) {}
 
     static void initRoot() { Object::root()->addChild("Dictionary", root()); }
 
-    virtual Node *fork() const { return (new Dictionary(this))->initFork(); };
+    virtual Dictionary *fork() const {
+        Dictionary *dict = new Dictionary(this);
+        dict->initFork();
+        return dict;
+    };
 };
 
 CHILD_END

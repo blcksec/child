@@ -22,7 +22,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Character, compare, <=>);
     }
 
-    virtual Node *fork() const { return new Character(this, value()); }
+    virtual Character *fork() const { return new Character(this, value()); }
 
     virtual bool isEqualTo(const Node *other) const {
         return value() == cast(other)->value();

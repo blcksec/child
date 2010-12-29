@@ -16,16 +16,21 @@ namespace Language {
         explicit PrimitiveChain(const Node *origin) :
             GenericList<Primitive *>(origin) {}
 
-        PrimitiveChain(const Node *origin, const Primitive *primitive) :
+        PrimitiveChain(const Node *origin, Primitive *primitive) :
             GenericList<Primitive *>(origin, primitive) {}
 
-        PrimitiveChain(const Node *origin, const Node *node) :
+        PrimitiveChain(const Node *origin, Node *node) :
             GenericList<Primitive *>(origin, CHILD_PRIMITIVE(node)) {}
 
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
-        virtual Node *fork() const { return (new PrimitiveChain(this))->initFork(); }
 
-        virtual Node *run(const Node *receiver = context()) {
+        virtual PrimitiveChain *fork() const {
+            PrimitiveChain *chain = new PrimitiveChain(this);
+            chain->initFork();
+            return chain;
+        }
+
+        virtual Node *run(Node *receiver = context()) {
             Node *result = NULL;
             Node *currentReceiver = receiver;
             Iterator i(this);
@@ -36,7 +41,7 @@ namespace Language {
             return result;
         }
 
-        Node *runExceptLast(const Node *receiver = context()) {
+        Node *runExceptLast(Node *receiver = context()) {
             Node *result = receiver;
             Iterator i(this);
             while(Primitive *primitive = i.next())

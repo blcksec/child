@@ -6,7 +6,7 @@ namespace Language {
     CHILD_DEFINE(Lexer, Object);
 
     void Lexer::rewind() {
-        _operatorTable.clear();
+        _operatorTable = NULL;
         _previousChar = '\0';
         _currentChar = '\0';
         _nextChar = '\0';

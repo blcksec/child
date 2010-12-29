@@ -13,16 +13,16 @@ namespace Language {
     class Primitive : public Element {
         CHILD_DECLARE(Primitive, Element);
     public:
-        explicit Primitive(const Node *origin, const Node *value = NULL, const QStringRef &sourceCodeRef = QStringRef()) :
+        explicit Primitive(const Node *origin, Node *value = NULL, const QStringRef &sourceCodeRef = QStringRef()) :
             Element(origin, value), _sourceCodeRef(sourceCodeRef) {}
 
         static void initRoot() { Language::root()->addChild("Primitive", root()); }
-        virtual Node *fork() const { return new Primitive(this, forkIfNotNull(value()), sourceCodeRef()); }
+        virtual Primitive *fork() const { return new Primitive(this, CHILD_FORK_IF_NOT_NULL(value()), sourceCodeRef()); }
 
         const QStringRef &sourceCodeRef() const { return _sourceCodeRef; }
         void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }
 
-        virtual Node *run(const Node *receiver = context()) {
+        virtual Node *run(Node *receiver = context()) {
             #ifdef CHILD_CATCH_EXCEPTIONS
             try {
             #endif

@@ -18,10 +18,10 @@ public:
         CHILD_NATIVE_METHOD_ADD(Boolean, equal_to, ==);
     }
 
-    virtual Node *fork() const { return new Boolean(this, value()); }
+    virtual Boolean *fork() const { return new Boolean(this, value()); }
 
     virtual bool isEqualTo(const Node *other) const {
-        return value() == cast(other)->value();
+        return value() == Boolean::cast(other)->value();
     }
 
     CHILD_NATIVE_METHOD_DECLARE(equal_to) {

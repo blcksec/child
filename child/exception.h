@@ -27,7 +27,7 @@ public:
 
     static void initRoot() { Node::root()->addChild("Exception", root()); }
 
-    virtual Node *fork() const { return new Exception(this, message, file, line, function); }
+    virtual Exception *fork() const { return new Exception(this, message, file, line, function); }
 
     const QString report() const;
 
@@ -46,7 +46,7 @@ public: \
          const int line = 0, const QString &function = "") : \
         ORIGIN(origin, message, file, line, function) {} \
     static void initRoot() { Node::root()->addChild(#NAME, root()); } \
-    virtual Node *fork() const { \
+    virtual NAME *fork() const { \
         return new NAME(this, message, file, line, function); \
     } \
 }; \

@@ -25,7 +25,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Text, compare, <=>);
     }
 
-    virtual Node *fork() const { return new Text(this, value()); }
+    virtual Text *fork() const { return new Text(this, value()); }
 
     CHILD_NATIVE_METHOD_DECLARE(init) {
         CHILD_CHECK_INPUT_SIZE(0, 1);

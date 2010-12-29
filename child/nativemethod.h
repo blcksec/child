@@ -21,7 +21,7 @@ class NativeMethod : public Node {
 public:
     explicit NativeMethod(const Node *origin, const _MethodPointer_ &method = NULL) : Node(origin), _method(method) {}
     static void initRoot() { Node::root()->addChild("NativeMethod", root()); }
-    virtual Node *fork() const { return new NativeMethod(this, _method); }
+    virtual NativeMethod *fork() const { return new NativeMethod(this, _method); }
 
     _MethodPointer_ method() const { return _method; }
     void setMethod(const _MethodPointer_ &method) { _method = method; }
