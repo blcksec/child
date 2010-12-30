@@ -1,4 +1,24 @@
-positive := if(i > 0) // positive est un if_doer
+Person := Object {
+    name := Text
+    age := Number
+    country := "France" abstract!
+    description := { "{name} ({age})" }
+}
+
+if(mvila is(\Person)) return
+
+---
+
+if(1 < 2) "OK" print
+
+if(1 < 2) {
+    "OK" print
+else:
+    "Deadcode" print
+}
+
+positive := if(i > 0) // positive est un object "if"
+positive is(\if) // true
 
 positive "Positive!" print
 
@@ -6,6 +26,20 @@ positive {
     "Hi there" print
     "And there..." print
 }
+
+if(positive) { "Yo" print }
+
+if(1 < 2, "Arf") // raccourci, inutile de créer un object "if", retourne directement "Arf"
+
+sweeping := list each
+sweeping { it inspect }
+
+if(sweeping, "Une itération ou plus") print
+
+---
+
+meth := Method
+meth { "Yo" print }
 
 ---
 

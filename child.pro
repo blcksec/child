@@ -50,7 +50,8 @@ SOURCES += main.cpp \
     child/language/section.cpp \
     child/language/sourcecode.cpp \
     child/language/lexer.cpp \
-    child/language/parser.cpp
+    child/language/parser.cpp \
+    child/controlflow.cpp
 
 HEADERS += \
     child.h \
@@ -91,7 +92,8 @@ HEADERS += \
     child/language/section.h \
     child/language/sourcecode.h \
     child/language/lexer.h \
-    child/language/parser.h
+    child/language/parser.h \
+    child/controlflow.h
 
 OTHER_FILES += \
     notes/ideas.txt \

@@ -113,11 +113,11 @@ private:
 public:
 
     Node *hasChild(const QString &name, bool searchInParents = true,
-                           bool forkChildFoundInFirstOrigin = true, bool *isDirectPtr = NULL);
+                   bool autoFork = true, bool *isDirectPtr = NULL);
 
     const Node *hasChild(const QString &name, bool searchInParents = true,
-                           bool forkChildFoundInFirstOrigin = true, bool *isDirectPtr = NULL) const {
-        return constCast(this)->hasChild(name, searchInParents, forkChildFoundInFirstOrigin, isDirectPtr);
+                         bool autoFork = true, bool *isDirectPtr = NULL) const {
+        return constCast(this)->hasChild(name, searchInParents, autoFork, isDirectPtr);
     }
 
     Node *hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) {

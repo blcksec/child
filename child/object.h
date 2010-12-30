@@ -4,6 +4,7 @@
 #include "child/node.h"
 #include "child/exception.h"
 #include "child/nativemethod.h"
+#include "child/controlflow.h"
 
 CHILD_BEGIN
 
@@ -16,6 +17,9 @@ public:
 
     static void initRoot() {
         Node::root()->addChild("Object", root());
+
+        root()->addExtension(ControlFlow::root());
+
         CHILD_NATIVE_METHOD_ADD(Object, postfix_increment, postfix++);
         CHILD_NATIVE_METHOD_ADD(Object, postfix_decrement, postfix--);
 

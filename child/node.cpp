@@ -135,17 +135,23 @@ void Node::removeChild(const QString &name) {
     _setChild(name, NULL);
 }
 
-Node *Node::hasChild(const QString &name, bool searchInParents,
-                             bool forkChildFoundInFirstOrigin, bool *isDirectPtr) {
+Node *Node::hasChild(const QString &name, bool searchInParents, bool autoFork, bool *isDirectPtr) {
     bool isRemoved;
     Node *node = hasDirectChild(name, &isRemoved);
     bool isDirect = node || isRemoved;
-    if(!isDirect)
-        if(origin() && (node = origin()->hasChild(name, searchInParents)))
-            if(forkChildFoundInFirstOrigin) {
-                node = node->fork();
-                _setChild(name, node);
+    if(!isDirect) {
+        if(origin()) node = origin()->hasChild(name, searchInParents);
+        if(!node && _extensions) {
+            foreach(Node *extension, *_extensions) {
+                node = extension->hasChild(name, searchInParents);
+                if(node) break;
             }
+        }
+        if(node && autoFork) {
+            node = node->fork();
+            _setChild(name, node);
+        }
+    }
     if(isDirectPtr) *isDirectPtr = isDirect;
     return node;
 }
