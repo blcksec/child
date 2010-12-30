@@ -102,4 +102,5 @@ OTHER_FILES += \
     notes/old.txt \
     examples/lexertest.child \
     notes/specification.txt \
-    examples/test.child
+    examples/test.child \
+    notes/features.txt

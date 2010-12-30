@@ -1,3 +1,14 @@
+positive := if(i > 0) // positive est un if_doer
+
+positive "Positive!" print
+
+positive {
+    "Hi there" print
+    "And there..." print
+}
+
+---
+
 body:
     Text {
     test:
