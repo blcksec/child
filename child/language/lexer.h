@@ -15,9 +15,10 @@ namespace Language {
     class Lexer : public Object {
         CHILD_DECLARE(Lexer, Object);
     public:
-        explicit Lexer(const Node *origin) : Object(origin), _operatorTable(NULL), _source(NULL) {}
+        explicit Lexer(Node *origin) : Object(origin), _operatorTable(NULL), _source(NULL) {}
         static void initRoot() { Language::root()->addChild("Lexer", root()); }
-        virtual Lexer *fork() const { return new Lexer(this); } // TODO
+
+        CHILD_FORK_METHOD(Lexer); // TODO
 
         OperatorTable *operatorTable() const {
             if(!_operatorTable)

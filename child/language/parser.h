@@ -18,9 +18,11 @@ namespace Language {
     class Parser : public Object {
         CHILD_DECLARE(Parser, Object);
     public:
-        explicit Parser(const Node *origin) : Object(origin), _lexer(NULL), _currentToken(NULL) {}
+        explicit Parser(Node *origin) : Object(origin), _lexer(NULL), _currentToken(NULL) {}
+
         static void initRoot() { Language::root()->addChild("Parser", root()); }
-        virtual Parser *fork() const { return new Parser(this); } // TODO
+
+        CHILD_FORK_METHOD(Parser); // TODO
 
         Lexer *lexer() const {
             if(!_lexer)

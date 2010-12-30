@@ -24,7 +24,7 @@ namespace Language {
         bool isSpecial;
         QString name;
 
-        explicit Operator(const Node *origin, const QString &text = "", Type type = Null, short precedence = 0,
+        explicit Operator(Node *origin, const QString &text = "", Type type = Null, short precedence = 0,
                 Associativity associativity = LeftAssociative, const bool useLHSAsReceiver = true,
                  const bool isSpecial = false, const QString &name = "") :
             Object(origin), text(text), type(type), precedence(precedence), associativity(associativity),
@@ -34,9 +34,7 @@ namespace Language {
 
         static void initRoot() { Language::root()->addChild("Operator", root()); }
 
-        virtual Operator *fork() const {
-            return new Operator(this, text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name);
-        }
+        CHILD_FORK_METHOD(Operator, text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name);
 
         const bool isNull() const { return type == Null; }
 

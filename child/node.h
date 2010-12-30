@@ -10,6 +10,13 @@ CHILD_BEGIN
 
 #define CHILD_NODE(ARGS...) new Node(Node::context()->child("Node"), ##ARGS)
 
+#define CHILD_FORK_METHOD(NAME, ARGS...) \
+virtual NAME *fork() const { \
+    NAME *node = new NAME(constCast(this), ##ARGS); \
+    node->initFork(); \
+    return node; \
+}
+
 #define CHILD_FORK_IF_NOT_NULL(NODE) \
 ((NODE) ? (NODE)->fork() : NULL)
 
@@ -24,19 +31,19 @@ Node *_##METHOD##_(Message *message)
 #define CHILD_NATIVE_METHOD_DEFINE(NAME, METHOD) \
 Node *NAME::_##METHOD##_(Message *message)
 
-class Node : public gc_cleanup {
+class Node {
 public:
     static const bool isInitialized;
 
-    explicit Node(const Node *origin) : _origin(origin), _extensions(NULL), // default constructor
+    explicit Node(Node *origin) : _origin(origin), _extensions(NULL), // default constructor
         _children(NULL), _parents(NULL) {}
 
-    Node(const Node &other) : gc_cleanup(), _origin(other._origin), _extensions(NULL), // copy constructor
+    Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
         _children(NULL), _parents(NULL) {
-        if(other._extensions) _extensions = new QList<const Node *>(*other._extensions);
+        if(other._extensions) _extensions = new QList<Node *>(*other._extensions);
         if(other._children) {
             QHashIterator<QString, const Node *> i(other.children());
-            while(i.hasNext()) { i.next(); addChild(i.key(), i.value()); }
+            while(i.hasNext()) { i.next(); addChild(i.key(), constCast(i.value())); }
         }
     }
 
@@ -47,14 +54,16 @@ public:
     static Node *root();
     virtual const QString className() const { return "Node"; }
     static void initRoot();
-    virtual Node *fork() const { return new Node(this); }
 
+    CHILD_FORK_METHOD(Node);
+    virtual void initFork() {}
+
+    Node *origin() { return _origin; }
     const Node *origin() const { return _origin; }
-    Node *origin() { return constCast(_origin); }
-    void setOrigin(const Node *node);
+    void setOrigin(Node *node);
 
-    void addExtension(const Node *node);
-    void prependExtension(const Node *node);
+    void addExtension(Node *node);
+    void prependExtension(Node *node);
     void removeExtension(const Node *node);
     void removeAllExtensions();
     bool hasExtension(const Node *node) const;
@@ -83,24 +92,24 @@ public:
         return constCast(this)->child(name1)->child(name2)->child(name3);
     }
 
-    void addChild(const QString &name, const Node *value);
-    void setChild(const QString &name, const Node *value, bool addOrSetMode = false);
-    void addOrSetChild(const QString &name, const Node *value) { setChild(name, value, true); }
+    void addChild(const QString &name, Node *value);
+    void setChild(const QString &name, Node *value, bool addOrSetMode = false);
+    void addOrSetChild(const QString &name, Node *value) { setChild(name, value, true); }
 
     void removeChild(const QString &name);
 
-    void addAnonymousChild(const Node *value) {
+    void addAnonymousChild(const Node *value) const {
         CHILD_CHECK_POINTER(value);
         value->_addParent(this);
     }
 
-    void removeAnonymousChild(const Node *value) {
+    void removeAnonymousChild(const Node *value) const {
         CHILD_CHECK_POINTER(value);
         value->_removeParent(this);
     }
 
 private:
-    void _setChild(const QString &name, const Node *value);
+    void _setChild(const QString &name, Node *value);
 public:
 
     Node *hasChild(const QString &name, bool searchInParents = true,
@@ -123,7 +132,7 @@ public:
     }
 
     QString hasDirectChild(const Node *value) const {
-        return _children ? _children->key(value) : QString();
+        return _children ? _children->key(constCast(value)) : QString();
     }
 
     bool hasDirectParent(const Node *parent) const {
@@ -227,17 +236,19 @@ public:
      class Reference {
      public:
          Reference(Node *node) : _node(node) {}
-         Node &operator*() const { return *_node; }
-         Node *operator->() const { return _node; }
+         Node &operator*() { return *_node; }
+         const Node &operator*() const { return *_node; }
+         Node *operator->() { return _node; }
+         const Node *operator->() const { return _node; }
          operator bool() const { return _node; }
          bool operator!() const { return !_node; }
      private:
          Node *_node;
      };
 private:
-    const Node *_origin;
-    QList<const Node *> *_extensions;
-    QHash<QString, const Node *> *_children;
+    Node *_origin;
+    QList<Node *> *_extensions;
+    QHash<QString, Node *> *_children;
     mutable QHash<const Node *, HugeUnsignedInteger> *_parents;
 };
 

@@ -13,7 +13,7 @@ CHILD_BEGIN
 class Text : public GenericElement<QString> {
     CHILD_DECLARE(Text, Element);
 public:
-    explicit Text(const Node *origin, const QString &value = "") : GenericElement<QString>(origin, value) {}
+    explicit Text(Node *origin, const QString &value = "") : GenericElement<QString>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Text", root());
@@ -25,7 +25,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Text, compare, <=>);
     }
 
-    virtual Text *fork() const { return new Text(this, value()); }
+    CHILD_FORK_METHOD(Text, value());
 
     CHILD_NATIVE_METHOD_DECLARE(init) {
         CHILD_CHECK_INPUT_SIZE(0, 1);

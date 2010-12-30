@@ -12,16 +12,12 @@ namespace Language {
     class Section : public GenericList<PrimitiveChain *> {
         CHILD_DECLARE(Section, List);
     public:
-        explicit Section(const Node *origin) : GenericList<PrimitiveChain *>(origin), _label(NULL) {}
+        explicit Section(Node *origin, PrimitiveChain *label = NULL) :
+            GenericList<PrimitiveChain *>(origin), _label(label) {}
 
         static void initRoot() { Language::root()->addChild("Section", root()); }
 
-        virtual Section *fork() const {
-            Section *forkedSection = new Section(this);
-            forkedSection->initFork();
-            forkedSection->setLabel(label());
-            return forkedSection;
-        }
+        CHILD_FORK_METHOD(Section, CHILD_FORK_IF_NOT_NULL(label()));
 
         PrimitiveChain *label() const { return _label; }
         void setLabel(PrimitiveChain *label) { _label = label; }

@@ -13,15 +13,16 @@ CHILD_BEGIN
 class Method : public GenericElement<Block *> {
     CHILD_DECLARE(Method, Element);
 public:
-    explicit Method(const Node *origin, Block *block = NULL) :
-        GenericElement<Block *>(origin, block), _inputs(NULL), _outputs(NULL) {}
+    explicit Method(Node *origin, ParameterList *inputs = NULL, ParameterList *outputs = NULL, Block *block = NULL) :
+        GenericElement<Block *>(origin, block), _inputs(inputs), _outputs(outputs) {}
 
     static void initRoot() {
         Object::root()->addChild("Method", root());
         CHILD_NATIVE_METHOD_ADD(Method, init);
     }
 
-    virtual Method *fork() const { return new Method(this, CHILD_FORK_IF_NOT_NULL(block())); }
+    CHILD_FORK_METHOD(Method, CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
+                      CHILD_FORK_IF_NOT_NULL(block()));
 
     CHILD_NATIVE_METHOD_DECLARE(init) {
         CHILD_CHECK_INPUT_SIZE(0);
@@ -33,7 +34,7 @@ public:
     void setBlock(Block *block) { setValue(block); }
 
     ParameterList *inputs(bool createIfNull = true) const {
-        if(!_inputs && createIfNull) const_cast<Method *>(this)->_inputs = CHILD_PARAMETER_LIST();
+        if(!_inputs && createIfNull) constCast(this)->_inputs = CHILD_PARAMETER_LIST();
         return(_inputs);
     }
 
@@ -44,7 +45,7 @@ public:
     bool hasInput(const QString &label) const { return inputs(false) && inputs()->hasLabel(label); }
 
     ParameterList *outputs(bool createIfNull = true) const {
-        if(!_outputs && createIfNull) const_cast<Method *>(this)->_outputs = CHILD_PARAMETER_LIST();
+        if(!_outputs && createIfNull) constCast(this)->_outputs = CHILD_PARAMETER_LIST();
         return(_outputs);
     }
 

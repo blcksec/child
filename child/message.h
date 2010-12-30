@@ -14,53 +14,47 @@ using namespace Language;
 class Message : public Object {
     CHILD_DECLARE(Message, Object);
 public:
-    explicit Message(const Node *origin, const QString &name = "") :
+    explicit Message(Node *origin, const QString &name = "") :
         Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _block(NULL) {}
 
     // TODO: use implicit conversion to limit the number of constructors
-    Message(const Node *origin, const QString &name, ArgumentBunch *inputs) :
+    Message(Node *origin, const QString &name, ArgumentBunch *inputs) :
         Object(origin), _name(name), _inputs(inputs), _outputs(NULL), _block(NULL) {}
 
-    Message(const Node *origin, const QString &name, ArgumentBunch *inputs, ArgumentBunch *outputs) :
+    Message(Node *origin, const QString &name, ArgumentBunch *inputs, ArgumentBunch *outputs) :
         Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _block(NULL) {}
 
-    Message(const Node *origin, const QString &name, ArgumentBunch *inputs, ArgumentBunch *outputs, Block *block) :
+    Message(Node *origin, const QString &name, ArgumentBunch *inputs, ArgumentBunch *outputs, Block *block) :
         Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _block(block) {}
 
-    Message(const Node *origin, const QString &name, Argument *input) :
+    Message(Node *origin, const QString &name, Argument *input) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL), _block(NULL) {}
 
-    Message(const Node *origin, const QString &name, Argument *input1, Argument *input2) :
+    Message(Node *origin, const QString &name, Argument *input1, Argument *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL), _block(NULL) {}
 
-    Message(const Node *origin, const QString &name, Node *input) :
+    Message(Node *origin, const QString &name, Node *input) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL), _block(NULL) {}
 
-    Message(const Node *origin, const QString &name, Argument *input1, Node *input2) :
+    Message(Node *origin, const QString &name, Argument *input1, Node *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))), _outputs(NULL), _block(NULL) {}
 
-    Message(const Node *origin, const QString &name, Node *input1, Argument *input2) :
+    Message(Node *origin, const QString &name, Node *input1, Argument *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)), _outputs(NULL), _block(NULL) {}
 
-    Message(const Node *origin, const QString &name, Node *input1, Node *input2) :
+    Message(Node *origin, const QString &name, Node *input1, Node *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL), _block(NULL) {}
 
     static void initRoot() { Object::root()->addChild("Message", root()); }
 
-    virtual Message *fork() const {
-        Message *message = new Message(this);
-        if(!name().isEmpty()) message->setName(name());
-        if(inputs(false)) message->setInputs(ArgumentBunch::cast(inputs()->fork()));
-        if(outputs(false)) message->setOutputs(ArgumentBunch::cast(outputs()->fork()));
-        if(block()) message->setBlock(Block::cast(block()->fork()));
-        return message;
-    }
+    CHILD_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)),
+                      CHILD_FORK_IF_NOT_NULL(outputs(false)), CHILD_FORK_IF_NOT_NULL(block()));
 
     const QString name() const { return _name; }
     void setName(const QString &name) { _name = name; }
 
     ArgumentBunch *inputs(bool createIfNull = true) const {
-        if(!_inputs && createIfNull) const_cast<Message *>(this)->_inputs = CHILD_ARGUMENT_BUNCH();
+        if(!_inputs && createIfNull) constCast(this)->_inputs = CHILD_ARGUMENT_BUNCH();
         return(_inputs);
     }
 
@@ -80,7 +74,7 @@ public:
     Node *runThirdInput(Node *receiver = context()) const { return thirdInput()->run(receiver); }
 
     ArgumentBunch *outputs(bool createIfNull = true) const {
-        if(!_outputs && createIfNull) const_cast<Message *>(this)->_outputs = CHILD_ARGUMENT_BUNCH();
+        if(!_outputs && createIfNull) constCast(this)->_outputs = CHILD_ARGUMENT_BUNCH();
         return(_outputs);
     }
 

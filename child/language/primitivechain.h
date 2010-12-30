@@ -13,22 +13,18 @@ namespace Language {
     class PrimitiveChain : public GenericList<Primitive *> {
         CHILD_DECLARE(PrimitiveChain, List);
     public:
-        explicit PrimitiveChain(const Node *origin) :
+        explicit PrimitiveChain(Node *origin) :
             GenericList<Primitive *>(origin) {}
 
-        PrimitiveChain(const Node *origin, Primitive *primitive) :
+        PrimitiveChain(Node *origin, Primitive *primitive) :
             GenericList<Primitive *>(origin, primitive) {}
 
-        PrimitiveChain(const Node *origin, Node *node) :
+        PrimitiveChain(Node *origin, Node *node) :
             GenericList<Primitive *>(origin, CHILD_PRIMITIVE(node)) {}
 
         static void initRoot() { Language::root()->addChild("PrimitiveChain", root()); }
 
-        virtual PrimitiveChain *fork() const {
-            PrimitiveChain *chain = new PrimitiveChain(this);
-            chain->initFork();
-            return chain;
-        }
+        CHILD_FORK_METHOD(PrimitiveChain);
 
         virtual Node *run(Node *receiver = context()) {
             Node *result = NULL;

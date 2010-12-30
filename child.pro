@@ -14,8 +14,6 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-LIBS += /usr/local/lib/libgc.a
-
 SOURCES += main.cpp \
     child.cpp \
     child/global.cpp \

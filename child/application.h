@@ -16,11 +16,12 @@ new Application(Node::context()->child("Object", "Application"), ##ARGS)
 class Application : public Object {
     CHILD_DECLARE(Application, Object);
 public:
-    explicit Application(const Node *origin) :
+    explicit Application(Node *origin) :
         Object(origin), _sourceCodes(NULL), _operatorTable(NULL), _lexer(NULL), _parser(NULL) {}
 
     static void initRoot() { Object::root()->addChild("Application", root()); }
-    virtual Application *fork() const { CHILD_TODO; return new Application(this); }
+
+    CHILD_FORK_METHOD(Application); // TODO
 
     void init() {
         _sourceCodes = CHILD_SOURCE_CODE_DICTIONARY();

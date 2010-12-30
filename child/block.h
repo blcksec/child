@@ -13,16 +13,12 @@ new Block(Node::context()->child("Object", "Block"), ##ARGS)
 class Block : public GenericList<Section *> {
     CHILD_DECLARE(Block, List);
 public:
-    explicit Block(const Node *origin) : GenericList<Section *>(origin),
+    explicit Block(Node *origin) : GenericList<Section *>(origin),
         _doc(NULL), _docIsCached(false), _body(NULL), _bodyIsCached(false), _else(NULL), _elseIsCached(false) {}
 
     static void initRoot() { Object::root()->addChild("Block", root()); }
 
-    virtual Block *fork() const {
-        Block *block = new Block(this);
-        block->initFork();
-        return block;
-    }
+    CHILD_FORK_METHOD(Block);
 
     virtual Node *run(Node *receiver = context()) {
         return bodySection() ? bodySection()->run(receiver) : NULL;

@@ -8,7 +8,7 @@ CHILD_BEGIN
 template<class T1, class T2>
 class GenericPair : public Object {
 public:
-    explicit GenericPair(const Node *origin, const T1 &first = NULL, const T2 &second = NULL) :
+    explicit GenericPair(Node *origin, const T1 &first = NULL, const T2 &second = NULL) :
         Object(origin), _first(first), _second(second) {}
 
     T1 first() const { return _first; }
@@ -31,14 +31,12 @@ private:
 class Pair : public GenericPair<Node *, Node *> {
     CHILD_DECLARE(Pair, Object);
 public:
-    explicit Pair(const Node *origin, Node *first = NULL, Node *second = NULL) :
+    explicit Pair(Node *origin, Node *first = NULL, Node *second = NULL) :
         GenericPair<Node *, Node *>(origin, first, second) {}
 
     static void initRoot() { Object::root()->addChild("Pair", root()); }
 
-    virtual Pair *fork() const {
-        return new Pair(this, CHILD_FORK_IF_NOT_NULL(first()), CHILD_FORK_IF_NOT_NULL(second()));
-    }
+    CHILD_FORK_METHOD(Pair, CHILD_FORK_IF_NOT_NULL(first()), CHILD_FORK_IF_NOT_NULL(second()));
 
     virtual QString toString(bool debug = false, short level = 0) const {
         return QString("%1: %2").arg(first()->toString(debug, level), second()->toString(debug, level));

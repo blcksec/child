@@ -15,15 +15,11 @@ namespace Language {
     class OperatorTable : public GenericList<Operator *> {
         CHILD_DECLARE(OperatorTable, List);
     public:
-        explicit OperatorTable(const Node *origin) : GenericList<Operator *>(origin) {}
+        explicit OperatorTable(Node *origin) : GenericList<Operator *>(origin) {}
 
         static void initRoot() { Language::root()->addChild("OperatorTable", root()); }
 
-        virtual OperatorTable *fork() const {
-            OperatorTable *table = new OperatorTable(this);
-            table->initFork();
-            return table;
-        };
+        CHILD_FORK_METHOD(OperatorTable);
 
         void append(const QString &text, Operator::Type type, short precedence,
                     Operator::Associativity associativity = Operator::LeftAssociative,

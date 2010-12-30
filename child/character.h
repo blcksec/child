@@ -13,7 +13,7 @@ CHILD_BEGIN
 class Character : public GenericElement<QChar> {
     CHILD_DECLARE(Character, Element);
 public:
-    explicit Character(const Node *origin, const QChar &value = QChar::Null) :
+    explicit Character(Node *origin, const QChar &value = QChar::Null) :
         GenericElement<QChar>(origin, value) {}
 
     static void initRoot() {
@@ -22,7 +22,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Character, compare, <=>);
     }
 
-    virtual Character *fork() const { return new Character(this, value()); }
+    CHILD_FORK_METHOD(Character, value());
 
     virtual bool isEqualTo(const Node *other) const {
         return value() == cast(other)->value();

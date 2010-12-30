@@ -15,7 +15,7 @@ namespace Language {
     class SourceCode : public Object {
         CHILD_DECLARE(SourceCode, Object);
     public:
-        explicit SourceCode(const Node *origin, const QString &url = "",
+        explicit SourceCode(Node *origin, const QString &url = "",
                    const QString &txt = "", Block *block = NULL) :
             Object(origin), _url(url), _text(txt), _block(block) {
             if(!url.isEmpty() && txt.isEmpty()) load();
@@ -24,9 +24,7 @@ namespace Language {
 
         static void initRoot() { Language::root()->addChild("SourceCode", root()); }
 
-        virtual SourceCode *fork() const {
-            return new SourceCode(this, url(), text(), block() ? block()->fork() : block());
-        }
+        CHILD_FORK_METHOD(SourceCode, url(), text(), CHILD_FORK_IF_NOT_NULL(block()));
 
         const QString &url() const { return _url; }
         void setUrl(const QString &url) { _url = QFileInfo(url).absoluteFilePath(); }
@@ -82,16 +80,12 @@ namespace Language {
     class SourceCodeDictionary : public GenericDictionary<Node::Reference, SourceCode *> {
         CHILD_DECLARE(SourceCodeDictionary, Dictionary);
     public:
-        SourceCodeDictionary(const Node *origin) :
+        SourceCodeDictionary(Node *origin) :
             GenericDictionary<Node::Reference, SourceCode *>(origin) {}
 
         static void initRoot() { Language::root()->addChild("SourceCodeDictionary", root()); }
 
-        virtual SourceCodeDictionary *fork() const {
-            SourceCodeDictionary *dict = new SourceCodeDictionary(this);
-            dict->initFork();
-            return dict;
-        };
+        CHILD_FORK_METHOD(SourceCodeDictionary);
     };
 }
 

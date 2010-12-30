@@ -1,7 +1,6 @@
 #ifndef CHILD_GLOBAL_H
 #define CHILD_GLOBAL_H
 
-#include "gc_cpp.h"
 #include <QtCore/QTextStream>
 
 //#define CHILD_IS_NAMESPACED

@@ -21,13 +21,13 @@ public:
     int line;
     QString function;
 
-    explicit Exception(const Node *origin, const QString &message = "", const QString &file = "",
+    explicit Exception(Node *origin, const QString &message = "", const QString &file = "",
               const int line = 0, const QString &function = "") :
         Node(origin), message(message), file(file), line(line), function(function) {}
 
     static void initRoot() { Node::root()->addChild("Exception", root()); }
 
-    virtual Exception *fork() const { return new Exception(this, message, file, line, function); }
+    CHILD_FORK_METHOD(Exception, message, file, line, function);
 
     const QString report() const;
 
@@ -42,14 +42,12 @@ public:
 class NAME : public ORIGIN { \
     CHILD_DECLARE(NAME, ORIGIN); \
 public: \
-    explicit NAME(const Node *origin, const QString &message = "", const QString &file = "", \
+    explicit NAME(Node *origin, const QString &message = "", const QString &file = "", \
          const int line = 0, const QString &function = "") : \
         ORIGIN(origin, message, file, line, function) {} \
     static void initRoot() { Node::root()->addChild(#NAME, root()); } \
-    virtual NAME *fork() const { \
-        return new NAME(this, message, file, line, function); \
-    } \
-}; \
+    CHILD_FORK_METHOD(NAME, message, file, line, function); \
+};
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
 CHILD_DEFINE(NAME, ORIGIN);

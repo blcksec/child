@@ -14,7 +14,7 @@ CHILD_BEGIN
 class Number : public GenericElement<double> {
     CHILD_DECLARE(Number, Element);
 public:
-    explicit Number(const Node *origin, const double value = 0) : GenericElement<double>(origin, value) {}
+    explicit Number(Node *origin, const double value = 0) : GenericElement<double>(origin, value) {}
 
     static void initRoot() {
         Object::root()->addChild("Number", root());
@@ -34,7 +34,7 @@ public:
         CHILD_NATIVE_METHOD_ADD(Number, compare, <=>);
     }
 
-    virtual Number *fork() const { return new Number(this, value()); }
+    CHILD_FORK_METHOD(Number, value());
 
     CHILD_NATIVE_METHOD_DECLARE(add) {
         CHILD_CHECK_INPUT_SIZE(1);

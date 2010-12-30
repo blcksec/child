@@ -14,15 +14,13 @@ namespace Language {
     class Parameter : public GenericPair<QString, PrimitiveChain *> {
         CHILD_DECLARE(Parameter, Pair);
     public:
-        explicit Parameter(const Node *origin, const QString &label = NULL,
+        explicit Parameter(Node *origin, const QString &label = NULL,
                   PrimitiveChain *defaultValue = NULL) :
             GenericPair<QString, PrimitiveChain *>(origin, label, defaultValue) {}
 
         static void initRoot() { Language::root()->addChild("Parameter", root()); }
 
-        virtual Parameter *fork() const {
-            return new Parameter(this, label(), CHILD_FORK_IF_NOT_NULL(defaultValue()));
-        }
+        CHILD_FORK_METHOD(Parameter, label(), CHILD_FORK_IF_NOT_NULL(defaultValue()));
 
         // aliases...
         QString label() const { return key(); }
@@ -49,15 +47,11 @@ namespace Language {
     class ParameterList : public GenericList<Parameter *> {
         CHILD_DECLARE(ParameterList, List);
     public:
-        explicit ParameterList(const Node *origin) : GenericList<Parameter *>(origin) {}
+        explicit ParameterList(Node *origin) : GenericList<Parameter *>(origin) {}
 
         static void initRoot() { Language::root()->addChild("ParameterList", root()); }
 
-        virtual ParameterList *fork() const {
-            ParameterList *list = new ParameterList(this);
-            list->initFork();
-            return list;
-        }
+        CHILD_FORK_METHOD(ParameterList);
 
         QHash<QString, Parameter *> labels() { return _labels; }
         Parameter *hasLabel(const QString &label) { return _labels.value(label); }

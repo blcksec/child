@@ -11,19 +11,19 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 template<class T>
 class GenericList : public Object {
 public:
-    explicit GenericList(const Node *origin, const bool isBunched = false) :
+    explicit GenericList(Node *origin, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) {}
 
-    GenericList(const Node *origin, const T &value, const bool isBunched = false) :
+    GenericList(Node *origin, const T &value, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) { append(value); }
 
-    GenericList(const Node *origin, const T &value1, const T &value2, const bool isBunched = false) :
+    GenericList(Node *origin, const T &value1, const T &value2, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) { append(value1); append(value2); }
 
-    GenericList(const Node *origin, const T &value1, const T &value2, const T &value3, const bool isBunched = false) :
+    GenericList(Node *origin, const T &value1, const T &value2, const T &value3, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) { append(value1); append(value2); append(value3); }
 
-    GenericList(const Node *origin, const QList<T> &other, const bool isBunched = false) :
+    GenericList(Node *origin, const QList<T> &other, const bool isBunched = false) :
         Object(origin), _list(NULL), _isBunched(isBunched) {
         if(!other.isEmpty()) {
             foreach(T node, other) _append(node);
@@ -45,13 +45,13 @@ public:
         }
     }
 
-    GenericList *initFork() {
+    virtual void initFork() {
+        Object::initFork();
         GenericList *orig = static_cast<GenericList *>(origin());
         if(orig->isNotEmpty()) {
             foreach(T node, *orig->_list) _append(node->fork());
             hasChanged();
         }
-        return this;
     }
 
     T insert(int i, const T &value) { _insert(i, value); hasChanged(); return value; }
@@ -181,16 +181,12 @@ private:
 class List : public GenericList<Node *> {
     CHILD_DECLARE(List, Object);
 public:
-    explicit List(const Node *origin, const QList<Node *> &other = QList<Node *>()) :
+    explicit List(Node *origin, const QList<Node *> &other = QList<Node *>()) :
         GenericList<Node *>(origin, other) {}
 
     static void initRoot() { Object::root()->addChild("List", root()); }
 
-    virtual List *fork() const {
-        List *list = new List(this);
-        list->initFork();
-        return list;
-    }
+    CHILD_FORK_METHOD(List);
 };
 
 CHILD_END

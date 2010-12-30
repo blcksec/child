@@ -227,9 +227,9 @@ namespace Language {
 
     QString Lexer::toString(bool debug, short level) const {
         QString str;
-        const_cast<Lexer *>(this)->rewind();
+        constCast(this)->rewind();
         while(true) {
-            Token *token = const_cast<Lexer *>(this)->nextToken();
+            Token *token = constCast(this)->nextToken();
             if(token->type == Token::Eof) break;
             if(!str.isEmpty()) str += ", ";
             str += token->toString(debug, level);

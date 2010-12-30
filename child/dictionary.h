@@ -14,7 +14,7 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 template<class K, class V>
 class GenericDictionary : public Object {
 public:
-    explicit GenericDictionary(const Node *origin, const QHash<K, V> &other = (QHash<K, V>())) : Object(origin), _hash(NULL) {
+    explicit GenericDictionary(Node *origin, const QHash<K, V> &other = (QHash<K, V>())) : Object(origin), _hash(NULL) {
         if(!other.isEmpty()) {
             QHashIterator<K, V> i(other);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()); }
@@ -35,13 +35,13 @@ public:
         }
     }
 
-    GenericDictionary *initFork() {
+    virtual void initFork() {
+        Object::initFork();
         GenericDictionary *orig = static_cast<GenericDictionary *>(origin());
         if(orig->isNotEmpty()) {
             QHashIterator<K, V> i(*orig->_hash);
             while(i.hasNext()) { i.next(); set(i.key(), i.value()->fork()); }
         }
-        return this;
     }
 
     V get(const K &key) const {
@@ -107,16 +107,12 @@ private:
 class Dictionary : public GenericDictionary<Node::Reference, Node *> {
     CHILD_DECLARE(Dictionary, Object);
 public:
-    explicit Dictionary(const Node *origin) :
+    explicit Dictionary(Node *origin) :
         GenericDictionary<Node::Reference, Node *>(origin) {}
 
     static void initRoot() { Object::root()->addChild("Dictionary", root()); }
 
-    virtual Dictionary *fork() const {
-        Dictionary *dict = new Dictionary(this);
-        dict->initFork();
-        return dict;
-    };
+    CHILD_FORK_METHOD(Dictionary);
 };
 
 CHILD_END

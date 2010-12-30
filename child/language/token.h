@@ -36,11 +36,12 @@ namespace Language {
         Type type;
         QStringRef sourceCodeRef;
 
-        explicit Token(const Node *origin, const Type type = Null, const QStringRef &sourceCodeRef = QStringRef()) :
+        explicit Token(Node *origin, const Type type = Null, const QStringRef &sourceCodeRef = QStringRef()) :
             Object(origin), type(type), sourceCodeRef(sourceCodeRef) {}
 
         static void initRoot() { Language::root()->addChild("Token", root()); }
-        virtual Token *fork() const { return new Token(this, type, sourceCodeRef); }
+
+        CHILD_FORK_METHOD(Token, type, sourceCodeRef);
 
         const QString typeName() const { return Token::typeName(type); }
         const QString text() const { return sourceCodeRef.toString(); }

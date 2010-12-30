@@ -14,25 +14,21 @@ namespace Language {
     class Argument : public GenericPair<PrimitiveChain *, PrimitiveChain *> {
         CHILD_DECLARE(Argument, Pair);
     public:
-        explicit Argument(const Node *origin) :
+        explicit Argument(Node *origin) :
             GenericPair<PrimitiveChain *, PrimitiveChain *>(origin) {}
 
-        Argument(const Node *origin, PrimitiveChain *value) :
+        Argument(Node *origin, PrimitiveChain *value) :
             GenericPair<PrimitiveChain *, PrimitiveChain *>(origin, NULL, value) {}
 
-        Argument(const Node *origin, PrimitiveChain *label, PrimitiveChain *value) :
+        Argument(Node *origin, PrimitiveChain *label, PrimitiveChain *value) :
             GenericPair<PrimitiveChain *, PrimitiveChain *>(origin, label, value) {}
 
-        Argument(const Node *origin, Node *node) :
+        Argument(Node *origin, Node *node) :
             GenericPair<PrimitiveChain *, PrimitiveChain *>(origin, NULL, CHILD_PRIMITIVE_CHAIN(node)) {}
 
         static void initRoot() { Language::root()->addChild("Argument", root()); }
 
-        virtual Argument *fork() const {
-            return new Argument(this,
-                                PrimitiveChain::cast(CHILD_FORK_IF_NOT_NULL(label())),
-                                PrimitiveChain::cast(CHILD_FORK_IF_NOT_NULL(value())));
-        }
+        CHILD_FORK_METHOD(Argument, CHILD_FORK_IF_NOT_NULL(label()), CHILD_FORK_IF_NOT_NULL(value()));
 
         // aliases...
         PrimitiveChain *label() const { return key(); }
@@ -62,28 +58,24 @@ namespace Language {
     class ArgumentBunch : public GenericList<Argument *> {
         CHILD_DECLARE(ArgumentBunch, Bunch);
     public:
-        explicit ArgumentBunch(const Node *origin) : GenericList<Argument *>(origin, true) {}
+        explicit ArgumentBunch(Node *origin) : GenericList<Argument *>(origin, true) {}
 
-        ArgumentBunch(const Node *origin, Argument *argument) :
+        ArgumentBunch(Node *origin, Argument *argument) :
             GenericList<Argument *>(origin, argument, true) {}
 
-        ArgumentBunch(const Node *origin, Argument *argument1, Argument *argument2) :
+        ArgumentBunch(Node *origin, Argument *argument1, Argument *argument2) :
             GenericList<Argument *>(origin, argument1, argument2, true) {}
 
-        ArgumentBunch(const Node *origin, Node *argument) :
+        ArgumentBunch(Node *origin, Node *argument) :
             GenericList<Argument *>(origin, CHILD_ARGUMENT(argument), true) {}
 
-        ArgumentBunch(const Node *origin, Node *argument1, Node *argument2) :
+        ArgumentBunch(Node *origin, Node *argument1, Node *argument2) :
             GenericList<Argument *>(
                 origin, CHILD_ARGUMENT(argument1), CHILD_ARGUMENT(argument2), true) {}
 
         static void initRoot() { Language::root()->addChild("ArgumentBunch", root()); }
 
-        virtual ArgumentBunch *fork() const {
-            ArgumentBunch *bunch = new ArgumentBunch(this);
-            bunch->initFork();
-            return bunch;
-        }
+        CHILD_FORK_METHOD(ArgumentBunch);
 
         using GenericList<Argument *>::append;
 
