@@ -3,7 +3,7 @@
 
 #include "child/pair.h"
 #include "child/bunch.h"
-#include "child/language/primitivechain.h"
+#include "child/language/primitive.h"
 
 CHILD_BEGIN
 
@@ -11,28 +11,28 @@ namespace Language {
     #define CHILD_ARGUMENT(ARGS...) \
     new Language::Argument(Node::context()->child("Object", "Language", "Argument"), ##ARGS)
 
-    class Argument : public GenericPair<PrimitiveChain *, PrimitiveChain *> {
+    class Argument : public GenericPair<Primitive *, Primitive *> {
         CHILD_DECLARE(Argument, Pair);
     public:
         explicit Argument(Node *origin) :
-            GenericPair<PrimitiveChain *, PrimitiveChain *>(origin) {}
+            GenericPair<Primitive *, Primitive *>(origin) {}
 
-        Argument(Node *origin, PrimitiveChain *value) :
-            GenericPair<PrimitiveChain *, PrimitiveChain *>(origin, NULL, value) {}
+        Argument(Node *origin, Primitive *value) :
+            GenericPair<Primitive *, Primitive *>(origin, NULL, value) {}
 
-        Argument(Node *origin, PrimitiveChain *label, PrimitiveChain *value) :
-            GenericPair<PrimitiveChain *, PrimitiveChain *>(origin, label, value) {}
+        Argument(Node *origin, Primitive *label, Primitive *value) :
+            GenericPair<Primitive *, Primitive *>(origin, label, value) {}
 
         Argument(Node *origin, Node *node) :
-            GenericPair<PrimitiveChain *, PrimitiveChain *>(origin, NULL, CHILD_PRIMITIVE_CHAIN(node)) {}
+            GenericPair<Primitive *, Primitive *>(origin, NULL, CHILD_PRIMITIVE(node)) {}
 
         static void initRoot() { Language::root()->addChild("Argument", root()); }
 
         CHILD_FORK_METHOD(Argument, CHILD_FORK_IF_NOT_NULL(label()), CHILD_FORK_IF_NOT_NULL(value()));
 
         // aliases...
-        PrimitiveChain *label() const { return key(); }
-        void setLabel(PrimitiveChain *label) { setKey(label); }
+        Primitive *label() const { return key(); }
+        void setLabel(Primitive *label) { setKey(label); }
 
         QString labelName() const;
 
@@ -79,22 +79,22 @@ namespace Language {
 
         using GenericList<Argument *>::append;
 
-        void append(PrimitiveChain *value) {
-            if(Pair *pair = Pair::dynamicCast(value->first()->value()))
-                append(PrimitiveChain::cast(pair->first()), PrimitiveChain::cast(pair->second()));
-            else if(Bunch *bunch = Bunch::dynamicCast(value->first()->value()))
+        void append(Primitive *value) {
+            if(Pair *pair = Pair::dynamicCast(value->value()))
+                append(Primitive::cast(pair->first()), Primitive::cast(pair->second()));
+            else if(Bunch *bunch = Bunch::dynamicCast(value->value()))
                 append(bunch);
             else
                 append(CHILD_ARGUMENT(NULL, value));
         }
 
-        Argument *append(PrimitiveChain *label, PrimitiveChain *value) {
+        Argument *append(Primitive *label, Primitive *value) {
             return append(CHILD_ARGUMENT(label, value));
         }
 
         void append(const Bunch *bunch) {
             Bunch::Iterator i(bunch);
-            while(Node *value = i.next()) append(PrimitiveChain::cast(value));
+            while(Node *value = i.next()) append(Primitive::cast(value));
         }
 
         void checkSize(short min, short max = -1) { checkSpecifiedSize(size(), min, max); }

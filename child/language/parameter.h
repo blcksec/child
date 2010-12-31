@@ -3,7 +3,7 @@
 
 #include "child/pair.h"
 #include "child/list.h"
-#include "child/language/primitivechain.h"
+#include "child/language/primitive.h"
 
 CHILD_BEGIN
 
@@ -11,12 +11,12 @@ namespace Language {
     #define CHILD_PARAMETER(ARGS...) \
     new Language::Parameter(Node::context()->child("Object", "Language", "Parameter"), ##ARGS)
 
-    class Parameter : public GenericPair<QString, PrimitiveChain *> {
+    class Parameter : public GenericPair<QString, Primitive *> {
         CHILD_DECLARE(Parameter, Pair);
     public:
         explicit Parameter(Node *origin, const QString &label = NULL,
-                  PrimitiveChain *defaultValue = NULL) :
-            GenericPair<QString, PrimitiveChain *>(origin, label, defaultValue) {}
+                  Primitive *defaultValue = NULL) :
+            GenericPair<QString, Primitive *>(origin, label, defaultValue) {}
 
         static void initRoot() { Language::root()->addChild("Parameter", root()); }
 
@@ -25,8 +25,8 @@ namespace Language {
         // aliases...
         QString label() const { return key(); }
         void setLabel(const QString &label) { setKey(label); }
-        PrimitiveChain *defaultValue() const { return value(); }
-        void setDefaultValue(PrimitiveChain *defaultValue) { setValue(defaultValue); }
+        Primitive *defaultValue() const { return value(); }
+        void setDefaultValue(Primitive *defaultValue) { setValue(defaultValue); }
 
         virtual Node *run(Node *receiver = context()) {
             return defaultValue()->run(receiver);

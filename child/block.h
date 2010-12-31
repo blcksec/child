@@ -59,7 +59,7 @@ private:
     Section *findSection(const QString &label);
 public:
     Section *hasUnlabeledSection() {
-        if(isNotEmpty() && (!first()->label() || first()->label()->isEmpty()))
+        if(isNotEmpty() && !first()->label())
             return first();
         else
             return NULL;

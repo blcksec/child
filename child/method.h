@@ -95,15 +95,15 @@ public:
         if(message->inputs(false)) {
             ArgumentBunch::Iterator i(message->inputs());
             while(Argument *argument = i.next()) {
-                PrimitiveChain *label = argument->label();
-                PrimitiveChain *defaultValue = argument->value();
+                Primitive *label = argument->label();
+                Primitive *defaultValue = argument->value();
                 if(!label) {
                     label = defaultValue;
                     defaultValue = NULL;
                 }
-                if(label->size() != 1)
+                if(label->hasNext())
                     CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message");
-                Message *labelMessage = Message::dynamicCast(label->first()->value());
+                Message *labelMessage = Message::dynamicCast(label->value());
                 if(!labelMessage)
                     CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message)");
                 inputs()->append(CHILD_PARAMETER(labelMessage->name(), defaultValue));

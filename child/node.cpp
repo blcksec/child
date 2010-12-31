@@ -230,12 +230,12 @@ CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
 
 Node *Node::defineOrAssign(Message *message, bool isDefine) {
     CHILD_CHECK_INPUT_SIZE(2);
-    PrimitiveChain *chain = message->firstInput()->value();
-    Node *context = chain->runExceptLast();
-    Message *msg = Message::dynamicCast(chain->last()->value());
+    Primitive *primitive = message->firstInput()->value();
+    Node *context = primitive->runExceptLast();
+    Message *msg = Message::dynamicCast(primitive->last()->value());
     if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
     Node *value;
-    Block *block = Block::dynamicCast(message->secondInput()->value()->first()->value());
+    Block *block = Block::dynamicCast(message->secondInput()->value()->value());
     if(block) // if rhs is a block, its a method definition shorthand
         value = CHILD_MESSAGE("Method", NULL, NULL, block)->run();
     else // rhs is not a block

@@ -1,6 +1,7 @@
 if_result := if(a > 0)
 
-a := 1
+a := (1 + 2 + 3)
+a print
 
 if_result {
     "Yeah"

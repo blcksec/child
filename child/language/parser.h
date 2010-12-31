@@ -44,7 +44,7 @@ namespace Language {
         const QString tokenText() const { return _currentToken->text(); }
 
         void consume() { _currentToken = lexer()->nextToken(); }
-        void openToken() { _openedTokens.push(tokenType()); }
+        void openToken() { _openedTokens.push(tokenType()); } // TODO: replace with a RAII "TokenOpener" class
         void closeToken() { _openedTokens.pop(); }
         const Token::Type topToken() const { return _openedTokens.isEmpty() ? Token::Null : _openedTokens.top(); }
         void clearOpenedTokens() { _openedTokens.clear(); }
@@ -82,14 +82,15 @@ namespace Language {
             Section *section = NULL;
             consumeNewline();
             while(!is(terminator)) {
-                PrimitiveChain *expression = scanExpression();
-                if(Pair *pair = Pair::dynamicCast(expression->first()->value())) {
-                    section = CHILD_SECTION();
-                    section->setLabel(PrimitiveChain::cast(pair->first()));
-                    expression = PrimitiveChain::cast(pair->second());
-                    block->append(section);
-                }
-                if(expression->isNotEmpty()) {
+                Primitive *expression = scanExpression();
+                if(expression)
+                    if(Pair *pair = Pair::dynamicCast(expression->value())) {
+                        section = CHILD_SECTION();
+                        section->setLabel(Primitive::cast(pair->first()));
+                        expression = Primitive::cast(pair->second());
+                        block->append(section);
+                    }
+                if(expression) {
                     if(!section) {
                         section = CHILD_SECTION();
                         block->append(section);
@@ -101,38 +102,39 @@ namespace Language {
             return block;
         }
 
-        PrimitiveChain *scanExpression() {
-            PrimitiveChain *primitiveChain = scanUnaryExpressionChain();
-            if(primitiveChain->isEmpty()) throw parserException("expecting UnaryExpression, found " + tokenTypeName());
+        Primitive *scanExpression() {
+            Primitive *primitive = scanUnaryExpressionChain();
+            if(!primitive) throw parserException("expecting UnaryExpression, found " + tokenTypeName());
             if(Operator *op = isBinaryOperator())
-                return scanBinaryOperator(primitiveChain, op, 0);
-            return primitiveChain;
+                return scanBinaryOperator(primitive, op, 0);
+            return primitive;
         }
 
-        PrimitiveChain *scanUnaryExpressionChain() {
-            PrimitiveChain *primitiveChain = CHILD_PRIMITIVE_CHAIN();
+        Primitive *scanUnaryExpressionChain() {
+            Primitive *primitive = NULL;
             while(isUnaryExpression()) {
-                scanUnaryExpression(primitiveChain);
+                primitive = scanUnaryExpression(primitive);
                 if(isBinaryOperator()) break;
             }
-            return primitiveChain;
+            return primitive;
         }
 
         const bool isUnaryExpression() const { return isPrefixOperator() || isPrimaryExpression(); }
 
-        void scanUnaryExpression(PrimitiveChain *primitiveChain) {
+        Primitive *scanUnaryExpression(Primitive *currentPrimitive) {
             if(Operator *op = isPrefixOperator())
-                scanPrefixOperator(primitiveChain, op);
+                return scanPrefixOperator(currentPrimitive, op);
             else
-                scanPrimaryExpression(primitiveChain);
+                return scanPrimaryExpression(currentPrimitive);
         }
 
         const bool isPrimaryExpression() const { return isOperand(); }
 
-        void scanPrimaryExpression(PrimitiveChain *primitiveChain) {
-            primitiveChain->append(scanOperand());
+        Primitive *scanPrimaryExpression(Primitive *currentPrimitive) {
+            CHILD_PRIMITIVE_ADD(currentPrimitive, scanOperand());
             while(Operator *op = isPostfixOperator())
-                primitiveChain->append(scanPostfixOperator(op));
+                CHILD_PRIMITIVE_ADD(currentPrimitive, scanPostfixOperator(op));
+            return currentPrimitive;
         }
 
         const bool isOperand() const { return isName() || isLiteral() || isSubexpression() || isNestedBlock(); }
@@ -161,10 +163,8 @@ namespace Language {
                 openToken();
                 consume();
                 consumeNewline();
-                if(!is(Token::RightParenthesis)) {
-                    PrimitiveChain *chain = scanExpression();
-                    message->inputs()->append(chain);
-                }
+                if(!is(Token::RightParenthesis))
+                    message->inputs()->append(scanExpression());
                 closeToken();
                 match(Token::RightParenthesis);
             }
@@ -248,23 +248,22 @@ namespace Language {
 
         Operator *isPrefixOperator() const { return isOperator(Operator::Prefix); }
 
-        void scanPrefixOperator(PrimitiveChain *primitiveChain, Operator *currentOp) {
+        Primitive *scanPrefixOperator(Primitive *currentPrimitive, Operator *currentOp) {
             Message *message = CHILD_MESSAGE(currentOp->name);
             Primitive *primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
             consume();
             consumeNewline();
-            PrimitiveChain *chain;
+            Primitive *chain = NULL;
             if(currentOp->isSpecial) {
                 if(currentOp->name == "?:")
                     chain = scanExpression();
                 else
                     throw parserException("unimplemented special operator");
-            } else {
-                chain = CHILD_PRIMITIVE_CHAIN();
-                scanUnaryExpression(chain);
-            }
-            primitiveChain->append(chain);
-            primitiveChain->append(primitive);
+            } else
+                chain = scanUnaryExpression(NULL);
+            CHILD_PRIMITIVE_ADD(currentPrimitive, chain);
+            CHILD_PRIMITIVE_ADD(currentPrimitive, primitive);
+            return currentPrimitive;
         }
 
         Operator *isPostfixOperator() const { return isOperator(Operator::Postfix); }
@@ -278,13 +277,13 @@ namespace Language {
 
         Operator *isBinaryOperator() const { return isOperator(Operator::Binary); }
 
-        PrimitiveChain *scanBinaryOperator(PrimitiveChain *lhs, Operator *currentOp,
+        Primitive *scanBinaryOperator(Primitive *lhs, Operator *currentOp,
                                                  const short minPrecedence) {
             do {
                 QStringRef sourceCodeRef = token()->sourceCodeRef;
                 consume();
                 if(currentOp->name != ":") consumeNewline();
-                PrimitiveChain *rhs = scanUnaryExpressionChain();
+                Primitive *rhs = scanUnaryExpressionChain();
                 Operator *nextOp;
                 while((nextOp = isBinaryOperator()) && (
                           operatorPrecedence(nextOp) > operatorPrecedence(currentOp) ||
@@ -298,23 +297,20 @@ namespace Language {
             return lhs;
         }
 
-        PrimitiveChain *resolveBinaryOperator(PrimitiveChain *lhs,
-                                                    const Operator *op,
-                                                    PrimitiveChain *rhs,
-                                                    const QStringRef &sourceCodeRef) {
+        Primitive *resolveBinaryOperator(Primitive *lhs,
+                                         const Operator *op,
+                                         Primitive *rhs,
+                                         const QStringRef &sourceCodeRef) {
             if(op->isSpecial) {
-                if(op->name == ":") {
-                    Primitive *primitive = CHILD_PRIMITIVE(CHILD_PAIR(lhs, rhs), sourceCodeRef);
-                    lhs = CHILD_PRIMITIVE_CHAIN(primitive);
-                } else if(op->name == ",") {
+                if(op->name == ":")
+                    lhs = CHILD_PRIMITIVE(CHILD_PAIR(lhs, rhs), sourceCodeRef);
+                else if(op->name == ",") {
                     checkRightHandSide(rhs);
-                    Bunch *bunch = Bunch::dynamicCast(lhs->first()->value());
-                    if(!bunch) {
-                        Primitive *primitive = CHILD_PRIMITIVE(CHILD_BUNCH(lhs, rhs), sourceCodeRef);
-                        lhs = CHILD_PRIMITIVE_CHAIN(primitive);
-                    } else {
+                    Bunch *bunch = Bunch::dynamicCast(lhs->value());
+                    if(!bunch)
+                        lhs = CHILD_PRIMITIVE(CHILD_BUNCH(lhs, rhs), sourceCodeRef);
+                    else
                         bunch->append(rhs);
-                    }
                 } else if(op->name == "->") {
                     checkRightHandSide(rhs);
                     Message *message = Message::dynamicCast(lhs->last()->value());
@@ -327,20 +323,19 @@ namespace Language {
                 if(op->useLHSAsReceiver) {
                     Message *message = CHILD_MESSAGE(op->name);
                     message->inputs()->append(rhs);
-                    lhs->append(CHILD_PRIMITIVE(message, sourceCodeRef));
+                    lhs->setNext(CHILD_PRIMITIVE(message, sourceCodeRef));
                 } else {
                     Message *message = CHILD_MESSAGE(op->name);
                     message->inputs()->append(lhs);
                     message->inputs()->append(rhs);
-                    lhs = CHILD_PRIMITIVE_CHAIN(CHILD_PRIMITIVE(message, sourceCodeRef));
+                    lhs = CHILD_PRIMITIVE(message, sourceCodeRef);
                 }
             }
             return lhs;
         }
 
-        void checkRightHandSide(const PrimitiveChain *rhs) {
-            if(!rhs || rhs->isEmpty())
-                throw parserException("expecting right-hand side expression, found " + tokenTypeName());
+        void checkRightHandSide(const Primitive *rhs) {
+            if(!rhs) throw parserException("expecting right-hand side expression, found " + tokenTypeName());
         }
 
         short operatorPrecedence(const Operator *op) const {
