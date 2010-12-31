@@ -63,15 +63,6 @@ CHILD_NATIVE_METHOD_DEFINE(Object, greater_than_or_equal_to) {
     return CHILD_BOOLEAN(Number::cast(CHILD_MESSAGE("<=>", message->inputs(false))->run(this))->value() >= 0);
 }
 
-Node *Object::ifOrUnless(Message *message, bool isIf) {
-    CHILD_CHECK_INPUT_SIZE(1, 3);
-    Node *result = message->runFirstInput();
-    if(result->toBool() == isIf)
-        return message->runInputOrSection(1, "body", result);
-    else
-        return message->runInputOrSection(2, "else", result);
-}
-
 CHILD_NATIVE_METHOD_DEFINE(Object, loop) {
     CHILD_CHECK_INPUT_SIZE(0, 2);
     Node *result = NULL;
@@ -82,7 +73,7 @@ CHILD_NATIVE_METHOD_DEFINE(Object, loop) {
             for(unsigned int i = 1; i <= n; i++) result = code->run();
         } else // infinite loop
             while(true) result = message->runInputOrSection(0, "body");
-    } catch(Break brk) { result = brk.result; }
+    } catch(const Break &brk) { result = brk.result; }
     return result;
 }
 
@@ -104,7 +95,7 @@ Node *Object::whileOrUntil(Message *message, bool isWhile) {
             }
         }
         if(!code) result = test;
-    } catch(Break brk) { result = brk.result; }
+    } catch(const Break &brk) { result = brk.result; }
     return result;
 }
 

@@ -1,1 +1,9 @@
-If
+if_result := if(a > 0)
+
+a := 1
+
+if_result {
+    "Yeah"
+else:
+    "Sniff"
+}

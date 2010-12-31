@@ -5,8 +5,6 @@ CHILD_BEGIN
 CHILD_DEFINE(Application, Object);
 
 void Application::initOperatorTable() {
-    using namespace Language;
-
     OperatorTable *ops = CHILD_OPERATOR_TABLE();
 
     ops->append("++", Operator::Postfix, Operator::namePrecedence, Operator::LeftAssociative, true, false, "postfix++");

@@ -8,8 +8,6 @@
 
 CHILD_BEGIN
 
-using namespace Language;
-
 const bool Node::isInitialized = Node::root();
 
 Node::~Node() {
@@ -204,6 +202,10 @@ QList<const Node *> Node::parents() const {
     QList<const Node *> parents;
     if(_parents) foreach(const Node *parent, _parents->keys()) parents.append(parent);
     return parents;
+}
+
+Node *Node::receive(Primitive *primitive) {
+    return primitive->run(this);
 }
 
 Node *Node::run(Node *receiver, Message *message) {

@@ -10,6 +10,8 @@ namespace Language {
     static bool isInitialized = root();
 }
 
+using namespace Language;
+
 CHILD_END
 
 #endif // CHILD_LANGUAGE_H

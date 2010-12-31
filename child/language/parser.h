@@ -168,7 +168,7 @@ namespace Language {
                 closeToken();
                 match(Token::RightParenthesis);
             }
-            if(isNestedBlock()) message->setBlock(Block::cast(scanNestedBlock()->value()));
+//            if(isNestedBlock()) message->setBlock(Block::cast(scanNestedBlock()->value()));
             int end = token()->sourceCodeRef.position();
             primitive->setSourceCodeRef(lexer()->source().midRef(begin, end - begin));
             consumeUselessNewline();
@@ -177,8 +177,8 @@ namespace Language {
 
         const bool isLiteral() const {
             Token::Type type = tokenType();
-            return(type == Token::Boolean || type == Token::Number ||
-                   type == Token::Character || type == Token::Text);
+            return type == Token::Boolean || type == Token::Number ||
+                   type == Token::Character || type == Token::Text;
         }
 
         Primitive *scanLiteral() {

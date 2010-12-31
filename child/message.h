@@ -6,8 +6,6 @@
 
 CHILD_BEGIN
 
-using namespace Language;
-
 #define CHILD_MESSAGE(ARGS...) \
 (new Message(Node::context()->child("Object", "Message"), ##ARGS))
 
@@ -55,7 +53,7 @@ public:
 
     ArgumentBunch *inputs(bool createIfNull = true) const {
         if(!_inputs && createIfNull) constCast(this)->_inputs = CHILD_ARGUMENT_BUNCH();
-        return(_inputs);
+        return _inputs;
     }
 
     void setInputs(ArgumentBunch *inputs) { _inputs = inputs; }
@@ -64,18 +62,21 @@ public:
     bool hasInput(short i) const { return inputs(false) && inputs()->hasIndex(i); }
     Node *runInput(short i, Node *receiver = context()) const { return input(i)->run(receiver); }
 
-    Argument *firstInput() const { return inputs(false)->first(); }
-    Node *runFirstInput(Node *receiver = context()) const { return firstInput()->run(receiver); }
+    Argument *firstInput() const { return input(0); }
+    bool hasAnInput() const { return hasInput(0); }
+    Node *runFirstInput(Node *receiver = context()) const { return runInput(0, receiver); }
 
-    Argument *secondInput() const { return inputs(false)->second(); }
-    Node *runSecondInput(Node *receiver = context()) const { return secondInput()->run(receiver); }
+    Argument *secondInput() const { return input(1); }
+    bool hasASecondInput() const { return hasInput(1); }
+    Node *runSecondInput(Node *receiver = context()) const { return runInput(1, receiver); }
 
-    Argument *thirdInput() const { return inputs(false)->third(); }
-    Node *runThirdInput(Node *receiver = context()) const { return thirdInput()->run(receiver); }
+    Argument *thirdInput() const { return input(2); }
+    bool hasAThirdInput() const { return hasInput(2); }
+    Node *runThirdInput(Node *receiver = context()) const { return runInput(2, receiver); }
 
     ArgumentBunch *outputs(bool createIfNull = true) const {
         if(!_outputs && createIfNull) constCast(this)->_outputs = CHILD_ARGUMENT_BUNCH();
-        return(_outputs);
+        return _outputs;
     }
 
     void setOutputs(ArgumentBunch *outputs) { _outputs = outputs; }

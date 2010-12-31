@@ -70,7 +70,7 @@ public:
     QList<K> keys() const {
         QList<K> list;
         if(_hash) foreach(K key, _hash->keys()) list.append(key);
-        return(list);
+        return list;
     }
 //        NodeList values() const;
     V hasKey(const K &key) const { CHILD_CHECK_KEY(key); return _hash ? _hash->value(key) : V(); }

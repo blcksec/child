@@ -35,7 +35,7 @@ public:
 
     ParameterList *inputs(bool createIfNull = true) const {
         if(!_inputs && createIfNull) constCast(this)->_inputs = CHILD_PARAMETER_LIST();
-        return(_inputs);
+        return _inputs;
     }
 
     void setInputs(ParameterList *inputs) { _inputs = inputs; }
@@ -46,7 +46,7 @@ public:
 
     ParameterList *outputs(bool createIfNull = true) const {
         if(!_outputs && createIfNull) constCast(this)->_outputs = CHILD_PARAMETER_LIST();
-        return(_outputs);
+        return _outputs;
     }
 
     void setOutputs(ParameterList *outputs) { _outputs = outputs; }
@@ -86,7 +86,7 @@ public:
             Node *result = NULL;
             try {
                 result = forkedBlock->run();
-            } catch(Return ret) { result = ret.result; }
+            } catch(const Return &ret) { result = ret.result; }
             return result;
         }
     }

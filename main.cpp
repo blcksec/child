@@ -9,7 +9,6 @@
 #include "child/application.h"
 
 CHILD_USE
-using namespace Language;
 
 int main() { // int argc, char *argv[]
     init();

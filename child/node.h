@@ -31,6 +31,10 @@ Node *_##METHOD##_(Message *message)
 #define CHILD_NATIVE_METHOD_DEFINE(NAME, METHOD) \
 Node *NAME::_##METHOD##_(Message *message)
 
+namespace Language {
+    class Primitive;
+}
+
 class Node {
 public:
     static const bool isInitialized;
@@ -150,6 +154,8 @@ public:
     QList<Node *> parents();
     QList<const Node *> parents() const;
 
+    virtual Node *receive(Language::Primitive *primitive);
+
     virtual Node *run(Node *receiver = context()) {
         Q_UNUSED(receiver);
         return this;
@@ -161,8 +167,8 @@ public:
 private:
     Node *defineOrAssign(Message *message, bool isDefine);
 public:
-    CHILD_NATIVE_METHOD_DECLARE(define) { return(defineOrAssign(message, true)); }
-    CHILD_NATIVE_METHOD_DECLARE(assign) { return(defineOrAssign(message, false)); }
+    CHILD_NATIVE_METHOD_DECLARE(define) { return defineOrAssign(message, true); }
+    CHILD_NATIVE_METHOD_DECLARE(assign) { return defineOrAssign(message, false); }
 
     virtual void hasBeenAssigned(Message *message) const {
         Q_UNUSED(message);

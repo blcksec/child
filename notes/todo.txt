@@ -1,6 +1,14 @@
+=== TODO ===
+
+* Optimisation : préférer les opérateurs d'affectation (+=, -=, *=,...) aux opérateurs simples (+, -,...)
+  et implémenter les seconds en utilisant les premiers. Exemple :
+
+  +=(other) := { native+= other }
+  +(other) := { copy += other }
+
 *** FIXME ***
 
-- Problème quand on fork un élément qui a déjà été forké via un autre child.
+* Problème quand on fork un élément qui a déjà été forké via un autre child.
 
   Exemple :
 

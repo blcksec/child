@@ -4,11 +4,9 @@
 #include "child/language/operatortable.h"
 #include "child/language/sourcecode.h"
 #include "child/language/lexer.h"
-//#include "child/language/parser.h"
+#include "child/language/parser.h"
 
 CHILD_BEGIN
-
-using namespace Language;
 
 #define CHILD_APPLICATION(ARGS...) \
 new Application(Node::context()->child("Object", "Application"), ##ARGS)

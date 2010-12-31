@@ -1,9 +1,16 @@
-  * Chaines traduisibles représentées par des guillemets doubles :
+* Chaines traduisibles représentées par des guillemets doubles :
 
-    "Hello World!" // pourra être traduit automatiquement en "Bonjour le monde !"
-    "Hello {name}!" // pourra être traduit en "Bonjour Manu !" ({name} est évalué)
+  "Hello World!" // pourra être traduit automatiquement en "Bonjour le monde !"
+  "Hello {name}!" // pourra être traduit en "Bonjour Manu !" ({name} est évalué)
 
-    Les chaines non traduisibles sont représentées par des guillemets simples :
+  Les chaines non traduisibles sont représentées par des guillemets simples :
 
-    'Hello World!' // ne sera jamais traduit
-    '{name}' // rien ne se passe, {name} n'est pas évalué
+  'Hello World!' // ne sera jamais traduit
+  '{name}' // rien ne se passe, {name} n'est pas évalué
+
+* First class "Control Flows" :
+
+  countdown := while(i >= 0)
+  // later...
+  i := 10
+  countdown { --i print }

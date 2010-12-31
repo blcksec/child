@@ -5,8 +5,6 @@
 
 CHILD_BEGIN
 
-using namespace Language;
-
 #define CHILD_BLOCK(ARGS...) \
 new Block(Node::context()->child("Object", "Block"), ##ARGS)
 
