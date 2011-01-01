@@ -34,10 +34,8 @@ public:
         CHILD_NATIVE_METHOD_ADD(Object, greater_than, >);
         CHILD_NATIVE_METHOD_ADD(Object, greater_than_or_equal_to, >=);
 
-        CHILD_NATIVE_METHOD_ADD(Object, loop);
         CHILD_NATIVE_METHOD_ADD(Object, while);
         CHILD_NATIVE_METHOD_ADD(Object, until);
-        CHILD_NATIVE_METHOD_ADD(Object, break);
         CHILD_NATIVE_METHOD_ADD(Object, return);
     }
 
@@ -56,8 +54,6 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(less_than_or_equal_to);
     CHILD_NATIVE_METHOD_DECLARE(greater_than);
     CHILD_NATIVE_METHOD_DECLARE(greater_than_or_equal_to);
-
-    CHILD_NATIVE_METHOD_DECLARE(loop);
 private:
     Node *whileOrUntil(Message *message, bool isWhile);
 public:
@@ -76,7 +72,6 @@ public:
         Return(Node *result = NULL) : result(result) {}
     };
 
-    CHILD_NATIVE_METHOD_DECLARE(break);
     CHILD_NATIVE_METHOD_DECLARE(return);
 };
 

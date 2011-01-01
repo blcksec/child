@@ -4,7 +4,6 @@ CHILD_BEGIN
 
 namespace Language {
     Object *root() {
-        Q_UNUSED(isInitialized);
         static Object *_root = NULL;
         if(!_root) {
             _root = Object::root()->fork();

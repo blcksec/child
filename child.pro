@@ -44,7 +44,7 @@ SOURCES += main.cpp \
     child/language/operator.cpp \
     child/language/operatortable.cpp \
     child/language/primitive.cpp \
-    child/language/primitivechain.cpp \
+#    child/language/primitivechain.cpp \
     child/language/argument.cpp \
     child/language/parameter.cpp \
     child/language/section.cpp \
@@ -86,7 +86,7 @@ HEADERS += \
     child/language/operator.h \
     child/language/operatortable.h \
     child/language/primitive.h \
-    child/language/primitivechain.h \
+#    child/language/primitivechain.h \
     child/language/argument.h \
     child/language/parameter.h \
     child/language/section.h \

@@ -1,10 +1,8 @@
-if_result := if(a > 0)
+count := 20
+boucle := loop(count)
 
-a := (1 + 2 + 3)
-a print
-
-if_result {
-    "Yeah"
-else:
-    "Sniff"
+i := 0
+boucle {
+    if(++i > 5) break("STOP")
+    i print
 }

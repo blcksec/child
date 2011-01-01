@@ -36,7 +36,7 @@ public:
     virtual QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);
         Q_UNUSED(level);
-        return value() ? "true" : "false";
+        return value() ? "yes" : "no";
     }
 };
 

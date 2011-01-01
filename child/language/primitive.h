@@ -36,19 +36,15 @@ namespace Language {
         void unsetNext() { _next = NULL; }
         bool hasNext() const { return _next; }
 
-        Primitive *last() const {
-            Primitive *primitive = constCast(this);
+        Primitive *last() {
+            Primitive *primitive = this;
             while(primitive->hasNext()) primitive = primitive->next();
             return primitive;
         }
 
         virtual Node *run(Node *receiver = context()) {
-            try {
-                Node *result = value()->run(receiver);
-                return hasNext() ? result->receive(next()) : result;
-            } catch(const ControlFlow::Skip &skip) {
-                return skip.result;
-            }
+            Node *result = value()->run(receiver);
+            return hasNext() ? result->receive(next()) : result;
 //            try {
 //            } catch(ExceptionPointer e) {
 //                if(!sourceCodeRef().isNull()) {
@@ -69,6 +65,18 @@ namespace Language {
 
         Node *runExceptLast(Node *receiver = context()) {
             return hasNext() ? next()->runExceptLast(value()->run(receiver)) : receiver;
+        }
+
+        virtual QString toString(bool debug = false, short level = 0) const {
+            QString str;
+            const Primitive *primitive = this;
+            bool first = true;
+            do {
+                if(!first) str += " "; else first = false;
+                str += primitive->Element::toString(debug, level);
+                primitive = primitive->next();
+            } while(primitive);
+            return str;
         }
     private:
         QStringRef _sourceCodeRef;

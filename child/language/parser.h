@@ -187,7 +187,7 @@ namespace Language {
             QString s;
             switch(tokenType()) {
             case Token::Boolean:
-                value = CHILD_BOOLEAN(tokenText() == "true");
+                value = CHILD_BOOLEAN(tokenText() == "yes" || tokenText() == "true");
                 break;
             case Token::Number:
                 value = CHILD_NUMBER(tokenText().toDouble());
@@ -323,7 +323,7 @@ namespace Language {
                 if(op->useLHSAsReceiver) {
                     Message *message = CHILD_MESSAGE(op->name);
                     message->inputs()->append(rhs);
-                    lhs->setNext(CHILD_PRIMITIVE(message, sourceCodeRef));
+                    CHILD_PRIMITIVE_ADD(lhs, CHILD_PRIMITIVE(message, sourceCodeRef));
                 } else {
                     Message *message = CHILD_MESSAGE(op->name);
                     message->inputs()->append(lhs);

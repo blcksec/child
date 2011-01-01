@@ -78,7 +78,7 @@ namespace Language {
         while(_currentChar.isLetterOrNumber() || _currentChar == '_' || _currentChar == '!' || _currentChar == '?')
             consume();
         const QStringRef text(tokenTextRef());
-        if(text == "true" || text == "false") return finishToken(Token::Boolean);
+        if(text == "yes" || text == "no" || text == "true" || text == "false") return finishToken(Token::Boolean);
         return finishToken(Token::Name);
     }
 

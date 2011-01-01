@@ -28,12 +28,10 @@ namespace Language {
 
         virtual Node *run(Node *receiver = context()) {
             Node *result = NULL;
-            try {
-                Node *currentReceiver = receiver;
-                Iterator i(this);
-                while(Primitive *primitive = i.next())
-                    currentReceiver = result = currentReceiver->receive(primitive);
-            } catch(const ControlFlow::Skip &skip) { result = skip.result; }
+            Node *currentReceiver = receiver;
+            Iterator i(this);
+            while(Primitive *primitive = i.next())
+                currentReceiver = result = currentReceiver->receive(primitive);
             return result;
         }
 
