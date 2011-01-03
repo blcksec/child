@@ -20,6 +20,8 @@ public:
 //    static Node *rootOrigin() { return Element::root(); }
 //    static Node *rootParent() { return Object::root(); }
 
+//    static const QString &classPath() {} // déterminé à partir de rootParent() et className()
+
     static void initRoot() {
         Object::root()->addChild("Text", root());
         CHILD_NATIVE_METHOD_ADD(Text, init);
