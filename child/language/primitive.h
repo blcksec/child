@@ -16,10 +16,9 @@ namespace Language {
     class Primitive : public Element {
         CHILD_DECLARE(Primitive, Element);
     public:
-        explicit Primitive(Node *origin, Node *value = NULL,
-                           const QStringRef &sourceCodeRef = QStringRef(),
+        explicit Primitive(Node *origin, Node *value = NULL, const QStringRef &sourceCodeRef = QStringRef(),
                            Primitive *next = NULL) :
-            Element(origin, value), _sourceCodeRef(sourceCodeRef), _next(next) {}
+            Element(origin, value), _sourceCodeRef(sourceCodeRef),  _previous(NULL), _next(NULL) { setNext(next); }
 
         static void initRoot() { Language::root()->addChild("Primitive", root()); }
 
@@ -29,11 +28,16 @@ namespace Language {
         void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }
 
         Primitive *next() const { return _next; }
+
         Primitive *setNext(Primitive *next) {
-            if(!next) CHILD_THROW(NullPointerException, "Primitive pointer is null");
-            return _next = next;
+            if(next != _next) {
+                if(_next) _next->_previous = NULL;
+                _next = next;
+                if(next) next->_previous = this;
+            }
+            return next;
         }
-        void unsetNext() { _next = NULL; }
+
         bool hasNext() const { return _next; }
 
         Primitive *last() {
@@ -41,6 +45,19 @@ namespace Language {
             while(primitive->hasNext()) primitive = primitive->next();
             return primitive;
         }
+
+        int size() const {
+            int result = 1;
+            const Primitive *primitive = this;
+            while(primitive->hasNext()) {
+                primitive = primitive->next();
+                result++;
+            }
+            return result;
+        }
+
+        Primitive *previous() const { return _previous; }
+        bool hasPrevious() const { return _previous; }
 
         virtual Node *run(Node *receiver = context()) {
             Node *result = value()->run(receiver);
@@ -80,6 +97,7 @@ namespace Language {
         }
     private:
         QStringRef _sourceCodeRef;
+        Primitive *_previous;
         Primitive *_next;
     };
 }

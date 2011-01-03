@@ -208,8 +208,9 @@ Node *Node::receive(Primitive *primitive) {
     return primitive->run(this);
 }
 
-Node *Node::run(Node *receiver, Message *message) {
+Node *Node::run(Node *receiver, Message *message, Primitive *code) {
     Q_UNUSED(receiver);
+    Q_UNUSED(code);
     if(message->inputs(false) || message->outputs(false) || message->block()) {
         Message *forkMessage = message->fork();
         forkMessage->setName("fork");
@@ -231,16 +232,15 @@ CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
 Node *Node::defineOrAssign(Message *message, bool isDefine) {
     CHILD_CHECK_INPUT_SIZE(2);
     Primitive *primitive = message->firstInput()->value();
-    Node *context = primitive->runExceptLast();
-    Message *msg = Message::dynamicCast(primitive->last()->value());
+    Message *msg = Message::dynamicCast(primitive->value());
     if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
     Node *value;
     Block *block = Block::dynamicCast(message->secondInput()->value()->value());
     if(block) // if rhs is a block, its a method definition shorthand
-        value = CHILD_MESSAGE("Method", NULL, NULL, block)->run();
+        value = CHILD_MESSAGE("Method", NULL, NULL, false, "", block)->run();
     else // rhs is not a block
         value = message->runSecondInput();
-    context->setChild(msg->name(), value, isDefine);
+    setChild(msg->name(), value, isDefine);
     value->hasBeenAssigned(msg);
     return value;
 }

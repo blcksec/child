@@ -1,8 +1,1 @@
-count := 20
-boucle := loop(count)
-
-i := 0
-boucle {
-    if(++i > 5) break("STOP")
-    i print
-}
+a := Text

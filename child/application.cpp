@@ -11,7 +11,7 @@ void Application::initOperatorTable() {
     ops->append("--", Operator::Postfix, Operator::namePrecedence, Operator::LeftAssociative, true, false, "postfix--");
 
     ops->append(".", Operator::Binary, Operator::namePrecedence);
-    ops->append("...", Operator::Postfix, Operator::namePrecedence);
+    ops->append("...", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, true, true);
 
     ops->append("\\", Operator::Prefix, 531);
     ops->append("@", Operator::Prefix, 541);

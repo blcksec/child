@@ -51,7 +51,8 @@ public:
 
     void setOutputs(ParameterList *outputs) { _outputs = outputs; }
 
-    virtual Node *run(Node *receiver, Message *message) {
+    virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL) {
+        Q_UNUSED(code);
         if(!block()) // method creation
             return Node::run(receiver, message);
         else { // method execution

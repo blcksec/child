@@ -34,8 +34,6 @@ public:
         CHILD_NATIVE_METHOD_ADD(Object, greater_than, >);
         CHILD_NATIVE_METHOD_ADD(Object, greater_than_or_equal_to, >=);
 
-        CHILD_NATIVE_METHOD_ADD(Object, while);
-        CHILD_NATIVE_METHOD_ADD(Object, until);
         CHILD_NATIVE_METHOD_ADD(Object, return);
     }
 
@@ -54,18 +52,7 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(less_than_or_equal_to);
     CHILD_NATIVE_METHOD_DECLARE(greater_than);
     CHILD_NATIVE_METHOD_DECLARE(greater_than_or_equal_to);
-private:
-    Node *whileOrUntil(Message *message, bool isWhile);
 public:
-    CHILD_NATIVE_METHOD_DECLARE(while) { return whileOrUntil(message, true); }
-    CHILD_NATIVE_METHOD_DECLARE(until) { return whileOrUntil(message, false); }
-
-    class Break {
-    public:
-        Node *result;
-        Break(Node *result = NULL) : result(result) {}
-    };
-
     class Return {
     public:
         Node *result;

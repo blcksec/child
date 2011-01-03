@@ -17,6 +17,16 @@ virtual NAME *fork() const { \
     return node; \
 }
 
+#define CHILD_FORK_METHOD_DECLARE(NAME) \
+virtual NAME *fork() const;
+
+#define CHILD_FORK_METHOD_DEFINE(NAME, ARGS...) \
+NAME *NAME::fork() const { \
+    NAME *node = new NAME(constCast(this), ##ARGS); \
+    node->initFork(); \
+    return node; \
+}
+
 #define CHILD_FORK_IF_NOT_NULL(NODE) \
 ((NODE) ? (NODE)->fork() : NULL)
 
@@ -26,14 +36,22 @@ if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Node pointer is NULL")
 class Message;
 
 #define CHILD_NATIVE_METHOD_DECLARE(METHOD) \
-Node *_##METHOD##_(Message *message)
+Node *_##METHOD##_(Message *message, Language::Primitive *)
 
 #define CHILD_NATIVE_METHOD_DEFINE(NAME, METHOD) \
-Node *NAME::_##METHOD##_(Message *message)
+Node *NAME::_##METHOD##_(Message *message, Language::Primitive *)
 
 namespace Language {
     class Primitive;
 }
+
+using Language::Primitive;
+
+#define CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DECLARE(METHOD) \
+Node *_##METHOD##_(Message *message, Language::Primitive *code)
+
+#define CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DEFINE(NAME, METHOD) \
+Node *NAME::_##METHOD##_(Message *message, Language::Primitive *code)
 
 class Node {
 public:
@@ -161,7 +179,7 @@ public:
         return this;
     }
 
-    virtual Node *run(Node *receiver, Message *message);
+    virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL);
 
     CHILD_NATIVE_METHOD_DECLARE(fork);
 private:

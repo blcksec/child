@@ -1,3 +1,27 @@
+Person := Object {
+    age := Number
+
+    age.get = { @age }
+
+    age.set(age) = {
+        if(age < 0) Exception throw
+        @age = age
+    }
+
+    age.spy = { "age changed!" print }
+}
+
+Person := Object {
+    age = Number {
+    validate_input:
+        if(input < 0) Exception throw
+    spy:
+        "age changed!" print
+    }
+}
+
+---
+
 meth(\test)... -> r := { "Hi" print }
 
 meth(\test) code... -> r := { "Hi" print }

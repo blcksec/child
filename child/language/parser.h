@@ -133,7 +133,7 @@ namespace Language {
         Primitive *scanPrimaryExpression(Primitive *currentPrimitive) {
             CHILD_PRIMITIVE_ADD(currentPrimitive, scanOperand());
             while(Operator *op = isPostfixOperator())
-                CHILD_PRIMITIVE_ADD(currentPrimitive, scanPostfixOperator(op));
+                scanPostfixOperator(currentPrimitive, op);
             return currentPrimitive;
         }
 
@@ -268,11 +268,28 @@ namespace Language {
 
         Operator *isPostfixOperator() const { return isOperator(Operator::Postfix); }
 
-        Primitive *scanPostfixOperator(Operator *currentOp) {
-            Primitive *primitive = CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), token()->sourceCodeRef);
+        Primitive *scanPostfixOperator(Primitive *currentPrimitive, Operator *currentOp) {
+            if(currentOp->isSpecial) {
+                if(currentOp->name == "...") {
+                    if(!currentPrimitive) throw parserException("missing primitive before '...'");
+                    Message *message = Message::dynamicCast(currentPrimitive->last()->value());
+                    if(!message) throw parserException("missing message before '...'");
+                    if(currentPrimitive->hasNext()) {
+                        QString name = message->name();
+                        Message *methodSignature = Message::dynamicCast(currentPrimitive->last()->previous()->value());
+                        if(!methodSignature) throw parserException("missing method signature before '...'");
+                        methodSignature->setCodeInputName(name);
+                        currentPrimitive->last()->previous()->setNext(NULL);
+                    } else
+                        message->setIsVariadic(true);
+                } else
+                    throw parserException("unimplemented special operator");
+            } else
+                CHILD_PRIMITIVE_ADD(currentPrimitive,
+                                    CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), token()->sourceCodeRef));
             consume();
             consumeUselessNewline();
-            return primitive;
+            return currentPrimitive;
         }
 
         Operator *isBinaryOperator() const { return isOperator(Operator::Binary); }
@@ -326,9 +343,12 @@ namespace Language {
                     CHILD_PRIMITIVE_ADD(lhs, CHILD_PRIMITIVE(message, sourceCodeRef));
                 } else {
                     Message *message = CHILD_MESSAGE(op->name);
-                    message->inputs()->append(lhs);
+                    message->inputs()->append(lhs->last());
                     message->inputs()->append(rhs);
-                    lhs = CHILD_PRIMITIVE(message, sourceCodeRef);
+                    if(lhs->hasNext())
+                        lhs->last()->previous()->setNext(CHILD_PRIMITIVE(message, sourceCodeRef));
+                    else
+                        lhs = CHILD_PRIMITIVE(message, sourceCodeRef);
                 }
             }
             return lhs;

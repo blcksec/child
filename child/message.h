@@ -12,43 +12,41 @@ CHILD_BEGIN
 class Message : public Object {
     CHILD_DECLARE(Message, Object);
 public:
-    explicit Message(Node *origin, const QString &name = "") :
-        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _block(NULL) {}
-
-    // TODO: use implicit conversion to limit the number of constructors
-    Message(Node *origin, const QString &name, ArgumentBunch *inputs) :
-        Object(origin), _name(name), _inputs(inputs), _outputs(NULL), _block(NULL) {}
-
-    Message(Node *origin, const QString &name, ArgumentBunch *inputs, ArgumentBunch *outputs) :
-        Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _block(NULL) {}
-
-    Message(Node *origin, const QString &name, ArgumentBunch *inputs, ArgumentBunch *outputs, Block *block) :
-        Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _block(block) {}
+    explicit Message(Node *origin, const QString &name = "", ArgumentBunch *inputs = NULL, ArgumentBunch *outputs = NULL,
+                     bool isVariadic = false, const QString &codeInputName = "", Block *block = NULL) :
+        Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _isVariadic(isVariadic),
+        _codeInputName(codeInputName), _block(block) {}
 
     Message(Node *origin, const QString &name, Argument *input) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL), _block(NULL) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL),
+        _isVariadic(false), _block(NULL) {}
 
     Message(Node *origin, const QString &name, Argument *input1, Argument *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL), _block(NULL) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL),
+        _isVariadic(false), _block(NULL) {}
 
     Message(Node *origin, const QString &name, Node *input) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL), _block(NULL) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL),
+        _isVariadic(false), _block(NULL) {}
 
     Message(Node *origin, const QString &name, Argument *input1, Node *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))), _outputs(NULL), _block(NULL) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))), _outputs(NULL),
+        _isVariadic(false), _block(NULL) {}
 
     Message(Node *origin, const QString &name, Node *input1, Argument *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)), _outputs(NULL), _block(NULL) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)), _outputs(NULL),
+        _isVariadic(false), _block(NULL) {}
 
     Message(Node *origin, const QString &name, Node *input1, Node *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL), _block(NULL) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL),
+        _isVariadic(false), _block(NULL) {}
 
     static void initRoot() { Object::root()->addChild("Message", root()); }
 
-    CHILD_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)),
-                      CHILD_FORK_IF_NOT_NULL(outputs(false)), CHILD_FORK_IF_NOT_NULL(block()));
+    CHILD_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
+                      isVariadic(), codeInputName(), CHILD_FORK_IF_NOT_NULL(block()));
 
-    const QString name() const { return _name; }
+    const QString &name() const { return _name; }
     void setName(const QString &name) { _name = name; }
 
     ArgumentBunch *inputs(bool createIfNull = true) const {
@@ -81,6 +79,13 @@ public:
 
     void setOutputs(ArgumentBunch *outputs) { _outputs = outputs; }
 
+    bool isVariadic() const { return _isVariadic; }
+    void setIsVariadic(bool isVariadic) { _isVariadic = isVariadic; }
+
+    const QString &codeInputName() const { return _codeInputName; }
+    void setCodeInputName(const QString &name) { _codeInputName = name; }
+    bool hasCodeInput() const { return !_codeInputName.isEmpty(); }
+
     Block *block() const { return _block; }
     void setBlock(Block *block) { _block = block; }
     bool hasBlock() const { return block(); }
@@ -111,8 +116,12 @@ public:
 
     virtual QString toString(bool debug = false, short level = 0) const {
         QString str = name();
+        if(isVariadic())
+            str += "...";
         if(inputs(false) && inputs()->isNotEmpty())
             str += "(" + inputs()->toString(debug, level) + ")";
+        if(hasCodeInput())
+            str += " " + codeInputName() + "...";
         if(outputs(false) && outputs()->isNotEmpty())
             str += " -> " + outputs()->toString(debug, level);
         if(block()) str += " " + block()->toString(debug, level);
@@ -122,7 +131,32 @@ private:
     QString _name;
     ArgumentBunch *_inputs;
     ArgumentBunch *_outputs;
+    bool _isVariadic;
+    QString _codeInputName;
     Block *_block;
+public:
+
+    // === Message::Sending ===
+
+    #define CHILD_MESSAGE_SENDING(ARGS...) new Message::Sending(Node::context()->child("Message", "Sending"), ##ARGS)
+
+    class Sending : public Node {
+        CHILD_DECLARE(Sending, Node);
+    public:
+        explicit Sending(Node *origin, Message *message = NULL, Node *receiver = NULL) :
+            Node(origin), _message(message), _receiver(receiver) {}
+
+        static void initRoot() { Message::root()->addChild("Sending", root()); }
+
+        CHILD_FORK_METHOD(Sending, CHILD_FORK_IF_NOT_NULL(_message), CHILD_FORK_IF_NOT_NULL(_receiver));
+
+        Node *receive(Primitive *primitive) {
+            return _receiver->child(_message->name())->run(_receiver, _message, primitive);
+        }
+    private:
+        Message *_message;
+        Node *_receiver;
+    };
 };
 
 CHILD_END
