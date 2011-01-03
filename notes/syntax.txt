@@ -371,3 +371,7 @@ Message
     outputDictionary (Dictionary of PrimitiveChain)
     hasVariadicOutput
     block
+
+***
+
+meth(\test)... -> r := { "Hi" print }

@@ -248,6 +248,7 @@ public:
          const Node *operator->() const { return _node; }
          operator bool() const { return _node; }
          bool operator!() const { return !_node; }
+         operator Node *() const { return _node; }
      private:
          Node *_node;
      };
@@ -262,8 +263,8 @@ inline bool operator==(const Node &a, const Node &b) { return a.isEqualTo(&b); }
 inline bool operator!=(const Node &a, const Node &b) { return !a.isEqualTo(&b); }
 inline uint qHash(const Node &node) { return node.hash(); }
 
-inline bool operator==(const Node::Reference &a, const Node::Reference &b) { return a->isEqualTo(&(*b)); }
-inline bool operator!=(const Node::Reference &a, const Node::Reference &b) { return !a->isEqualTo(&(*b)); }
+inline bool operator==(const Node::Reference &a, const Node::Reference &b) { return a->isEqualTo(b); }
+inline bool operator!=(const Node::Reference &a, const Node::Reference &b) { return !a->isEqualTo(b); }
 inline uint qHash(const Node::Reference &node) { return node->hash(); }
 
 #define CHILD_DECLARE(NAME, ORIGIN) \

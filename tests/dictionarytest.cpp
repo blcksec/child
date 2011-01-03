@@ -61,7 +61,7 @@ void DictionaryTest::keys() { // TODO: test with fork and/or removed key
     keys = dict->keys();
     QCOMPARE(keys.size(), 3);
     List *list = CHILD_LIST();
-    foreach (Node::Reference key, keys) list->append(&(*key));
+    foreach (Node::Reference key, keys) list->append(key);
     QVERIFY(list->hasValue(k1));
     QVERIFY(list->hasValue(CHILD_TEXT("key1")));
     QVERIFY(list->hasValue(k2));

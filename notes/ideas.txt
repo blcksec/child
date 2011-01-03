@@ -1,3 +1,9 @@
+meth(\test)... -> r := { "Hi" print }
+
+meth(\test) code... -> r := { "Hi" print }
+
+---
+
 Person := Object {
     name := Text
     age := Number
