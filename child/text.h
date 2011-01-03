@@ -15,6 +15,11 @@ class Text : public GenericElement<QString> {
 public:
     explicit Text(Node *origin, const QString &value = "") : GenericElement<QString>(origin, value) {}
 
+//    static Node *defaultOrigin() { return hasContext() ? context()->child(classPath()) : rootOrigin(); }
+
+//    static Node *rootOrigin() { return Element::root(); }
+//    static Node *rootParent() { return Object::root(); }
+
     static void initRoot() {
         Object::root()->addChild("Text", root());
         CHILD_NATIVE_METHOD_ADD(Text, init);
