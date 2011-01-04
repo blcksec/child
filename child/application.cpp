@@ -4,6 +4,10 @@ CHILD_BEGIN
 
 CHILD_DEFINE(Application, Object);
 
+void Application::initRoot() {
+    Object::root()->addChild("Application", root());
+}
+
 void Application::initOperatorTable() {
     OperatorTable *ops = CHILD_OPERATOR_TABLE();
 
@@ -13,8 +17,8 @@ void Application::initOperatorTable() {
     ops->append(".", Operator::Binary, Operator::namePrecedence);
     ops->append("...", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, true, true);
 
-    ops->append("\\", Operator::Prefix, 531);
-    ops->append("@", Operator::Prefix, 541);
+    ops->append("\\", Operator::Prefix, 531, Operator::NonAssociative, true, true);
+    ops->append("@", Operator::Prefix, 541, Operator::NonAssociative, true, true);
     ops->append("#", Operator::Prefix, 511);
     ops->append("$", Operator::Prefix, 511);
 

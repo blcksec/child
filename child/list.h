@@ -184,8 +184,6 @@ public:
     explicit List(Node *origin, const QList<Node *> &other = QList<Node *>()) :
         GenericList<Node *>(origin, other) {}
 
-    static void initRoot() { Object::root()->addChild("List", root()); }
-
     CHILD_FORK_METHOD(List);
 };
 

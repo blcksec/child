@@ -4,4 +4,8 @@ CHILD_BEGIN
 
 CHILD_DEFINE(Bunch, List);
 
+void Bunch::initRoot() {
+    Object::root()->addChild("Bunch", root());
+}
+
 CHILD_END

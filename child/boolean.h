@@ -13,11 +13,6 @@ class Boolean : public GenericElement<bool> {
 public:
     explicit Boolean(Node *origin, const bool value = false) : GenericElement<bool>(origin, value) {}
 
-    static void initRoot() {
-        Object::root()->addChild("Boolean", root());
-        CHILD_NATIVE_METHOD_ADD(Boolean, equal_to, ==);
-    }
-
     CHILD_FORK_METHOD(Boolean, value());
 
     virtual bool isEqualTo(const Node *other) const {

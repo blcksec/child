@@ -17,8 +17,6 @@ public:
     explicit Application(Node *origin) :
         Object(origin), _sourceCodes(NULL), _operatorTable(NULL), _lexer(NULL), _parser(NULL) {}
 
-    static void initRoot() { Object::root()->addChild("Application", root()); }
-
     CHILD_FORK_METHOD(Application); // TODO
 
     void init() {

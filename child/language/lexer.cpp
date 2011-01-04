@@ -5,6 +5,16 @@ CHILD_BEGIN
 namespace Language {
     CHILD_DEFINE(Lexer, Object);
 
+    void Lexer::initRoot() {
+        Language::root()->addChild("Lexer", root());
+    }
+
+    OperatorTable *Lexer::operatorTable() const {
+        if(!_operatorTable)
+            Lexer::constCast(this)->_operatorTable = OperatorTable::cast(context()->child("operatorTable"));
+        return _operatorTable;
+    }
+
     void Lexer::rewind() {
         _operatorTable = NULL;
         _previousChar = '\0';
@@ -53,6 +63,12 @@ namespace Language {
             _currentChar = QChar::Null;
             _nextChar = QChar::Null;
         }
+    }
+
+    Token *Lexer::scanNewline() {
+        startToken();
+        do consume(); while(isNewline() || isSpace());
+        return finishToken(Token::Newline);
     }
 
     void Lexer::consumeLineComment() {

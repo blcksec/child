@@ -5,6 +5,10 @@ CHILD_BEGIN
 
 CHILD_DEFINE(NativeMethod, Node);
 
+void NativeMethod::initRoot() {
+    Node::root()->addChild("NativeMethod", root());
+}
+
 Node *NativeMethod::run(Node *receiver, Message *message, Primitive *code) {
     if(!code && hasCodeInput())
         return new Message::Sending(Message::Sending::root(), message, receiver);

@@ -16,24 +16,6 @@ class Number : public GenericElement<double> {
 public:
     explicit Number(Node *origin, const double value = 0) : GenericElement<double>(origin, value) {}
 
-    static void initRoot() {
-        Object::root()->addChild("Number", root());
-        CHILD_NATIVE_METHOD_ADD(Number, add, +);
-        CHILD_NATIVE_METHOD_ADD(Number, subtract, -);
-        CHILD_NATIVE_METHOD_ADD(Number, multiply, *);
-        CHILD_NATIVE_METHOD_ADD(Number, divide, /);
-        CHILD_NATIVE_METHOD_ADD(Number, modulo, %);
-
-        CHILD_NATIVE_METHOD_ADD(Number, unary_plus, unary+);
-        CHILD_NATIVE_METHOD_ADD(Number, unary_minus, unary-);
-
-        CHILD_NATIVE_METHOD_ADD(Number, prefix_increment, prefix++);
-        CHILD_NATIVE_METHOD_ADD(Number, prefix_decrement, prefix--);
-
-        CHILD_NATIVE_METHOD_ADD(Number, equal_to, ==);
-        CHILD_NATIVE_METHOD_ADD(Number, compare, <=>);
-    }
-
     CHILD_FORK_METHOD(Number, value());
 
     CHILD_NATIVE_METHOD_DECLARE(add) {
@@ -114,7 +96,7 @@ public:
     virtual QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);
         Q_UNUSED(level);
-        return QString("%1").arg(value());
+        return QString("%1").arg(value(), 0, 'g', 13);
     }
 };
 

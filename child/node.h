@@ -35,23 +35,23 @@ if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Node pointer is NULL")
 
 class Message;
 
-#define CHILD_NATIVE_METHOD_DECLARE(METHOD) \
-Node *_##METHOD##_(Message *message, Language::Primitive *)
-
-#define CHILD_NATIVE_METHOD_DEFINE(NAME, METHOD) \
-Node *NAME::_##METHOD##_(Message *message, Language::Primitive *)
-
 namespace Language {
     class Primitive;
 }
 
-using Language::Primitive;
+using namespace Language;
+
+#define CHILD_NATIVE_METHOD_DECLARE(METHOD) \
+Node *_##METHOD##_(Message *message, Primitive *)
+
+#define CHILD_NATIVE_METHOD_DEFINE(NAME, METHOD) \
+Node *NAME::_##METHOD##_(Message *message, Primitive *)
 
 #define CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DECLARE(METHOD) \
-Node *_##METHOD##_(Message *message, Language::Primitive *code)
+Node *_##METHOD##_(Message *message, Primitive *code)
 
 #define CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DEFINE(NAME, METHOD) \
-Node *NAME::_##METHOD##_(Message *message, Language::Primitive *code)
+Node *NAME::_##METHOD##_(Message *message, Primitive *code)
 
 class Node {
 public:
@@ -172,7 +172,7 @@ public:
     QList<Node *> parents();
     QList<const Node *> parents() const;
 
-    virtual Node *receive(Language::Primitive *primitive);
+    virtual Node *receive(Primitive *primitive);
 
     virtual Node *run(Node *receiver = context()) {
         Q_UNUSED(receiver);
@@ -212,6 +212,8 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(inspect);
 
     long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
+    CHILD_NATIVE_METHOD_DECLARE(memory_address);
+
     QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
 
     virtual bool toBool() const { return true; };
@@ -231,9 +233,12 @@ public:
     virtual uint hash() const { return ::qHash(this); }
 
     static Node *context() {
-        if(contextStack().isEmpty())
-            qFatal("Fatal error: context stack is empty!");
+        if(!hasContext()) qFatal("Fatal error: context stack is empty!");
         return contextStack().top();
+    }
+
+    static bool hasContext() {
+        return !contextStack().isEmpty();
     }
 
     static void pushContext(Node *node) { contextStack().push(node); }
@@ -293,6 +298,7 @@ public: \
     inline static const NAME *dynamicCast(const Node *node) { return dynamic_cast<const NAME *>(node); } \
     inline static NAME *constCast(const NAME *node) { return const_cast<NAME *>(node); } \
     static NAME *root(); \
+    static void initRoot(); \
     virtual const QString className() const { return #NAME; } \
     static const bool isInitialized; \
 private:

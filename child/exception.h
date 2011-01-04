@@ -25,8 +25,6 @@ public:
               const int line = 0, const QString &function = "") :
         Node(origin), message(message), file(file), line(line), function(function) {}
 
-    static void initRoot() { Node::root()->addChild("Exception", root()); }
-
     CHILD_FORK_METHOD(Exception, message, file, line, function);
 
     const QString report() const;
@@ -45,12 +43,12 @@ public: \
     explicit NAME(Node *origin, const QString &message = "", const QString &file = "", \
          const int line = 0, const QString &function = "") : \
         ORIGIN(origin, message, file, line, function) {} \
-    static void initRoot() { Node::root()->addChild(#NAME, root()); } \
     CHILD_FORK_METHOD(NAME, message, file, line, function); \
 };
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
-CHILD_DEFINE(NAME, ORIGIN);
+CHILD_DEFINE(NAME, ORIGIN); \
+void NAME::initRoot() { Node::root()->addChild(#NAME, root()); }
 
 CHILD_EXCEPTION_DECLARATION(LexerException, Exception);
 CHILD_EXCEPTION_DECLARATION(ParserException, Exception);

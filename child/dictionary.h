@@ -110,8 +110,6 @@ public:
     explicit Dictionary(Node *origin) :
         GenericDictionary<Node::Reference, Node *>(origin) {}
 
-    static void initRoot() { Object::root()->addChild("Dictionary", root()); }
-
     CHILD_FORK_METHOD(Dictionary);
 };
 

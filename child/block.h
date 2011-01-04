@@ -14,8 +14,6 @@ public:
     explicit Block(Node *origin) : GenericList<Section *>(origin),
         _doc(NULL), _docIsCached(false), _body(NULL), _bodyIsCached(false), _else(NULL), _elseIsCached(false) {}
 
-    static void initRoot() { Object::root()->addChild("Block", root()); }
-
     CHILD_FORK_METHOD(Block);
 
     virtual Node *run(Node *receiver = context()) {

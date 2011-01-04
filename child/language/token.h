@@ -39,8 +39,6 @@ namespace Language {
         explicit Token(Node *origin, const Type type = Null, const QStringRef &sourceCodeRef = QStringRef()) :
             Object(origin), type(type), sourceCodeRef(sourceCodeRef) {}
 
-        static void initRoot() { Language::root()->addChild("Token", root()); }
-
         CHILD_FORK_METHOD(Token, type, sourceCodeRef);
 
         const QString typeName() const { return Token::typeName(type); }

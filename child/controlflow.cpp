@@ -1,10 +1,25 @@
 #include "child/controlflow.h"
 #include "child/boolean.h"
 #include "child/message.h"
+#include "child/block.h"
 
 CHILD_BEGIN
 
 CHILD_DEFINE(ControlFlow, Node);
+
+void ControlFlow::initRoot() {
+    Node::root()->addChild("ControlFlow", root());
+
+    CHILD_NATIVE_METHOD_ADD(ControlFlow, if);
+    CHILD_NATIVE_METHOD_ADD(ControlFlow, unless);
+
+    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(ControlFlow, loop);
+
+    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(ControlFlow, while);
+    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(ControlFlow, until);
+
+    CHILD_NATIVE_METHOD_ADD(ControlFlow, break);
+}
 
 Node *ControlFlow::ifOrUnless(Message *message, Primitive *code, bool isIf) {
     CHILD_CHECK_INPUT_SIZE(1, 3);

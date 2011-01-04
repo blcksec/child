@@ -4,6 +4,16 @@ CHILD_BEGIN
 
 CHILD_DEFINE(Text, Element);
 
+void Text::initRoot() {
+    Object::root()->addChild("Text", root());
+    CHILD_NATIVE_METHOD_ADD(Text, init);
+    CHILD_NATIVE_METHOD_ADD(Text, concatenate, +);
+    CHILD_NATIVE_METHOD_ADD(Text, multiply, *);
+    CHILD_NATIVE_METHOD_ADD(Text, upcase);
+    CHILD_NATIVE_METHOD_ADD(Text, equal_to, ==);
+    CHILD_NATIVE_METHOD_ADD(Text, compare, <=>);
+}
+
 QString Text::unescapeSequence(const QString &source) {
     QString result;
     int i = 0;

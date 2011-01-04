@@ -20,8 +20,6 @@ namespace Language {
     public:
         explicit Parser(Node *origin) : Object(origin), _lexer(NULL), _currentToken(NULL) {}
 
-        static void initRoot() { Language::root()->addChild("Parser", root()); }
-
         CHILD_FORK_METHOD(Parser); // TODO
 
         Lexer *lexer() const {
@@ -165,6 +163,8 @@ namespace Language {
                 consumeNewline();
                 if(!is(Token::RightParenthesis))
                     message->inputs()->append(scanExpression());
+                else
+                    message->inputs(); // create an empty inputs argument bunch
                 closeToken();
                 match(Token::RightParenthesis);
             }
@@ -255,14 +255,20 @@ namespace Language {
             consumeNewline();
             Primitive *chain = NULL;
             if(currentOp->isSpecial) {
-                if(currentOp->name == "?:")
+                if(currentOp->name == "\\") {
+                    chain = scanUnaryExpression(NULL);
+                    Message *msg = Message::dynamicCast(chain->value());
+                    if(!msg) throw parserException("missing message after '\\' operator");
+                    msg->setIsEscaped(true);
+                    primitive = NULL;
+                } else if(currentOp->name == "?:")
                     chain = scanExpression();
                 else
                     throw parserException("unimplemented special operator");
             } else
                 chain = scanUnaryExpression(NULL);
             CHILD_PRIMITIVE_ADD(currentPrimitive, chain);
-            CHILD_PRIMITIVE_ADD(currentPrimitive, primitive);
+            if(primitive) CHILD_PRIMITIVE_ADD(currentPrimitive, primitive);
             return currentPrimitive;
         }
 

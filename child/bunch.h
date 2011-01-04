@@ -22,8 +22,6 @@ public:
 
     Bunch(const Bunch &other) : GenericList<Node *>(other) {}
 
-    static void initRoot() { Object::root()->addChild("Bunch", root()); }
-
     CHILD_FORK_METHOD(Bunch);
 
     virtual QString toString(bool debug = false, short level = 0) const {

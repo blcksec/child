@@ -27,8 +27,9 @@ class Element : public GenericElement<Node *> {
 public:
     explicit Element(Node *origin, Node *value = NULL) :
         GenericElement<Node *>(origin, value) {}
-    static void initRoot() { Object::root()->addChild("Element", root()); }
+
     CHILD_FORK_METHOD(Element, CHILD_FORK_IF_NOT_NULL(value()));
+
     virtual QString toString(bool debug = false, short level = 0) const {
         return value() ? value()->toString(debug, level) : "NULL";
     }

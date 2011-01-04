@@ -17,8 +17,6 @@ namespace Language {
     public:
         explicit OperatorTable(Node *origin) : GenericList<Operator *>(origin) {}
 
-        static void initRoot() { Language::root()->addChild("OperatorTable", root()); }
-
         CHILD_FORK_METHOD(OperatorTable);
 
         void append(const QString &text, Operator::Type type, short precedence,

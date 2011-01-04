@@ -14,20 +14,6 @@ class ControlFlow : public Node {
 public:
     explicit ControlFlow(Node *origin) : Node(origin) {}
 
-    static void initRoot() {
-        Node::root()->addChild("ControlFlow", root());
-
-        CHILD_NATIVE_METHOD_ADD(ControlFlow, if);
-        CHILD_NATIVE_METHOD_ADD(ControlFlow, unless);
-
-        CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(ControlFlow, loop);
-
-        CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(ControlFlow, while);
-        CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(ControlFlow, until);
-
-        CHILD_NATIVE_METHOD_ADD(ControlFlow, break);
-    }
-
     CHILD_FORK_METHOD(ControlFlow);
 
     CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DECLARE(if) { return ifOrUnless(message, code, true); }

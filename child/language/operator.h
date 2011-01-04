@@ -32,8 +32,6 @@ namespace Language {
             if(name.isEmpty()) this->name = text;
         }
 
-        static void initRoot() { Language::root()->addChild("Operator", root()); }
-
         CHILD_FORK_METHOD(Operator, text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name);
 
         const bool isNull() const { return type == Null; }

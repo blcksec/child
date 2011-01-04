@@ -1,1 +1,6 @@
-a := Text
+meth := {
+    "Yo" print
+}
+
+meth2 := \meth
+meth2

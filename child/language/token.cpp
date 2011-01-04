@@ -23,6 +23,10 @@ namespace Language {
         "Semicolon",
         "Newline"
     };
+
+    void Token::initRoot() {
+        Language::root()->addChild("Token", root());
+    }
 }
 
 CHILD_END

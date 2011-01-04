@@ -27,8 +27,6 @@ public:
     explicit NativeMethod(Node *origin, const _MethodPointer_ &method, bool hasCodeInput) :
         Node(origin), _method(method), _codeInputName(hasCodeInput ? "code" : "") {}
 
-    static void initRoot() { Node::root()->addChild("NativeMethod", root()); }
-
     CHILD_FORK_METHOD(NativeMethod, method(), codeInputName());
 
     _MethodPointer_ method() const { return _method; }

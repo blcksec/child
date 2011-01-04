@@ -7,8 +7,8 @@
 
 Version orienté objet :
 
-Hello(@what: "World") := Object {
-    say := { "Hello, \{what capitalized}!" print }
+Hello(@what: "World") := Object() {
+    say := { "Hello, {what capitalized}!" print }
 }
 
 Hello() say // -> "Hello, World!"
@@ -221,7 +221,7 @@ each(\val: nil, \key: nil, offset: 0, limit: nil) {code} := { implementation de 
 Et utilisé ainsi :
 
 authors each(auth) { auth print }
-authors each(val, key) { "\{key}: \{val}" print }
+authors each(val, key) { "{key}: {val}" print }
 authors each(auth, limit: 3) { auth print }
 
 Si l'identifiant "val" n'est pas spécifié, un identifiant générique est généré :
@@ -332,7 +332,7 @@ NotFoundException:
 DuplicateException:
     "Duplicate!" log
 Exception(e): // Catch all other exceptions
-    "\{e name} intercepted!" log
+    "{e name} intercepted!" log
 end:
     clean everything...
 }

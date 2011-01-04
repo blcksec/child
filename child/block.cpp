@@ -5,6 +5,10 @@ CHILD_BEGIN
 
 CHILD_DEFINE(Block, List);
 
+void Block::initRoot() {
+    Object::root()->addChild("Block", root());
+}
+
 Section *Block::findSection(const QString &label) {
     Iterator i(this);
     while(Section *section = i.next()) {

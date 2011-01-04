@@ -26,8 +26,6 @@ namespace Language {
         Argument(Node *origin, Node *node) :
             GenericPair<Primitive *, Primitive *>(origin, NULL, CHILD_PRIMITIVE(node)) {}
 
-        static void initRoot() { Language::root()->addChild("Argument", root()); }
-
         CHILD_FORK_METHOD(Argument, CHILD_FORK_IF_NOT_NULL(label()), CHILD_FORK_IF_NOT_NULL(value()));
 
         // aliases...
@@ -73,34 +71,19 @@ namespace Language {
             GenericList<Argument *>(
                 origin, CHILD_ARGUMENT(argument1), CHILD_ARGUMENT(argument2), true) {}
 
-        static void initRoot() { Language::root()->addChild("ArgumentBunch", root()); }
-
         CHILD_FORK_METHOD(ArgumentBunch);
 
         using GenericList<Argument *>::append;
-
-        void append(Primitive *value) {
-            if(Pair *pair = Pair::dynamicCast(value->value()))
-                append(Primitive::cast(pair->first()), Primitive::cast(pair->second()));
-            else if(Bunch *bunch = Bunch::dynamicCast(value->value()))
-                append(bunch);
-            else
-                append(CHILD_ARGUMENT(NULL, value));
-        }
-
-        Argument *append(Primitive *label, Primitive *value) {
-            return append(CHILD_ARGUMENT(label, value));
-        }
-
-        void append(const Bunch *bunch) {
-            Bunch::Iterator i(bunch);
-            while(Node *value = i.next()) append(Primitive::cast(value));
-        }
+        void append(Primitive *value);
+        void append(Primitive *label, Primitive *value);
+        void append(const Bunch *bunch);
 
         void checkSize(short min, short max = -1) { checkSpecifiedSize(size(), min, max); }
         static void checkSpecifiedSize(short size, short min, short max = -1);
 
-        virtual QString toString(bool debug = false, short level = 0) const { return join(", ", "", "", debug, level); }
+        virtual QString toString(bool debug = false, short level = 0) const {
+            return join(", ", "", "", debug, level);
+        }
     };
 }
 

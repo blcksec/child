@@ -4,6 +4,10 @@ CHILD_BEGIN
 
 namespace Language {
     CHILD_DEFINE(Parser, Object);
+
+    void Parser::initRoot() {
+        Language::root()->addChild("Parser", root());
+    }
 }
 
 CHILD_END

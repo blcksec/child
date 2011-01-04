@@ -4,7 +4,10 @@
 #include "child/exception.h"
 #include "child/nativemethod.h"
 #include "child/boolean.h"
+#include "child/number.h"
 #include "child/message.h"
+#include "child/block.h"
+#include "child/method.h"
 
 CHILD_BEGIN
 
@@ -47,6 +50,8 @@ void Node::initRoot() {
     CHILD_NATIVE_METHOD_ADD(Node, assert, ?:);
     CHILD_NATIVE_METHOD_ADD(Node, print);
     CHILD_NATIVE_METHOD_ADD(Node, inspect);
+
+    CHILD_NATIVE_METHOD_ADD(Node, memory_address);
 }
 
 void Node::setOrigin(Node *node) {
@@ -211,7 +216,7 @@ Node *Node::receive(Primitive *primitive) {
 Node *Node::run(Node *receiver, Message *message, Primitive *code) {
     Q_UNUSED(receiver);
     Q_UNUSED(code);
-    if(message->inputs(false) || message->outputs(false) || message->block()) {
+    if(message->inputs(false)) {
         Message *forkMessage = message->fork();
         forkMessage->setName("fork");
         return forkMessage->run(this);
@@ -222,9 +227,9 @@ Node *Node::run(Node *receiver, Message *message, Primitive *code) {
 CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
     Node *node = fork();
     if(node->hasChild("init")) {
-        Message* init = message->fork();
-        init->setName("init");
-        init->run(node);
+        Message* initMessage = message->fork();
+        initMessage->setName("init");
+        initMessage->run(node);
     }
     return node;
 }
@@ -236,8 +241,8 @@ Node *Node::defineOrAssign(Message *message, bool isDefine) {
     if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
     Node *value;
     Block *block = Block::dynamicCast(message->secondInput()->value()->value());
-    if(block) // if rhs is a block, its a method definition shorthand
-        value = CHILD_MESSAGE("Method", NULL, NULL, false, "", block)->run();
+    if(block) // if rhs is a block, we have a method definition shorthand
+        value = CHILD_METHOD(NULL, NULL, block);
     else // rhs is not a block
         value = message->runSecondInput();
     setChild(msg->name(), value, isDefine);
@@ -305,6 +310,11 @@ CHILD_NATIVE_METHOD_DEFINE(Node, inspect) {
     CHILD_CHECK_INPUT_SIZE(0);
     inspect();
     return this;
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, memory_address) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    return CHILD_NUMBER(memoryAddress());
 }
 
 QString Node::toString(bool debug, short level) const {

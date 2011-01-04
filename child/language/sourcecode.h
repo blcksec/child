@@ -22,8 +22,6 @@ namespace Language {
             if(!text().isEmpty() && !block) parse();
         }
 
-        static void initRoot() { Language::root()->addChild("SourceCode", root()); }
-
         CHILD_FORK_METHOD(SourceCode, url(), text(), CHILD_FORK_IF_NOT_NULL(block()));
 
         const QString &url() const { return _url; }
@@ -82,8 +80,6 @@ namespace Language {
     public:
         SourceCodeDictionary(Node *origin) :
             GenericDictionary<Node::Reference, SourceCode *>(origin) {}
-
-        static void initRoot() { Language::root()->addChild("SourceCodeDictionary", root()); }
 
         CHILD_FORK_METHOD(SourceCodeDictionary);
     };

@@ -15,23 +15,6 @@ class Text : public GenericElement<QString> {
 public:
     explicit Text(Node *origin, const QString &value = "") : GenericElement<QString>(origin, value) {}
 
-//    static Node *defaultOrigin() { return hasContext() ? context()->child(classPath()) : rootOrigin(); }
-
-//    static Node *rootOrigin() { return Element::root(); }
-//    static Node *rootParent() { return Object::root(); }
-
-//    static const QString &classPath() {} // déterminé à partir de rootParent() et className()
-
-    static void initRoot() {
-        Object::root()->addChild("Text", root());
-        CHILD_NATIVE_METHOD_ADD(Text, init);
-        CHILD_NATIVE_METHOD_ADD(Text, concatenate, +);
-        CHILD_NATIVE_METHOD_ADD(Text, multiply, *);
-        CHILD_NATIVE_METHOD_ADD(Text, upcase);
-        CHILD_NATIVE_METHOD_ADD(Text, equal_to, ==);
-        CHILD_NATIVE_METHOD_ADD(Text, compare, <=>);
-    }
-
     CHILD_FORK_METHOD(Text, value());
 
     CHILD_NATIVE_METHOD_DECLARE(init) {

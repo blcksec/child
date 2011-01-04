@@ -5,13 +5,40 @@ CHILD_BEGIN
 
 namespace Language {
     CHILD_DEFINE(Argument, Pair);
-    CHILD_DEFINE(ArgumentBunch, Bunch);
+
+    void Argument::initRoot() {
+        Language::root()->addChild("Argument", root());
+    }
 
     QString Argument::labelName() const {
         if(label()->hasNext()) CHILD_THROW(ArgumentException, "illegal parameter label");
         Message *labelMessage = Message::dynamicCast(label()->value());
         if(!labelMessage) CHILD_THROW(ArgumentException, "illegal parameter label");
         return labelMessage->name();
+    }
+
+    CHILD_DEFINE(ArgumentBunch, Bunch);
+
+    void ArgumentBunch::initRoot() {
+        Language::root()->addChild("ArgumentBunch", root());
+    }
+
+    void ArgumentBunch::append(Primitive *value) {
+        if(Pair *pair = Pair::dynamicCast(value->value()))
+            append(Primitive::cast(pair->first()), Primitive::cast(pair->second()));
+        else if(Bunch *bunch = Bunch::dynamicCast(value->value()))
+            append(bunch);
+        else
+            append(CHILD_ARGUMENT(NULL, value));
+    }
+
+    void ArgumentBunch::append(Primitive *label, Primitive *value) {
+        append(CHILD_ARGUMENT(label, value));
+    }
+
+    void ArgumentBunch::append(const Bunch *bunch) {
+        Bunch::Iterator i(bunch);
+        while(Node *value = i.next()) append(Primitive::cast(value));
     }
 
     void ArgumentBunch::checkSpecifiedSize(short size, short min, short max) {

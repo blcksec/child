@@ -16,8 +16,6 @@ namespace Language {
         explicit Section(Node *origin, Primitive *label = NULL) :
             GenericList<Primitive *>(origin), _label(label) {}
 
-        static void initRoot() { Language::root()->addChild("Section", root()); }
-
         CHILD_FORK_METHOD(Section, CHILD_FORK_IF_NOT_NULL(label()));
 
         Primitive *label() const { return _label; }

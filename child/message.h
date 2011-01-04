@@ -1,7 +1,6 @@
 #ifndef CHILD_MESSAGE_H
 #define CHILD_MESSAGE_H
 
-#include "child/block.h"
 #include "child/language/argument.h"
 
 CHILD_BEGIN
@@ -13,38 +12,36 @@ class Message : public Object {
     CHILD_DECLARE(Message, Object);
 public:
     explicit Message(Node *origin, const QString &name = "", ArgumentBunch *inputs = NULL, ArgumentBunch *outputs = NULL,
-                     bool isVariadic = false, const QString &codeInputName = "", Block *block = NULL) :
-        Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _isVariadic(isVariadic),
-        _codeInputName(codeInputName), _block(block) {}
+                     bool isEscaped = false, bool isVariadic = false, const QString &codeInputName = "") :
+        Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _isEscaped(isEscaped), _isVariadic(isVariadic),
+        _codeInputName(codeInputName) {}
 
     Message(Node *origin, const QString &name, Argument *input) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL),
-        _isVariadic(false), _block(NULL) {}
+        _isEscaped(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Argument *input1, Argument *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL),
-        _isVariadic(false), _block(NULL) {}
+        _isEscaped(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Node *input) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL),
-        _isVariadic(false), _block(NULL) {}
+        _isEscaped(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Argument *input1, Node *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))), _outputs(NULL),
-        _isVariadic(false), _block(NULL) {}
+        _isEscaped(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Node *input1, Argument *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)), _outputs(NULL),
-        _isVariadic(false), _block(NULL) {}
+        _isEscaped(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Node *input1, Node *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL),
-        _isVariadic(false), _block(NULL) {}
-
-    static void initRoot() { Object::root()->addChild("Message", root()); }
+        _isEscaped(false), _isVariadic(false) {}
 
     CHILD_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
-                      isVariadic(), codeInputName(), CHILD_FORK_IF_NOT_NULL(block()));
+                      isEscaped(), isVariadic(), codeInputName());
 
     const QString &name() const { return _name; }
     void setName(const QString &name) { _name = name; }
@@ -79,6 +76,9 @@ public:
 
     void setOutputs(ArgumentBunch *outputs) { _outputs = outputs; }
 
+    bool isEscaped() const { return _isEscaped; }
+    void setIsEscaped(bool isEscaped) { _isEscaped = isEscaped; }
+
     bool isVariadic() const { return _isVariadic; }
     void setIsVariadic(bool isVariadic) { _isVariadic = isVariadic; }
 
@@ -86,54 +86,34 @@ public:
     void setCodeInputName(const QString &name) { _codeInputName = name; }
     bool hasCodeInput() const { return !_codeInputName.isEmpty(); }
 
-    Block *block() const { return _block; }
-    void setBlock(Block *block) { _block = block; }
-    bool hasBlock() const { return block(); }
-
     virtual Node *run(Node *receiver = context()) {
-        return receiver->child(name())->run(receiver, this);
-    }
-
-    Node *runInputOrSection(const short inputIndex, const QString &sectionLabel,
-                              Node *defaultResult = NULL,
-                              Node *receiver = context()) const {
-        Node *code = hasInputOrSection(inputIndex, sectionLabel);
-        return code ? code->run(receiver) : defaultResult;
-    }
-
-    Node *hasInputOrSection(const short inputIndex, const QString &sectionLabel) const {
-        Section *section = block() ? block()->section(sectionLabel) : NULL;
-        if(hasInput(inputIndex)) {
-            if(section)
-                CHILD_THROW(ArgumentException, "ambiguous alternative forms, cannot choose between \"code passed by argument\""
-                            " and \"code passed by block\"");
-            return input(inputIndex);
-        } else if(section)
-            return section;
-        else
-            return NULL;
+        Node *result = receiver->child(name());
+        if(!isEscaped()) result = result->run(receiver, this);
+        return result;
     }
 
     virtual QString toString(bool debug = false, short level = 0) const {
-        QString str = name();
+        QString str;
+        if(isEscaped())
+            str += "\\";
+        str += name();
         if(isVariadic())
             str += "...";
-        if(inputs(false) && inputs()->isNotEmpty())
+        if(inputs(false))
             str += "(" + inputs()->toString(debug, level) + ")";
         if(hasCodeInput())
             str += " " + codeInputName() + "...";
-        if(outputs(false) && outputs()->isNotEmpty())
+        if(outputs(false))
             str += " -> " + outputs()->toString(debug, level);
-        if(block()) str += " " + block()->toString(debug, level);
         return str;
     }
 private:
     QString _name;
     ArgumentBunch *_inputs;
     ArgumentBunch *_outputs;
+    bool _isEscaped;
     bool _isVariadic;
     QString _codeInputName;
-    Block *_block;
 public:
 
     // === Message::Sending ===
@@ -146,11 +126,9 @@ public:
         explicit Sending(Node *origin, Message *message = NULL, Node *receiver = NULL) :
             Node(origin), _message(message), _receiver(receiver) {}
 
-        static void initRoot() { Message::root()->addChild("Sending", root()); }
-
         CHILD_FORK_METHOD(Sending, CHILD_FORK_IF_NOT_NULL(_message), CHILD_FORK_IF_NOT_NULL(_receiver));
 
-        Node *receive(Primitive *primitive) {
+        virtual Node *receive(Primitive *primitive) {
             return _receiver->child(_message->name())->run(_receiver, _message, primitive);
         }
     private:

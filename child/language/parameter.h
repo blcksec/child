@@ -18,8 +18,6 @@ namespace Language {
                   Primitive *defaultValue = NULL) :
             GenericPair<QString, Primitive *>(origin, label, defaultValue) {}
 
-        static void initRoot() { Language::root()->addChild("Parameter", root()); }
-
         CHILD_FORK_METHOD(Parameter, label(), CHILD_FORK_IF_NOT_NULL(defaultValue()));
 
         // aliases...
@@ -48,8 +46,6 @@ namespace Language {
         CHILD_DECLARE(ParameterList, List);
     public:
         explicit ParameterList(Node *origin) : GenericList<Parameter *>(origin) {}
-
-        static void initRoot() { Language::root()->addChild("ParameterList", root()); }
 
         CHILD_FORK_METHOD(ParameterList);
 

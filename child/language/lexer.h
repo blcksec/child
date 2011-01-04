@@ -16,15 +16,10 @@ namespace Language {
         CHILD_DECLARE(Lexer, Object);
     public:
         explicit Lexer(Node *origin) : Object(origin), _operatorTable(NULL), _source(NULL) {}
-        static void initRoot() { Language::root()->addChild("Lexer", root()); }
 
         CHILD_FORK_METHOD(Lexer); // TODO
 
-        OperatorTable *operatorTable() const {
-            if(!_operatorTable)
-                Lexer::constCast(this)->_operatorTable = OperatorTable::cast(context()->child("operatorTable"));
-            return _operatorTable;
-        }
+        OperatorTable *operatorTable() const;
 
         void setSource(const QString &source) { _source = &source; rewind(); }
         const QString &source() const { return *_source; }
@@ -38,13 +33,8 @@ namespace Language {
 
         void consume();
 
-        void startToken() {
-            _tokenPosition = _position;
-        }
-
-        Token *finishToken(const Token::Type type) {
-            return CHILD_TOKEN(type, tokenTextRef());
-        }
+        void startToken() { _tokenPosition = _position; }
+        Token *finishToken(const Token::Type type) { return CHILD_TOKEN(type, tokenTextRef()); }
 
         const QStringRef tokenTextRef() const {
             return source().midRef(_tokenPosition, _position - _tokenPosition);
@@ -56,56 +46,27 @@ namespace Language {
             return finishToken(type);
         }
 
-        bool isEof() const {
-            return _currentChar.isNull();
-        }
+        bool isEof() const { return _currentChar.isNull(); }
 
-        bool isSpace() const {
-            return _currentChar == ' ' || _currentChar == '\t';
-        }
+        bool isSpace() const { return _currentChar == ' ' || _currentChar == '\t'; }
+        void consumeSpaces() { do consume(); while(isSpace()); }
 
-        void consumeSpaces() {
-            do consume(); while(isSpace());
-        }
+        bool isNewline() const { return _currentChar == '\r' || _currentChar == '\n'; }
+        Token *scanNewline();
 
-        bool isNewline() const {
-            return _currentChar == '\r' || _currentChar == '\n';
-        }
-
-        Token *scanNewline() {
-            startToken();
-            do consume(); while(isNewline() || isSpace());
-            return finishToken(Token::Newline);
-        }
-
-        bool isLineComment() const {
-            return _currentChar == '/' && _nextChar == '/';
-        }
-
+        bool isLineComment() const { return _currentChar == '/' && _nextChar == '/'; }
         void consumeLineComment();
 
-        bool isBlockComment() const {
-            return _currentChar == '/' && _nextChar == '*';
-        }
-
+        bool isBlockComment() const { return _currentChar == '/' && _nextChar == '*'; }
         void consumeBlockComment();
 
-        bool isName() const {
-            return _currentChar.isLetter() || _currentChar == '_';
-        }
-
+        bool isName() const { return _currentChar.isLetter() || _currentChar == '_'; }
         Token *scanName();
 
-        bool isOperator() const {
-            return operatorTable()->hasOperatorStartingWith(_currentChar);
-        }
-
+        bool isOperator() const { return operatorTable()->hasOperatorStartingWith(_currentChar); }
         Token *scanOperator();
 
-        bool isNumber() const {
-            return _currentChar.isNumber();
-        }
-
+        bool isNumber() const { return _currentChar.isNumber(); }
         Token *scanNumber();
 
         Token *scanCharacter();
@@ -117,26 +78,6 @@ namespace Language {
         LexerException lexerException(QString message) const;
 
         virtual QString toString(bool debug = false, short level = 0) const;
-
-//        void test() {
-//            setSource("[a, b] = [c, d]");
-//            p(toString().toUtf8());
-//        }
-
-//        void test() {
-//            setSource(readTextFile("../child/examples/lexertest.child"));
-//            setFilename("lexertest.child");
-//            p(toString().toUtf8());
-//        }
-
-//        void test() {
-//            setSource(readTextFile("../child/examples/lexertest.child"));
-//            setFilename("lexertest.child");
-//            for(int i = 0; i < 1000; i++) {
-//                while(nextToken().type != Token::Eof) {}
-//                rewind();
-//            }
-//        }
     private:
         OperatorTable *_operatorTable;
         const QString *_source;

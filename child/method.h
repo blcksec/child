@@ -16,19 +16,8 @@ public:
     explicit Method(Node *origin, ParameterList *inputs = NULL, ParameterList *outputs = NULL, Block *block = NULL) :
         GenericElement<Block *>(origin, block), _inputs(inputs), _outputs(outputs) {}
 
-    static void initRoot() {
-        Object::root()->addChild("Method", root());
-        CHILD_NATIVE_METHOD_ADD(Method, init);
-    }
-
     CHILD_FORK_METHOD(Method, CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
                       CHILD_FORK_IF_NOT_NULL(block()));
-
-    CHILD_NATIVE_METHOD_DECLARE(init) {
-        CHILD_CHECK_INPUT_SIZE(0);
-        if(message->hasBlock()) setBlock(message->block());
-        return this;
-    }
 
     Block *block() const { return value(); } // aliases
     void setBlock(Block *block) { setValue(block); }
@@ -51,48 +40,52 @@ public:
 
     void setOutputs(ParameterList *outputs) { _outputs = outputs; }
 
-    virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL) {
-        Q_UNUSED(code);
-        if(!block()) // method creation
-            return Node::run(receiver, message);
-        else { // method execution
-            Block *forkedBlock = block()->fork();
-            QHash<QString, Parameter *> labels(inputs()->labels());
-            if(message->inputs(false)) {
-                ArgumentBunch::Iterator iterator(message->inputs());
-                short i = -1;
-                bool labelFound = false;
-                while(Argument *argument = iterator.next()) {
-                    QString label;
-                    if(argument->label()) {
-                        label = argument->labelName();
-                        if(!hasInput(label)) CHILD_THROW(NotFoundException, "unknown parameter label");
-                        if(!labels.contains(label)) CHILD_THROW(DuplicateException, "duplicated parameter label");
-                        labelFound = true;
-                    } else {
-                        if(labelFound) CHILD_THROW(ArgumentException, "positional arguments are forbidden after labeled ones");
-                        i++;
-                        if(!hasInput(i)) CHILD_THROW(IndexOutOfBoundsException, "too many arguments");
-                        label = input(i)->label();
-                    }
-                    forkedBlock->addChild(label, argument->run());
-                    labels.remove(label);
-                }
-            }
-            foreach(Parameter *parameter, labels) {
-                if(!parameter->defaultValue()) CHILD_THROW(ArgumentException, "missing mandatory parameter");
-                forkedBlock->addChild(parameter->label(), parameter->run());
-            }
-            ContextPusher pusher(forkedBlock);
-            Node *result = NULL;
-            try {
-                result = forkedBlock->run();
-            } catch(const Return &ret) { result = ret.result; }
-            return result;
-        }
+    virtual Node *receive(Primitive *primitive) {
+        Block *receivedBlock = Block::dynamicCast(primitive->value());
+        if(!receivedBlock || block() || this == root()) return Node::receive(primitive); // not a method definition
+        setBlock(receivedBlock);
+        return this;
     }
 
-    virtual void hasBeenAssigned(const Message *message) const {
+    virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL) {
+        Q_UNUSED(code);
+        if(!block()) return Node::run(receiver, message); // method creation
+        Block *forkedBlock = block()->fork();
+        QHash<QString, Parameter *> labels(inputs()->labels());
+        if(message->inputs(false)) {
+            ArgumentBunch::Iterator iterator(message->inputs());
+            short i = -1;
+            bool labelFound = false;
+            while(Argument *argument = iterator.next()) {
+                QString label;
+                if(argument->label()) {
+                    label = argument->labelName();
+                    if(!hasInput(label)) CHILD_THROW(NotFoundException, "unknown parameter label");
+                    if(!labels.contains(label)) CHILD_THROW(DuplicateException, "duplicated parameter label");
+                    labelFound = true;
+                } else {
+                    if(labelFound) CHILD_THROW(ArgumentException, "positional arguments are forbidden after labeled ones");
+                    i++;
+                    if(!hasInput(i)) CHILD_THROW(IndexOutOfBoundsException, "too many arguments");
+                    label = input(i)->label();
+                }
+                forkedBlock->addChild(label, argument->run());
+                labels.remove(label);
+            }
+        }
+        foreach(Parameter *parameter, labels) {
+            if(!parameter->defaultValue()) CHILD_THROW(ArgumentException, "missing mandatory parameter");
+            forkedBlock->addChild(parameter->label(), parameter->run());
+        }
+        ContextPusher pusher(forkedBlock);
+        Node *result = NULL;
+        try {
+            result = forkedBlock->run();
+        } catch(const Return &ret) { result = ret.result; }
+        return result;
+    }
+
+    virtual void hasBeenAssigned(Message *message) const {
         if(message->inputs(false)) {
             ArgumentBunch::Iterator i(message->inputs());
             while(Argument *argument = i.next()) {

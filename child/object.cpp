@@ -7,6 +7,28 @@ CHILD_BEGIN
 
 CHILD_DEFINE(Object, Node);
 
+void Object::initRoot() {
+    Node::root()->addChild("Object", root());
+
+    root()->addExtension(ControlFlow::root());
+
+    CHILD_NATIVE_METHOD_ADD(Object, postfix_increment, postfix++);
+    CHILD_NATIVE_METHOD_ADD(Object, postfix_decrement, postfix--);
+
+    CHILD_NATIVE_METHOD_ADD(Object, add_assign, +=);
+    CHILD_NATIVE_METHOD_ADD(Object, subtract_assign, -=);
+    CHILD_NATIVE_METHOD_ADD(Object, multiply_assign, *=);
+    CHILD_NATIVE_METHOD_ADD(Object, divide_assign, /=);
+    CHILD_NATIVE_METHOD_ADD(Object, modulo_assign, %=);
+
+    CHILD_NATIVE_METHOD_ADD(Object, less_than, <);
+    CHILD_NATIVE_METHOD_ADD(Object, less_than_or_equal_to, <=);
+    CHILD_NATIVE_METHOD_ADD(Object, greater_than, >);
+    CHILD_NATIVE_METHOD_ADD(Object, greater_than_or_equal_to, >=);
+
+    CHILD_NATIVE_METHOD_ADD(Object, return);
+}
+
 CHILD_NATIVE_METHOD_DEFINE(Object, postfix_increment) {
     CHILD_CHECK_INPUT_SIZE(0);
     CHILD_TODO;

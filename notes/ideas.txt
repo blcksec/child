@@ -1,3 +1,30 @@
+---
+
+Window(title: "Hello") {
+    Row() {
+        Text("Name:")
+        Field()
+    }
+}
+
+---
+
+Window(title: "Hello") {
+    Row {
+        Text("Name:")
+        Field
+    }
+}
+
+---
+
+window("Hello") {
+    row {
+        text("Name:")
+        field
+    }
+}
+
 Person := Object {
     age := Number
 
@@ -28,9 +55,9 @@ meth(\test) code... -> r := { "Hi" print }
 
 ---
 
-Person := Object {
-    name := Text
-    age := Number
+Person := Object() {
+    name := Text()
+    age := Number()
     country := "France" abstract!
     description := { "{name} ({age})" }
 }

@@ -34,8 +34,6 @@ public:
     explicit Pair(Node *origin, Node *first = NULL, Node *second = NULL) :
         GenericPair<Node *, Node *>(origin, first, second) {}
 
-    static void initRoot() { Object::root()->addChild("Pair", root()); }
-
     CHILD_FORK_METHOD(Pair, CHILD_FORK_IF_NOT_NULL(first()), CHILD_FORK_IF_NOT_NULL(second()));
 
     virtual QString toString(bool debug = false, short level = 0) const {

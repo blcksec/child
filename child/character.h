@@ -16,12 +16,6 @@ public:
     explicit Character(Node *origin, const QChar &value = QChar::Null) :
         GenericElement<QChar>(origin, value) {}
 
-    static void initRoot() {
-        Object::root()->addChild("Character", root());
-        CHILD_NATIVE_METHOD_ADD(Character, equal_to, ==);
-        CHILD_NATIVE_METHOD_ADD(Character, compare, <=>);
-    }
-
     CHILD_FORK_METHOD(Character, value());
 
     virtual bool isEqualTo(const Node *other) const {

@@ -7,7 +7,7 @@ CHILD_BEGIN
 
 namespace Language {
     Object *root();
-    static bool isInitialized = root();
+//    static bool isInitialized = root();
 }
 
 using namespace Language;
