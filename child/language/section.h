@@ -21,20 +21,9 @@ namespace Language {
         Primitive *label() const { return _label; }
         void setLabel(Primitive *label) { _label = label; }
 
-        virtual Node *run(Node *receiver = context()) {
-            Node *result = NULL;
-            Iterator i(this);
-            while(Primitive *primitive = i.next())
-                result = receiver->receive(primitive);
-            return result;
-        }
+        virtual Node *run(Node *receiver = context());
 
-        virtual QString toString(bool debug = false, short level = 0) const {
-            QString str;
-            if(label()) str += QString("    ").repeated(level - 1) + label()->toString(debug, level) + ":";
-            str = concatenateStrings(str, "\n", join("\n", QString("    ").repeated(level), "", debug, level));
-            return str;
-        }
+        virtual QString toString(bool debug = false, short level = 0) const;
     private:
         Primitive *_label;
     };

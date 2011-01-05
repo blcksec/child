@@ -26,33 +26,10 @@ namespace Language {
         void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }
 
         Primitive *next() const { return _next; }
-
-        Primitive *setNext(Primitive *next) {
-            if(next != _next) {
-                if(_next) _next->_previous = NULL;
-                _next = next;
-                if(next) next->_previous = this;
-            }
-            return next;
-        }
-
+        Primitive *setNext(Primitive *next);
         bool hasNext() const { return _next; }
-
-        Primitive *last() {
-            Primitive *primitive = this;
-            while(primitive->hasNext()) primitive = primitive->next();
-            return primitive;
-        }
-
-        int size() const {
-            int result = 1;
-            const Primitive *primitive = this;
-            while(primitive->hasNext()) {
-                primitive = primitive->next();
-                result++;
-            }
-            return result;
-        }
+        Primitive *last();
+        int size() const;
 
         Primitive *previous() const { return _previous; }
         bool hasPrevious() const { return _previous; }
@@ -82,17 +59,7 @@ namespace Language {
             return hasNext() ? next()->runExceptLast(value()->run(receiver)) : receiver;
         }
 
-        virtual QString toString(bool debug = false, short level = 0) const {
-            QString str;
-            const Primitive *primitive = this;
-            bool first = true;
-            do {
-                if(!first) str += " "; else first = false;
-                str += primitive->Element::toString(debug, level);
-                primitive = primitive->next();
-            } while(primitive);
-            return str;
-        }
+        virtual QString toString(bool debug = false, short level = 0) const;
     private:
         QStringRef _sourceCodeRef;
         Primitive *_previous;

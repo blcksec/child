@@ -17,6 +17,12 @@ namespace Language {
         return labelMessage->name();
     }
 
+    QString Argument::toString(bool debug, short level) const {
+        return concatenateStrings(label() ? label()->toString(debug, level) + ":" : "",
+                                  " ",
+                                  value() ? value()->toString(debug, level) : "");
+    }
+
     CHILD_DEFINE(ArgumentBunch, Bunch);
 
     void ArgumentBunch::initRoot() {

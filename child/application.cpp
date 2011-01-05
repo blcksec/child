@@ -8,6 +8,15 @@ void Application::initRoot() {
     Object::root()->addChild("Application", root());
 }
 
+void Application::init() {
+    _sourceCodes = CHILD_SOURCE_CODE_DICTIONARY();
+    initOperatorTable();
+    _lexer = CHILD_LEXER();
+    addChild("lexer", _lexer);
+    _parser = CHILD_PARSER();
+    addChild("parser", _parser);
+}
+
 void Application::initOperatorTable() {
     OperatorTable *ops = CHILD_OPERATOR_TABLE();
 
@@ -79,6 +88,21 @@ void Application::initOperatorTable() {
 
     _operatorTable = ops;
     addChild("operatorTable", _operatorTable);
+}
+
+SourceCode *Application::loadSourceCode(QString url) {
+    url = QFileInfo(url).absoluteFilePath();
+    SourceCode *source;
+    if(!(source = sourceCodeIsAlreadyLoaded(url))) {
+        source = CHILD_SOURCE_CODE(url);
+        sourceCodes()->set(CHILD_TEXT(url), source);
+    }
+    return source;
+}
+
+SourceCode *Application::sourceCodeIsAlreadyLoaded(QString url) {
+    url = QFileInfo(url).absoluteFilePath();
+    return sourceCodes()->hasKey(CHILD_TEXT(url));
 }
 
 CHILD_END

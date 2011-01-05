@@ -39,17 +39,7 @@ namespace Language {
             return _firstChars.contains(c);
         }
 
-        virtual void hasChanged() {
-            _texts.clear();
-            _textsAndTypes.clear();
-            _firstChars.clear();
-            Iterator i(this);
-            while(Operator *op = i.next()) {
-                _texts.insert(op->text);
-                _textsAndTypes.insert(QPair<QString, Operator::Type>(op->text, op->type), op);
-                if(!_firstChars.contains(op->text.at(0))) _firstChars += op->text.at(0);
-            }
-        }
+        virtual void hasChanged();
     private:
         QSet<QString> _texts;
         QHash<QPair<QString, Operator::Type>, Operator *> _textsAndTypes;

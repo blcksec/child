@@ -19,15 +19,7 @@ public:
 
     CHILD_FORK_METHOD(Application); // TODO
 
-    void init() {
-        _sourceCodes = CHILD_SOURCE_CODE_DICTIONARY();
-        initOperatorTable();
-        _lexer = CHILD_LEXER();
-        addChild("lexer", _lexer);
-        _parser = CHILD_PARSER();
-        addChild("parser", _parser);
-    }
-
+    void init();
     void initOperatorTable();
 
     SourceCodeDictionary *sourceCodes() const { return _sourceCodes; }
@@ -35,20 +27,8 @@ public:
     Lexer *lexer() const { return _lexer; }
     Parser *parser() const { return _parser; }
 
-    SourceCode *loadSourceCode(QString url) {
-        url = QFileInfo(url).absoluteFilePath();
-        SourceCode *source;
-        if(!(source = sourceCodeIsAlreadyLoaded(url))) {
-            source = CHILD_SOURCE_CODE(url);
-            sourceCodes()->set(CHILD_TEXT(url), source);
-        }
-        return source;
-    }
-
-    SourceCode *sourceCodeIsAlreadyLoaded(QString url) {
-        url = QFileInfo(url).absoluteFilePath();
-        return sourceCodes()->hasKey(CHILD_TEXT(url));
-    }
+    SourceCode *loadSourceCode(QString url);
+    SourceCode *sourceCodeIsAlreadyLoaded(QString url);
 private:
     SourceCodeDictionary *_sourceCodes;
     OperatorTable *_operatorTable;

@@ -38,11 +38,7 @@ namespace Language {
             return value()->run(receiver);
         }
 
-        virtual QString toString(bool debug = false, short level = 0) const {
-            return concatenateStrings(label() ? label()->toString(debug, level) + ":" : "",
-                                      " ",
-                                      value() ? value()->toString(debug, level) : "");
-        }
+        virtual QString toString(bool debug = false, short level = 0) const;
     };
 
     // === ArgumentBunch ===

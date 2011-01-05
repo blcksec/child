@@ -16,11 +16,7 @@ namespace Language {
         CHILD_DECLARE(SourceCode, Object);
     public:
         explicit SourceCode(Node *origin, const QString &url = "",
-                   const QString &txt = "", Block *block = NULL) :
-            Object(origin), _url(url), _text(txt), _block(block) {
-            if(!url.isEmpty() && txt.isEmpty()) load();
-            if(!text().isEmpty() && !block) parse();
-        }
+                   const QString &txt = "", Block *block = NULL);
 
         CHILD_FORK_METHOD(SourceCode, url(), text(), CHILD_FORK_IF_NOT_NULL(block()));
 
@@ -33,17 +29,8 @@ namespace Language {
         Block *block() const { return _block; }
         void setBlock(Block *block) { _block = block; }
 
-        void load(const QString &newUrl = "") {
-            if(!newUrl.isEmpty()) setUrl(newUrl);
-            if(url().isEmpty()) CHILD_THROW(ArgumentException, "URL is empty");
-            setText(readTextFile(url()));
-        }
-
-        void parse(const QString &newText = "") {
-            if(!newText.isEmpty()) setText(newText);
-            Parser *parser = Parser::cast(context()->child("parser"));
-            setBlock(parser->parse(text(), url()));
-        }
+        void load(const QString &newUrl = "");
+        void parse(const QString &newText = "");
 
         virtual Node *run(Node *receiver = context()) {
             #ifdef CHILD_CATCH_EXCEPTIONS
@@ -58,12 +45,7 @@ namespace Language {
             #endif
         }
 
-        virtual QString toString(bool debug = false, short level = 0) const {
-            QString str;
-            if(!url().isEmpty()) str += QString("/* %1 */\n").arg(url());
-            if(block()) str += block()->toString(debug, level);
-            return str;
-        }
+        virtual QString toString(bool debug = false, short level = 0) const;
     private:
         QString _url;
         QString _text;

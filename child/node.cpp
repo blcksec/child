@@ -150,6 +150,9 @@ Node *Node::hasChild(const QString &name, bool searchInParents, bool autoFork, b
                 if(node) break;
             }
         }
+        if(!node && searchInParents) {
+
+        }
         if(node && autoFork) {
             node = node->fork();
             _setChild(name, node);

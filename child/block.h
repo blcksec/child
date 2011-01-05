@@ -20,56 +20,16 @@ public:
         return bodySection() ? bodySection()->run(receiver) : NULL;
     }
 
-    Section *section(const QString &label) {
-        if(label.isEmpty()) return hasUnlabeledSection();
-        else if(label == "doc") return docSection();
-        else if(label == "body") return bodySection();
-        else if(label == "else") return elseSection();
-        else return findSection(label);
-    }
-
-    Section *docSection() {
-        if(!_docIsCached) {
-            _doc = findSection("doc");
-            if(!_doc && findSection("body")) _doc = hasUnlabeledSection();
-            _docIsCached = true;
-        }
-        return _doc;
-    }
-
-    Section *bodySection() {
-        if(!_bodyIsCached) {
-            _body = findSection("body");
-            if(!_body) _body = hasUnlabeledSection();
-            _bodyIsCached = true;
-        }
-        return _body;
-    }
-
-    Section *elseSection() {
-        if(!_elseIsCached) {
-            _else = findSection("else");
-            _elseIsCached = true;
-        }
-        return _else;
-    }
+    Section *section(const QString &label);
+    Section *docSection();
+    Section *bodySection();
+    Section *elseSection();
 private:
     Section *findSection(const QString &label);
 public:
-    Section *hasUnlabeledSection() {
-        if(isNotEmpty() && !first()->label())
-            return first();
-        else
-            return NULL;
-    }
+    Section *hasUnlabeledSection();
 
-    virtual QString toString(bool debug = false, short level = 0) const {
-        QString str;
-        if(level > 0) str += "{\n";
-        str += join("\n", "", "", debug, level + 1);
-        if(level > 0) str += "\n" + QString("    ").repeated(level) + "}";
-        return str;
-    }
+    virtual QString toString(bool debug = false, short level = 0) const;
 private:
     Section *_doc;
     bool _docIsCached;

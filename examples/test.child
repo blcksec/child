@@ -1,6 +1,3 @@
-meth := {
-    "Yo" print
-}
-
-meth2 := \meth
-meth2
+a := "Yo"
+a b := "Ya"
+a b // a

@@ -52,17 +52,11 @@ namespace Language {
         QHash<QString, Parameter *> labels() { return _labels; }
         Parameter *hasLabel(const QString &label) { return _labels.value(label); }
 
-        virtual void hasChanged() {
-            _labels.clear();
-            Iterator i(this);
-            while(Parameter *parameter = i.next()) {
-                if(_labels.contains(parameter->label()))
-                    CHILD_THROW(DuplicateException, "duplicated label found in parameter list");
-                _labels.insert(parameter->label(), parameter);
-            }
-        }
+        virtual void hasChanged();
 
-        virtual QString toString(bool debug = false, short level = 0) const { return join(", ", "", "", debug, level); }
+        virtual QString toString(bool debug = false, short level = 0) const {
+            return join(", ", "", "", debug, level);
+        }
     private:
         QHash<QString, Parameter *> _labels;
     };
