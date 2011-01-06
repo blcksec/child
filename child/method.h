@@ -50,7 +50,7 @@ public:
     virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL) {
         Q_UNUSED(code);
         if(!block()) return Node::run(receiver, message); // method creation
-        Block *forkedBlock = block()->fork();
+        Method *forkedMethod = this; //->fork();
         QHash<QString, Parameter *> labels(inputs()->labels());
         if(message->inputs(false)) {
             ArgumentBunch::Iterator iterator(message->inputs());
@@ -69,18 +69,18 @@ public:
                     if(!hasInput(i)) CHILD_THROW(IndexOutOfBoundsException, "too many arguments");
                     label = input(i)->label();
                 }
-                forkedBlock->addChild(label, argument->run());
+                forkedMethod->addChild(label, argument->run());
                 labels.remove(label);
             }
         }
         foreach(Parameter *parameter, labels) {
             if(!parameter->defaultValue()) CHILD_THROW(ArgumentException, "missing mandatory parameter");
-            forkedBlock->addChild(parameter->label(), parameter->run());
+            forkedMethod->addChild(parameter->label(), parameter->run());
         }
-        ContextPusher pusher(forkedBlock);
+        ContextPusher pusher(forkedMethod);
         Node *result = NULL;
         try {
-            result = forkedBlock->bodySection()->run();
+            result = forkedMethod->block()->bodySection()->run();
         } catch(const Return &ret) { result = ret.result; }
         return result;
     }

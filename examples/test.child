@@ -1,8 +1,15 @@
 Person := Object() {
     name := Text()
     age := Number()
-    describe := {
-        ("name" + " (" + "age" + ")") print
+    country := "France"
+
+    essai := \{ name = name upcase; }
+
+    set(n, a) := \{ name = n; age = a }
+
+    describe := \{
+        txt := name + ", " + country + " (" + age + ")"
+        txt print
     }
 }
 
@@ -11,4 +18,21 @@ mvila := Person() {
     age = 38
 }
 
+bgonod := Person() {
+    name = "Boris"
+}
+
 mvila describe
+mvila essai
+mvila describe
+mvila set("Manuel Vila", 15)
+mvila describe
+
+bgonod describe
+bgonod country = "UK"
+bgonod describe
+
+bgirou := Person()
+bgirou set("Benoit", 38)
+bgirou describe
+bgirou \describe txt print

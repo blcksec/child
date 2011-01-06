@@ -1,3 +1,9 @@
+Person(name) := Object()
+
+mvila := Person("Manu Vila")
+
+meth(a, b) -> r := \{ r = a + b }
+
 ---
 
 Window(title: "Hello") {
