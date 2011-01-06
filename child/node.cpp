@@ -101,27 +101,30 @@ QList<const Node *> Node::extensions() const {
 }
 
 Node *Node::child(const QString &name) {
-    Node *node = hasChild(name);
+    Node *parent = this;
+    Node *node = hasChild(name, &parent);
     if(!node) CHILD_THROW(NotFoundException, "child not found");
     return node;
 }
 
 void Node::addChild(const QString &name, Node *value) {
     CHILD_CHECK_POINTER(value);
-    if(hasChild(name, false)) CHILD_THROW(DuplicateException, "child with same name is already there");
+    if(hasChild(name, NULL)) CHILD_THROW(DuplicateException, "child with same name is already there");
     _setChild(name, value);
 }
 
 void Node::setChild(const QString &name, Node *value, bool addOrSetMode) {
     CHILD_CHECK_POINTER(value);
     bool isDirect;
-    if(Node *current = hasChild(name, !addOrSetMode, false, &isDirect)) {
+    Node *parent = this;
+    Node **parentPtr = addOrSetMode ? NULL : &parent;
+    if(Node *current = hasChild(name, parentPtr, false, &isDirect)) {
         if(isDirect) {
             if(current == value) return;
-            current->_removeParent(this);
+            current->_removeParent(parent);
         }
     } else if(!addOrSetMode) CHILD_THROW(NotFoundException, "child not found");
-    _setChild(name, value);
+    parent->_setChild(name, value);
 }
 
 void Node::_setChild(const QString &name, Node *value) {
@@ -132,26 +135,37 @@ void Node::_setChild(const QString &name, Node *value) {
 
 void Node::removeChild(const QString &name) {
     bool isDirect;
-    if(Node *current = hasChild(name, true, false, &isDirect)) {
+    if(Node *current = hasChild(name, NULL, false, &isDirect)) {
         if(isDirect) current->_removeParent(this);
     } else CHILD_THROW(NotFoundException, "child not found");
     _setChild(name, NULL);
 }
 
-Node *Node::hasChild(const QString &name, bool searchInParents, bool autoFork, bool *isDirectPtr) {
+Node *Node::hasChild(const QString &name, Node **searchInParentsPtr, bool autoFork, bool *isDirectPtr) {
+    Node *node = hasChildInSelfOrOrigins(name, autoFork, isDirectPtr);
+    if(searchInParentsPtr) {
+        if(node)
+            *searchInParentsPtr = this;
+        else if(_parents)
+            foreach(const Node *parent, _parents->keys()) {
+                node = constCast(parent)->hasChild(name, searchInParentsPtr, autoFork, isDirectPtr);
+                if(node) break;
+            }
+    }
+    return node;
+}
+
+Node *Node::hasChildInSelfOrOrigins(const QString &name, bool autoFork, bool *isDirectPtr) {
     bool isRemoved;
     Node *node = hasDirectChild(name, &isRemoved);
     bool isDirect = node || isRemoved;
     if(!isDirect) {
-        if(origin()) node = origin()->hasChild(name, searchInParents);
+        if(origin()) node = origin()->hasChildInSelfOrOrigins(name);
         if(!node && _extensions) {
             foreach(Node *extension, *_extensions) {
-                node = extension->hasChild(name, searchInParents);
+                node = extension->hasChildInSelfOrOrigins(name);
                 if(node) break;
             }
-        }
-        if(!node && searchInParents) {
-
         }
         if(node && autoFork) {
             node = node->fork();
