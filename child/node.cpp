@@ -101,24 +101,22 @@ QList<const Node *> Node::extensions() const {
 }
 
 Node *Node::child(const QString &name) {
-    Node *parent = this;
-    Node *node = hasChild(name, &parent);
+    Node *node = hasChild(name);
     if(!node) CHILD_THROW(NotFoundException, "child not found");
     return node;
 }
 
 void Node::addChild(const QString &name, Node *value) {
     CHILD_CHECK_POINTER(value);
-    if(hasChild(name, NULL)) CHILD_THROW(DuplicateException, "child with same name is already there");
+    if(hasChild(name, false)) CHILD_THROW(DuplicateException, "child with same name is already there");
     _setChild(name, value);
 }
 
 void Node::setChild(const QString &name, Node *value, bool addOrSetMode) {
     CHILD_CHECK_POINTER(value);
-    bool isDirect;
     Node *parent = this;
-    Node **parentPtr = addOrSetMode ? NULL : &parent;
-    if(Node *current = hasChild(name, parentPtr, false, &isDirect)) {
+    bool isDirect;
+    if(Node *current = hasChild(name, !addOrSetMode, &parent, false, &isDirect)) {
         if(isDirect) {
             if(current == value) return;
             current->_removeParent(parent);
@@ -135,21 +133,23 @@ void Node::_setChild(const QString &name, Node *value) {
 
 void Node::removeChild(const QString &name) {
     bool isDirect;
-    if(Node *current = hasChild(name, NULL, false, &isDirect)) {
+    if(Node *current = hasChild(name, false, NULL, false, &isDirect)) {
         if(isDirect) current->_removeParent(this);
     } else CHILD_THROW(NotFoundException, "child not found");
     _setChild(name, NULL);
 }
 
-Node *Node::hasChild(const QString &name, Node **searchInParentsPtr, bool autoFork, bool *isDirectPtr) {
+Node *Node::hasChild(const QString &name, bool searchInParents, Node **parentPtr, bool autoFork, bool *isDirectPtr) {
     Node *node = hasChildInSelfOrOrigins(name, autoFork, isDirectPtr);
-    if(searchInParentsPtr) {
-        if(node)
-            *searchInParentsPtr = this;
-        else if(_parents)
+    if(searchInParents) {
+        if(node) {
+            if(parentPtr) *parentPtr = this;
+        } else if(_parents)
             foreach(const Node *parent, _parents->keys()) {
-                node = constCast(parent)->hasChild(name, searchInParentsPtr, autoFork, isDirectPtr);
-                if(node) break;
+                if(parent != this) { // for Node::root which is child of itself
+                    node = constCast(parent)->hasChild(name, searchInParents, parentPtr, autoFork, isDirectPtr);
+                    if(node) break;
+                }
             }
     }
     return node;

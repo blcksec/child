@@ -134,12 +134,12 @@ private:
     void _setChild(const QString &name, Node *value);
 public:
 
-    Node *hasChild(const QString &name, Node **searchInParentsPtr = NULL,
+    Node *hasChild(const QString &name, bool searchInParents = true, Node **parentPtr = NULL,
                    bool autoFork = true, bool *isDirectPtr = NULL);
 
-    const Node *hasChild(const QString &name, const Node **searchInParentsPtr = NULL,
+    const Node *hasChild(const QString &name, bool searchInParents = true, const Node **parentPtr = NULL,
                          bool autoFork = true, bool *isDirectPtr = NULL) const {
-        return constCast(this)->hasChild(name, const_cast<Node **>(searchInParentsPtr), autoFork, isDirectPtr);
+        return constCast(this)->hasChild(name, searchInParents, const_cast<Node **>(parentPtr), autoFork, isDirectPtr);
     }
 
 private:

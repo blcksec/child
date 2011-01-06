@@ -80,7 +80,7 @@ public:
         ContextPusher pusher(forkedBlock);
         Node *result = NULL;
         try {
-            result = forkedBlock->run();
+            result = forkedBlock->bodySection()->run();
         } catch(const Return &ret) { result = ret.result; }
         return result;
     }

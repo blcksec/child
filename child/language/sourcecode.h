@@ -36,7 +36,7 @@ namespace Language {
             #ifdef CHILD_CATCH_EXCEPTIONS
             try {
             #endif
-                return block() ? block()->run(receiver) : NULL;
+                return block() && block()->bodySection() ? block()->bodySection()->run(receiver) : NULL;
             #ifdef CHILD_CATCH_EXCEPTIONS
             } catch(ExceptionPointer e) {
                 e->file = _url;

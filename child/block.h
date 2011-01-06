@@ -17,7 +17,8 @@ public:
     CHILD_FORK_METHOD(Block);
 
     virtual Node *run(Node *receiver = context()) {
-        return bodySection() ? bodySection()->run(receiver) : NULL;
+        if(bodySection()) bodySection()->run(receiver);
+        return receiver;
     }
 
     Section *section(const QString &label);
