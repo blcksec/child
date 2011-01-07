@@ -105,4 +105,5 @@ OTHER_FILES += \
     examples/lexertest.child \
     notes/specification.txt \
     examples/test.child \
-    notes/features.txt
+    notes/features.txt \
+    child/node.child

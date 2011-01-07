@@ -12,36 +12,37 @@ class Message : public Object {
     CHILD_DECLARE(Message, Object);
 public:
     explicit Message(Node *origin, const QString &name = "", ArgumentBunch *inputs = NULL, ArgumentBunch *outputs = NULL,
-                     bool isEscaped = false, bool isVariadic = false, const QString &codeInputName = "") :
-        Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _isEscaped(isEscaped), _isVariadic(isVariadic),
+                     bool isEscaped = false, bool isParented = false, bool isVariadic = false, const QString &codeInputName = "") :
+        Object(origin), _name(name), _inputs(inputs), _outputs(outputs),
+        _isEscaped(isEscaped), _isParented(isParented), _isVariadic(isVariadic),
         _codeInputName(codeInputName) {}
 
     Message(Node *origin, const QString &name, Argument *input) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL),
-        _isEscaped(false), _isVariadic(false) {}
+        _isEscaped(false), _isParented(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Argument *input1, Argument *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL),
-        _isEscaped(false), _isVariadic(false) {}
+        _isEscaped(false), _isParented(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Node *input) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL),
-        _isEscaped(false), _isVariadic(false) {}
+        _isEscaped(false), _isParented(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Argument *input1, Node *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))), _outputs(NULL),
-        _isEscaped(false), _isVariadic(false) {}
+        _isEscaped(false), _isParented(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Node *input1, Argument *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)), _outputs(NULL),
-        _isEscaped(false), _isVariadic(false) {}
+        _isEscaped(false), _isParented(false), _isVariadic(false) {}
 
     Message(Node *origin, const QString &name, Node *input1, Node *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL),
-        _isEscaped(false), _isVariadic(false) {}
+        _isEscaped(false), _isParented(false), _isVariadic(false) {}
 
     CHILD_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
-                      isEscaped(), isVariadic(), codeInputName());
+                      isEscaped(), isParented(), isVariadic(), codeInputName());
 
     const QString &name() const { return _name; }
     void setName(const QString &name) { _name = name; }
@@ -79,6 +80,9 @@ public:
     bool isEscaped() const { return _isEscaped; }
     void setIsEscaped(bool isEscaped) { _isEscaped = isEscaped; }
 
+    bool isParented() const { return _isParented; }
+    void setIsParented(bool isParented) { _isParented = isParented; }
+
     bool isVariadic() const { return _isVariadic; }
     void setIsVariadic(bool isVariadic) { _isVariadic = isVariadic; }
 
@@ -87,8 +91,9 @@ public:
     bool hasCodeInput() const { return !_codeInputName.isEmpty(); }
 
     virtual Node *run(Node *receiver = context()) {
-        Node *result = receiver->child(name());
-        if(!isEscaped()) result = result->run(receiver, this);
+        Node *rcvr = isParented() ? receiver->parent() : receiver;
+        Node *result = rcvr->child(name());
+        if(!isEscaped()) result = result->run(rcvr, this);
         return result;
     }
 
@@ -96,6 +101,8 @@ public:
         QString str;
         if(isEscaped())
             str += "\\";
+        if(isParented())
+            str += "@";
         str += name();
         if(isVariadic())
             str += "...";
@@ -112,6 +119,7 @@ private:
     ArgumentBunch *_inputs;
     ArgumentBunch *_outputs;
     bool _isEscaped;
+    bool _isParented;
     bool _isVariadic;
     QString _codeInputName;
 public:

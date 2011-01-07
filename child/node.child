@@ -1,0 +1,11 @@
+Node {
+doc:
+    "Base element grandfather of everything."
+body:
+    \fork {
+    doc:
+        "Fork the receiver."
+    test:
+        "Yo" print
+    }
+}

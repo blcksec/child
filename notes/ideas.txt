@@ -1,3 +1,18 @@
+Node {
+    \fork {
+    inputs:
+        [virtual?: no]
+    outputs:
+        forked_node
+    doc:
+        "Fork the receiver."
+    test:
+        "Yo" print
+    }
+}
+
+---
+
 Person(name) := Object()
 
 mvila := Person("Manu Vila")

@@ -14,11 +14,12 @@ namespace Language {
     class Parameter : public GenericPair<QString, Primitive *> {
         CHILD_DECLARE(Parameter, Pair);
     public:
-        explicit Parameter(Node *origin, const QString &label = NULL,
-                  Primitive *defaultValue = NULL) :
-            GenericPair<QString, Primitive *>(origin, label, defaultValue) {}
+        explicit Parameter(Node *origin, const QString &label = NULL, Primitive *defaultValue = NULL,
+                           bool isEscaped = false, bool isParented = false) :
+            GenericPair<QString, Primitive *>(origin, label, defaultValue),
+            _isEscaped(isEscaped), _isParented(isParented) {}
 
-        CHILD_FORK_METHOD(Parameter, label(), CHILD_FORK_IF_NOT_NULL(defaultValue()));
+        CHILD_FORK_METHOD(Parameter, label(), CHILD_FORK_IF_NOT_NULL(defaultValue()), isEscaped(), isParented());
 
         // aliases...
         QString label() const { return key(); }
@@ -30,11 +31,16 @@ namespace Language {
             return defaultValue()->run(receiver);
         }
 
-        virtual QString toString(bool debug = false, short level = 0) const {
-            return concatenateStrings(label(),
-                                      ": ",
-                                      defaultValue() ? defaultValue()->toString(debug, level) : "");
-        }
+        bool isEscaped() const { return _isEscaped; }
+        void setIsEscaped(bool isEscaped) { _isEscaped = isEscaped; }
+
+        bool isParented() const { return _isParented; }
+        void setIsParented(bool isParented) { _isParented = isParented; }
+
+        virtual QString toString(bool debug = false, short level = 0) const;
+    private:
+        bool _isEscaped;
+        bool _isParented;
     };
 
     // === ParameterList ===
@@ -49,8 +55,11 @@ namespace Language {
 
         CHILD_FORK_METHOD(ParameterList);
 
+        using GenericList<Parameter *>::get;
+        Parameter *get(const QString &label) { return _labels.value(label); }
+        bool hasLabel(const QString &label) { return _labels.contains(label); }
+
         QHash<QString, Parameter *> labels() { return _labels; }
-        Parameter *hasLabel(const QString &label) { return _labels.value(label); }
 
         virtual void hasChanged();
 

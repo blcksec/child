@@ -214,26 +214,31 @@ namespace Language {
     }
 
     Primitive *Parser::scanPrefixOperator(Primitive *currentPrimitive, Operator *currentOp) {
-        Message *message = CHILD_MESSAGE(currentOp->name);
-        Primitive *primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
+        QStringRef sourceCodeRef = token()->sourceCodeRef;
         consume();
         consumeNewline();
         Primitive *chain = NULL;
         if(currentOp->isSpecial) {
-            if(currentOp->name == "\\") {
+            if(currentOp->name == "@") {
+                chain = scanUnaryExpression(NULL);
+                Message *msg = Message::dynamicCast(chain->value());
+                if(!msg) throw parserException("missing message after '@' operator");
+                msg->setIsParented(true);
+            } else if(currentOp->name == "\\") {
                 chain = scanUnaryExpression(NULL);
                 Message *msg = Message::dynamicCast(chain->value());
                 if(!msg) throw parserException("missing message after '\\' operator");
                 msg->setIsEscaped(true);
-                primitive = NULL;
-            } else if(currentOp->name == "?:")
+            } else if(currentOp->name == "?:") {
                 chain = scanExpression();
-            else
+                CHILD_PRIMITIVE_ADD(chain, CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), sourceCodeRef));
+            } else
                 throw parserException("unimplemented special operator");
-        } else
+        } else {
             chain = scanUnaryExpression(NULL);
+            CHILD_PRIMITIVE_ADD(chain, CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), sourceCodeRef));
+        }
         CHILD_PRIMITIVE_ADD(currentPrimitive, chain);
-        if(primitive) CHILD_PRIMITIVE_ADD(currentPrimitive, primitive);
         return currentPrimitive;
     }
 

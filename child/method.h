@@ -30,6 +30,7 @@ public:
     void setInputs(ParameterList *inputs) { _inputs = inputs; }
 
     Parameter *input(short i) const { return inputs(false)->get(i); }
+    Parameter *input(const QString &label) const { return inputs(false)->get(label); }
     bool hasInput(short i) const { return inputs(false) && inputs()->hasIndex(i); }
     bool hasInput(const QString &label) const { return inputs(false) && inputs()->hasLabel(label); }
 
@@ -57,27 +58,32 @@ public:
             short i = -1;
             bool labelFound = false;
             while(Argument *argument = iterator.next()) {
-                QString label;
+                Parameter *parameter;
                 if(argument->label()) {
-                    label = argument->labelName();
-                    if(!hasInput(label)) CHILD_THROW(NotFoundException, "unknown parameter label");
-                    if(!labels.contains(label)) CHILD_THROW(DuplicateException, "duplicated parameter label");
+                    QString labelName = argument->labelName();
+                    if(!hasInput(labelName)) CHILD_THROW(NotFoundException, "unknown parameter label");
+                    if(!labels.contains(labelName)) CHILD_THROW(DuplicateException, "duplicated parameter label");
+                    parameter = input(labelName);
                     labelFound = true;
                 } else {
                     if(labelFound) CHILD_THROW(ArgumentException, "positional arguments are forbidden after labeled ones");
                     i++;
                     if(!hasInput(i)) CHILD_THROW(IndexOutOfBoundsException, "too many arguments");
-                    label = input(i)->label();
+                    parameter = input(i);
                 }
-                forkedMethod->addChild(label, argument->run());
-                labels.remove(label);
+                Node *rcvr = parameter->isParented() ? forkedMethod->parent() : forkedMethod;
+                Node *val = parameter->isEscaped() ? argument->value() : argument->run();
+                rcvr->addChild(parameter->label(), val);
+                labels.remove(parameter->label());
             }
         }
         foreach(Parameter *parameter, labels) {
             if(!parameter->defaultValue()) CHILD_THROW(ArgumentException, "missing mandatory parameter");
-            forkedMethod->addChild(parameter->label(), parameter->run());
+            Node *rcvr = parameter->isParented() ? forkedMethod->parent() : forkedMethod;
+            Node *val = parameter->isEscaped() ? parameter->defaultValue() : parameter->run();
+            rcvr->addChild(parameter->label(), val);
         }
-        ContextPusher pusher(forkedMethod);
+        ContextPusher pusher(forkedMethod); Q_UNUSED(pusher);
         Node *result = NULL;
         try {
             result = forkedMethod->block()->bodySection()->run();
@@ -97,10 +103,11 @@ public:
                 }
                 if(label->hasNext())
                     CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message");
-                Message *labelMessage = Message::dynamicCast(label->value());
-                if(!labelMessage)
+                Message *labelMsg = Message::dynamicCast(label->value());
+                if(!labelMsg)
                     CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message)");
-                inputs()->append(CHILD_PARAMETER(labelMessage->name(), defaultValue));
+                inputs()->append(CHILD_PARAMETER(labelMsg->name(), defaultValue,
+                                                 labelMsg->isEscaped(), labelMsg->isParented()));
             }
         }
     }

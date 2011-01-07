@@ -34,9 +34,14 @@ Node *Node::root() {
 void Node::initRoot() {
     root()->addChild("Node", root());
 
+    CHILD_NATIVE_METHOD_ADD(Node, self);
+
     CHILD_NATIVE_METHOD_ADD(Node, fork);
     CHILD_NATIVE_METHOD_ADD(Node, define, :=);
     CHILD_NATIVE_METHOD_ADD(Node, assign, =);
+
+    CHILD_NATIVE_METHOD_ADD(Node, parent);
+    CHILD_NATIVE_METHOD_ADD(Node, parent_qm, parent?);
 
     CHILD_NATIVE_METHOD_ADD(Node, or, ||);
     CHILD_NATIVE_METHOD_ADD(Node, and, &&);
@@ -52,6 +57,22 @@ void Node::initRoot() {
     CHILD_NATIVE_METHOD_ADD(Node, inspect);
 
     CHILD_NATIVE_METHOD_ADD(Node, memory_address);
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, self) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    return this;
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    Node *node = fork();
+    if(node->hasChild("init")) {
+        Message* initMessage = message->fork();
+        initMessage->setName("init");
+        initMessage->run(node);
+    }
+    return node;
 }
 
 void Node::setOrigin(Node *node) {
@@ -129,6 +150,22 @@ void Node::_setChild(const QString &name, Node *value) {
     if(!_children) _children = new QHash<QString, Node *>;
     _children->insert(name, value);
     if(value) value->_addParent(this);
+}
+
+Node *Node::defineOrAssign(Message *message, bool isDefine) {
+    CHILD_CHECK_INPUT_SIZE(2);
+    Primitive *primitive = message->firstInput()->value();
+    Message *msg = Message::dynamicCast(primitive->value());
+    if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
+    Node *value;
+    Block *block = Block::dynamicCast(message->secondInput()->value()->value());
+    if(block) // if rhs is a block, we have a method definition shorthand
+        value = CHILD_METHOD(NULL, NULL, block);
+    else // rhs is not a block
+        value = message->runSecondInput();
+    setChild(msg->name(), value, isDefine);
+    value->hasBeenAssigned(msg);
+    return value;
 }
 
 void Node::removeChild(const QString &name) {
@@ -226,6 +263,25 @@ QList<const Node *> Node::parents() const {
     return parents;
 }
 
+Node *Node::parent() const {
+    if(!hasOneParent()) CHILD_THROW_RUNTIME_EXCEPTION("zero or more than one parent found");
+    return constCast(_parents->keys().first());
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, parent) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    return parent();
+}
+
+bool Node::hasOneParent() const {
+    return _parents && _parents->size() == 1;
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, parent_qm) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    return CHILD_BOOLEAN(hasOneParent());
+}
+
 Node *Node::receive(Primitive *primitive) {
     return primitive->run(this);
 }
@@ -239,32 +295,6 @@ Node *Node::run(Node *receiver, Message *message, Primitive *code) {
         return forkMessage->run(this);
     } else
         return this;
-}
-
-CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
-    Node *node = fork();
-    if(node->hasChild("init")) {
-        Message* initMessage = message->fork();
-        initMessage->setName("init");
-        initMessage->run(node);
-    }
-    return node;
-}
-
-Node *Node::defineOrAssign(Message *message, bool isDefine) {
-    CHILD_CHECK_INPUT_SIZE(2);
-    Primitive *primitive = message->firstInput()->value();
-    Message *msg = Message::dynamicCast(primitive->value());
-    if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
-    Node *value;
-    Block *block = Block::dynamicCast(message->secondInput()->value()->value());
-    if(block) // if rhs is a block, we have a method definition shorthand
-        value = CHILD_METHOD(NULL, NULL, block);
-    else // rhs is not a block
-        value = message->runSecondInput();
-    setChild(msg->name(), value, isDefine);
-    value->hasBeenAssigned(msg);
-    return value;
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, or) {

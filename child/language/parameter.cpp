@@ -9,6 +9,16 @@ namespace Language {
         Language::root()->addChild("Parameter", root());
     }
 
+    QString Parameter::toString(bool debug, short level) const {
+        QString prefixes;
+        if(isEscaped())
+            prefixes += "\\";
+        if(isParented())
+            prefixes += "@";
+        return concatenateStrings(prefixes + label(), ": ",
+                                  defaultValue() ? defaultValue()->toString(debug, level) : "");
+    }
+
     CHILD_DEFINE(ParameterList, List);
 
     void ParameterList::initRoot() {

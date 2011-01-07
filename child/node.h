@@ -80,6 +80,9 @@ public:
     CHILD_FORK_METHOD(Node);
     virtual void initFork() {}
 
+    CHILD_NATIVE_METHOD_DECLARE(self);
+    CHILD_NATIVE_METHOD_DECLARE(fork);
+
     Node *origin() { return _origin; }
     const Node *origin() const { return _origin; }
     void setOrigin(Node *node);
@@ -116,7 +119,20 @@ public:
 
     void addChild(const QString &name, Node *value);
     void setChild(const QString &name, Node *value, bool addOrSetMode = false);
+private:
+    void _setChild(const QString &name, Node *value);
+public:
     void addOrSetChild(const QString &name, Node *value) { setChild(name, value, true); }
+
+private:
+    Node *defineOrAssign(Message *message, bool isDefine);
+public:
+    CHILD_NATIVE_METHOD_DECLARE(define) { return defineOrAssign(message, true); }
+    CHILD_NATIVE_METHOD_DECLARE(assign) { return defineOrAssign(message, false); }
+
+    virtual void hasBeenAssigned(Message *message) const {
+        Q_UNUSED(message);
+    }
 
     void removeChild(const QString &name);
 
@@ -129,10 +145,6 @@ public:
         CHILD_CHECK_POINTER(value);
         value->_removeParent(this);
     }
-
-private:
-    void _setChild(const QString &name, Node *value);
-public:
 
     Node *hasChild(const QString &name, bool searchInParents = true, Node **parentPtr = NULL,
                    bool autoFork = true, bool *isDirectPtr = NULL);
@@ -176,6 +188,11 @@ public:
     QList<Node *> parents();
     QList<const Node *> parents() const;
 
+    Node *parent() const;
+    CHILD_NATIVE_METHOD_DECLARE(parent);
+    bool hasOneParent() const;
+    CHILD_NATIVE_METHOD_DECLARE(parent_qm);
+
     virtual Node *receive(Primitive *primitive);
 
     virtual Node *run(Node *receiver = context()) {
@@ -184,17 +201,6 @@ public:
     }
 
     virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL);
-
-    CHILD_NATIVE_METHOD_DECLARE(fork);
-private:
-    Node *defineOrAssign(Message *message, bool isDefine);
-public:
-    CHILD_NATIVE_METHOD_DECLARE(define) { return defineOrAssign(message, true); }
-    CHILD_NATIVE_METHOD_DECLARE(assign) { return defineOrAssign(message, false); }
-
-    virtual void hasBeenAssigned(Message *message) const {
-        Q_UNUSED(message);
-    }
 
     CHILD_NATIVE_METHOD_DECLARE(or);
     CHILD_NATIVE_METHOD_DECLARE(and);

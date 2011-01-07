@@ -1,13 +1,20 @@
+meth(\@a) := { a inspect }
+
+meth("a" + "b")
+
+a
+
+/*
 Person := Object() {
     name := Text()
     age := Number()
     country := "France"
 
-    essai := \{ name = name upcase; }
+    essai := { name = name upcase; }
 
-    set(n, a) := \{ name = n; age = a }
+    set(n, a) := { name = n; age = a }
 
-    describe := \{
+    describe := {
         txt := name + ", " + country + " (" + age + ")"
         txt print
     }
@@ -36,3 +43,4 @@ bgirou := Person()
 bgirou set("Benoit", 38)
 bgirou describe
 bgirou \describe txt print
+*/
