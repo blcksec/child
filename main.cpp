@@ -5,27 +5,29 @@
 #include "child.h"
 #include "child/node.h"
 #include "child/exception.h"
-#include "tests/runalltests.h"
+//#include "tests/runalltests.h"
 #include "child/application.h"
+#include "child/language/interpreter.h"
 
 CHILD_USE
 
 int main() { // int argc, char *argv[]
     init();
-    runAllTests();
+    // runAllTests();
     #ifdef CHILD_CATCH_EXCEPTIONS
     try {
     #endif
+        /*
         Application *app = Application::root();
         Node::pushContext(app);
-        app->init();
-        SourceCode *source = app->loadSourceCode("../child/examples/test.child");
+        SourceCode *source = Interpreter::root()->loadSourceCode("../child/examples/test.child");
         source->inspect();
         P("--");
         P("-> " + source->run()->toString(true));
 //        TextPointer t(CHILD_TEXT("hello"));
 //        ((*t).*NativeMethodPointer(t->child("print"))->method())(CHILD_ARGUMENT_BUNCH());
         Node::popContext();
+        */
     #ifdef CHILD_CATCH_EXCEPTIONS
     } catch(ExceptionPointer e) {
         qDebug() << e->report().toUtf8();

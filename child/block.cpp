@@ -6,7 +6,16 @@ CHILD_BEGIN
 CHILD_DEFINE(Block, List);
 
 void Block::initRoot() {
-    Object::root()->addChild("Block", root());
+    Object::root()->addChild("Block", this);
+}
+
+Node *Block::run(Node *receiver) {
+    if(docSection()) receiver->addOrSetChild("doc", docSection()->run(receiver));
+    if(bodySection()) bodySection()->run(receiver);
+    if(section("test")) {
+
+    }
+    return receiver;
 }
 
 Section *Block::section(const QString &label) {

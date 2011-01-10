@@ -6,7 +6,7 @@ namespace Language {
     CHILD_DEFINE(Primitive, Element);
 
     void Primitive::initRoot() {
-        Language::root()->addChild("Primitive", root());
+        Language::root()->addChild("Primitive", this);
     }
 
     Primitive *Primitive::setNext(Primitive *next) {

@@ -48,7 +48,7 @@ public: \
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
 CHILD_DEFINE(NAME, ORIGIN); \
-void NAME::initRoot() { Node::root()->addChild(#NAME, root()); }
+void NAME::initRoot() { Node::root()->addChild(#NAME, this); }
 
 CHILD_EXCEPTION_DECLARATION(LexerException, Exception);
 CHILD_EXCEPTION_DECLARATION(ParserException, Exception);

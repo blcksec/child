@@ -6,7 +6,7 @@ namespace Language {
     CHILD_DEFINE(Operator, Object);
 
     void Operator::initRoot() {
-        Language::root()->addChild("Operator", root());
+        Language::root()->addChild("Operator", this);
     }
 }
 

@@ -6,7 +6,7 @@ namespace Language {
     CHILD_DEFINE(Section, List);
 
     void Section::initRoot() {
-        Language::root()->addChild("Section", root());
+        Language::root()->addChild("Section", this);
     }
 
     Node *Section::run(Node *receiver) {

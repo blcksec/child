@@ -6,12 +6,12 @@ namespace Language {
     CHILD_DEFINE(Parser, Object);
 
     void Parser::initRoot() {
-        Language::root()->addChild("Parser", root());
+        Language::root()->addChild("Parser", this);
     }
 
     Lexer *Parser::lexer() const {
         if(!_lexer)
-            Parser::constCast(this)->_lexer = Lexer::cast(context()->child("lexer"));
+            constCast(this)->_lexer = Lexer::cast(constCast(this)->child("lexer")); // search a Lexer in parents
         return _lexer;
     }
 

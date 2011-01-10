@@ -6,7 +6,7 @@ namespace Language {
     CHILD_DEFINE(Parameter, Pair);
 
     void Parameter::initRoot() {
-        Language::root()->addChild("Parameter", root());
+        Language::root()->addChild("Parameter", this);
     }
 
     QString Parameter::toString(bool debug, short level) const {
@@ -22,7 +22,7 @@ namespace Language {
     CHILD_DEFINE(ParameterList, List);
 
     void ParameterList::initRoot() {
-        Language::root()->addChild("ParameterList", root());
+        Language::root()->addChild("ParameterList", this);
     }
 
     void ParameterList::hasChanged() {

@@ -75,7 +75,7 @@ public:
 
     static Node *root();
     virtual const QString className() const { return "Node"; }
-    static void initRoot();
+    virtual void initRoot();
 
     CHILD_FORK_METHOD(Node);
     virtual void initFork() {}
@@ -242,6 +242,11 @@ public:
 
     virtual uint hash() const { return ::qHash(this); }
 
+    static QList<Node *> &roots() {
+        static QList<Node *> _roots;
+        return _roots;
+    }
+
     static Node *context() {
         if(!hasContext()) qFatal("Fatal error: context stack is empty!");
         return contextStack().top();
@@ -308,7 +313,7 @@ public: \
     inline static const NAME *dynamicCast(const Node *node) { return dynamic_cast<const NAME *>(node); } \
     inline static NAME *constCast(const NAME *node) { return const_cast<NAME *>(node); } \
     static NAME *root(); \
-    static void initRoot(); \
+    virtual void initRoot(); \
     virtual const QString className() const { return #NAME; } \
     static const bool isInitialized; \
 private:
@@ -319,7 +324,8 @@ NAME *NAME::root() { \
     static NAME *_root = NULL; \
     if(!_root) { \
         _root = new NAME(ORIGIN::root()); \
-        initRoot(); \
+        _root->initRoot(); \
+        roots().append(_root); \
     } \
     return _root; \
 }

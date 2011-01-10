@@ -8,9 +8,9 @@ CHILD_BEGIN
 CHILD_DEFINE(Object, Node);
 
 void Object::initRoot() {
-    Node::root()->addChild("Object", root());
+    Node::root()->addChild("Object", this);
 
-    root()->addExtension(ControlFlow::root());
+    addExtension(ControlFlow::root());
 
     CHILD_NATIVE_METHOD_ADD(Object, postfix_increment, postfix++);
     CHILD_NATIVE_METHOD_ADD(Object, postfix_decrement, postfix--);

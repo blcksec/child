@@ -6,7 +6,7 @@ namespace Language {
     CHILD_DEFINE(OperatorTable, List);
 
     void OperatorTable::initRoot() {
-        Language::root()->addChild("OperatorTable", root());
+        Language::root()->addChild("OperatorTable", this);
     }
 
     void OperatorTable::hasChanged() {

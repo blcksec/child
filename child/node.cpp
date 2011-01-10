@@ -26,13 +26,16 @@ Node *Node::root() {
     static Node *_root = NULL;
     if(!_root) {
         _root = new Node(NULL);
-        initRoot();
+        _root->initRoot();
+        roots().append(_root);
     }
     return _root;
 }
 
 void Node::initRoot() {
-    root()->addChild("Node", root());
+    pushContext(this);
+
+    addChild("Node", this);
 
     CHILD_NATIVE_METHOD_ADD(Node, self);
 

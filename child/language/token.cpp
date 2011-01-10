@@ -25,7 +25,7 @@ namespace Language {
     };
 
     void Token::initRoot() {
-        Language::root()->addChild("Token", root());
+        Language::root()->addChild("Token", this);
     }
 }
 

@@ -5,7 +5,7 @@ CHILD_BEGIN
 CHILD_DEFINE(Bunch, List);
 
 void Bunch::initRoot() {
-    Object::root()->addChild("Bunch", root());
+    Object::root()->addChild("Bunch", this);
 }
 
 CHILD_END

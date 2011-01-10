@@ -38,6 +38,7 @@ SOURCES += main.cpp \
     child/block.cpp \
     child/method.cpp \
     child/message.cpp \
+    child/controlflow.cpp \
     child/application.cpp \
     child/language.cpp \
     child/language/token.cpp \
@@ -51,7 +52,7 @@ SOURCES += main.cpp \
     child/language/sourcecode.cpp \
     child/language/lexer.cpp \
     child/language/parser.cpp \
-    child/controlflow.cpp
+    child/language/interpreter.cpp
 
 HEADERS += \
     child.h \
@@ -80,6 +81,7 @@ HEADERS += \
     child/block.h \
     child/method.h \
     child/message.h \
+    child/controlflow.h \
     child/application.h \
     child/language.h \
     child/language/token.h \
@@ -93,7 +95,7 @@ HEADERS += \
     child/language/sourcecode.h \
     child/language/lexer.h \
     child/language/parser.h \
-    child/controlflow.h
+    child/language/interpreter.h
 
 OTHER_FILES += \
     notes/ideas.txt \

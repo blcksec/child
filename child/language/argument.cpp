@@ -7,7 +7,7 @@ namespace Language {
     CHILD_DEFINE(Argument, Pair);
 
     void Argument::initRoot() {
-        Language::root()->addChild("Argument", root());
+        Language::root()->addChild("Argument", this);
     }
 
     QString Argument::labelName() const {
@@ -26,7 +26,7 @@ namespace Language {
     CHILD_DEFINE(ArgumentBunch, Bunch);
 
     void ArgumentBunch::initRoot() {
-        Language::root()->addChild("ArgumentBunch", root());
+        Language::root()->addChild("ArgumentBunch", this);
     }
 
     void ArgumentBunch::append(Primitive *value) {

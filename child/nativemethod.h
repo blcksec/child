@@ -9,11 +9,11 @@ CHILD_BEGIN
 #define CHILD_NATIVE_METHOD(ARGS...) new NativeMethod(Node::context()->child("NativeMethod"), ##ARGS)
 
 #define CHILD_NATIVE_METHOD_ADD(CLASS, METHOD, NAME...) \
-CLASS::root()->addOrSetChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
+addOrSetChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
     new NativeMethod(NativeMethod::root(), static_cast<_MethodPointer_>(&CLASS::_##METHOD##_)))
 
 #define CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(CLASS, METHOD, NAME...) \
-CLASS::root()->addOrSetChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
+addOrSetChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
     new NativeMethod(NativeMethod::root(), static_cast<_MethodPointer_>(&CLASS::_##METHOD##_), true))
 
 typedef Node *(Node::*_MethodPointer_)(Message *, Language::Primitive *);

@@ -9,11 +9,10 @@ namespace Language {
                const QString &txt, Block *block) :
         Object(origin), _url(url), _text(txt), _block(block) {
         if(!url.isEmpty() && txt.isEmpty()) load();
-        if(!text().isEmpty() && !block) parse();
     }
 
     void SourceCode::initRoot() {
-        Language::root()->addChild("SourceCode", root());
+        Language::root()->addChild("SourceCode", this);
     }
 
     void SourceCode::load(const QString &newUrl) {
@@ -24,7 +23,7 @@ namespace Language {
 
     void SourceCode::parse(const QString &newText) {
         if(!newText.isEmpty()) setText(newText);
-        Parser *parser = Parser::cast(context()->child("parser"));
+        Parser *parser = Parser::cast(child("parser")); // search a Parser in parents
         setBlock(parser->parse(text(), url()));
     }
 
@@ -38,7 +37,7 @@ namespace Language {
     CHILD_DEFINE(SourceCodeDictionary, Dictionary);
 
     void SourceCodeDictionary::initRoot() {
-        Language::root()->addChild("SourceCodeDictionary", root());
+        Language::root()->addChild("SourceCodeDictionary", this);
     }
 }
 

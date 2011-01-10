@@ -6,12 +6,12 @@ namespace Language {
     CHILD_DEFINE(Lexer, Object);
 
     void Lexer::initRoot() {
-        Language::root()->addChild("Lexer", root());
+        Language::root()->addChild("Lexer", this);
     }
 
     OperatorTable *Lexer::operatorTable() const {
         if(!_operatorTable)
-            Lexer::constCast(this)->_operatorTable = OperatorTable::cast(context()->child("operatorTable"));
+            constCast(this)->_operatorTable = OperatorTable::cast(constCast(this)->child("operatorTable"));
         return _operatorTable;
     }
 

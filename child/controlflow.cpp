@@ -8,7 +8,7 @@ CHILD_BEGIN
 CHILD_DEFINE(ControlFlow, Node);
 
 void ControlFlow::initRoot() {
-    Node::root()->addChild("ControlFlow", root());
+    Node::root()->addChild("ControlFlow", this);
 
     CHILD_NATIVE_METHOD_ADD(ControlFlow, if);
     CHILD_NATIVE_METHOD_ADD(ControlFlow, unless);
