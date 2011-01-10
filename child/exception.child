@@ -1,0 +1,6 @@
+Exception {
+doc:
+    "Base exception node."
+test:
+    ?: "Yo"
+}

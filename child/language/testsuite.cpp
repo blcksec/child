@@ -8,6 +8,13 @@ namespace Language {
     void TestSuite::initRoot() {
         Language::root()->addChild("TestSuite", this);
     }
+
+    Node *TestSuite::run(Node *receiver) {
+        Iterator i(this);
+        while(Test *test = i.next())
+            test->run(receiver);
+        return this;
+    }
 }
 
 CHILD_END

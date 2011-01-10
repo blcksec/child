@@ -12,11 +12,11 @@ void Block::initRoot() {
 
 Node *Block::run(Node *receiver) {
     if(docSection()) receiver->addOrSetChild("doc", docSection()->run(receiver));
-    if(bodySection()) bodySection()->run(receiver);
-    if(Section *testSection = section("test")) {
+    if(testSection()) {
         TestSuite *testSuite = TestSuite::cast(child("test_suite"));
-        testSuite->append(CHILD_TEST(testSection, receiver));
+        testSuite->append(CHILD_TEST(testSection(), receiver));
     }
+    if(bodySection()) bodySection()->run(receiver);
     return receiver;
 }
 
@@ -24,6 +24,7 @@ Section *Block::section(const QString &label) {
     if(label.isEmpty()) return hasUnlabeledSection();
     else if(label == "doc") return docSection();
     else if(label == "body") return bodySection();
+    else if(label == "test") return testSection();
     else if(label == "else") return elseSection();
     else return findSection(label);
 }
@@ -44,6 +45,14 @@ Section *Block::bodySection() {
         _bodyIsCached = true;
     }
     return _body;
+}
+
+Section *Block::testSection() {
+    if(!_testIsCached) {
+        _test = findSection("test");
+        _testIsCached = true;
+    }
+    return _test;
 }
 
 Section *Block::elseSection() {

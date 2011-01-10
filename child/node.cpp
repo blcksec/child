@@ -344,10 +344,9 @@ CHILD_NATIVE_METHOD_DEFINE(Node, different_from) {
 
 CHILD_NATIVE_METHOD_DEFINE(Node, assert) {
     CHILD_CHECK_INPUT_SIZE(0);
-    if(toBool())
-        return this;
-    else
-        CHILD_THROW(AssertionException, "assertion failed");
+    if(!toBool()) CHILD_THROW(AssertionException, "assertion failed");
+    passedAssertionCount()++;
+    return this;
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, print) {

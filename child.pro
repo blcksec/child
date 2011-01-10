@@ -45,7 +45,6 @@ SOURCES += main.cpp \
     child/language/operator.cpp \
     child/language/operatortable.cpp \
     child/language/primitive.cpp \
-#    child/language/primitivechain.cpp \
     child/language/argument.cpp \
     child/language/argumentbunch.cpp \
     child/language/parameter.cpp \
@@ -53,11 +52,11 @@ SOURCES += main.cpp \
     child/language/section.cpp \
     child/language/sourcecode.cpp \
     child/language/sourcecodedictionary.cpp \
+    child/language/test.cpp \
+    child/language/testsuite.cpp \
     child/language/lexer.cpp \
     child/language/parser.cpp \
-    child/language/interpreter.cpp \
-    child/language/test.cpp \
-    child/language/testsuite.cpp
+    child/language/interpreter.cpp
 
 HEADERS += \
     child.h \
@@ -93,7 +92,6 @@ HEADERS += \
     child/language/operator.h \
     child/language/operatortable.h \
     child/language/primitive.h \
-#    child/language/primitivechain.h \
     child/language/argument.h \
     child/language/argumentbunch.h \
     child/language/parameter.h \
@@ -101,11 +99,11 @@ HEADERS += \
     child/language/section.h \
     child/language/sourcecode.h \
     child/language/sourcecodedictionary.h \
+    child/language/test.h \
+    child/language/testsuite.h \
     child/language/lexer.h \
     child/language/parser.h \
-    child/language/interpreter.h \
-    child/language/test.h \
-    child/language/testsuite.h
+    child/language/interpreter.h
 
 OTHER_FILES += \
     notes/ideas.txt \
@@ -118,4 +116,5 @@ OTHER_FILES += \
     notes/specification.txt \
     examples/test.child \
     notes/features.txt \
-    child/node.child
+    child/node.child \
+    child/exception.child

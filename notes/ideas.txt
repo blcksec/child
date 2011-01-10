@@ -1,3 +1,57 @@
+Person := Object() {
+body:
+    age := Number() {
+    set(age):
+        if(age < 0) Exception throw
+        @age = age
+    }
+run(name: "", age: 0) code... -> f:
+    f = fork
+    f name = name
+    f age = age
+    ?code run(f)
+}
+
+Person := Object() {
+    age := Number() {
+    validate(age):
+        if(age < 0) Exception throw
+    spy:
+        "age changed!" print
+    }
+}
+
+---
+
+Node {
+    origin := {
+    doc:
+        "Blabla bla..."
+    get:
+        _origin
+    set(origin):
+        _origin = origin
+    }
+    run:
+        "called with parameters" log
+}
+
+---
+
+Person := Object() {
+doc:
+    "A simple person..."
+body:
+    print := {
+    doc:
+        "Blabla bla..."
+    run:
+        "{name} ({age})" print
+    }
+}
+
+---
+
 Node {
     \fork {
     inputs:
@@ -43,28 +97,6 @@ window("Hello") {
     row {
         text("Name:")
         field
-    }
-}
-
-Person := Object {
-    age := Number
-
-    age.get = { @age }
-
-    age.set(age) = {
-        if(age < 0) Exception throw
-        @age = age
-    }
-
-    age.spy = { "age changed!" print }
-}
-
-Person := Object {
-    age = Number {
-    validate_input:
-        if(input < 0) Exception throw
-    spy:
-        "age changed!" print
     }
 }
 

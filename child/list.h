@@ -160,7 +160,10 @@ public:
     virtual QString toString(bool debug = false, short level = 0) const {
         return "[" + join(", ", "", "", debug, level) + "]";
     }
-
+private:
+    QList<T> *_list;
+    bool _isBunched;
+public:
     class Iterator {
     public:
         Iterator(const GenericList *list) : _iterator(list->_list ? new QListIterator<T>(*list->_list) : NULL) {}
@@ -171,9 +174,6 @@ public:
     private:
         QListIterator<T> *_iterator;
     };
-private:
-    QList<T> *_list;
-    bool _isBunched;
 };
 
 #define CHILD_LIST(ARGS...) new List(Node::context()->child("Object", "List"), ##ARGS)

@@ -5,16 +5,17 @@
 CHILD_BEGIN
 
 void init() {
+    Interpreter *interpreter = Interpreter::root();
+    QString path = "../child/child";
     foreach(Node *root, Node::roots()) {
-        QString path = "../child/child";
         QString childFile = path + "/" + root->className().toLower() + ".child";
         if(QFileInfo(childFile).exists()) {
-//            P(childFile);
-            SourceCode *source = Interpreter::root()->loadSourceCode(childFile);
-            source->run();
-            source->testSuite()->inspect();
+            interpreter->loadSourceCode(childFile)->run();
         }
     }
+    interpreter->testSuite()->run();
+    P(QString("All tests passed (%1 sections, %2 assertions)").
+      arg(interpreter->testSuite()->size()).arg(Node::passedAssertionCount()));
 }
 
 CHILD_END

@@ -4,7 +4,6 @@
 #include "child/text.h"
 #include "child/block.h"
 #include "child/language/parser.h"
-#include "child/language/testsuite.h"
 
 CHILD_BEGIN
 
@@ -39,9 +38,6 @@ namespace Language {
                 if(block) addAnonymousChild(block);
             }
         }
-
-        TestSuite *testSuite() const { return TestSuite::cast(constCast(this)->child("test_suite")); }
-        void setTestSuite(TestSuite *testSuite) { addOrSetChild("test_suite", testSuite); }
 
         void load(const QString &newUrl = "");
         void parse(const QString &newText = "");

@@ -13,9 +13,6 @@ namespace Language {
 
     void SourceCode::initRoot() {
         Language::root()->addChild("SourceCode", this);
-
-        TestSuite::root();
-        setTestSuite(CHILD_TEST_SUITE());
     }
 
     void SourceCode::load(const QString &newUrl) {

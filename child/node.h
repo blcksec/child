@@ -86,6 +86,7 @@ public:
     Node *origin() { return _origin; }
     const Node *origin() const { return _origin; }
     void setOrigin(Node *node);
+    bool hasOrigin() const { return _origin; }
 
     void addExtension(Node *node);
     void prependExtension(Node *node);
@@ -212,6 +213,11 @@ public:
     virtual bool isEqualTo(const Node *other) const { return this == other; }
     CHILD_NATIVE_METHOD_DECLARE(equal_to);
     CHILD_NATIVE_METHOD_DECLARE(different_from);
+
+    static HugeUnsignedInteger &passedAssertionCount() {
+        static HugeUnsignedInteger _count = 0;
+        return _count;
+    }
 
     CHILD_NATIVE_METHOD_DECLARE(assert);
 

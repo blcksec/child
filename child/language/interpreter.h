@@ -5,6 +5,7 @@
 #include "child/language/lexer.h"
 #include "child/language/parser.h"
 #include "child/language/sourcecodedictionary.h"
+#include "child/language/testsuite.h"
 
 CHILD_BEGIN
 
@@ -29,6 +30,9 @@ namespace Language {
         SourceCodeDictionary *sourceCodes() const { return _sourceCodes; }
         SourceCode *loadSourceCode(QString url);
         SourceCode *sourceCodeIsAlreadyLoaded(QString url);
+
+        TestSuite *testSuite() const { return TestSuite::cast(constCast(this)->child("test_suite")); }
+        void setTestSuite(TestSuite *testSuite) { addOrSetChild("test_suite", testSuite); }
     private:
         OperatorTable *_operatorTable;
         Lexer *_lexer;

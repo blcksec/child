@@ -100,6 +100,20 @@ public:
     }
 private:
     QHash<K, V> *_hash;
+public:
+    class Iterator {
+    public:
+        Iterator(const GenericDictionary *dict) : _iterator(dict->_hash ? new QHashIterator<K, V>(*dict->_hash) : NULL) {}
+        ~Iterator() { delete _iterator; }
+
+        bool hasNext() const { return _iterator && _iterator->hasNext(); }
+        const V next() { return hasNext() ? _iterator->next().value() : NULL; }
+
+        const K key() { return _iterator->key(); }
+        const V value() { return _iterator->value(); }
+    private:
+        QHashIterator<K, V> *_iterator;
+    };
 };
 
 #define CHILD_DICTIONARY(ARGS...) new Dictionary(Node::context()->child("Object", "Dictionary"), ##ARGS)

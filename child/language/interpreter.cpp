@@ -14,6 +14,8 @@ namespace Language {
         addChild("parser", _parser);
         _sourceCodes = CHILD_SOURCE_CODE_DICTIONARY();
         addChild("source_codes", _sourceCodes);
+//        TestSuite::root();
+        setTestSuite(CHILD_TEST_SUITE());
     }
 
     void Interpreter::initOperatorTable() {
