@@ -1,5 +1,6 @@
 #include "child/block.h"
 #include "child/message.h"
+#include "child/language/testsuite.h"
 
 CHILD_BEGIN
 
@@ -12,8 +13,9 @@ void Block::initRoot() {
 Node *Block::run(Node *receiver) {
     if(docSection()) receiver->addOrSetChild("doc", docSection()->run(receiver));
     if(bodySection()) bodySection()->run(receiver);
-    if(section("test")) {
-
+    if(Section *testSection = section("test")) {
+        TestSuite *testSuite = TestSuite::cast(child("test_suite"));
+        testSuite->append(CHILD_TEST(testSection, receiver));
     }
     return receiver;
 }

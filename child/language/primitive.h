@@ -20,6 +20,10 @@ namespace Language {
                            Primitive *next = NULL) :
             Element(origin, value), _sourceCodeRef(sourceCodeRef),  _previous(NULL), _next(NULL) { setNext(next); }
 
+        virtual ~Primitive() {
+            setNext(NULL);
+        }
+
         CHILD_FORK_METHOD(Primitive, CHILD_FORK_IF_NOT_NULL(value()), sourceCodeRef(), CHILD_FORK_IF_NOT_NULL(next()));
 
         const QStringRef &sourceCodeRef() const { return _sourceCodeRef; }

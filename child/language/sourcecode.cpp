@@ -13,6 +13,9 @@ namespace Language {
 
     void SourceCode::initRoot() {
         Language::root()->addChild("SourceCode", this);
+
+        TestSuite::root();
+        setTestSuite(CHILD_TEST_SUITE());
     }
 
     void SourceCode::load(const QString &newUrl) {
@@ -32,12 +35,6 @@ namespace Language {
         if(!url().isEmpty()) str += QString("/* %1 */\n").arg(url());
         if(block()) str += block()->toString(debug, level);
         return str;
-    }
-
-    CHILD_DEFINE(SourceCodeDictionary, Dictionary);
-
-    void SourceCodeDictionary::initRoot() {
-        Language::root()->addChild("SourceCodeDictionary", this);
     }
 }
 

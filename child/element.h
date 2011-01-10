@@ -13,7 +13,7 @@ public:
     explicit GenericElement(Node *origin, const T &value = NULL) : Object(origin), _value(value) {}
 
     T value() const { return _value; }
-    void setValue(const T &value) { _value = value; }
+    virtual void setValue(const T &newValue) { _value = newValue; }
 
     virtual uint hash() const { return qHash(_value); }
 private:
@@ -29,6 +29,14 @@ public:
         GenericElement<Node *>(origin, value) {}
 
     CHILD_FORK_METHOD(Element, CHILD_FORK_IF_NOT_NULL(value()));
+
+    virtual void setValue(Node *const &newValue) {
+        if(newValue != value()) {
+            if(value()) removeAnonymousChild(value());
+            GenericElement<Node *>::setValue(newValue);
+            if(newValue) addAnonymousChild(newValue);
+        }
+    }
 
     virtual QString toString(bool debug = false, short level = 0) const {
         return value() ? value()->toString(debug, level) : "NULL";

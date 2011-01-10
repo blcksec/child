@@ -1,5 +1,5 @@
-#ifndef CHILD_PARSER_H
-#define CHILD_PARSER_H
+#ifndef CHILD_LANGUAGE_PARSER_H
+#define CHILD_LANGUAGE_PARSER_H
 
 #include "child/boolean.h"
 #include "child/number.h"
@@ -100,4 +100,4 @@ namespace Language {
 
 CHILD_END
 
-#endif // CHILD_PARSER_H
+#endif // CHILD_LANGUAGE_PARSER_H

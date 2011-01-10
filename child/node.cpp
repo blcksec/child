@@ -370,7 +370,7 @@ CHILD_NATIVE_METHOD_DEFINE(Node, memory_address) {
 QString Node::toString(bool debug, short level) const {
     Q_UNUSED(debug);
     Q_UNUSED(level);
-    return QString("%1: [%2]").arg(hexMemoryAddress(), QStringList(children().keys()).join(", "));
+    return QString("%1:%2: [%3]").arg(className()).arg(hexMemoryAddress(), QStringList(children().keys()).join(", "));
 }
 
 CHILD_END

@@ -1,10 +1,10 @@
-#ifndef CHILD_INTERPRETER_H
-#define CHILD_INTERPRETER_H
+#ifndef CHILD_LANGUAGE_INTERPRETER_H
+#define CHILD_LANGUAGE_INTERPRETER_H
 
 #include "child/language/operatortable.h"
-#include "child/language/sourcecode.h"
 #include "child/language/lexer.h"
 #include "child/language/parser.h"
+#include "child/language/sourcecodedictionary.h"
 
 CHILD_BEGIN
 
@@ -39,4 +39,4 @@ namespace Language {
 
 CHILD_END
 
-#endif // CHILD_INTERPRETER_H
+#endif // CHILD_LANGUAGE_INTERPRETER_H

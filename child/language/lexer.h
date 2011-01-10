@@ -1,5 +1,5 @@
-#ifndef CHILD_LEXER_H
-#define CHILD_LEXER_H
+#ifndef CHILD_LANGUAGE_LEXER_H
+#define CHILD_LANGUAGE_LEXER_H
 
 #include <QtCore/QFileInfo>
 
@@ -92,4 +92,4 @@ namespace Language {
 
 CHILD_END
 
-#endif // CHILD_LEXER_H
+#endif // CHILD_LANGUAGE_LEXER_H

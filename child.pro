@@ -47,12 +47,17 @@ SOURCES += main.cpp \
     child/language/primitive.cpp \
 #    child/language/primitivechain.cpp \
     child/language/argument.cpp \
+    child/language/argumentbunch.cpp \
     child/language/parameter.cpp \
+    child/language/parameterlist.cpp \
     child/language/section.cpp \
     child/language/sourcecode.cpp \
+    child/language/sourcecodedictionary.cpp \
     child/language/lexer.cpp \
     child/language/parser.cpp \
-    child/language/interpreter.cpp
+    child/language/interpreter.cpp \
+    child/language/test.cpp \
+    child/language/testsuite.cpp
 
 HEADERS += \
     child.h \
@@ -90,12 +95,17 @@ HEADERS += \
     child/language/primitive.h \
 #    child/language/primitivechain.h \
     child/language/argument.h \
+    child/language/argumentbunch.h \
     child/language/parameter.h \
+    child/language/parameterlist.h \
     child/language/section.h \
     child/language/sourcecode.h \
+    child/language/sourcecodedictionary.h \
     child/language/lexer.h \
     child/language/parser.h \
-    child/language/interpreter.h
+    child/language/interpreter.h \
+    child/language/test.h \
+    child/language/testsuite.h
 
 OTHER_FILES += \
     notes/ideas.txt \

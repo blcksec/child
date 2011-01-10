@@ -12,6 +12,7 @@ void init() {
 //            P(childFile);
             SourceCode *source = Interpreter::root()->loadSourceCode(childFile);
             source->run();
+            source->testSuite()->inspect();
         }
     }
 }

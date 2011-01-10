@@ -2,9 +2,9 @@
 #define CHILD_LANGUAGE_SOURCE_CODE_H
 
 #include "child/text.h"
-#include "child/dictionary.h"
 #include "child/block.h"
 #include "child/language/parser.h"
+#include "child/language/testsuite.h"
 
 CHILD_BEGIN
 
@@ -18,6 +18,10 @@ namespace Language {
         explicit SourceCode(Node *origin, const QString &url = "",
                    const QString &txt = "", Block *block = NULL);
 
+        virtual ~SourceCode() {
+            setBlock(NULL);
+        }
+
         CHILD_FORK_METHOD(SourceCode, url(), text(), CHILD_FORK_IF_NOT_NULL(block()));
 
         const QString &url() const { return _url; }
@@ -27,7 +31,17 @@ namespace Language {
         void setText(const QString &text) { _text = text; }
 
         Block *block() const { return _block; }
-        void setBlock(Block *block) { _block = block; }
+
+        void setBlock(Block *block) {
+            if(block != _block) {
+                if(_block) removeAnonymousChild(_block);
+                _block = block;
+                if(block) addAnonymousChild(block);
+            }
+        }
+
+        TestSuite *testSuite() const { return TestSuite::cast(constCast(this)->child("test_suite")); }
+        void setTestSuite(TestSuite *testSuite) { addOrSetChild("test_suite", testSuite); }
 
         void load(const QString &newUrl = "");
         void parse(const QString &newText = "");
@@ -50,20 +64,6 @@ namespace Language {
         QString _url;
         QString _text;
         Block *_block;
-    };
-
-    // === SourceCodeDictionary ===
-
-    #define CHILD_SOURCE_CODE_DICTIONARY(ARGS...) \
-    new Language::SourceCodeDictionary(Node::context()->child("Object", "Language", "SourceCodeDictionary"), ##ARGS)
-
-    class SourceCodeDictionary : public GenericDictionary<Node::Reference, SourceCode *> {
-        CHILD_DECLARE(SourceCodeDictionary, Dictionary);
-    public:
-        SourceCodeDictionary(Node *origin) :
-            GenericDictionary<Node::Reference, SourceCode *>(origin) {}
-
-        CHILD_FORK_METHOD(SourceCodeDictionary);
     };
 }
 

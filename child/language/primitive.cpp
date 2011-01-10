@@ -11,9 +11,15 @@ namespace Language {
 
     Primitive *Primitive::setNext(Primitive *next) {
         if(next != _next) {
-            if(_next) _next->_previous = NULL;
+            if(_next) {
+                _next->_previous = NULL;
+                removeAnonymousChild(_next);
+            }
             _next = next;
-            if(next) next->_previous = this;
+            if(next) {
+                next->_previous = this;
+                addAnonymousChild(next);
+            }
         }
         return next;
     }
