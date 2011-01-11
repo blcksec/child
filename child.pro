@@ -56,7 +56,8 @@ SOURCES += main.cpp \
     child/language/testsuite.cpp \
     child/language/lexer.cpp \
     child/language/parser.cpp \
-    child/language/interpreter.cpp
+    child/language/interpreter.cpp \
+    child/property.cpp
 
 HEADERS += \
     child.h \
@@ -103,7 +104,8 @@ HEADERS += \
     child/language/testsuite.h \
     child/language/lexer.h \
     child/language/parser.h \
-    child/language/interpreter.h
+    child/language/interpreter.h \
+    child/property.h
 
 OTHER_FILES += \
     notes/ideas.txt \

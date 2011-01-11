@@ -11,5 +11,5 @@ body:
 test:
     // QVERIFY(!Node::root()->origin());
     // QVERIFY(Node::root()->hasDirectParent(Node::root()));
-    ?: 1 == 1
+    Object origin inspect
 }

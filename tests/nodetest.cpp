@@ -3,7 +3,7 @@
 CHILD_BEGIN
 
 void NodeTest::initialize() {
-    QVERIFY(!Node::root()->origin());
+    QVERIFY(!Node::root()->hasOrigin());
     QVERIFY(Node::root()->hasDirectParent(Node::root()));
 }
 

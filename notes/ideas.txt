@@ -1,3 +1,39 @@
+---
+
+Person := Object() {
+    age := Number() {
+    set(age):
+        if(age < 0) Exception throw
+        @age = age
+    }
+
+    print := {
+        "Yo" print
+    }
+}
+
+---
+
+Language.Parser // équivalent à \Language Parser
+
+meth.enable! // équivalent à \meth enable!
+
+---
+
+Person := Object {
+    age := Number {
+    set(age):
+        if(age < 0) Exception throw
+        value = age
+    }
+
+    print := {
+        "Yo" print
+    }
+}
+
+---
+
 Person := Object() {
 body:
     age := Number() {

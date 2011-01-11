@@ -8,6 +8,7 @@
 #include "child/message.h"
 #include "child/block.h"
 #include "child/method.h"
+#include "child/property.h"
 
 CHILD_BEGIN
 
@@ -38,6 +39,12 @@ void Node::initRoot() {
     addChild("Node", this);
 
     CHILD_NATIVE_METHOD_ADD(Node, self);
+
+    Property::root();
+
+    Property *originProperty = CHILD_PROPERTY();
+    originProperty->CHILD_NATIVE_METHOD_ADD(Node, origin, get);
+    addChild("origin", originProperty);
 
     CHILD_NATIVE_METHOD_ADD(Node, fork);
     CHILD_NATIVE_METHOD_ADD(Node, define, :=);
@@ -76,6 +83,11 @@ CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
         initMessage->run(node);
     }
     return node;
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, origin) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    return parent()->origin();
 }
 
 void Node::setOrigin(Node *node) {
@@ -200,7 +212,7 @@ Node *Node::hasChildInSelfOrOrigins(const QString &name, bool autoFork, bool *is
     Node *node = hasDirectChild(name, &isRemoved);
     bool isDirect = node || isRemoved;
     if(!isDirect) {
-        if(origin()) node = origin()->hasChildInSelfOrOrigins(name);
+        if(hasOrigin()) node = origin()->hasChildInSelfOrOrigins(name);
         if(!node && _extensions) {
             foreach(Node *extension, *_extensions) {
                 node = extension->hasChildInSelfOrOrigins(name);

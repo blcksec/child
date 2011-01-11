@@ -83,10 +83,18 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(self);
     CHILD_NATIVE_METHOD_DECLARE(fork);
 
-    Node *origin() { return _origin; }
-    const Node *origin() const { return _origin; }
+    Node *origin() {
+        if(!_origin) CHILD_THROW_NULL_POINTER_EXCEPTION("origin is NULL");
+        return _origin;
+    }
+
+    const Node *origin() const { return constCast(this)->origin(); }
+
+    Node *hasOrigin() const { return _origin; }
+
+    CHILD_NATIVE_METHOD_DECLARE(origin);
+
     void setOrigin(Node *node);
-    bool hasOrigin() const { return _origin; }
 
     void addExtension(Node *node);
     void prependExtension(Node *node);

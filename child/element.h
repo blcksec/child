@@ -39,7 +39,7 @@ public:
     }
 
     virtual QString toString(bool debug = false, short level = 0) const {
-        return value() ? value()->toString(debug, level) : "NULL";
+        return value() ? value()->toString(debug, level) : Object::toString(debug, level); //"NULL";
     }
 };
 
