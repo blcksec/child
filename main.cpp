@@ -13,7 +13,7 @@ CHILD_USE
 
 int main() { // int argc, char *argv[]
     init();
-    // runAllTests();
+//    runAllTests();
     #ifdef CHILD_CATCH_EXCEPTIONS
     try {
     #endif

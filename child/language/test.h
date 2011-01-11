@@ -27,7 +27,8 @@ namespace Language {
 
         virtual Node *run(Node *receiver = context()) {
             Q_UNUSED(receiver);
-            return section()->run(this->receiver());
+            ContextPusher pusher(this->receiver()); Q_UNUSED(pusher);
+            return section()->run();
         }
 
         virtual QString toString(bool debug = false, short level = 0) const {

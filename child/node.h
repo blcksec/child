@@ -89,12 +89,10 @@ public:
     }
 
     const Node *origin() const { return constCast(this)->origin(); }
-
-    Node *hasOrigin() const { return _origin; }
-
-    CHILD_NATIVE_METHOD_DECLARE(origin);
+    CHILD_NATIVE_METHOD_DECLARE(origin_get);
 
     void setOrigin(Node *node);
+    CHILD_NATIVE_METHOD_DECLARE(origin_set);
 
     void addExtension(Node *node);
     void prependExtension(Node *node);

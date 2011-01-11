@@ -1,15 +1,21 @@
 Node {
 doc:
-    "Base element grandfather of everything."
+    "Root element, grandfather of everything."
 body:
+    \origin {
+    test:
+        n1 := Node()
+        n2 := Node()
+        ?: n2 origin == Node
+        n2 origin = n1
+        ?: n2 origin == n1
+    }
+
     \fork {
     doc:
         "Fork the receiver."
-    test:
-        ?: true
     }
 test:
-    // QVERIFY(!Node::root()->origin());
-    // QVERIFY(Node::root()->hasDirectParent(Node::root()));
-    Object origin inspect
+    ?: origin == self
+    ?: parent == self
 }

@@ -27,6 +27,7 @@ Node *Node::root() {
     static Node *_root = NULL;
     if(!_root) {
         _root = new Node(NULL);
+        _root->setOrigin(_root);
         _root->initRoot();
         roots().append(_root);
     }
@@ -43,7 +44,8 @@ void Node::initRoot() {
     Property::root();
 
     Property *originProperty = CHILD_PROPERTY();
-    originProperty->CHILD_NATIVE_METHOD_ADD(Node, origin, get);
+    originProperty->CHILD_NATIVE_METHOD_ADD(Node, origin_get, get);
+    originProperty->CHILD_NATIVE_METHOD_ADD(Node, origin_set, set);
     addChild("origin", originProperty);
 
     CHILD_NATIVE_METHOD_ADD(Node, fork);
@@ -85,9 +87,15 @@ CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
     return node;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, origin) {
+CHILD_NATIVE_METHOD_DEFINE(Node, origin_get) {
     CHILD_CHECK_INPUT_SIZE(0);
     return parent()->origin();
+}
+
+CHILD_NATIVE_METHOD_DEFINE(Node, origin_set) {
+    CHILD_CHECK_INPUT_SIZE(1);
+    parent()->setOrigin(message->runFirstInput());
+    return this;
 }
 
 void Node::setOrigin(Node *node) {
@@ -178,7 +186,11 @@ Node *Node::defineOrAssign(Message *message, bool isDefine) {
         value = CHILD_METHOD(NULL, NULL, block);
     else // rhs is not a block
         value = message->runSecondInput();
-    setChild(msg->name(), value, isDefine);
+    Property *property = Property::dynamicCast(hasChild(msg->name(), !isDefine));
+    if(property)
+        CHILD_MESSAGE("set", value)->run(property);
+    else
+        setChild(msg->name(), value, isDefine);
     value->hasBeenAssigned(msg);
     return value;
 }
@@ -212,7 +224,7 @@ Node *Node::hasChildInSelfOrOrigins(const QString &name, bool autoFork, bool *is
     Node *node = hasDirectChild(name, &isRemoved);
     bool isDirect = node || isRemoved;
     if(!isDirect) {
-        if(hasOrigin()) node = origin()->hasChildInSelfOrOrigins(name);
+        if(origin() != this) node = origin()->hasChildInSelfOrOrigins(name);
         if(!node && _extensions) {
             foreach(Node *extension, *_extensions) {
                 node = extension->hasChildInSelfOrOrigins(name);
