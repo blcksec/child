@@ -119,4 +119,5 @@ OTHER_FILES += \
     examples/test.child \
     notes/features.txt \
     child/node.child \
-    child/exception.child
+    child/exception.child \
+    child/object.child

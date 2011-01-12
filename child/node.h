@@ -58,10 +58,10 @@ public:
     static const bool isInitialized;
 
     explicit Node(Node *origin) : _origin(origin), _extensions(NULL), // default constructor
-        _children(NULL), _parents(NULL) {}
+        _children(NULL), _parents(NULL), _isAbstract(true), _isVirtual(false) {}
 
     Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
-        _children(NULL), _parents(NULL) {
+        _children(NULL), _parents(NULL), _isAbstract(other._isAbstract), _isVirtual(other._isVirtual) {
         if(other._extensions) _extensions = new QList<Node *>(*other._extensions);
         if(other._children) {
             QHashIterator<QString, const Node *> i(other.children());
@@ -93,6 +93,14 @@ public:
 
     void setOrigin(Node *node);
     CHILD_NATIVE_METHOD_DECLARE(origin_set);
+
+    bool isAbstract() const { return _isAbstract; }
+    void setIsAbstract(bool isAbstract) { _isAbstract = isAbstract; }
+
+    bool isVirtual() const { return _isVirtual; }
+    void setIsVirtual(bool isVirtual) { _isVirtual = isVirtual; }
+
+    Node *real() const;
 
     void addExtension(Node *node);
     void prependExtension(Node *node);
@@ -216,7 +224,7 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(or_assign);
     CHILD_NATIVE_METHOD_DECLARE(and_assign);
 
-    virtual bool isEqualTo(const Node *other) const { return this == other; }
+    virtual bool isEqualTo(const Node *other) const { return real() == other->real(); }
     CHILD_NATIVE_METHOD_DECLARE(equal_to);
     CHILD_NATIVE_METHOD_DECLARE(different_from);
 
@@ -307,6 +315,8 @@ private:
     QList<Node *> *_extensions;
     QHash<QString, Node *> *_children;
     mutable QHash<const Node *, HugeUnsignedInteger> *_parents;
+    bool _isAbstract : 1;
+    bool _isVirtual  : 1;
 };
 
 inline bool operator==(const Node &a, const Node &b) { return a.isEqualTo(&b); }

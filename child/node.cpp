@@ -103,6 +103,12 @@ void Node::setOrigin(Node *node) {
     _origin = node;
 }
 
+Node *Node::real() const {
+    Node *node = constCast(this);
+    while(node->isVirtual()) node = node->origin();
+    return node;
+}
+
 void Node::addExtension(Node *node) {
     CHILD_CHECK_POINTER(node);
     if(!_extensions) { _extensions = new QList<Node *>; }
@@ -186,8 +192,8 @@ Node *Node::defineOrAssign(Message *message, bool isDefine) {
         value = CHILD_METHOD(NULL, NULL, block);
     else // rhs is not a block
         value = message->runSecondInput();
-    Property *property = Property::dynamicCast(hasChild(msg->name(), !isDefine));
-    if(property)
+    Property *property = NULL;
+    if(!isDefine && (property = Property::dynamicCast(hasChild(msg->name()))))
         CHILD_MESSAGE("set", value)->run(property);
     else
         setChild(msg->name(), value, isDefine);
@@ -233,6 +239,7 @@ Node *Node::hasChildInSelfOrOrigins(const QString &name, bool autoFork, bool *is
         }
         if(node && autoFork) {
             node = node->fork();
+            node->setIsVirtual(true);
             _setChild(name, node);
         }
     }

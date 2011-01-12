@@ -1,0 +1,5 @@
+Object {
+test:
+    ?: origin == Node
+    ?: parent == Node
+}
