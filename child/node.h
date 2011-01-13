@@ -64,8 +64,8 @@ public:
         _children(NULL), _parents(NULL), _isAbstract(other._isAbstract), _isVirtual(other._isVirtual) {
         if(other._extensions) _extensions = new QList<Node *>(*other._extensions);
         if(other._children) {
-            QHashIterator<QString, const Node *> i(other.children());
-            while(i.hasNext()) { i.next(); addChild(i.key(), constCast(i.value())); }
+            QHashIterator<QString, Node *> i(other.children());
+            while(i.hasNext()) { i.next(); addChild(i.key(), i.value()); }
         }
     }
 
@@ -83,12 +83,11 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(self);
     CHILD_NATIVE_METHOD_DECLARE(fork);
 
-    Node *origin() {
+    Node *origin() const {
         if(!_origin) CHILD_THROW_NULL_POINTER_EXCEPTION("origin is NULL");
         return _origin;
     }
 
-    const Node *origin() const { return constCast(this)->origin(); }
     CHILD_NATIVE_METHOD_DECLARE(origin_get);
 
     void setOrigin(Node *node);
@@ -100,36 +99,24 @@ public:
     bool isVirtual() const { return _isVirtual; }
     void setIsVirtual(bool isVirtual) { _isVirtual = isVirtual; }
 
-    Node *real() const;
+    Node *real();
+    const Node *real() const { return constCast(this)->real(); }
 
     void addExtension(Node *node);
     void prependExtension(Node *node);
-    void removeExtension(const Node *node);
+    void removeExtension(Node *node);
     void removeAllExtensions();
-    bool hasExtension(const Node *node) const;
-    QList<Node *> extensions();
-    QList<const Node *> extensions() const;
+    bool hasExtension(Node *node) const;
+    QList<Node *> extensions() const;
 
-    Node *child(const QString &name);
+    Node *child(const QString &name) const;
 
-    const Node *child(const QString &name) const {
-        return constCast(this)->child(name);
-    }
-
-    Node *child(const QString &name1, const QString &name2) {
+    Node *child(const QString &name1, const QString &name2) const {
         return child(name1)->child(name2);
     }
 
-    const Node *child(const QString &name1, const QString &name2) const {
-        return constCast(this)->child(name1)->child(name2);
-    }
-
-    Node *child(const QString &name1, const QString &name2, const QString &name3) {
+    Node *child(const QString &name1, const QString &name2, const QString &name3) const {
         return child(name1)->child(name2)->child(name3);
-    }
-
-    const Node *child(const QString &name1, const QString &name2, const QString &name3) const {
-        return constCast(this)->child(name1)->child(name2)->child(name3);
     }
 
     void addChild(const QString &name, Node *value);
@@ -151,57 +138,45 @@ public:
 
     void removeChild(const QString &name);
 
-    void addAnonymousChild(const Node *value) const {
+    void addAnonymousChild(Node *value) {
         CHILD_CHECK_POINTER(value);
         value->_addParent(this);
     }
 
-    void removeAnonymousChild(const Node *value) const {
+    void removeAnonymousChild(Node *value) {
         CHILD_CHECK_POINTER(value);
         value->_removeParent(this);
     }
 
     Node *hasChild(const QString &name, bool searchInParents = true, Node **parentPtr = NULL,
-                   bool autoFork = true, bool *isDirectPtr = NULL);
-
-    const Node *hasChild(const QString &name, bool searchInParents = true, const Node **parentPtr = NULL,
-                         bool autoFork = true, bool *isDirectPtr = NULL) const {
-        return constCast(this)->hasChild(name, searchInParents, const_cast<Node **>(parentPtr), autoFork, isDirectPtr);
-    }
-
+                   bool autoFork = true, bool *isDirectPtr = NULL) const;
 private:
-    Node *hasChildInSelfOrOrigins(const QString &name, bool autoFork = true, bool *isDirectPtr = NULL);
+    Node *hasChildInSelfOrOrigins(const QString &name, bool autoFork = true, bool *isDirectPtr = NULL) const;
 public:
 
-    Node *hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) {
+    Node *hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) const {
         Node *child = NULL;
-        if(_children) child = constCast(_children->value(name));
+        if(_children) child = _children->value(name);
         if(isRemovedPtr) *isRemovedPtr = !child && _children && _children->contains(name);
         return child;
     }
 
-    const Node *hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) const {
-        return constCast(this)->hasDirectChild(name, isRemovedPtr);
+    QString hasDirectChild(Node *value) const {
+        return _children ? _children->key(value) : QString();
     }
 
-    QString hasDirectChild(const Node *value) const {
-        return _children ? _children->key(constCast(value)) : QString();
-    }
-
-    bool hasDirectParent(const Node *parent) const {
+    bool hasDirectParent(Node *parent) const {
         CHILD_CHECK_POINTER(parent);
         return _parents && _parents->contains(parent);
     }
 
 private:
-    void _addParent(const Node *parent) const;
-    void _removeParent(const Node *parent) const;
+    void _addParent(Node *parent) const;
+    void _removeParent(Node *parent) const;
 public:
 
-    QHash<QString, Node *> children();
-    QHash<QString, const Node *> children() const;
-    QList<Node *> parents();
-    QList<const Node *> parents() const;
+    QHash<QString, Node *> children() const;
+    QList<Node *> parents() const;
 
     Node *parent() const;
     CHILD_NATIVE_METHOD_DECLARE(parent);
@@ -314,7 +289,7 @@ private:
     Node *_origin;
     QList<Node *> *_extensions;
     QHash<QString, Node *> *_children;
-    mutable QHash<const Node *, HugeUnsignedInteger> *_parents;
+    mutable QHash<Node *, HugeUnsignedInteger> *_parents;
     bool _isAbstract : 1;
     bool _isVirtual  : 1;
 };
