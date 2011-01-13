@@ -3,9 +3,9 @@
 
 #include <math.h>
 
-#include "child/element.h"
-#include "child/boolean.h"
-#include "child/message.h"
+#include "node/element.h"
+#include "node/boolean.h"
+#include "node/message.h"
 
 CHILD_BEGIN
 

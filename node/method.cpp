@@ -1,4 +1,4 @@
-#include "child/method.h"
+#include "node/method.h"
 
 CHILD_BEGIN
 

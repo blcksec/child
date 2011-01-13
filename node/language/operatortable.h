@@ -3,8 +3,8 @@
 
 #include <QtCore/QSet>
 
-#include "child/list.h"
-#include "child/language/operator.h"
+#include "node/list.h"
+#include "node/language/operator.h"
 
 CHILD_BEGIN
 

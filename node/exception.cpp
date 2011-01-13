@@ -1,6 +1,6 @@
 #include <QtCore/QFileInfo>
 
-#include "child/exception.h"
+#include "node/exception.h"
 
 CHILD_BEGIN
 

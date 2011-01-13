@@ -1,4 +1,4 @@
-#include "child/text.h"
+#include "node/text.h"
 
 CHILD_BEGIN
 

@@ -1,8 +1,8 @@
 #ifndef CHILD_BOOLEAN_H
 #define CHILD_BOOLEAN_H
 
-#include "child/element.h"
-#include "child/message.h"
+#include "node/element.h"
+#include "node/message.h"
 
 CHILD_BEGIN
 

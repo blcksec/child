@@ -1,9 +1,9 @@
 #ifndef CHILD_DICTIONARY_TEST_H
 #define CHILD_DICTIONARY_TEST_H
 
-#include "child/text.h"
-#include "child/dictionary.h"
-#include "child/list.h"
+#include "node/text.h"
+#include "node/dictionary.h"
+#include "node/list.h"
 
 #include "tests/testbegin.h"
 

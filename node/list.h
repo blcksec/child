@@ -1,7 +1,7 @@
 #ifndef CHILD_LIST_H
 #define CHILD_LIST_H
 
-#include "child/object.h"
+#include "node/object.h"
 
 CHILD_BEGIN
 

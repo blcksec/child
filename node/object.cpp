@@ -1,7 +1,7 @@
-#include "child/object.h"
-#include "child/boolean.h"
-#include "child/number.h"
-#include "child/message.h"
+#include "node/object.h"
+#include "node/boolean.h"
+#include "node/number.h"
+#include "node/message.h"
 
 CHILD_BEGIN
 

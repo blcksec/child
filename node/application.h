@@ -1,7 +1,7 @@
 #ifndef CHILD_APPLICATION_H
 #define CHILD_APPLICATION_H
 
-#include "child/object.h"
+#include "node/object.h"
 
 CHILD_BEGIN
 

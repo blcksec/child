@@ -1,7 +1,7 @@
 #ifndef CHILD_DICTIONARY_H
 #define CHILD_DICTIONARY_H
 
-#include "child/object.h"
+#include "node/object.h"
 
 CHILD_BEGIN
 

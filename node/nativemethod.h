@@ -1,8 +1,8 @@
 #ifndef CHILD_NATIVE_METHOD_H
 #define CHILD_NATIVE_METHOD_H
 
-#include "child/node.h"
-#include "child/exception.h"
+#include "node.h"
+#include "node/exception.h"
 
 CHILD_BEGIN
 

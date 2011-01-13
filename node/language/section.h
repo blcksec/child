@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_SECTION_H
 #define CHILD_LANGUAGE_SECTION_H
 
-#include "child/list.h"
-#include "child/language/primitive.h"
+#include "node/list.h"
+#include "node/language/primitive.h"
 
 CHILD_BEGIN
 

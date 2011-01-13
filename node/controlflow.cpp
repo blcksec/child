@@ -1,7 +1,7 @@
-#include "child/controlflow.h"
-#include "child/boolean.h"
-#include "child/message.h"
-#include "child/block.h"
+#include "node/controlflow.h"
+#include "node/boolean.h"
+#include "node/message.h"
+#include "node/block.h"
 
 CHILD_BEGIN
 

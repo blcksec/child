@@ -1,10 +1,10 @@
 #ifndef CHILD_OBJECT_H
 #define CHILD_OBJECT_H
 
-#include "child/node.h"
-#include "child/exception.h"
-#include "child/nativemethod.h"
-#include "child/controlflow.h"
+#include "node.h"
+#include "node/exception.h"
+#include "node/nativemethod.h"
+#include "node/controlflow.h"
 
 CHILD_BEGIN
 

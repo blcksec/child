@@ -3,8 +3,8 @@
 
 #include <QtCore/QFileInfo>
 
-#include "child/language/token.h"
-#include "child/language/operatortable.h"
+#include "node/language/token.h"
+#include "node/language/operatortable.h"
 
 CHILD_BEGIN
 

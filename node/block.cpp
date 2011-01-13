@@ -1,6 +1,6 @@
-#include "child/block.h"
-#include "child/message.h"
-#include "child/language/testsuite.h"
+#include "node/block.h"
+#include "node/message.h"
+#include "node/language/testsuite.h"
 
 CHILD_BEGIN
 

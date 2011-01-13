@@ -1,7 +1,7 @@
 #ifndef CHILD_LANGUAGE_H
 #define CHILD_LANGUAGE_H
 
-#include "child/object.h"
+#include "node/object.h"
 
 CHILD_BEGIN
 

@@ -1,11 +1,11 @@
 #ifndef CHILD_LANGUAGE_INTERPRETER_H
 #define CHILD_LANGUAGE_INTERPRETER_H
 
-#include "child/language/operatortable.h"
-#include "child/language/lexer.h"
-#include "child/language/parser.h"
-#include "child/language/sourcecodedictionary.h"
-#include "child/language/testsuite.h"
+#include "node/language/operatortable.h"
+#include "node/language/lexer.h"
+#include "node/language/parser.h"
+#include "node/language/sourcecodedictionary.h"
+#include "node/language/testsuite.h"
 
 CHILD_BEGIN
 

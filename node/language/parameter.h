@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_PARAMETER_H
 #define CHILD_LANGUAGE_PARAMETER_H
 
-#include "child/pair.h"
-#include "child/language/primitive.h"
+#include "node/pair.h"
+#include "node/language/primitive.h"
 
 CHILD_BEGIN
 

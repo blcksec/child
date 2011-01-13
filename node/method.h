@@ -1,10 +1,10 @@
 #ifndef CHILD_METHOD_H
 #define CHILD_METHOD_H
 
-#include "child/element.h"
-#include "child/block.h"
-#include "child/message.h"
-#include "child/language/parameterlist.h"
+#include "node/element.h"
+#include "node/block.h"
+#include "node/message.h"
+#include "node/language/parameterlist.h"
 
 CHILD_BEGIN
 

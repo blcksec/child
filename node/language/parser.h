@@ -1,13 +1,13 @@
 #ifndef CHILD_LANGUAGE_PARSER_H
 #define CHILD_LANGUAGE_PARSER_H
 
-#include "child/boolean.h"
-#include "child/number.h"
-#include "child/character.h"
-#include "child/text.h"
-#include "child/message.h"
-#include "child/block.h"
-#include "child/language/lexer.h"
+#include "node/boolean.h"
+#include "node/number.h"
+#include "node/character.h"
+#include "node/text.h"
+#include "node/message.h"
+#include "node/block.h"
+#include "node/language/lexer.h"
 
 CHILD_BEGIN
 

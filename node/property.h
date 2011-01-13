@@ -1,7 +1,7 @@
 #ifndef CHILD_PROPERTY_H
 #define CHILD_PROPERTY_H
 
-#include "child/object.h"
+#include "node/object.h"
 
 CHILD_BEGIN
 

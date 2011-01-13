@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_PRIMITIVE_H
 #define CHILD_LANGUAGE_PRIMITIVE_H
 
-#include "child/element.h"
-#include "child/language.h"
+#include "node/element.h"
+#include "node/language.h"
 
 CHILD_BEGIN
 

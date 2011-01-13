@@ -1,4 +1,4 @@
-#include "child/dictionary.h"
+#include "node/dictionary.h"
 
 CHILD_BEGIN
 

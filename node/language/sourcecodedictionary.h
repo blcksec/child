@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_SOURCE_CODE_DICTIONARY_H
 #define CHILD_LANGUAGE_SOURCE_CODE_DICTIONARY_H
 
-#include "child/dictionary.h"
-#include "child/language/sourcecode.h"
+#include "node/dictionary.h"
+#include "node/language/sourcecode.h"
 
 CHILD_BEGIN
 

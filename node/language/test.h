@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_TEST_H
 #define CHILD_LANGUAGE_TEST_H
 
-#include "child/element.h"
-#include "child/language/section.h"
+#include "node/element.h"
+#include "node/language/section.h"
 
 CHILD_BEGIN
 

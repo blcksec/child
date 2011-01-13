@@ -1,7 +1,7 @@
 #ifndef CHILD_MESSAGE_H
 #define CHILD_MESSAGE_H
 
-#include "child/language/argumentbunch.h"
+#include "node/language/argumentbunch.h"
 
 CHILD_BEGIN
 

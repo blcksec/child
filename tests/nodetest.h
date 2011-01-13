@@ -1,7 +1,7 @@
 #ifndef CHILD_NODE_TEST_H
 #define CHILD_NODE_TEST_H
 
-#include "child/node.h"
+#include "node.h"
 
 #include "tests/testbegin.h"
 

@@ -1,14 +1,14 @@
 #include <QtCore/QStringList>
 
-#include "child/node.h"
-#include "child/exception.h"
-#include "child/nativemethod.h"
-#include "child/boolean.h"
-#include "child/number.h"
-#include "child/message.h"
-#include "child/block.h"
-#include "child/method.h"
-#include "child/property.h"
+#include "node.h"
+#include "node/exception.h"
+#include "node/nativemethod.h"
+#include "node/boolean.h"
+#include "node/number.h"
+#include "node/message.h"
+#include "node/block.h"
+#include "node/method.h"
+#include "node/property.h"
 
 CHILD_BEGIN
 

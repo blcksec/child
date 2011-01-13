@@ -1,7 +1,7 @@
 #ifndef CHILD_OBJECT_TEST_H
 #define CHILD_OBJECT_TEST_H
 
-#include "child/object.h"
+#include "node/object.h"
 
 #include "tests/testbegin.h"
 

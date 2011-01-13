@@ -1,7 +1,7 @@
 #ifndef CHILD_BLOCK_H
 #define CHILD_BLOCK_H
 
-#include "child/language/section.h"
+#include "node/language/section.h"
 
 CHILD_BEGIN
 

@@ -2,12 +2,10 @@
 
 //#define CHILD_CATCH_EXCEPTIONS
 
-#include "child.h"
-#include "child/node.h"
-#include "child/exception.h"
+#include "node.h"
 //#include "tests/runalltests.h"
-#include "child/application.h"
-#include "child/language/interpreter.h"
+//#include "node/application.h"
+//#include "node/language/interpreter.h"
 
 CHILD_USE
 

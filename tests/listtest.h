@@ -1,8 +1,8 @@
 #ifndef CHILD_LIST_TEST_H
 #define CHILD_LIST_TEST_H
 
-#include "child/text.h"
-#include "child/list.h"
+#include "node/text.h"
+#include "node/list.h"
 
 #include "tests/testbegin.h"
 

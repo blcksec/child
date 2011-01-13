@@ -1,8 +1,24 @@
 #include <QtCore/QFile>
 
-#include "child/exception.h"
+#include "global.h"
+#include "node/exception.h"
+#include "node/language/interpreter.h"
 
 CHILD_BEGIN
+
+void init() {
+    Interpreter *interpreter = Interpreter::root();
+    QString path = "../child/node";
+    foreach(Node *root, Node::roots()) {
+        QString childFile = path + "/" + root->className().toLower() + ".child";
+        if(QFileInfo(childFile).exists()) {
+            interpreter->loadSourceCode(childFile)->run();
+        }
+    }
+    interpreter->testSuite()->run();
+    P(QString("All tests passed (%1 sections, %2 assertions)").
+      arg(interpreter->testSuite()->size()).arg(Node::passedAssertionCount()));
+}
 
 QString readTextFile(const QString &name) {
     QFile file(name);

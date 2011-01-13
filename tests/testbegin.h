@@ -3,7 +3,7 @@
 
 #include <QtTest/QtTest>
 
-#include "child/exception.h"
+#include "node/exception.h"
 
 #define QCATCH(EXPRESSION, EXCEPTION) \
 do { \

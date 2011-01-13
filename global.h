@@ -41,6 +41,8 @@ throwConversionException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 typedef long long int HugeInteger;
 typedef unsigned long long int HugeUnsignedInteger;
 
+void init();
+
 QString readTextFile(const QString &name);
 QString concatenateStrings(const QString &first, const QString &separator, const QString &second);
 QString escapeTabsAndNewlines(QString text);

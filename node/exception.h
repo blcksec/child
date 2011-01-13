@@ -1,7 +1,7 @@
 #ifndef CHILD_EXCEPTION_H
 #define CHILD_EXCEPTION_H
 
-#include "child/node.h"
+#include "node.h"
 
 CHILD_BEGIN
 

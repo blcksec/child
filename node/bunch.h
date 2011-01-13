@@ -1,7 +1,7 @@
 #ifndef CHILD_BUNCH_H
 #define CHILD_BUNCH_H
 
-#include "child/list.h"
+#include "node/list.h"
 
 CHILD_BEGIN
 

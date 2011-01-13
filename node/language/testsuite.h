@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_TEST_SUITE_H
 #define CHILD_LANGUAGE_TEST_SUITE_H
 
-#include "child/list.h"
-#include "child/language/test.h"
+#include "node/list.h"
+#include "node/language/test.h"
 
 CHILD_BEGIN
 

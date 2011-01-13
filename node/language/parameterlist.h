@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_PARAMETER_LIST_H
 #define CHILD_LANGUAGE_PARAMETER_LIST_H
 
-#include "child/list.h"
-#include "child/language/parameter.h"
+#include "node/list.h"
+#include "node/language/parameter.h"
 
 CHILD_BEGIN
 

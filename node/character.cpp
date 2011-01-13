@@ -1,4 +1,4 @@
-#include "child/character.h"
+#include "node/character.h"
 
 CHILD_BEGIN
 

@@ -1,9 +1,9 @@
 #ifndef CHILD_LANGUAGE_SOURCE_CODE_H
 #define CHILD_LANGUAGE_SOURCE_CODE_H
 
-#include "child/text.h"
-#include "child/block.h"
-#include "child/language/parser.h"
+#include "node/text.h"
+#include "node/block.h"
+#include "node/language/parser.h"
 
 CHILD_BEGIN
 

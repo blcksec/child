@@ -1,7 +1,7 @@
 #ifndef CHILD_PAIR_H
 #define CHILD_PAIR_H
 
-#include "child/object.h"
+#include "node/object.h"
 
 CHILD_BEGIN
 

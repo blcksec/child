@@ -1,9 +1,9 @@
 #ifndef CHILD_CONTROL_FLOW_H
 #define CHILD_CONTROL_FLOW_H
 
-#include "child/node.h"
-#include "child/exception.h"
-#include "child/nativemethod.h"
+#include "node.h"
+#include "node/exception.h"
+#include "node/nativemethod.h"
 
 CHILD_BEGIN
 

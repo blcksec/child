@@ -1,5 +1,5 @@
-#include "child/nativemethod.h"
-#include "child/message.h"
+#include "node/nativemethod.h"
+#include "node/message.h"
 
 CHILD_BEGIN
 

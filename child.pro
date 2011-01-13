@@ -15,97 +15,95 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    child.cpp \
-    child/global.cpp \
-    child/node.cpp \
-    child/exception.cpp \
+    node/exception.cpp \
     tests/nodetest.cpp \
-    child/nativemethod.cpp \
-    child/object.cpp \
+    node/nativemethod.cpp \
+    node/object.cpp \
     tests/objecttest.cpp \
-    child/element.cpp \
-    child/boolean.cpp \
-    child/number.cpp \
-    child/character.cpp \
-    child/text.cpp \
+    node/element.cpp \
+    node/boolean.cpp \
+    node/number.cpp \
+    node/character.cpp \
+    node/text.cpp \
     tests/texttest.cpp \
-    child/pair.cpp \
-    child/list.cpp \
+    node/pair.cpp \
+    node/list.cpp \
     tests/listtest.cpp \
-    child/bunch.cpp \
-    child/dictionary.cpp \
+    node/bunch.cpp \
+    node/dictionary.cpp \
     tests/dictionarytest.cpp \
-    child/block.cpp \
-    child/method.cpp \
-    child/message.cpp \
-    child/controlflow.cpp \
-    child/application.cpp \
-    child/language.cpp \
-    child/language/token.cpp \
-    child/language/operator.cpp \
-    child/language/operatortable.cpp \
-    child/language/primitive.cpp \
-    child/language/argument.cpp \
-    child/language/argumentbunch.cpp \
-    child/language/parameter.cpp \
-    child/language/parameterlist.cpp \
-    child/language/section.cpp \
-    child/language/sourcecode.cpp \
-    child/language/sourcecodedictionary.cpp \
-    child/language/test.cpp \
-    child/language/testsuite.cpp \
-    child/language/lexer.cpp \
-    child/language/parser.cpp \
-    child/language/interpreter.cpp \
-    child/property.cpp
+    node/block.cpp \
+    node/method.cpp \
+    node/message.cpp \
+    node/controlflow.cpp \
+    node/application.cpp \
+    node/language.cpp \
+    node/language/token.cpp \
+    node/language/operator.cpp \
+    node/language/operatortable.cpp \
+    node/language/primitive.cpp \
+    node/language/argument.cpp \
+    node/language/argumentbunch.cpp \
+    node/language/parameter.cpp \
+    node/language/parameterlist.cpp \
+    node/language/section.cpp \
+    node/language/sourcecode.cpp \
+    node/language/sourcecodedictionary.cpp \
+    node/language/test.cpp \
+    node/language/testsuite.cpp \
+    node/language/lexer.cpp \
+    node/language/parser.cpp \
+    node/language/interpreter.cpp \
+    node/property.cpp \
+    node.cpp \
+    global.cpp
 
 HEADERS += \
-    child.h \
-    child/global.h \
-    child/node.h \
-    child/exception.h \
+    node/exception.h \
     tests/testbegin.h \
     tests/testend.h \
     tests/runalltests.h \
     tests/nodetest.h \
-    child/nativemethod.h \
-    child/object.h \
+    node/nativemethod.h \
+    node/object.h \
     tests/objecttest.h \
-    child/element.h \
-    child/boolean.h \
-    child/number.h \
-    child/character.h \
-    child/text.h \
+    node/element.h \
+    node/boolean.h \
+    node/number.h \
+    node/character.h \
+    node/text.h \
     tests/texttest.h \
-    child/pair.h \
-    child/list.h \
+    node/pair.h \
+    node/list.h \
     tests/listtest.h \
-    child/bunch.h \
-    child/dictionary.h \
+    node/bunch.h \
+    node/dictionary.h \
     tests/dictionarytest.h \
-    child/block.h \
-    child/method.h \
-    child/message.h \
-    child/controlflow.h \
-    child/application.h \
-    child/language.h \
-    child/language/token.h \
-    child/language/operator.h \
-    child/language/operatortable.h \
-    child/language/primitive.h \
-    child/language/argument.h \
-    child/language/argumentbunch.h \
-    child/language/parameter.h \
-    child/language/parameterlist.h \
-    child/language/section.h \
-    child/language/sourcecode.h \
-    child/language/sourcecodedictionary.h \
-    child/language/test.h \
-    child/language/testsuite.h \
-    child/language/lexer.h \
-    child/language/parser.h \
-    child/language/interpreter.h \
-    child/property.h
+    node/block.h \
+    node/method.h \
+    node/message.h \
+    node/controlflow.h \
+    node/application.h \
+    node/language.h \
+    node/language/token.h \
+    node/language/operator.h \
+    node/language/operatortable.h \
+    node/language/primitive.h \
+    node/language/argument.h \
+    node/language/argumentbunch.h \
+    node/language/parameter.h \
+    node/language/parameterlist.h \
+    node/language/section.h \
+    node/language/sourcecode.h \
+    node/language/sourcecodedictionary.h \
+    node/language/test.h \
+    node/language/testsuite.h \
+    node/language/lexer.h \
+    node/language/parser.h \
+    node/language/interpreter.h \
+    node/property.h \
+    node.h \
+    global.h
 
 OTHER_FILES += \
     notes/ideas.txt \
@@ -118,6 +116,6 @@ OTHER_FILES += \
     notes/specification.txt \
     examples/test.child \
     notes/features.txt \
-    child/node.child \
-    child/exception.child \
-    child/object.child
+    node/node.child \
+    node/exception.child \
+    node/object.child

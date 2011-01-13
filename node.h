@@ -4,7 +4,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QStack>
 
-#include "child/global.h"
+#include "global.h"
 
 CHILD_BEGIN
 
