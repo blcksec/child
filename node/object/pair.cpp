@@ -1,11 +1,10 @@
-#include "node/pair.h"
+#include "node/object/pair.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Pair, Object);
+CHILD_DEFINE(Pair, Object, Object);
 
 void Pair::initRoot() {
-    Object::root()->addChild("Pair", this);
 }
 
 CHILD_END

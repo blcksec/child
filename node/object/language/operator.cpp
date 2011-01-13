@@ -1,12 +1,11 @@
-#include "node/language/operator.h"
+#include "node/object/language/operator.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Operator, Object);
+    CHILD_DEFINE(Operator, Object, Language);
 
     void Operator::initRoot() {
-        Language::root()->addChild("Operator", this);
     }
 }
 

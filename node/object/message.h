@@ -1,7 +1,7 @@
 #ifndef CHILD_MESSAGE_H
 #define CHILD_MESSAGE_H
 
-#include "node/language/argumentbunch.h"
+#include "node/object/language/argumentbunch.h"
 
 CHILD_BEGIN
 
@@ -9,7 +9,7 @@ CHILD_BEGIN
 (new Message(Node::context()->child("Object", "Message"), ##ARGS))
 
 class Message : public Object {
-    CHILD_DECLARE(Message, Object);
+    CHILD_DECLARE(Message, Object, Object);
 public:
     explicit Message(Node *origin, const QString &name = "", ArgumentBunch *inputs = NULL, ArgumentBunch *outputs = NULL,
                      bool isEscaped = false, bool isParented = false, bool isVariadic = false, const QString &codeInputName = "") :
@@ -129,7 +129,7 @@ public:
     #define CHILD_MESSAGE_SENDING(ARGS...) new Message::Sending(Node::context()->child("Message", "Sending"), ##ARGS)
 
     class Sending : public Node {
-        CHILD_DECLARE(Sending, Node);
+        CHILD_DECLARE(Sending, Node, Message);
     public:
         explicit Sending(Node *origin, Message *message = NULL, Node *receiver = NULL) :
             Node(origin), _message(message), _receiver(receiver) {}

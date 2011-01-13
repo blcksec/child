@@ -74,8 +74,11 @@ public:
     inline static Node *constCast(const Node *node) { return const_cast<Node *>(node); }
 
     static Node *root();
-    virtual const QString className() const { return "Node"; }
     virtual void initRoot();
+
+    const QString className() const;
+    void setClassName(const QString &name);
+    const QString classPath() const;
 
     CHILD_FORK_METHOD(Node);
     virtual void initFork() {}
@@ -237,9 +240,20 @@ public:
 
     virtual uint hash() const { return ::qHash(this); }
 
-    static QList<Node *> &roots() {
-        static QList<Node *> _roots;
+    class Root {
+    public:
+        Root(Node *node = NULL, const QString &name = "") : node(node), name(name) {}
+        Node *node;
+        QString name;
+    };
+
+    static QList<Root> &roots() {
+        static QList<Root> _roots;
         return _roots;
+    }
+
+    static void registerRoot(Node *root, const QString &name) {
+        roots().append(Root(root, name));
     }
 
     static Node *context() {
@@ -302,7 +316,7 @@ inline bool operator==(const Node::Reference &a, const Node::Reference &b) { ret
 inline bool operator!=(const Node::Reference &a, const Node::Reference &b) { return !a->isEqualTo(b); }
 inline uint qHash(const Node::Reference &node) { return node->hash(); }
 
-#define CHILD_DECLARE(NAME, ORIGIN) \
+#define CHILD_DECLARE(NAME, ORIGIN, PARENT) \
 public: \
     inline static NAME *cast(Node *node) { return static_cast<NAME *>(node); } \
     inline static const NAME *cast(const Node *node) { return static_cast<const NAME *>(node); } \
@@ -311,18 +325,18 @@ public: \
     inline static NAME *constCast(const NAME *node) { return const_cast<NAME *>(node); } \
     static NAME *root(); \
     virtual void initRoot(); \
-    virtual const QString className() const { return #NAME; } \
     static const bool isInitialized; \
 private:
 
-#define CHILD_DEFINE(NAME, ORIGIN) \
+#define CHILD_DEFINE(NAME, ORIGIN, PARENT) \
 const bool NAME::isInitialized = NAME::root(); \
 NAME *NAME::root() { \
     static NAME *_root = NULL; \
     if(!_root) { \
         _root = new NAME(ORIGIN::root()); \
+        PARENT::root()->addChild(#NAME, _root); \
         _root->initRoot(); \
-        roots().append(_root); \
+        registerRoot(_root, #NAME); \
     } \
     return _root; \
 }

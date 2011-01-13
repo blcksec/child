@@ -1,11 +1,11 @@
 #ifndef CHILD_LANGUAGE_INTERPRETER_H
 #define CHILD_LANGUAGE_INTERPRETER_H
 
-#include "node/language/operatortable.h"
-#include "node/language/lexer.h"
-#include "node/language/parser.h"
-#include "node/language/sourcecodedictionary.h"
-#include "node/language/testsuite.h"
+#include "node/object/language/operatortable.h"
+#include "node/object/language/lexer.h"
+#include "node/object/language/parser.h"
+#include "node/object/language/sourcecodedictionary.h"
+#include "node/object/language/testsuite.h"
 
 CHILD_BEGIN
 
@@ -14,7 +14,7 @@ namespace Language {
     new Interpreter(Node::context()->child("Object", "Language", "Interpreter"), ##ARGS)
 
     class Interpreter : public Object {
-        CHILD_DECLARE(Interpreter, Object);
+        CHILD_DECLARE(Interpreter, Object, Language);
     public:
         explicit Interpreter(Node *origin) :
             Object(origin), _operatorTable(NULL), _lexer(NULL), _parser(NULL), _sourceCodes(NULL) {}

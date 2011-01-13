@@ -3,12 +3,13 @@
 #include "node.h"
 #include "node/exception.h"
 #include "node/nativemethod.h"
-#include "node/boolean.h"
-#include "node/number.h"
-#include "node/message.h"
-#include "node/block.h"
-#include "node/method.h"
-#include "node/property.h"
+#include "node/object/boolean.h"
+#include "node/object/number.h"
+#include "node/object/text.h"
+#include "node/object/message.h"
+#include "node/object/block.h"
+#include "node/object/method.h"
+#include "node/object/property.h"
 
 CHILD_BEGIN
 
@@ -28,16 +29,15 @@ Node *Node::root() {
     if(!_root) {
         _root = new Node(NULL);
         _root->setOrigin(_root);
+        _root->addChild("Node", _root);
         _root->initRoot();
-        roots().append(_root);
+        registerRoot(_root, "Node");
     }
     return _root;
 }
 
 void Node::initRoot() {
     pushContext(this);
-
-    addChild("Node", this);
 
     CHILD_NATIVE_METHOD_ADD(Node, self);
 
@@ -69,6 +69,25 @@ void Node::initRoot() {
     CHILD_NATIVE_METHOD_ADD(Node, inspect);
 
     CHILD_NATIVE_METHOD_ADD(Node, memory_address);
+}
+
+const QString Node::className() const {
+    return child("__name__")->toString();
+}
+
+void Node::setClassName(const QString &name) {
+    addOrSetChild("__name__", CHILD_TEXT(name));
+}
+
+const QString Node::classPath() const {
+    QString path;
+    const Node *cur = this;
+    const Node *par;
+    while((par = cur->parent()) != cur) {
+        path.prepend(par->className().toLower() + "/");
+        cur = par;
+    }
+    return path;
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, self) {

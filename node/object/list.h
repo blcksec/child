@@ -179,7 +179,7 @@ public:
 #define CHILD_LIST(ARGS...) new List(Node::context()->child("Object", "List"), ##ARGS)
 
 class List : public GenericList<Node *> {
-    CHILD_DECLARE(List, Object);
+    CHILD_DECLARE(List, Object, Object);
 public:
     explicit List(Node *origin, const QList<Node *> &other = QList<Node *>()) :
         GenericList<Node *>(origin, other) {}

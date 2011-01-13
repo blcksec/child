@@ -1,12 +1,11 @@
-#include "node/language/lexer.h"
+#include "node/object/language/lexer.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Lexer, Object);
+    CHILD_DEFINE(Lexer, Object, Language);
 
     void Lexer::initRoot() {
-        Language::root()->addChild("Lexer", this);
     }
 
     OperatorTable *Lexer::operatorTable() const {

@@ -1,17 +1,17 @@
 #ifndef CHILD_CHARACTER_H
 #define CHILD_CHARACTER_H
 
-#include "node/element.h"
-#include "node/boolean.h"
-#include "node/number.h"
-#include "node/message.h"
+#include "node/object/element.h"
+#include "node/object/boolean.h"
+#include "node/object/number.h"
+#include "node/object/message.h"
 
 CHILD_BEGIN
 
 #define CHILD_CHARACTER(ARGS...) new Character(Node::context()->child("Object", "Character"), ##ARGS)
 
 class Character : public GenericElement<QChar> {
-    CHILD_DECLARE(Character, Element);
+    CHILD_DECLARE(Character, Element, Object);
 public:
     explicit Character(Node *origin, const QChar &value = QChar::Null) :
         GenericElement<QChar>(origin, value) {}

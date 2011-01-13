@@ -11,7 +11,7 @@ CHILD_BEGIN
 #define CHILD_OBJECT(ARGS...) new Object(Node::context()->child("Object"), ##ARGS)
 
 class Object : public Node {
-    CHILD_DECLARE(Object, Node);
+    CHILD_DECLARE(Object, Node, Node);
 public:
     explicit Object(Node *origin) : Node(origin) {}
 

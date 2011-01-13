@@ -1,11 +1,10 @@
-#include "node/dictionary.h"
+#include "node/object/dictionary.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Dictionary, Object);
+CHILD_DEFINE(Dictionary, Object, Object);
 
 void Dictionary::initRoot() {
-    Object::root()->addChild("Dictionary", this);
 }
 
 CHILD_END

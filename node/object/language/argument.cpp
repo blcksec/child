@@ -1,13 +1,12 @@
-#include "node/message.h"
-#include "node/language/argument.h"
+#include "node/object/message.h"
+#include "node/object/language/argument.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Argument, Pair);
+    CHILD_DEFINE(Argument, Pair, Language);
 
     void Argument::initRoot() {
-        Language::root()->addChild("Argument", this);
     }
 
     QString Argument::labelName() const {

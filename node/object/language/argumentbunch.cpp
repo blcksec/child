@@ -1,12 +1,11 @@
-#include "node/language/argumentbunch.h"
+#include "node/object/language/argumentbunch.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(ArgumentBunch, Bunch);
+    CHILD_DEFINE(ArgumentBunch, Bunch, Language);
 
     void ArgumentBunch::initRoot() {
-        Language::root()->addChild("ArgumentBunch", this);
     }
 
     void ArgumentBunch::append(Primitive *value) {

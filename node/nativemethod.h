@@ -19,7 +19,7 @@ addOrSetChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
 typedef Node *(Node::*_MethodPointer_)(Message *, Language::Primitive *);
 
 class NativeMethod : public Node {
-    CHILD_DECLARE(NativeMethod, Node);
+    CHILD_DECLARE(NativeMethod, Node, Node);
 public:
     explicit NativeMethod(Node *origin, const _MethodPointer_ &method = NULL, const QString &codeInputName = "") :
         Node(origin), _method(method), _codeInputName(codeInputName) {}

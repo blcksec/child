@@ -1,7 +1,7 @@
 #ifndef CHILD_LANGUAGE_TOKEN_H
 #define CHILD_LANGUAGE_TOKEN_H
 
-#include "node/language.h"
+#include "node/object/language.h"
 
 CHILD_BEGIN
 
@@ -10,7 +10,7 @@ namespace Language {
     new Language::Token(Node::context()->child("Object", "Language", "Token"), ##ARGS)
 
     class Token : public Object {
-        CHILD_DECLARE(Token, Object);
+        CHILD_DECLARE(Token, Object, Language);
     public:
         enum Type {
             Null,

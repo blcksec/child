@@ -9,7 +9,7 @@ CHILD_BEGIN
 new Application(Node::context()->child("Object", "Application"), ##ARGS)
 
 class Application : public Object {
-    CHILD_DECLARE(Application, Object);
+    CHILD_DECLARE(Application, Object, Object);
 public:
     explicit Application(Node *origin) : Object(origin) {}
 

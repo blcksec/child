@@ -1,7 +1,7 @@
 #ifndef CHILD_BLOCK_H
 #define CHILD_BLOCK_H
 
-#include "node/language/section.h"
+#include "node/object/language/section.h"
 
 CHILD_BEGIN
 
@@ -9,7 +9,7 @@ CHILD_BEGIN
 new Block(Node::context()->child("Object", "Block"), ##ARGS)
 
 class Block : public GenericList<Section *> {
-    CHILD_DECLARE(Block, List);
+    CHILD_DECLARE(Block, List, Object);
 public:
     explicit Block(Node *origin) : GenericList<Section *>(origin),
         _doc(NULL), _docIsCached(false), _body(NULL), _bodyIsCached(false),

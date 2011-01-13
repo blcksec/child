@@ -1,17 +1,17 @@
 #ifndef CHILD_TEXT_H
 #define CHILD_TEXT_H
 
-#include "node/element.h"
-#include "node/boolean.h"
-#include "node/number.h"
-#include "node/message.h"
+#include "node/object/element.h"
+#include "node/object/boolean.h"
+#include "node/object/number.h"
+#include "node/object/message.h"
 
 CHILD_BEGIN
 
 #define CHILD_TEXT(ARGS...) new Text(Node::context()->child("Object", "Text"), ##ARGS)
 
 class Text : public GenericElement<QString> {
-    CHILD_DECLARE(Text, Element);
+    CHILD_DECLARE(Text, Element, Object);
 public:
     explicit Text(Node *origin, const QString &value = "") : GenericElement<QString>(origin, value) {}
 

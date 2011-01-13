@@ -23,7 +23,7 @@ private:
 #define CHILD_ELEMENT(ARGS...) new Element(Node::context()->child("Object", "Element"), ##ARGS)
 
 class Element : public GenericElement<Node *> {
-    CHILD_DECLARE(Element, Object);
+    CHILD_DECLARE(Element, Object, Object);
 public:
     explicit Element(Node *origin, Node *value = NULL) :
         GenericElement<Node *>(origin, value) {}

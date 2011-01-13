@@ -1,13 +1,12 @@
-#include "node/block.h"
-#include "node/message.h"
-#include "node/language/testsuite.h"
+#include "node/object/block.h"
+#include "node/object/message.h"
+#include "node/object/language/testsuite.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Block, List);
+CHILD_DEFINE(Block, List, Object);
 
 void Block::initRoot() {
-    Object::root()->addChild("Block", this);
 }
 
 Node *Block::run(Node *receiver) {

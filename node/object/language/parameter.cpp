@@ -1,12 +1,11 @@
-#include "node/language/parameter.h"
+#include "node/object/language/parameter.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Parameter, Pair);
+    CHILD_DEFINE(Parameter, Pair, Language);
 
     void Parameter::initRoot() {
-        Language::root()->addChild("Parameter", this);
     }
 
     QString Parameter::toString(bool debug, short level) const {

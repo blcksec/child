@@ -1,4 +1,4 @@
-#include "node/language.h"
+#include "node/object/language.h"
 
 CHILD_BEGIN
 
@@ -8,6 +8,7 @@ namespace Language {
         if(!_root) {
             _root = Object::root()->fork();
             Object::root()->addChild("Language", _root);
+            Node::registerRoot(_root, "Language");
         }
         return _root;
     }

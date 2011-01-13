@@ -1,12 +1,10 @@
-#include "node/text.h"
+#include "node/object/text.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Text, Element);
+CHILD_DEFINE(Text, Element, Object);
 
 void Text::initRoot() {
-    Object::root()->addChild("Text", this);
-
     CHILD_NATIVE_METHOD_ADD(Text, init);
     CHILD_NATIVE_METHOD_ADD(Text, concatenate, +);
     CHILD_NATIVE_METHOD_ADD(Text, multiply, *);

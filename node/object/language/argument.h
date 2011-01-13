@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_ARGUMENT_H
 #define CHILD_LANGUAGE_ARGUMENT_H
 
-#include "node/pair.h"
-#include "node/language/primitive.h"
+#include "node/object/pair.h"
+#include "node/object/language/primitive.h"
 
 CHILD_BEGIN
 
@@ -11,7 +11,7 @@ namespace Language {
     new Language::Argument(Node::context()->child("Object", "Language", "Argument"), ##ARGS)
 
     class Argument : public GenericPair<Primitive *, Primitive *> {
-        CHILD_DECLARE(Argument, Pair);
+        CHILD_DECLARE(Argument, Pair, Language);
     public:
         explicit Argument(Node *origin) :
             GenericPair<Primitive *, Primitive *>(origin) {}

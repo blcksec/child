@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_PARAMETER_LIST_H
 #define CHILD_LANGUAGE_PARAMETER_LIST_H
 
-#include "node/list.h"
-#include "node/language/parameter.h"
+#include "node/object/list.h"
+#include "node/object/language/parameter.h"
 
 CHILD_BEGIN
 
@@ -11,7 +11,7 @@ namespace Language {
     new Language::ParameterList(Node::context()->child("Object", "Language", "ParameterList"), ##ARGS)
 
     class ParameterList : public GenericList<Parameter *> {
-        CHILD_DECLARE(ParameterList, List);
+        CHILD_DECLARE(ParameterList, List, Language);
     public:
         explicit ParameterList(Node *origin) : GenericList<Parameter *>(origin) {}
 

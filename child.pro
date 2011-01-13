@@ -19,6 +19,7 @@ SOURCES += main.cpp \
     global.cpp \
     node/exception.cpp \
     node/nativemethod.cpp \
+    node/controlflow.cpp \
     node/object.cpp \
     node/object/property.cpp \
     node/object/element.cpp \
@@ -33,7 +34,6 @@ SOURCES += main.cpp \
     node/object/block.cpp \
     node/object/method.cpp \
     node/object/message.cpp \
-    node/object/controlflow.cpp \
     node/object/application.cpp \
     node/object/language.cpp \
     node/object/language/token.cpp \
@@ -63,6 +63,7 @@ HEADERS += \
     global.h \
     node/exception.h \
     node/nativemethod.h \
+    node/controlflow.h \
     node/object.h \
     node/object/property.h \
     node/object/element.h \
@@ -77,7 +78,6 @@ HEADERS += \
     node/object/block.h \
     node/object/method.h \
     node/object/message.h \
-    node/object/controlflow.h \
     node/object/application.h \
     node/object/language.h \
     node/object/language/token.h \
@@ -118,4 +118,5 @@ OTHER_FILES += \
     examples/lexertest.child \
     node.child \
     node/exception.child \
-    node/object.child
+    node/object.child \
+    node/object/text.child

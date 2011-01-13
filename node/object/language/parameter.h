@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_PARAMETER_H
 #define CHILD_LANGUAGE_PARAMETER_H
 
-#include "node/pair.h"
-#include "node/language/primitive.h"
+#include "node/object/pair.h"
+#include "node/object/language/primitive.h"
 
 CHILD_BEGIN
 
@@ -11,7 +11,7 @@ namespace Language {
     new Language::Parameter(Node::context()->child("Object", "Language", "Parameter"), ##ARGS)
 
     class Parameter : public GenericPair<QString, Primitive *> {
-        CHILD_DECLARE(Parameter, Pair);
+        CHILD_DECLARE(Parameter, Pair, Language);
     public:
         explicit Parameter(Node *origin, const QString &label = NULL, Primitive *defaultValue = NULL,
                            bool isEscaped = false, bool isParented = false) :

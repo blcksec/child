@@ -1,12 +1,11 @@
-#include "node/language/sourcecodedictionary.h"
+#include "node/object/language/sourcecodedictionary.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(SourceCodeDictionary, Dictionary);
+    CHILD_DEFINE(SourceCodeDictionary, Dictionary, Language);
 
     void SourceCodeDictionary::initRoot() {
-        Language::root()->addChild("SourceCodeDictionary", this);
     }
 }
 

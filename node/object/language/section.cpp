@@ -1,12 +1,11 @@
-#include "node/language/section.h"
+#include "node/object/language/section.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Section, List);
+    CHILD_DEFINE(Section, List, Language);
 
     void Section::initRoot() {
-        Language::root()->addChild("Section", this);
     }
 
     Node *Section::run(Node *receiver) {

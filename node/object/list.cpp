@@ -1,11 +1,10 @@
-#include "node/list.h"
+#include "node/object/list.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(List, Object);
+CHILD_DEFINE(List, Object, Object);
 
 void List::initRoot() {
-    Object::root()->addChild("List", this);
 }
 
 CHILD_END

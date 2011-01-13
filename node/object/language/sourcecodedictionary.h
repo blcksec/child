@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_SOURCE_CODE_DICTIONARY_H
 #define CHILD_LANGUAGE_SOURCE_CODE_DICTIONARY_H
 
-#include "node/dictionary.h"
-#include "node/language/sourcecode.h"
+#include "node/object/dictionary.h"
+#include "node/object/language/sourcecode.h"
 
 CHILD_BEGIN
 
@@ -11,7 +11,7 @@ namespace Language {
     new Language::SourceCodeDictionary(Node::context()->child("Object", "Language", "SourceCodeDictionary"), ##ARGS)
 
     class SourceCodeDictionary : public GenericDictionary<Node::Reference, SourceCode *> {
-        CHILD_DECLARE(SourceCodeDictionary, Dictionary);
+        CHILD_DECLARE(SourceCodeDictionary, Dictionary, Language);
     public:
         SourceCodeDictionary(Node *origin) :
             GenericDictionary<Node::Reference, SourceCode *>(origin) {}

@@ -1,7 +1,7 @@
 #ifndef CHILD_TEXT_TEST_H
 #define CHILD_TEXT_TEST_H
 
-#include "node/text.h"
+#include "node/object/text.h"
 
 #include "tests/testbegin.h"
 

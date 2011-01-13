@@ -1,14 +1,14 @@
 #ifndef CHILD_BUNCH_H
 #define CHILD_BUNCH_H
 
-#include "node/list.h"
+#include "node/object/list.h"
 
 CHILD_BEGIN
 
 #define CHILD_BUNCH(ARGS...) new Bunch(Node::context()->child("Object", "Bunch"), ##ARGS)
 
 class Bunch : public GenericList<Node *> {
-    CHILD_DECLARE(Bunch, List);
+    CHILD_DECLARE(Bunch, List, Object);
 public:
     explicit Bunch(Node *origin) : GenericList<Node *>(origin, true) {}
 

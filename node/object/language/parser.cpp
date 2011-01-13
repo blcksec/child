@@ -1,12 +1,11 @@
-#include "node/language/parser.h"
+#include "node/object/language/parser.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Parser, Object);
+    CHILD_DEFINE(Parser, Object, Language);
 
     void Parser::initRoot() {
-        Language::root()->addChild("Parser", this);
     }
 
     Lexer *Parser::lexer() const {

@@ -1,15 +1,13 @@
 #include "node/controlflow.h"
-#include "node/boolean.h"
-#include "node/message.h"
-#include "node/block.h"
+#include "node/object/boolean.h"
+#include "node/object/message.h"
+#include "node/object/block.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(ControlFlow, Node);
+CHILD_DEFINE(ControlFlow, Node, Node);
 
 void ControlFlow::initRoot() {
-    Node::root()->addChild("ControlFlow", this);
-
     CHILD_NATIVE_METHOD_ADD(ControlFlow, if);
     CHILD_NATIVE_METHOD_ADD(ControlFlow, unless);
 

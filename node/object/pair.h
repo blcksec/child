@@ -29,7 +29,7 @@ private:
 #define CHILD_PAIR(ARGS...) new Pair(Node::context()->child("Object", "Pair"), ##ARGS)
 
 class Pair : public GenericPair<Node *, Node *> {
-    CHILD_DECLARE(Pair, Object);
+    CHILD_DECLARE(Pair, Object, Object);
 public:
     explicit Pair(Node *origin, Node *first = NULL, Node *second = NULL) :
         GenericPair<Node *, Node *>(origin, first, second) {}

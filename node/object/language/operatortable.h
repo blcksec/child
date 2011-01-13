@@ -3,8 +3,8 @@
 
 #include <QtCore/QSet>
 
-#include "node/list.h"
-#include "node/language/operator.h"
+#include "node/object/list.h"
+#include "node/object/language/operator.h"
 
 CHILD_BEGIN
 
@@ -13,7 +13,7 @@ namespace Language {
     new Language::OperatorTable(Node::context()->child("Object", "Language", "OperatorTable"), ##ARGS)
 
     class OperatorTable : public GenericList<Operator *> {
-        CHILD_DECLARE(OperatorTable, List);
+        CHILD_DECLARE(OperatorTable, List, Language);
     public:
         explicit OperatorTable(Node *origin) : GenericList<Operator *>(origin) {}
 

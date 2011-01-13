@@ -1,9 +1,9 @@
-#include "node/language/sourcecode.h"
+#include "node/object/language/sourcecode.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(SourceCode, Object);
+    CHILD_DEFINE(SourceCode, Object, Language);
 
     SourceCode::SourceCode(Node *origin, const QString &url,
                const QString &txt, Block *block) :
@@ -12,7 +12,6 @@ namespace Language {
     }
 
     void SourceCode::initRoot() {
-        Language::root()->addChild("SourceCode", this);
     }
 
     void SourceCode::load(const QString &newUrl) {

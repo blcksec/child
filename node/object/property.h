@@ -9,7 +9,7 @@ CHILD_BEGIN
 new Property(Node::context()->child("Object", "Property"), ##ARGS)
 
 class Property : public Object {
-    CHILD_DECLARE(Property, Object);
+    CHILD_DECLARE(Property, Object, Object);
 public:
     explicit Property(Node *origin) : Object(origin) {}
 

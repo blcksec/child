@@ -1,15 +1,15 @@
 #ifndef CHILD_BOOLEAN_H
 #define CHILD_BOOLEAN_H
 
-#include "node/element.h"
-#include "node/message.h"
+#include "node/object/element.h"
+#include "node/object/message.h"
 
 CHILD_BEGIN
 
 #define CHILD_BOOLEAN(ARGS...) new Boolean(Node::context()->child("Object", "Boolean"), ##ARGS)
 
 class Boolean : public GenericElement<bool> {
-    CHILD_DECLARE(Boolean, Element);
+    CHILD_DECLARE(Boolean, Element, Object);
 public:
     explicit Boolean(Node *origin, const bool value = false) : GenericElement<bool>(origin, value) {}
 

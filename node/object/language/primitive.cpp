@@ -1,12 +1,11 @@
-#include "node/language/primitive.h"
+#include "node/object/language/primitive.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Primitive, Element);
+    CHILD_DEFINE(Primitive, Element, Language);
 
     void Primitive::initRoot() {
-        Language::root()->addChild("Primitive", this);
     }
 
     Primitive *Primitive::setNext(Primitive *next) {

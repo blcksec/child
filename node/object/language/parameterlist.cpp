@@ -1,12 +1,11 @@
-#include "node/language/parameterlist.h"
+#include "node/object/language/parameterlist.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(ParameterList, List);
+    CHILD_DEFINE(ParameterList, List, Language);
 
     void ParameterList::initRoot() {
-        Language::root()->addChild("ParameterList", this);
     }
 
     void ParameterList::hasChanged() {

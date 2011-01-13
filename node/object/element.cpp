@@ -1,11 +1,10 @@
-#include "node/element.h"
+#include "node/object/element.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Element, Object);
+CHILD_DEFINE(Element, Object, Object);
 
 void Element::initRoot() {
-    Object::root()->addChild("Element", this);
 }
 
 CHILD_END

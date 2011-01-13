@@ -1,12 +1,11 @@
-#include "node/language/testsuite.h"
+#include "node/object/language/testsuite.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(TestSuite, List);
+    CHILD_DEFINE(TestSuite, List, Language);
 
     void TestSuite::initRoot() {
-        Language::root()->addChild("TestSuite", this);
     }
 
     Node *TestSuite::run(Node *receiver) {

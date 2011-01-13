@@ -1,12 +1,11 @@
-#include "node/language/operatortable.h"
+#include "node/object/language/operatortable.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(OperatorTable, List);
+    CHILD_DEFINE(OperatorTable, List, Language);
 
     void OperatorTable::initRoot() {
-        Language::root()->addChild("OperatorTable", this);
     }
 
     void OperatorTable::hasChanged() {

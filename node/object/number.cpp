@@ -1,12 +1,10 @@
-#include "node/number.h"
+#include "node/object/number.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Number, Element);
+CHILD_DEFINE(Number, Element, Object);
 
 void Number::initRoot() {
-    Object::root()->addChild("Number", this);
-
     CHILD_NATIVE_METHOD_ADD(Number, add, +);
     CHILD_NATIVE_METHOD_ADD(Number, subtract, -);
     CHILD_NATIVE_METHOD_ADD(Number, multiply, *);

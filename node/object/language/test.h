@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_TEST_H
 #define CHILD_LANGUAGE_TEST_H
 
-#include "node/element.h"
-#include "node/language/section.h"
+#include "node/object/element.h"
+#include "node/object/language/section.h"
 
 CHILD_BEGIN
 
@@ -11,7 +11,7 @@ namespace Language {
     new Language::Test(Node::context()->child("Object", "Language", "Test"), ##ARGS)
 
     class Test : public GenericElement<Section *> {
-        CHILD_DECLARE(Test, Element);
+        CHILD_DECLARE(Test, Element, Language);
     public:
         explicit Test(Node *origin, Section *section = NULL, Node *receiver = NULL) :
             GenericElement<Section *>(origin, section), _receiver(receiver) {}

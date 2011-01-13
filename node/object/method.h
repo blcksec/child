@@ -1,17 +1,17 @@
 #ifndef CHILD_METHOD_H
 #define CHILD_METHOD_H
 
-#include "node/element.h"
-#include "node/block.h"
-#include "node/message.h"
-#include "node/language/parameterlist.h"
+#include "node/object/element.h"
+#include "node/object/block.h"
+#include "node/object/message.h"
+#include "node/object/language/parameterlist.h"
 
 CHILD_BEGIN
 
 #define CHILD_METHOD(ARGS...) new Method(Node::context()->child("Object", "Method"), ##ARGS)
 
 class Method : public GenericElement<Block *> {
-    CHILD_DECLARE(Method, Element);
+    CHILD_DECLARE(Method, Element, Object);
 public:
     explicit Method(Node *origin, ParameterList *inputs = NULL, ParameterList *outputs = NULL, Block *block = NULL) :
         GenericElement<Block *>(origin, block), _inputs(inputs), _outputs(outputs) {}

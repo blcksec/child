@@ -1,15 +1,13 @@
 #include "node/object.h"
-#include "node/boolean.h"
-#include "node/number.h"
-#include "node/message.h"
+#include "node/object/boolean.h"
+#include "node/object/number.h"
+#include "node/object/message.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Object, Node);
+CHILD_DEFINE(Object, Node, Node);
 
 void Object::initRoot() {
-    Node::root()->addChild("Object", this);
-
     addExtension(ControlFlow::root());
 
     CHILD_NATIVE_METHOD_ADD(Object, postfix_increment, postfix++);

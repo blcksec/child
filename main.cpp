@@ -4,8 +4,8 @@
 
 #include "node.h"
 //#include "tests/runalltests.h"
-//#include "node/application.h"
-//#include "node/language/interpreter.h"
+//#include "node/object/application.h"
+//#include "node/object/language/interpreter.h"
 
 CHILD_USE
 

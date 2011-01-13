@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_PRIMITIVE_H
 #define CHILD_LANGUAGE_PRIMITIVE_H
 
-#include "node/element.h"
-#include "node/language.h"
+#include "node/object/element.h"
+#include "node/object/language.h"
 
 CHILD_BEGIN
 
@@ -14,7 +14,7 @@ namespace Language {
     if(BASE) BASE->last()->setNext(OTHER); else BASE = (OTHER);
 
     class Primitive : public Element {
-        CHILD_DECLARE(Primitive, Element);
+        CHILD_DECLARE(Primitive, Element, Language);
     public:
         explicit Primitive(Node *origin, Node *value = NULL, const QStringRef &sourceCodeRef = QStringRef(),
                            Primitive *next = NULL) :

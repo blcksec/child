@@ -1,17 +1,15 @@
-#include "node/message.h"
+#include "node/object/message.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Message, Object);
+CHILD_DEFINE(Message, Object, Object);
 
 void Message::initRoot() {
-    Object::root()->addChild("Message", this);
 }
 
-CHILD_DEFINE(Message::Sending, Node);
+CHILD_DEFINE(Message::Sending, Node, Message);
 
 void Message::Sending::initRoot() {
-    Message::root()->addChild("Sending", this);
 }
 
 CHILD_END

@@ -2,15 +2,19 @@
 
 #include "global.h"
 #include "node/exception.h"
-#include "node/language/interpreter.h"
+#include "node/object/language/interpreter.h"
 
 CHILD_BEGIN
 
 void init() {
+    foreach(Node::Root root, Node::roots())
+        root.node->setClassName(root.name);
+
     Interpreter *interpreter = Interpreter::root();
-    QString path = "../child/node";
-    foreach(Node *root, Node::roots()) {
-        QString childFile = path + "/" + root->className().toLower() + ".child";
+    QString path = "../child/";
+    foreach(Node::Root root, Node::roots()) {
+        Node *node = root.node;
+        QString childFile = path + node->classPath() + node->className().toLower() + ".child";
         if(QFileInfo(childFile).exists()) {
             interpreter->loadSourceCode(childFile)->run();
         }

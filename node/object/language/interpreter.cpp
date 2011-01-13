@@ -1,12 +1,11 @@
-#include "node/language/interpreter.h"
+#include "node/object/language/interpreter.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Interpreter, Object);
+    CHILD_DEFINE(Interpreter, Object, Language);
 
     void Interpreter::initRoot() {
-        Language::root()->addChild("Interpreter", this);
         initOperatorTable();
         _lexer = CHILD_LEXER();
         addChild("lexer", _lexer);

@@ -1,12 +1,11 @@
 #include "node/nativemethod.h"
-#include "node/message.h"
+#include "node/object/message.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(NativeMethod, Node);
+CHILD_DEFINE(NativeMethod, Node, Node);
 
 void NativeMethod::initRoot() {
-    Node::root()->addChild("NativeMethod", this);
 }
 
 Node *NativeMethod::run(Node *receiver, Message *message, Primitive *code) {

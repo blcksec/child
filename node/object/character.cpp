@@ -1,11 +1,10 @@
-#include "node/character.h"
+#include "node/object/character.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Character, Element);
+CHILD_DEFINE(Character, Element, Object);
 
 void Character::initRoot() {
-    Object::root()->addChild("Character", this);
     CHILD_NATIVE_METHOD_ADD(Character, equal_to, ==);
     CHILD_NATIVE_METHOD_ADD(Character, compare, <=>);
 }

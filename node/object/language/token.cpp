@@ -1,9 +1,9 @@
-#include "node/language/token.h"
+#include "node/object/language/token.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Token, Object);
+    CHILD_DEFINE(Token, Object, Language);
 
     const char *Token::typeNames[] = {
         "<NULL>",
@@ -25,7 +25,6 @@ namespace Language {
     };
 
     void Token::initRoot() {
-        Language::root()->addChild("Token", this);
     }
 }
 

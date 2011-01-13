@@ -3,16 +3,16 @@
 
 #include <math.h>
 
-#include "node/element.h"
-#include "node/boolean.h"
-#include "node/message.h"
+#include "node/object/element.h"
+#include "node/object/boolean.h"
+#include "node/object/message.h"
 
 CHILD_BEGIN
 
 #define CHILD_NUMBER(ARGS...) new Number(Node::context()->child("Object", "Number"), ##ARGS)
 
 class Number : public GenericElement<double> {
-    CHILD_DECLARE(Number, Element);
+    CHILD_DECLARE(Number, Element, Object);
 public:
     explicit Number(Node *origin, const double value = 0) : GenericElement<double>(origin, value) {}
 

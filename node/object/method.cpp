@@ -1,11 +1,10 @@
-#include "node/method.h"
+#include "node/object/method.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Method, Element);
+CHILD_DEFINE(Method, Element, Object);
 
 void Method::initRoot() {
-    Object::root()->addChild("Method", this);
 }
 
 CHILD_END

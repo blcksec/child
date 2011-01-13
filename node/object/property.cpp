@@ -1,11 +1,10 @@
-#include "node/property.h"
+#include "node/object/property.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Property, Object);
+CHILD_DEFINE(Property, Object, Object);
 
 void Property::initRoot() {
-    Object::root()->addChild("Property", this);
 }
 
 CHILD_END

@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_ARGUMENT_BUNCH_H
 #define CHILD_LANGUAGE_ARGUMENT_BUNCH_H
 
-#include "node/bunch.h"
-#include "node/language/argument.h"
+#include "node/object/bunch.h"
+#include "node/object/language/argument.h"
 
 CHILD_BEGIN
 
@@ -14,7 +14,7 @@ namespace Language {
     ArgumentBunch::checkSpecifiedSize(message->inputs(false) ? message->inputs()->size() : 0, ##ARGS)
 
     class ArgumentBunch : public GenericList<Argument *> {
-        CHILD_DECLARE(ArgumentBunch, Bunch);
+        CHILD_DECLARE(ArgumentBunch, Bunch, Language);
     public:
         explicit ArgumentBunch(Node *origin) : GenericList<Argument *>(origin, true) {}
 

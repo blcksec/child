@@ -14,7 +14,7 @@ throw EXCEPTION(Node::context()->child(#EXCEPTION), MESSAGE, __FILE__, __LINE__,
 CHILD_THROW(Exception, "function not yet implemented")
 
 class Exception : public Node {
-    CHILD_DECLARE(Exception, Node);
+    CHILD_DECLARE(Exception, Node, Node);
 public:
     QString message;
     QString file;
@@ -38,7 +38,7 @@ public:
 
 #define CHILD_EXCEPTION_DECLARATION(NAME, ORIGIN) \
 class NAME : public ORIGIN { \
-    CHILD_DECLARE(NAME, ORIGIN); \
+    CHILD_DECLARE(NAME, ORIGIN, Node); \
 public: \
     explicit NAME(Node *origin, const QString &message = "", const QString &file = "", \
          const int line = 0, const QString &function = "") : \
@@ -47,8 +47,8 @@ public: \
 };
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
-CHILD_DEFINE(NAME, ORIGIN); \
-void NAME::initRoot() { Node::root()->addChild(#NAME, this); }
+CHILD_DEFINE(NAME, ORIGIN, Node); \
+void NAME::initRoot() {}
 
 CHILD_EXCEPTION_DECLARATION(LexerException, Exception);
 CHILD_EXCEPTION_DECLARATION(ParserException, Exception);

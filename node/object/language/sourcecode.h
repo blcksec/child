@@ -1,9 +1,9 @@
 #ifndef CHILD_LANGUAGE_SOURCE_CODE_H
 #define CHILD_LANGUAGE_SOURCE_CODE_H
 
-#include "node/text.h"
-#include "node/block.h"
-#include "node/language/parser.h"
+#include "node/object/text.h"
+#include "node/object/block.h"
+#include "node/object/language/parser.h"
 
 CHILD_BEGIN
 
@@ -12,7 +12,7 @@ namespace Language {
     new Language::SourceCode(Node::context()->child("Object", "Language", "SourceCode"), ##ARGS)
 
     class SourceCode : public Object {
-        CHILD_DECLARE(SourceCode, Object);
+        CHILD_DECLARE(SourceCode, Object, Language);
     public:
         explicit SourceCode(Node *origin, const QString &url = "",
                    const QString &txt = "", Block *block = NULL);

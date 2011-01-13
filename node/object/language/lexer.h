@@ -3,8 +3,8 @@
 
 #include <QtCore/QFileInfo>
 
-#include "node/language/token.h"
-#include "node/language/operatortable.h"
+#include "node/object/language/token.h"
+#include "node/object/language/operatortable.h"
 
 CHILD_BEGIN
 
@@ -13,7 +13,7 @@ namespace Language {
     new Language::Lexer(Node::context()->child("Object", "Language", "Lexer"), ##ARGS)
 
     class Lexer : public Object {
-        CHILD_DECLARE(Lexer, Object);
+        CHILD_DECLARE(Lexer, Object, Language);
     public:
         explicit Lexer(Node *origin) : Object(origin), _operatorTable(NULL), _source(NULL) {}
 

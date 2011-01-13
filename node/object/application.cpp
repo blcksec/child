@@ -1,11 +1,10 @@
-#include "node/application.h"
+#include "node/object/application.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Application, Object);
+CHILD_DEFINE(Application, Object, Object);
 
 void Application::initRoot() {
-    Object::root()->addChild("Application", this);
 }
 
 CHILD_END

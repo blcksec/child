@@ -1,13 +1,13 @@
 #ifndef CHILD_LANGUAGE_PARSER_H
 #define CHILD_LANGUAGE_PARSER_H
 
-#include "node/boolean.h"
-#include "node/number.h"
-#include "node/character.h"
-#include "node/text.h"
-#include "node/message.h"
-#include "node/block.h"
-#include "node/language/lexer.h"
+#include "node/object/boolean.h"
+#include "node/object/number.h"
+#include "node/object/character.h"
+#include "node/object/text.h"
+#include "node/object/message.h"
+#include "node/object/block.h"
+#include "node/object/language/lexer.h"
 
 CHILD_BEGIN
 
@@ -16,7 +16,7 @@ namespace Language {
     new Language::Parser(Node::context()->child("Object", "Language", "Parser"), ##ARGS)
 
     class Parser : public Object {
-        CHILD_DECLARE(Parser, Object);
+        CHILD_DECLARE(Parser, Object, Language);
     public:
         explicit Parser(Node *origin) : Object(origin), _lexer(NULL), _currentToken(NULL) {}
 

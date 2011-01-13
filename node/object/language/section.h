@@ -1,8 +1,8 @@
 #ifndef CHILD_LANGUAGE_SECTION_H
 #define CHILD_LANGUAGE_SECTION_H
 
-#include "node/list.h"
-#include "node/language/primitive.h"
+#include "node/object/list.h"
+#include "node/object/language/primitive.h"
 
 CHILD_BEGIN
 
@@ -11,7 +11,7 @@ namespace Language {
     new Language::Section(Node::context()->child("Object", "Language", "Section"), ##ARGS)
 
     class Section : public GenericList<Primitive *> {
-        CHILD_DECLARE(Section, List);
+        CHILD_DECLARE(Section, List, Language);
     public:
         explicit Section(Node *origin, Primitive *label = NULL) :
             GenericList<Primitive *>(origin), _label(label) {}

@@ -1,11 +1,10 @@
-#include "node/boolean.h"
+#include "node/object/boolean.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Boolean, Element);
+CHILD_DEFINE(Boolean, Element, Object);
 
 void Boolean::initRoot() {
-    Object::root()->addChild("Boolean", this);
     CHILD_NATIVE_METHOD_ADD(Boolean, equal_to, ==);
 }
 

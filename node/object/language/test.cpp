@@ -1,12 +1,11 @@
-#include "node/language/test.h"
+#include "node/object/language/test.h"
 
 CHILD_BEGIN
 
 namespace Language {
-    CHILD_DEFINE(Test, Element);
+    CHILD_DEFINE(Test, Element, Language);
 
     void Test::initRoot() {
-        Language::root()->addChild("Test", this);
     }
 }
 

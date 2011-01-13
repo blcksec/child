@@ -1,11 +1,10 @@
-#include "node/bunch.h"
+#include "node/object/bunch.h"
 
 CHILD_BEGIN
 
-CHILD_DEFINE(Bunch, List);
+CHILD_DEFINE(Bunch, List, Object);
 
 void Bunch::initRoot() {
-    Object::root()->addChild("Bunch", this);
 }
 
 CHILD_END

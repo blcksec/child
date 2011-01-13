@@ -1,0 +1,13 @@
+Object Text {
+    \fork {
+    test:
+        txt := "Hello"
+        ?: txt origin == Text
+        new_txt := txt fork
+        ?: new_txt origin == txt
+        ?: new_txt == "Hello"
+    }
+test:
+    ?: origin == Object Element
+    ?: parent == Object
+}
