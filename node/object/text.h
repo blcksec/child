@@ -8,7 +8,7 @@
 
 CHILD_BEGIN
 
-#define CHILD_TEXT(ARGS...) new Text(Node::context()->child("Object", "Text"), ##ARGS)
+#define CHILD_TEXT(ARGS...) new Text(context()->child("Object", "Text"), ##ARGS)
 
 class Text : public GenericElement<QString> {
     CHILD_DECLARE(Text, Element, Object);

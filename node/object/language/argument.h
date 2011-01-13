@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_ARGUMENT(ARGS...) \
-    new Language::Argument(Node::context()->child("Object", "Language", "Argument"), ##ARGS)
+    new Language::Argument(context()->child("Object", "Language", "Argument"), ##ARGS)
 
     class Argument : public GenericPair<Primitive *, Primitive *> {
         CHILD_DECLARE(Argument, Pair, Language);

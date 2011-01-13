@@ -9,7 +9,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_SOURCE_CODE(ARGS...) \
-    new Language::SourceCode(Node::context()->child("Object", "Language", "SourceCode"), ##ARGS)
+    new Language::SourceCode(context()->child("Object", "Language", "SourceCode"), ##ARGS)
 
     class SourceCode : public Object {
         CHILD_DECLARE(SourceCode, Object, Language);

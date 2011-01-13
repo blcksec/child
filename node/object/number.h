@@ -9,7 +9,7 @@
 
 CHILD_BEGIN
 
-#define CHILD_NUMBER(ARGS...) new Number(Node::context()->child("Object", "Number"), ##ARGS)
+#define CHILD_NUMBER(ARGS...) new Number(context()->child("Object", "Number"), ##ARGS)
 
 class Number : public GenericElement<double> {
     CHILD_DECLARE(Number, Element, Object);

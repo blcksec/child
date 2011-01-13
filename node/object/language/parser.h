@@ -13,7 +13,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_PARSER(ARGS...) \
-    new Language::Parser(Node::context()->child("Object", "Language", "Parser"), ##ARGS)
+    new Language::Parser(context()->child("Object", "Language", "Parser"), ##ARGS)
 
     class Parser : public Object {
         CHILD_DECLARE(Parser, Object, Language);

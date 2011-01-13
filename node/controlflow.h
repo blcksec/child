@@ -7,7 +7,7 @@
 
 CHILD_BEGIN
 
-#define CHILD_CONTROL_FLOW(ARGS...) new ControlFlow(Node::context()->child("ControlFlow"), ##ARGS)
+#define CHILD_CONTROL_FLOW(ARGS...) new ControlFlow(context()->child("ControlFlow"), ##ARGS)
 
 class ControlFlow : public Node {
     CHILD_DECLARE(ControlFlow, Node, Node);

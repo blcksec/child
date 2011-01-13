@@ -1,18 +1,18 @@
 #include <QtCore/QFile>
 
-#include "global.h"
+#include "child.h"
 #include "node/exception.h"
 #include "node/object/language/interpreter.h"
 
 CHILD_BEGIN
 
 void init() {
-    foreach(Node::Root root, Node::roots())
+    foreach(Root root, roots())
         root.node->setClassName(root.name);
 
     Interpreter *interpreter = Interpreter::root();
     QString path = "../child/";
-    foreach(Node::Root root, Node::roots()) {
+    foreach(Root root, roots()) {
         Node *node = root.node;
         QString childFile = path + node->classPath() + node->className().toLower() + ".child";
         if(QFileInfo(childFile).exists()) {
@@ -22,6 +22,11 @@ void init() {
     interpreter->testSuite()->run();
     P(QString("All tests passed (%1 sections, %2 assertions)").
       arg(interpreter->testSuite()->size()).arg(Node::passedAssertionCount()));
+}
+
+QList<Root> &roots() {
+    static QList<Root> _roots;
+    return _roots;
 }
 
 QString readTextFile(const QString &name) {
@@ -104,7 +109,7 @@ QString preferSecondArgumentIfNotEmpty(const QString &a, const QString &b) {
 
 #define CHILD_THROW_FUNCTION(EXCEPTION) \
 void throw##EXCEPTION(const QString &message, const QString &file, const int line, const QString &function) { \
-    throw EXCEPTION(Node::context()->child(#EXCEPTION), message, file, line, function); \
+    throw EXCEPTION(context()->child(#EXCEPTION), message, file, line, function); \
 }
 
 CHILD_THROW_FUNCTION(RuntimeException);

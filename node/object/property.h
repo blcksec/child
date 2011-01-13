@@ -6,7 +6,7 @@
 CHILD_BEGIN
 
 #define CHILD_PROPERTY(ARGS...) \
-new Property(Node::context()->child("Object", "Property"), ##ARGS)
+new Property(context()->child("Object", "Property"), ##ARGS)
 
 class Property : public Object {
     CHILD_DECLARE(Property, Object, Object);

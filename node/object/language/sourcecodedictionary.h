@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_SOURCE_CODE_DICTIONARY(ARGS...) \
-    new Language::SourceCodeDictionary(Node::context()->child("Object", "Language", "SourceCodeDictionary"), ##ARGS)
+    new Language::SourceCodeDictionary(context()->child("Object", "Language", "SourceCodeDictionary"), ##ARGS)
 
     class SourceCodeDictionary : public GenericDictionary<Node::Reference, SourceCode *> {
         CHILD_DECLARE(SourceCodeDictionary, Dictionary, Language);

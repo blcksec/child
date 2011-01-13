@@ -176,7 +176,7 @@ public:
     };
 };
 
-#define CHILD_LIST(ARGS...) new List(Node::context()->child("Object", "List"), ##ARGS)
+#define CHILD_LIST(ARGS...) new List(context()->child("Object", "List"), ##ARGS)
 
 class List : public GenericList<Node *> {
     CHILD_DECLARE(List, Object, Object);

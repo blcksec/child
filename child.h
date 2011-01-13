@@ -2,6 +2,7 @@
 #define CHILD_GLOBAL_H
 
 #include <QtCore/QTextStream>
+#include <QtCore/QStack>
 
 //#define CHILD_IS_NAMESPACED
 
@@ -41,7 +42,48 @@ throwConversionException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 typedef long long int HugeInteger;
 typedef unsigned long long int HugeUnsignedInteger;
 
+class Node;
+
 void init();
+
+class Root {
+public:
+    Root(Node *node = NULL, const QString &name = "") : node(node), name(name) {}
+    Node *node;
+    QString name;
+};
+
+QList<Root> &roots();
+
+inline QStack<Node *> &contextStack() {
+    static QStack<Node *> _contextStack;
+    return _contextStack;
+}
+
+inline bool hasContext() {
+    return !contextStack().isEmpty();
+}
+
+inline Node *context() {
+    if(!hasContext()) qFatal("Fatal error: context stack is empty!");
+    return contextStack().top();
+}
+
+inline void pushContext(Node *node) { contextStack().push(node); }
+
+inline Node *popContext() {
+    if(contextStack().isEmpty()) qFatal("Fatal error: context stack is empty!");
+    return contextStack().pop();
+}
+
+class ContextPusher {
+public:
+    explicit ContextPusher(Node *node) { pushContext(node); }
+    ~ContextPusher() { popContext(); }
+private:
+    ContextPusher(const ContextPusher &); // prevent copying
+    ContextPusher &operator=(const ContextPusher &);
+};
 
 QString readTextFile(const QString &name);
 QString concatenateStrings(const QString &first, const QString &separator, const QString &second);

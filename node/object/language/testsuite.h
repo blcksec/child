@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_TEST_SUITE(ARGS...) \
-    new Language::TestSuite(Node::context()->child("Object", "Language", "TestSuite"), ##ARGS)
+    new Language::TestSuite(context()->child("Object", "Language", "TestSuite"), ##ARGS)
 
     class TestSuite : public GenericList<Test *> {
         CHILD_DECLARE(TestSuite, List, Language);

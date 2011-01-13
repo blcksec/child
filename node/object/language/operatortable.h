@@ -10,7 +10,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_OPERATOR_TABLE(ARGS...) \
-    new Language::OperatorTable(Node::context()->child("Object", "Language", "OperatorTable"), ##ARGS)
+    new Language::OperatorTable(context()->child("Object", "Language", "OperatorTable"), ##ARGS)
 
     class OperatorTable : public GenericList<Operator *> {
         CHILD_DECLARE(OperatorTable, List, Language);

@@ -8,7 +8,7 @@
 
 CHILD_BEGIN
 
-#define CHILD_OBJECT(ARGS...) new Object(Node::context()->child("Object"), ##ARGS)
+#define CHILD_OBJECT(ARGS...) new Object(context()->child("Object"), ##ARGS)
 
 class Object : public Node {
     CHILD_DECLARE(Object, Node, Node);

@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_PARAMETER(ARGS...) \
-    new Language::Parameter(Node::context()->child("Object", "Language", "Parameter"), ##ARGS)
+    new Language::Parameter(context()->child("Object", "Language", "Parameter"), ##ARGS)
 
     class Parameter : public GenericPair<QString, Primitive *> {
         CHILD_DECLARE(Parameter, Pair, Language);

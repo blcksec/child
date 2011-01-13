@@ -6,7 +6,7 @@
 
 CHILD_BEGIN
 
-#define CHILD_BOOLEAN(ARGS...) new Boolean(Node::context()->child("Object", "Boolean"), ##ARGS)
+#define CHILD_BOOLEAN(ARGS...) new Boolean(context()->child("Object", "Boolean"), ##ARGS)
 
 class Boolean : public GenericElement<bool> {
     CHILD_DECLARE(Boolean, Element, Object);

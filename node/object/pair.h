@@ -26,7 +26,7 @@ private:
     T2 _second;
 };
 
-#define CHILD_PAIR(ARGS...) new Pair(Node::context()->child("Object", "Pair"), ##ARGS)
+#define CHILD_PAIR(ARGS...) new Pair(context()->child("Object", "Pair"), ##ARGS)
 
 class Pair : public GenericPair<Node *, Node *> {
     CHILD_DECLARE(Pair, Object, Object);

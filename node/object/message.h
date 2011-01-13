@@ -6,7 +6,7 @@
 CHILD_BEGIN
 
 #define CHILD_MESSAGE(ARGS...) \
-(new Message(Node::context()->child("Object", "Message"), ##ARGS))
+(new Message(context()->child("Object", "Message"), ##ARGS))
 
 class Message : public Object {
     CHILD_DECLARE(Message, Object, Object);
@@ -126,7 +126,7 @@ public:
 
     // === Message::Sending ===
 
-    #define CHILD_MESSAGE_SENDING(ARGS...) new Message::Sending(Node::context()->child("Message", "Sending"), ##ARGS)
+    #define CHILD_MESSAGE_SENDING(ARGS...) new Message::Sending(context()->child("Message", "Sending"), ##ARGS)
 
     class Sending : public Node {
         CHILD_DECLARE(Sending, Node, Message);

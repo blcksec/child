@@ -2,13 +2,12 @@
 #define CHILD_NODE_H
 
 #include <QtCore/QHash>
-#include <QtCore/QStack>
 
-#include "global.h"
+#include "child.h"
 
 CHILD_BEGIN
 
-#define CHILD_NODE(ARGS...) new Node(Node::context()->child("Node"), ##ARGS)
+#define CHILD_NODE(ARGS...) new Node(context()->child("Node"), ##ARGS)
 
 #define CHILD_FORK_METHOD(NAME, ARGS...) \
 virtual NAME *fork() const { \
@@ -79,6 +78,8 @@ public:
     const QString className() const;
     void setClassName(const QString &name);
     const QString classPath() const;
+
+    void declare(const QString &name) const;
 
     CHILD_FORK_METHOD(Node);
     virtual void initFork() {}
@@ -240,65 +241,19 @@ public:
 
     virtual uint hash() const { return ::qHash(this); }
 
-    class Root {
+    class Reference {
     public:
-        Root(Node *node = NULL, const QString &name = "") : node(node), name(name) {}
-        Node *node;
-        QString name;
-    };
-
-    static QList<Root> &roots() {
-        static QList<Root> _roots;
-        return _roots;
-    }
-
-    static void registerRoot(Node *root, const QString &name) {
-        roots().append(Root(root, name));
-    }
-
-    static Node *context() {
-        if(!hasContext()) qFatal("Fatal error: context stack is empty!");
-        return contextStack().top();
-    }
-
-    static bool hasContext() {
-        return !contextStack().isEmpty();
-    }
-
-    static void pushContext(Node *node) { contextStack().push(node); }
-
-    static Node *popContext() {
-        if(contextStack().isEmpty()) qFatal("Fatal error: context stack is empty!");
-        return contextStack().pop();
-    }
-
-    static QStack<Node *> &contextStack() {
-        static QStack<Node *> _contextStack;
-        return _contextStack;
-    }
-
-    class ContextPusher {
-    public:
-        explicit ContextPusher(Node *node) { pushContext(node); }
-        ~ContextPusher() { popContext(); }
+        Reference(Node *node) : _node(node) {}
+        Node &operator*() { return *_node; }
+        const Node &operator*() const { return *_node; }
+        Node *operator->() { return _node; }
+        const Node *operator->() const { return _node; }
+        operator bool() const { return _node; }
+        bool operator!() const { return !_node; }
+        operator Node *() const { return _node; }
     private:
-        ContextPusher(const ContextPusher &); // prevent copying
-        ContextPusher &operator=(const ContextPusher &);
+        Node *_node;
     };
-
-     class Reference {
-     public:
-         Reference(Node *node) : _node(node) {}
-         Node &operator*() { return *_node; }
-         const Node &operator*() const { return *_node; }
-         Node *operator->() { return _node; }
-         const Node *operator->() const { return _node; }
-         operator bool() const { return _node; }
-         bool operator!() const { return !_node; }
-         operator Node *() const { return _node; }
-     private:
-         Node *_node;
-     };
 private:
     Node *_origin;
     QList<Node *> *_extensions;
@@ -335,8 +290,8 @@ NAME *NAME::root() { \
     if(!_root) { \
         _root = new NAME(ORIGIN::root()); \
         PARENT::root()->addChild(#NAME, _root); \
+        _root->declare(#NAME); \
         _root->initRoot(); \
-        registerRoot(_root, #NAME); \
     } \
     return _root; \
 }

@@ -6,7 +6,7 @@
 CHILD_BEGIN
 
 #define CHILD_APPLICATION(ARGS...) \
-new Application(Node::context()->child("Object", "Application"), ##ARGS)
+new Application(context()->child("Object", "Application"), ##ARGS)
 
 class Application : public Object {
     CHILD_DECLARE(Application, Object, Object);

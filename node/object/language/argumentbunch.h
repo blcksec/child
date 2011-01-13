@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_ARGUMENT_BUNCH(ARGS...) \
-    new Language::ArgumentBunch(Node::context()->child("Object", "Language", "ArgumentBunch"), ##ARGS)
+    new Language::ArgumentBunch(context()->child("Object", "Language", "ArgumentBunch"), ##ARGS)
 
     #define CHILD_CHECK_INPUT_SIZE(ARGS...) \
     ArgumentBunch::checkSpecifiedSize(message->inputs(false) ? message->inputs()->size() : 0, ##ARGS)

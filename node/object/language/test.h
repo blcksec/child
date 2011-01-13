@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_TEST(ARGS...) \
-    new Language::Test(Node::context()->child("Object", "Language", "Test"), ##ARGS)
+    new Language::Test(context()->child("Object", "Language", "Test"), ##ARGS)
 
     class Test : public GenericElement<Section *> {
         CHILD_DECLARE(Test, Element, Language);

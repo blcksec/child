@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_PARAMETER_LIST(ARGS...) \
-    new Language::ParameterList(Node::context()->child("Object", "Language", "ParameterList"), ##ARGS)
+    new Language::ParameterList(context()->child("Object", "Language", "ParameterList"), ##ARGS)
 
     class ParameterList : public GenericList<Parameter *> {
         CHILD_DECLARE(ParameterList, List, Language);

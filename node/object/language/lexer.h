@@ -10,7 +10,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_LEXER(ARGS...) \
-    new Language::Lexer(Node::context()->child("Object", "Language", "Lexer"), ##ARGS)
+    new Language::Lexer(context()->child("Object", "Language", "Lexer"), ##ARGS)
 
     class Lexer : public Object {
         CHILD_DECLARE(Lexer, Object, Language);

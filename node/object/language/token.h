@@ -7,7 +7,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_TOKEN(ARGS...) \
-    new Language::Token(Node::context()->child("Object", "Language", "Token"), ##ARGS)
+    new Language::Token(context()->child("Object", "Language", "Token"), ##ARGS)
 
     class Token : public Object {
         CHILD_DECLARE(Token, Object, Language);

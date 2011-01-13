@@ -6,7 +6,7 @@
 CHILD_BEGIN
 
 #define CHILD_BLOCK(ARGS...) \
-new Block(Node::context()->child("Object", "Block"), ##ARGS)
+new Block(context()->child("Object", "Block"), ##ARGS)
 
 class Block : public GenericList<Section *> {
     CHILD_DECLARE(Block, List, Object);

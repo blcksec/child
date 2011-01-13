@@ -6,7 +6,7 @@
 
 CHILD_BEGIN
 
-#define CHILD_NATIVE_METHOD(ARGS...) new NativeMethod(Node::context()->child("NativeMethod"), ##ARGS)
+#define CHILD_NATIVE_METHOD(ARGS...) new NativeMethod(context()->child("NativeMethod"), ##ARGS)
 
 #define CHILD_NATIVE_METHOD_ADD(CLASS, METHOD, NAME...) \
 addOrSetChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \

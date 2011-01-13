@@ -116,7 +116,7 @@ public:
     };
 };
 
-#define CHILD_DICTIONARY(ARGS...) new Dictionary(Node::context()->child("Object", "Dictionary"), ##ARGS)
+#define CHILD_DICTIONARY(ARGS...) new Dictionary(context()->child("Object", "Dictionary"), ##ARGS)
 
 class Dictionary : public GenericDictionary<Node::Reference, Node *> {
     CHILD_DECLARE(Dictionary, Object, Object);

@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_SECTION(ARGS...) \
-    new Language::Section(Node::context()->child("Object", "Language", "Section"), ##ARGS)
+    new Language::Section(context()->child("Object", "Language", "Section"), ##ARGS)
 
     class Section : public GenericList<Primitive *> {
         CHILD_DECLARE(Section, List, Language);

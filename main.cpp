@@ -17,14 +17,14 @@ int main() { // int argc, char *argv[]
     #endif
         /*
         Application *app = Application::root();
-        Node::pushContext(app);
+        pushContext(app);
         SourceCode *source = Interpreter::root()->loadSourceCode("../child/examples/test.child");
         source->inspect();
         P("--");
         P("-> " + source->run()->toString(true));
 //        TextPointer t(CHILD_TEXT("hello"));
 //        ((*t).*NativeMethodPointer(t->child("print"))->method())(CHILD_ARGUMENT_BUNCH());
-        Node::popContext();
+        popContext();
         */
     #ifdef CHILD_CATCH_EXCEPTIONS
     } catch(ExceptionPointer e) {

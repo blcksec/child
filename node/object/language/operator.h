@@ -7,7 +7,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_OPERATOR(ARGS...) \
-    new Language::Operator(Node::context()->child("Object", "Language", "Operator"), ##ARGS)
+    new Language::Operator(context()->child("Object", "Language", "Operator"), ##ARGS)
 
     class Operator : public Object {
         CHILD_DECLARE(Operator, Object, Language);

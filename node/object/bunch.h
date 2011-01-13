@@ -5,7 +5,7 @@
 
 CHILD_BEGIN
 
-#define CHILD_BUNCH(ARGS...) new Bunch(Node::context()->child("Object", "Bunch"), ##ARGS)
+#define CHILD_BUNCH(ARGS...) new Bunch(context()->child("Object", "Bunch"), ##ARGS)
 
 class Bunch : public GenericList<Node *> {
     CHILD_DECLARE(Bunch, List, Object);

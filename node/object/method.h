@@ -8,7 +8,7 @@
 
 CHILD_BEGIN
 
-#define CHILD_METHOD(ARGS...) new Method(Node::context()->child("Object", "Method"), ##ARGS)
+#define CHILD_METHOD(ARGS...) new Method(context()->child("Object", "Method"), ##ARGS)
 
 class Method : public GenericElement<Block *> {
     CHILD_DECLARE(Method, Element, Object);

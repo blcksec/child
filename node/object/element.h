@@ -20,7 +20,7 @@ private:
     T _value;
 };
 
-#define CHILD_ELEMENT(ARGS...) new Element(Node::context()->child("Object", "Element"), ##ARGS)
+#define CHILD_ELEMENT(ARGS...) new Element(context()->child("Object", "Element"), ##ARGS)
 
 class Element : public GenericElement<Node *> {
     CHILD_DECLARE(Element, Object, Object);

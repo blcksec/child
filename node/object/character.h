@@ -8,7 +8,7 @@
 
 CHILD_BEGIN
 
-#define CHILD_CHARACTER(ARGS...) new Character(Node::context()->child("Object", "Character"), ##ARGS)
+#define CHILD_CHARACTER(ARGS...) new Character(context()->child("Object", "Character"), ##ARGS)
 
 class Character : public GenericElement<QChar> {
     CHILD_DECLARE(Character, Element, Object);

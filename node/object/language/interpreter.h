@@ -11,7 +11,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_INTERPRETER(ARGS...) \
-    new Interpreter(Node::context()->child("Object", "Language", "Interpreter"), ##ARGS)
+    new Interpreter(context()->child("Object", "Language", "Interpreter"), ##ARGS)
 
     class Interpreter : public Object {
         CHILD_DECLARE(Interpreter, Object, Language);

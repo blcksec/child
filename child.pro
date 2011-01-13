@@ -15,8 +15,8 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
+    child.cpp \
     node.cpp \
-    global.cpp \
     node/exception.cpp \
     node/nativemethod.cpp \
     node/controlflow.cpp \
@@ -59,8 +59,8 @@ SOURCES += main.cpp \
     tests/dictionarytest.cpp
 
 HEADERS += \
+    child.h \
     node.h \
-    global.h \
     node/exception.h \
     node/nativemethod.h \
     node/controlflow.h \

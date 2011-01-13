@@ -8,7 +8,7 @@ CHILD_BEGIN
 
 namespace Language {
     #define CHILD_PRIMITIVE(ARGS...) \
-    new Language::Primitive(Node::context()->child("Object", "Language", "Primitive"), ##ARGS)
+    new Language::Primitive(context()->child("Object", "Language", "Primitive"), ##ARGS)
 
     #define CHILD_PRIMITIVE_ADD(BASE, OTHER) \
     if(BASE) BASE->last()->setNext(OTHER); else BASE = (OTHER);

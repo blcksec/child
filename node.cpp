@@ -30,8 +30,8 @@ Node *Node::root() {
         _root = new Node(NULL);
         _root->setOrigin(_root);
         _root->addChild("Node", _root);
+        _root->declare("Node");
         _root->initRoot();
-        registerRoot(_root, "Node");
     }
     return _root;
 }
@@ -88,6 +88,10 @@ const QString Node::classPath() const {
         cur = par;
     }
     return path;
+}
+
+void Node::declare(const QString &name) const {
+    roots().append(Root(constCast(this), name));
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, self) {
