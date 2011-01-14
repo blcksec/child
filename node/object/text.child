@@ -7,6 +7,34 @@ Object Text {
         ?: new_txt origin == txt
         ?: new_txt == "Hello"
     }
+
+    \uppercased {
+    test:
+        txt := "Hello"
+        ?: txt uppercased == "HELLO"
+        ?: txt == "Hello"
+    }
+
+    \uppercase! {
+    test:
+        txt := "Hello"
+        txt uppercase!
+        ?: txt == "HELLO"
+    }
+
+    \lowercased {
+    test:
+        txt := "HELLO"
+        ?: txt lowercased == "hello"
+        ?: txt == "HELLO"
+    }
+
+    \lowercase! {
+    test:
+        txt := "HELLO"
+        txt lowercase!
+        ?: txt == "hello"
+    }
 test:
     ?: origin == Object Element
     ?: parent == Object

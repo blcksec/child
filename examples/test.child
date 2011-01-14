@@ -10,7 +10,7 @@ Person := Object() {
     age := Number()
     country := "France"
 
-    essai := { name = name upcase; }
+    essai := { name = name uppercased; }
 
     set(n, a) := { name = n; age = a }
 

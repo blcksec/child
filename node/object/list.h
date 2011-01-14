@@ -8,81 +8,16 @@ CHILD_BEGIN
 #define CHILD_CHECK_VALUE(VALUE) \
 if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 
+// === GenericAbstractList ===
+
 template<class T>
-class GenericList : public Object {
+class GenericAbstractList : public Object {
 public:
-    explicit GenericList(Node *origin, const bool isBunched = false) :
-        Object(origin), _list(NULL), _isBunched(isBunched) {}
+    explicit GenericAbstractList(Node *origin) : Object(origin) {}
 
-    GenericList(Node *origin, const T &value, const bool isBunched = false) :
-        Object(origin), _list(NULL), _isBunched(isBunched) { append(value); }
-
-    GenericList(Node *origin, const T &value1, const T &value2, const bool isBunched = false) :
-        Object(origin), _list(NULL), _isBunched(isBunched) { append(value1); append(value2); }
-
-    GenericList(Node *origin, const T &value1, const T &value2, const T &value3, const bool isBunched = false) :
-        Object(origin), _list(NULL), _isBunched(isBunched) { append(value1); append(value2); append(value3); }
-
-    GenericList(Node *origin, const QList<T> &other, const bool isBunched = false) :
-        Object(origin), _list(NULL), _isBunched(isBunched) {
-        if(!other.isEmpty()) {
-            foreach(T node, other) _append(node);
-            hasChanged();
-        }
-    }
-
-    GenericList(const GenericList &other) : Object(other), _list(NULL), _isBunched(other._isBunched) {
-        if(other.isNotEmpty()) {
-            foreach(T node, *other._list) _append(node);
-            hasChanged();
-        }
-    }
-
-    virtual ~GenericList() {
-        if(_list) {
-            foreach(T node, *_list) removeAnonymousChild(node);
-            delete _list;
-        }
-    }
-
-    virtual void initFork() {
-        Object::initFork();
-        GenericList *orig = static_cast<GenericList *>(origin());
-        if(orig->isNotEmpty()) {
-            foreach(T node, *orig->_list) _append(node->fork());
-            hasChanged();
-        }
-    }
-
-    T insert(int i, const T &value) { _insert(i, value); hasChanged(); return value; }
-
-    void _insert(int i, const T &value) {
-        checkIndex(i, true);
-        CHILD_CHECK_VALUE(value);
-        if(!_list) { _list = new QList<T>; }
-        _list->insert(i, value);
-        addAnonymousChild(value);
-    }
-
-    const GenericList *insert(int i, const GenericList *otherList) {
-        checkIndex(i, true);
-        if(!otherList) CHILD_THROW(NullPointerException, "List pointer is NULL");
-        for(int j = 0; j < otherList->size(); j++) {
-            _insert(i + j, otherList->get(j));
-        }
-        hasChanged();
-        return otherList;
-    }
-
-    T append(const T &value) { return insert(size(), value); }
-    T _append(const T &value) { _insert(size(), value); return value; }
-    const GenericList *append(const GenericList *otherList) { return insert(size(), otherList); }
-    T prepend(const T &value) { return insert(0, value); }
-    const GenericList *prepend(const GenericList *otherList) { return insert(0, otherList); }
-
-    T get(int i) const {
-        checkIndex(i);
-        return _list->at(i);
+    virtual T get(int i) const {
+        Q_UNUSED(i);
+        CHILD_THROW(RuntimeException, "abstract method called");
     }
 
     T first() const { return get(0); }
@@ -92,53 +27,70 @@ public:
     T fifth() const { return get(4); }
     T last() const { return get(size()-1); }
 
-    T set(int i, const T &value) {
-        checkIndex(i);
-        CHILD_CHECK_VALUE(value);
-        removeAnonymousChild(_list->at(i));
-        _list->replace(i, value);
-        addAnonymousChild(value);
+    virtual T set(int i, const T &value)  {
+        Q_UNUSED(i);
+        Q_UNUSED(value);
+        CHILD_THROW(RuntimeException, "abstract method called");
+    }
+
+    T insert(int i, const T &value) {
+        silentlyInsert(i, value);
         hasChanged();
         return value;
     }
 
-    void remove(int i) {
-        checkIndex(i);
-        removeAnonymousChild(_list->at(i));
-        _list->removeAt(i);
+    virtual void silentlyInsert(int i, const T &value)  {
+        Q_UNUSED(i);
+        Q_UNUSED(value);
+        CHILD_THROW(RuntimeException, "abstract method called");
+    }
+
+    const GenericAbstractList *insert(int i, const GenericAbstractList *otherList) {
+        checkIndex(i, true);
+        if(!otherList) CHILD_THROW(NullPointerException, "List pointer is NULL");
+        for(int j = 0; j < otherList->size(); j++) {
+            silentlyInsert(i + j, otherList->get(j));
+        }
         hasChanged();
+        return otherList;
+    }
+
+    T append(const T &value) { return insert(size(), value); }
+    void silentlyAppend(const T &value) { silentlyInsert(size(), value); }
+    const GenericAbstractList *append(const GenericAbstractList *otherList) { return insert(size(), otherList); }
+    T prepend(const T &value) { return insert(0, value); }
+    const GenericAbstractList *prepend(const GenericAbstractList *otherList) { return insert(0, otherList); }
+
+    virtual void remove(int i)  {
+        Q_UNUSED(i);
+        CHILD_THROW(RuntimeException, "abstract method called");
+    }
+    virtual void clear()  {
+        CHILD_THROW(RuntimeException, "abstract method called");
     }
 
     bool hasIndex(int i) { return i >= 0 && i < size(); }
 
     bool hasValue(const T &value) const {
         CHILD_CHECK_VALUE(value);
-        if(_list)
-            foreach(T node, *_list)
-                if(node->isEqualTo(value)) return true;
+        for(int i = 0; i < size(); ++i)
+            if(get(i)->isEqualTo(value))
+                return true;
         return false;
     }
 
-    void clear() {
-        if(_list) {
-            foreach(Node *node, *_list) removeAnonymousChild(node);
-            _list->clear();
-            hasChanged();
-        }
+    virtual int size() const  {
+        CHILD_THROW(RuntimeException, "abstract method called");
     }
-
-    int size() const { return _list ? _list->size() : 0; }
     bool isEmpty() const { return size() == 0; }
     bool isNotEmpty() const { return size() > 0; }
 
     const QString join(const QString &separator = "", const QString &prefix = "",
                        const QString &suffix = "", bool debug = false, short level = 0) const {
         QString str;
-        bool first = true;
-        Iterator i(this);
-        while(T value = i.next()) {
-            if(!first) str += separator; else first = false;
-            str += prefix + value->toString(debug, level) + suffix;
+        for(int i = 0; i < size(); ++i) {
+            if(i > 0) str += separator;
+            str += prefix + get(i)->toString(debug, level) + suffix;
         }
         return str;
     }
@@ -160,9 +112,115 @@ public:
     virtual QString toString(bool debug = false, short level = 0) const {
         return "[" + join(", ", "", "", debug, level) + "]";
     }
+};
+
+// === AbstractList ===
+
+#define CHILD_ABSTRACT_LIST(ARGS...) new AbstractList(context()->child("Object", "AbstractList"), ##ARGS)
+
+class AbstractList : public GenericAbstractList<Node *> {
+    CHILD_DECLARE(AbstractList, Object, Object);
+public:
+    explicit AbstractList(Node *origin) : GenericAbstractList<Node *>(origin) {}
+
+    CHILD_FORK_METHOD(AbstractList);
+};
+
+// === GenericList ===
+
+template<class T>
+class GenericList : public GenericAbstractList<T> {
+public:
+    using GenericAbstractList<T>::origin;
+    using GenericAbstractList<T>::removeAnonymousChild;
+    using GenericAbstractList<T>::checkIndex;
+    using GenericAbstractList<T>::hasChanged;
+
+    explicit GenericList(Node *origin, const bool isBunch = false) :
+        GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) {}
+
+    GenericList(Node *origin, const T &value, const bool isBunch = false) :
+        GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) { append(value); }
+
+    GenericList(Node *origin, const T &value1, const T &value2, const bool isBunch = false) :
+        GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) { append(value1); append(value2); }
+
+    GenericList(Node *origin, const T &value1, const T &value2, const T &value3, const bool isBunch = false) :
+        GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) { append(value1); append(value2); append(value3); }
+
+    GenericList(Node *origin, const QList<T> &other, const bool isBunch = false) :
+        GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) {
+        if(!other.isEmpty()) {
+            foreach(T node, other) silentlyAppend(node);
+            hasChanged();
+        }
+    }
+
+    GenericList(const GenericList &other) : GenericAbstractList<T>(other), _list(NULL), _isBunch(other._isBunch) {
+        if(other.isNotEmpty()) {
+            foreach(T node, *other._list) silentlyAppend(node);
+            hasChanged();
+        }
+    }
+
+    virtual ~GenericList() {
+        if(_list) {
+            foreach(T node, *_list) removeAnonymousChild(node);
+            delete _list;
+        }
+    }
+
+    virtual void initFork() {
+        Object::initFork();
+        GenericList *orig = static_cast<GenericList *>(origin());
+        if(orig->isNotEmpty()) {
+            foreach(T node, *orig->_list) silentlyAppend(node->fork());
+            hasChanged();
+        }
+    }
+
+    virtual T get(int i) const {
+        checkIndex(i);
+        return _list->at(i);
+    }
+
+    virtual T set(int i, const T &value) {
+        checkIndex(i);
+        CHILD_CHECK_VALUE(value);
+        removeAnonymousChild(_list->at(i));
+        _list->replace(i, value);
+        addAnonymousChild(value);
+        hasChanged();
+        return value;
+    }
+
+    virtual void silentlyInsert(int i, const T &value) {
+        checkIndex(i, true);
+        CHILD_CHECK_VALUE(value);
+        if(!_list) { _list = new QList<T>; }
+        _list->insert(i, value);
+        addAnonymousChild(value);
+    }
+
+    virtual void remove(int i) {
+        checkIndex(i);
+        removeAnonymousChild(_list->at(i));
+        _list->removeAt(i);
+        hasChanged();
+    }
+
+    virtual void clear() {
+        if(_list) {
+            foreach(Node *node, *_list) removeAnonymousChild(node);
+            _list->clear();
+            hasChanged();
+        }
+    }
+
+    virtual int size() const { return _list ? _list->size() : 0; }
 private:
     QList<T> *_list;
-    bool _isBunched;
+    bool _isBunch;
 public:
     class Iterator {
     public:
@@ -176,15 +234,80 @@ public:
     };
 };
 
+// === List ===
+
 #define CHILD_LIST(ARGS...) new List(context()->child("Object", "List"), ##ARGS)
 
 class List : public GenericList<Node *> {
-    CHILD_DECLARE(List, Object, Object);
+    CHILD_DECLARE(List, AbstractList, Object);
 public:
-    explicit List(Node *origin, const QList<Node *> &other = QList<Node *>()) :
-        GenericList<Node *>(origin, other) {}
+    explicit List(Node *origin) : GenericList<Node *>(origin) {}
+
+    List(Node *origin, const QList<Node *> &other) : GenericList<Node *>(origin, other) {}
 
     CHILD_FORK_METHOD(List);
+};
+
+// === GenericVirtualList ===
+
+template<class T>
+class GenericVirtualList : public GenericAbstractList<T> {
+public:
+    using GenericAbstractList<T>::checkIndex;
+    using GenericAbstractList<T>::hasChanged;
+
+    explicit GenericVirtualList(Node *origin, QList<T> **listPtr = NULL) : GenericAbstractList<T>(origin), _listPtr(listPtr) {}
+
+    GenericVirtualList(const GenericVirtualList &other) : GenericAbstractList<T>(other), _listPtr(other._listPtr) {}
+
+    virtual T get(int i) const {
+        checkIndex(i);
+        return (*_listPtr)->at(i);
+    }
+
+    virtual T set(int i, const T &value) {
+        checkIndex(i);
+        CHILD_CHECK_VALUE(value);
+        (*_listPtr)->replace(i, value);
+        hasChanged();
+        return value;
+    }
+
+    virtual void silentlyInsert(int i, const T &value) {
+        checkIndex(i, true);
+        CHILD_CHECK_VALUE(value);
+        if(!*_listPtr) { *_listPtr = new QList<T>; }
+        (*_listPtr)->insert(i, value);
+    }
+
+    virtual void remove(int i) {
+        checkIndex(i);
+        (*_listPtr)->removeAt(i);
+        hasChanged();
+    }
+
+    virtual void clear() {
+        if(*_listPtr) {
+            (*_listPtr)->clear();
+            hasChanged();
+        }
+    }
+
+    virtual int size() const { return *_listPtr ? (*_listPtr)->size() : 0; }
+private:
+    QList<T> **_listPtr;
+};
+
+// === VirtualList ===
+
+#define CHILD_VIRTUAL_LIST(ARGS...) new VirtualList(context()->child("Object", "VirtualList"), ##ARGS)
+
+class VirtualList : public GenericVirtualList<Node *> {
+    CHILD_DECLARE(VirtualList, AbstractList, Object);
+public:
+    explicit VirtualList(Node *origin, QList<Node *> **listPtr = NULL) : GenericVirtualList<Node *>(origin, listPtr) {}
+
+    CHILD_FORK_METHOD(VirtualList);
 };
 
 CHILD_END

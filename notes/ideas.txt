@@ -197,7 +197,7 @@ body:
     Text {
     test:
         ?: "" empty?
-        ?: "hello" upcase == "HELLO"
+        ?: "hello" uppercased == "HELLO"
     }
 
     Number {

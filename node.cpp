@@ -48,6 +48,10 @@ void Node::initRoot() {
     originProperty->CHILD_NATIVE_METHOD_ADD(Node, origin_set, set);
     addChild("origin", originProperty);
 
+    Property *extensionsProperty = CHILD_PROPERTY();
+    extensionsProperty->CHILD_NATIVE_METHOD_ADD(Node, extensions_get, get);
+    addChild("extensions", extensionsProperty);
+
     CHILD_NATIVE_METHOD_ADD(Node, fork);
     CHILD_NATIVE_METHOD_ADD(Node, define, :=);
     CHILD_NATIVE_METHOD_ADD(Node, assign, =);
@@ -165,29 +169,41 @@ QList<Node *> Node::extensions() const {
     return _extensions ? *_extensions : QList<Node *>();
 }
 
+CHILD_NATIVE_METHOD_DEFINE(Node, extensions_get) {
+    CHILD_CHECK_INPUT_SIZE(0);
+    VirtualList *value = VirtualList::dynamicCast(hasDirectChild("cachedValue"));
+    if(!value) {
+        value = CHILD_VIRTUAL_LIST(&parent()->_extensions);
+        addOrSetChild("cachedValue", value);
+    }
+    return value;
+}
+
 Node *Node::child(const QString &name) const {
     Node *node = hasChild(name);
     if(!node) CHILD_THROW(NotFoundException, "child not found");
     return node;
 }
 
-void Node::addChild(const QString &name, Node *value) {
+Node *Node::addChild(const QString &name, Node *value) {
     CHILD_CHECK_POINTER(value);
     if(hasChild(name, false)) CHILD_THROW(DuplicateException, "child with same name is already there");
     _setChild(name, value);
+    return value;
 }
 
-void Node::setChild(const QString &name, Node *value, bool addOrSetMode) {
+Node *Node::setChild(const QString &name, Node *value, bool addOrSetMode) {
     CHILD_CHECK_POINTER(value);
     Node *parent = this;
     bool isDirect;
     if(Node *current = hasChild(name, !addOrSetMode, &parent, false, &isDirect)) {
         if(isDirect) {
-            if(current == value) return;
+            if(current == value) return value;
             current->_removeParent(parent);
         }
     } else if(!addOrSetMode) CHILD_THROW(NotFoundException, "child not found");
     parent->_setChild(name, value);
+    return value;
 }
 
 void Node::_setChild(const QString &name, Node *value) {

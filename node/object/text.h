@@ -33,9 +33,26 @@ public:
         return CHILD_TEXT(value().repeated(message->runFirstInput()->toDouble()));
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(upcase) {
+    CHILD_NATIVE_METHOD_DECLARE(uppercased) {
         CHILD_CHECK_INPUT_SIZE(0);
         return CHILD_TEXT(value().toUpper());
+    }
+
+    CHILD_NATIVE_METHOD_DECLARE(uppercase_em) {
+        CHILD_CHECK_INPUT_SIZE(0);
+        setValue(value().toUpper());
+        return this;
+    }
+
+    CHILD_NATIVE_METHOD_DECLARE(lowercased) {
+        CHILD_CHECK_INPUT_SIZE(0);
+        return CHILD_TEXT(value().toLower());
+    }
+
+    CHILD_NATIVE_METHOD_DECLARE(lowercase_em) {
+        CHILD_CHECK_INPUT_SIZE(0);
+        setValue(value().toLower());
+        return this;
     }
 
     virtual bool isEqualTo(const Node *other) const {

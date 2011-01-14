@@ -113,6 +113,8 @@ public:
     bool hasExtension(Node *node) const;
     QList<Node *> extensions() const;
 
+    CHILD_NATIVE_METHOD_DECLARE(extensions_get);
+
     Node *child(const QString &name) const;
 
     Node *child(const QString &name1, const QString &name2) const {
@@ -123,12 +125,12 @@ public:
         return child(name1)->child(name2)->child(name3);
     }
 
-    void addChild(const QString &name, Node *value);
-    void setChild(const QString &name, Node *value, bool addOrSetMode = false);
+    Node *addChild(const QString &name, Node *value);
+    Node *setChild(const QString &name, Node *value, bool addOrSetMode = false);
 private:
     void _setChild(const QString &name, Node *value);
 public:
-    void addOrSetChild(const QString &name, Node *value) { setChild(name, value, true); }
+    Node *addOrSetChild(const QString &name, Node *value) { return setChild(name, value, true); }
 
 private:
     Node *defineOrAssign(Message *message, bool isDefine);

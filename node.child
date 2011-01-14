@@ -11,6 +11,11 @@ body:
         ?: n2 origin == n1
     }
 
+    \extensions {
+    test:
+        Object extensions inspect
+    }
+
     \fork {
     doc:
         "Fork the receiver."
