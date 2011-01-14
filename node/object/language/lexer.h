@@ -63,6 +63,9 @@ namespace Language {
         bool isName() const { return _currentChar.isLetter() || _currentChar == '_'; }
         Token *scanName();
 
+        bool isBackquotedName() const { return _currentChar == '`'; }
+        Token *scanBackquotedName();
+
         bool isOperator() const { return operatorTable()->hasOperatorStartingWith(_currentChar); }
         Token *scanOperator();
 

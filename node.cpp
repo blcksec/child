@@ -104,7 +104,6 @@ CHILD_NATIVE_METHOD_DEFINE(Node, self) {
 }
 
 CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
-    CHILD_CHECK_INPUT_SIZE(0);
     Node *node = fork();
     if(node->hasChild("init")) {
         Message* initMessage = message->fork();
@@ -171,10 +170,10 @@ QList<Node *> Node::extensions() const {
 
 CHILD_NATIVE_METHOD_DEFINE(Node, extensions_get) {
     CHILD_CHECK_INPUT_SIZE(0);
-    VirtualList *value = VirtualList::dynamicCast(hasDirectChild("cachedValue"));
+    VirtualList *value = VirtualList::dynamicCast(hasDirectChild("cached_value"));
     if(!value) {
-        value = CHILD_VIRTUAL_LIST(&parent()->_extensions);
-        addOrSetChild("cachedValue", value);
+        value = CHILD_VIRTUAL_LIST(&parent()->real()->_extensions);
+        if(parent()->isReal()) addOrSetChild("cached_value", value);
     }
     return value;
 }

@@ -56,7 +56,8 @@ SOURCES += main.cpp \
     tests/objecttest.cpp \
     tests/texttest.cpp \
     tests/listtest.cpp \
-    tests/dictionarytest.cpp
+    tests/dictionarytest.cpp \
+    node/alias.cpp
 
 HEADERS += \
     child.h \
@@ -103,7 +104,8 @@ HEADERS += \
     tests/objecttest.h \
     tests/texttest.h \
     tests/listtest.h \
-    tests/dictionarytest.h
+    tests/dictionarytest.h \
+    node/alias.h
 
 OTHER_FILES += \
     README.txt \
@@ -119,4 +121,5 @@ OTHER_FILES += \
     node.child \
     node/exception.child \
     node/object.child \
-    node/object/text.child
+    node/object/text.child \
+    node/object/abstractlist.child

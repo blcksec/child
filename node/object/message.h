@@ -1,6 +1,7 @@
 #ifndef CHILD_MESSAGE_H
 #define CHILD_MESSAGE_H
 
+#include "node/alias.h"
 #include "node/object/language/argumentbunch.h"
 
 CHILD_BEGIN
@@ -93,6 +94,8 @@ public:
     virtual Node *run(Node *receiver = context()) {
         Node *rcvr = isParented() ? receiver->parent() : receiver;
         Node *result = rcvr->child(name());
+        Alias *alias = Alias::dynamicCast(result);
+        if(alias && !alias->target().isEmpty()) result = rcvr->child(alias->target());
         if(!isEscaped()) result = result->run(rcvr, this);
         return result;
     }

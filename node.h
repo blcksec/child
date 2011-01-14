@@ -98,10 +98,14 @@ public:
     CHILD_NATIVE_METHOD_DECLARE(origin_set);
 
     bool isAbstract() const { return _isAbstract; }
+    bool isConcrete() const { return !_isAbstract; }
     void setIsAbstract(bool isAbstract) { _isAbstract = isAbstract; }
+    void setIsConcrete(bool isConcrete) { _isAbstract = !isConcrete; }
 
     bool isVirtual() const { return _isVirtual; }
+    bool isReal() const { return !_isVirtual; }
     void setIsVirtual(bool isVirtual) { _isVirtual = isVirtual; }
+    void setIsReal(bool isReal) { _isVirtual = !isReal; }
 
     Node *real();
     const Node *real() const { return constCast(this)->real(); }

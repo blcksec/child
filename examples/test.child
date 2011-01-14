@@ -1,8 +1,4 @@
-meth(\@a) := { a inspect }
-
-meth("a" + "b")
-
-a
+`<<` := "yo" // Alias(append)
 
 /*
 Person := Object() {

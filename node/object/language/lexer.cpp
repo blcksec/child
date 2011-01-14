@@ -42,6 +42,7 @@ namespace Language {
                 else if(isNewline()) return scanNewline();
                 else if(isSpace()) consumeSpaces();
                 else if(isName()) return scanName();
+                else if(isBackquotedName()) return scanBackquotedName();
                 else if(isNumber()) return scanNumber();
                 else if(isOperator()) return scanOperator();
                 else throw lexerException(QString("invalid character: '%1'").arg(_currentChar));
@@ -95,6 +96,18 @@ namespace Language {
         const QStringRef text(tokenTextRef());
         if(text == "yes" || text == "no" || text == "true" || text == "false") return finishToken(Token::Boolean);
         return finishToken(Token::Name);
+    }
+
+    Token *Lexer::scanBackquotedName() {
+        consume(); // opening backquote
+        startToken();
+        while(_currentChar != '`') {
+            if(isEof()) throw lexerException("unexpected EOF found in a text literal");
+            consume();
+        };
+        Token *token = finishToken(Token::Name);
+        consume(); // closing backquote
+        return token;
     }
 
     Token *Lexer::scanOperator() {

@@ -124,6 +124,11 @@ public:
     explicit AbstractList(Node *origin) : GenericAbstractList<Node *>(origin) {}
 
     CHILD_FORK_METHOD(AbstractList);
+
+    CHILD_NATIVE_METHOD_DECLARE(append);
+
+    CHILD_NATIVE_METHOD_DECLARE(size);
+    CHILD_NATIVE_METHOD_DECLARE(empty_qm);
 };
 
 // === GenericList ===
@@ -256,19 +261,22 @@ public:
     using GenericAbstractList<T>::checkIndex;
     using GenericAbstractList<T>::hasChanged;
 
-    explicit GenericVirtualList(Node *origin, QList<T> **listPtr = NULL) : GenericAbstractList<T>(origin), _listPtr(listPtr) {}
+    explicit GenericVirtualList(Node *origin, QList<T> **source = NULL) : GenericAbstractList<T>(origin), _source(source) {}
 
-    GenericVirtualList(const GenericVirtualList &other) : GenericAbstractList<T>(other), _listPtr(other._listPtr) {}
+    GenericVirtualList(const GenericVirtualList &other) : GenericAbstractList<T>(other), _source(other._source) {}
+
+    QList<T> **source() const { return _source; }
+    void setSource(QList<T> **source) { _source = source; }
 
     virtual T get(int i) const {
         checkIndex(i);
-        return (*_listPtr)->at(i);
+        return (*_source)->at(i);
     }
 
     virtual T set(int i, const T &value) {
         checkIndex(i);
         CHILD_CHECK_VALUE(value);
-        (*_listPtr)->replace(i, value);
+        (*_source)->replace(i, value);
         hasChanged();
         return value;
     }
@@ -276,26 +284,26 @@ public:
     virtual void silentlyInsert(int i, const T &value) {
         checkIndex(i, true);
         CHILD_CHECK_VALUE(value);
-        if(!*_listPtr) { *_listPtr = new QList<T>; }
-        (*_listPtr)->insert(i, value);
+        if(!*_source) { *_source = new QList<T>; }
+        (*_source)->insert(i, value);
     }
 
     virtual void remove(int i) {
         checkIndex(i);
-        (*_listPtr)->removeAt(i);
+        (*_source)->removeAt(i);
         hasChanged();
     }
 
     virtual void clear() {
-        if(*_listPtr) {
-            (*_listPtr)->clear();
+        if(*_source) {
+            (*_source)->clear();
             hasChanged();
         }
     }
 
-    virtual int size() const { return *_listPtr ? (*_listPtr)->size() : 0; }
+    virtual int size() const { return *_source ? (*_source)->size() : 0; }
 private:
-    QList<T> **_listPtr;
+    QList<T> **_source;
 };
 
 // === VirtualList ===
@@ -305,9 +313,9 @@ private:
 class VirtualList : public GenericVirtualList<Node *> {
     CHILD_DECLARE(VirtualList, AbstractList, Object);
 public:
-    explicit VirtualList(Node *origin, QList<Node *> **listPtr = NULL) : GenericVirtualList<Node *>(origin, listPtr) {}
+    explicit VirtualList(Node *origin, QList<Node *> **source = NULL) : GenericVirtualList<Node *>(origin, source) {}
 
-    CHILD_FORK_METHOD(VirtualList);
+    CHILD_FORK_METHOD(VirtualList, source());
 };
 
 CHILD_END
