@@ -16,13 +16,14 @@ public:
     explicit Character(Node *origin, const QChar &value = QChar::Null) :
         GenericElement<QChar>(origin, value) {}
 
-    CHILD_FORK_METHOD(Character, value());
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Character, value());
 
     virtual bool isEqualTo(const Node *other) const {
         return value() == cast(other)->value();
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(equal_to) {
+    CHILD_DECLARE_NATIVE_METHOD(equal_to) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_BOOLEAN(value() == message->runFirstInput()->toChar());
     }
@@ -37,7 +38,8 @@ public:
         else return 0;
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(compare) {
+    CHILD_DECLARE_NATIVE_METHOD(compare) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_NUMBER(compare(message->runFirstInput()->toChar()));
     }

@@ -9,6 +9,7 @@ namespace Language {
     }
 
     Node *Section::run(Node *receiver) {
+        CHILD_PUSH_RUN(this);
         Node *result = NULL;
         Iterator i(this);
         while(Primitive *primitive = i.next())

@@ -25,7 +25,7 @@ namespace Language {
         Argument(Node *origin, Node *node) :
             GenericPair<Primitive *, Primitive *>(origin, NULL, CHILD_PRIMITIVE(node)) {}
 
-        CHILD_FORK_METHOD(Argument, CHILD_FORK_IF_NOT_NULL(label()), CHILD_FORK_IF_NOT_NULL(value()));
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Argument, CHILD_FORK_IF_NOT_NULL(label()), CHILD_FORK_IF_NOT_NULL(value()));
 
         // aliases...
         Primitive *label() const { return key(); }
@@ -34,6 +34,7 @@ namespace Language {
         QString labelName() const;
 
         virtual Node *run(Node *receiver = context()) {
+            // CHILD_PUSH_RUN(this); // is it really necessary?
             return value()->run(receiver);
         }
 

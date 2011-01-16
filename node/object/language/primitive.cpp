@@ -39,6 +39,17 @@ namespace Language {
         return result;
     }
 
+    Node *Primitive::run(Node *receiver) {
+        Node *result;
+        try {
+            CHILD_PUSH_RUN(this);
+            result = value()->run(receiver);
+        } catch(const Primitive::Skip &skip) {
+            return skip.result;
+        }
+        return hasNext() ? result->receive(next()) : result;
+    }
+
     QString Primitive::toString(bool debug, short level) const {
         QString str;
         const Primitive *primitive = this;

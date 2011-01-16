@@ -20,7 +20,7 @@ namespace Language {
     public:
         explicit Parser(Node *origin) : Object(origin), _lexer(NULL), _currentToken(NULL) {}
 
-        CHILD_FORK_METHOD(Parser); // TODO
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Parser); // TODO
 
         Lexer *lexer() const;
 
@@ -37,7 +37,7 @@ namespace Language {
         const Token::Type topToken() const { return _openedTokens.isEmpty() ? Token::Null : _openedTokens.top(); }
         void clearOpenedTokens() { _openedTokens.clear(); }
 
-        const bool is(const Token::Type type, const QString &text = QString()) const;
+        bool is(const Token::Type type, const QString &text = QString()) const;
         const QString match(const Token::Type type, const QString &text = QString());
 
         void consumeNewline();
@@ -47,26 +47,34 @@ namespace Language {
         Primitive *scanExpression();
         Primitive *scanUnaryExpressionChain();
 
-        const bool isUnaryExpression() const { return isPrefixOperator() || isPrimaryExpression(); }
+        bool isUnaryExpression() const { return isPrefixOperator() || isPrimaryExpression(); }
         Primitive *scanUnaryExpression(Primitive *currentPrimitive);
 
-        const bool isPrimaryExpression() const { return isOperand(); }
+        bool isPrimaryExpression() const { return isOperand(); }
         Primitive *scanPrimaryExpression(Primitive *currentPrimitive);
 
-        const bool isOperand() const { return isName() || isLiteral() || isSubexpression() || isNestedBlock(); }
+        bool isOperand() const {
+            return isName() || isLiteral() || isCollection() || isSubexpression() || isNestedBlock();
+        }
         Primitive *scanOperand();
 
-        const bool isName() const { return is(Token::Name); }
+        bool isName() const { return is(Token::Name); }
         Primitive *scanName();
 
-        const bool isLiteral() const;
+        bool isLiteral() const;
         Primitive *scanLiteral();
 
-        const bool isSubexpression() const { return is(Token::LeftParenthesis); }
+        bool isCollection() const { return is(Token::LeftBracket); }
+        Primitive *scanCollection();
+
+        bool isSubexpression() const { return is(Token::LeftParenthesis); }
         Primitive *scanSubexpression();
 
-        const bool isNestedBlock() const { return is(Token::LeftBrace); }
+        bool isNestedBlock() const { return is(Token::LeftBrace); }
         Primitive *scanNestedBlock();
+
+        bool isCollectionAccessor() const { return is(Token::LeftBracket); }
+        Primitive *scanCollectionAccessor(Primitive *currentPrimitive);
 
         Operator *isOperator(Operator::Type type) const;
 

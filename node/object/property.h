@@ -11,13 +11,14 @@ new Property(context()->child("Object", "Property"), ##ARGS)
 class Property : public Object {
     CHILD_DECLARE(Property, Object, Object);
 public:
-    explicit Property(Node *origin) : Object(origin) {}
+    explicit Property(Node *origin) : Object(origin) { setIsRunnable(true); }
 
-    CHILD_FORK_METHOD(Property);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Property);
 
-    virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL) {
+    virtual Node *run(Node *receiver) {
         Q_UNUSED(receiver);
-        return child("get")->run(this, message, code);
+        CHILD_PUSH_RUN(this);
+        return child("get")->run(this);
     }
 };
 

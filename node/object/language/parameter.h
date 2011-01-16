@@ -18,7 +18,7 @@ namespace Language {
             GenericPair<QString, Primitive *>(origin, label, defaultValue),
             _isEscaped(isEscaped), _isParented(isParented) {}
 
-        CHILD_FORK_METHOD(Parameter, label(), CHILD_FORK_IF_NOT_NULL(defaultValue()), isEscaped(), isParented());
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Parameter, label(), CHILD_FORK_IF_NOT_NULL(defaultValue()), isEscaped(), isParented());
 
         // aliases...
         QString label() const { return key(); }
@@ -27,6 +27,7 @@ namespace Language {
         void setDefaultValue(Primitive *defaultValue) { setValue(defaultValue); }
 
         virtual Node *run(Node *receiver = context()) {
+            // CHILD_PUSH_RUN(this); // is it really necessary?
             return defaultValue()->run(receiver);
         }
 

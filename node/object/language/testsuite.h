@@ -15,7 +15,7 @@ namespace Language {
     public:
         explicit TestSuite(Node *origin) : GenericList<Test *>(origin) {}
 
-        CHILD_FORK_METHOD(TestSuite);
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(TestSuite);
 
         virtual Node *run(Node *receiver = context());
     };

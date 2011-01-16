@@ -2,6 +2,8 @@
 
 #include "child.h"
 #include "node/exception.h"
+#include "node/object/language/primitive.h"
+#include "node/object/message.h"
 #include "node/object/language/interpreter.h"
 
 CHILD_BEGIN
@@ -79,7 +81,7 @@ QString extractLine(const QString &text, int requestedLine) {
     return QString();
 }
 
-const bool computeColumnAndLineForPosition(const QString &text, const int position, int &column, int &line) {
+bool computeColumnAndLineForPosition(const QString &text, const int position, int &column, int &line) {
     line = 1;
     int pos = 0;
     int previousPos = 0;
@@ -106,15 +108,15 @@ QString preferSecondArgumentIfNotEmpty(const QString &a, const QString &b) {
     return b.isEmpty() ? a : b;
 }
 
-
-#define CHILD_THROW_FUNCTION(EXCEPTION) \
+#define CHILD_DEFINE_THROW_FUNCTION(EXCEPTION) \
 void throw##EXCEPTION(const QString &message, const QString &file, const int line, const QString &function) { \
     throw EXCEPTION(context()->child(#EXCEPTION), message, file, line, function); \
 }
 
-CHILD_THROW_FUNCTION(RuntimeException);
-CHILD_THROW_FUNCTION(NullPointerException);
-CHILD_THROW_FUNCTION(TypecastException);
-CHILD_THROW_FUNCTION(ConversionException);
+CHILD_DEFINE_THROW_FUNCTION(RuntimeException);
+CHILD_DEFINE_THROW_FUNCTION(NullPointerException);
+CHILD_DEFINE_THROW_FUNCTION(NotFoundException);
+CHILD_DEFINE_THROW_FUNCTION(TypecastException);
+CHILD_DEFINE_THROW_FUNCTION(ConversionException);
 
 CHILD_END

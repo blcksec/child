@@ -17,7 +17,7 @@ namespace Language {
     public:
         explicit Lexer(Node *origin) : Object(origin), _operatorTable(NULL), _source(NULL) {}
 
-        CHILD_FORK_METHOD(Lexer); // TODO
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Lexer); // TODO
 
         OperatorTable *operatorTable() const;
 

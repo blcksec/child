@@ -15,7 +15,7 @@ public:
         _doc(NULL), _docIsCached(false), _body(NULL), _bodyIsCached(false),
         _test(NULL), _testIsCached(false), _else(NULL), _elseIsCached(false) {}
 
-    CHILD_FORK_METHOD(Block);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Block);
 
     virtual Node *run(Node *receiver = context());
 

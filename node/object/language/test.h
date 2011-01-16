@@ -16,7 +16,7 @@ namespace Language {
         explicit Test(Node *origin, Section *section = NULL, Node *receiver = NULL) :
             GenericElement<Section *>(origin, section), _receiver(receiver) {}
 
-        CHILD_FORK_METHOD(Test, CHILD_FORK_IF_NOT_NULL(section()), CHILD_FORK_IF_NOT_NULL(receiver()));
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Test, CHILD_FORK_IF_NOT_NULL(section()), CHILD_FORK_IF_NOT_NULL(receiver()));
 
         // aliases...
         Section *section() const { return value(); }
@@ -27,7 +27,8 @@ namespace Language {
 
         virtual Node *run(Node *receiver = context()) {
             Q_UNUSED(receiver);
-            ContextPusher pusher(this->receiver()); Q_UNUSED(pusher);
+            CHILD_PUSH_RUN(this);
+            CHILD_PUSH_CONTEXT(this->receiver());
             return section()->run();
         }
 

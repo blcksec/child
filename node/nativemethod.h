@@ -8,39 +8,33 @@ CHILD_BEGIN
 
 #define CHILD_NATIVE_METHOD(ARGS...) new NativeMethod(context()->child("NativeMethod"), ##ARGS)
 
-#define CHILD_NATIVE_METHOD_ADD(CLASS, METHOD, NAME...) \
+#define CHILD_ADD_NATIVE_METHOD(CLASS, METHOD, NAME...) \
 addOrSetChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
     new NativeMethod(NativeMethod::root(), static_cast<_MethodPointer_>(&CLASS::_##METHOD##_)))
 
-#define CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(CLASS, METHOD, NAME...) \
-addOrSetChild(preferSecondArgumentIfNotEmpty(#METHOD, #NAME), \
-    new NativeMethod(NativeMethod::root(), static_cast<_MethodPointer_>(&CLASS::_##METHOD##_), true))
-
-typedef Node *(Node::*_MethodPointer_)(Message *, Language::Primitive *);
+typedef Node *(Node::*_MethodPointer_)();
 
 class NativeMethod : public Node {
     CHILD_DECLARE(NativeMethod, Node, Node);
 public:
-    explicit NativeMethod(Node *origin, const _MethodPointer_ &method = NULL, const QString &codeInputName = "") :
-        Node(origin), _method(method), _codeInputName(codeInputName) {}
+    explicit NativeMethod(Node *origin, const _MethodPointer_ &method = NULL) :
+        Node(origin) { setMethod(method); }
 
-    explicit NativeMethod(Node *origin, const _MethodPointer_ &method, bool hasCodeInput) :
-        Node(origin), _method(method), _codeInputName(hasCodeInput ? "code" : "") {}
-
-    CHILD_FORK_METHOD(NativeMethod, method(), codeInputName());
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(NativeMethod, method());
 
     _MethodPointer_ method() const { return _method; }
-    void setMethod(const _MethodPointer_ &method) { _method = method; }
 
-    const QString &codeInputName() const { return _codeInputName; }
-    void setCodeInputName(const QString &name) { _codeInputName = name; }
-    bool hasCodeInput() const { return !_codeInputName.isEmpty(); }
-    void setHasCodeInput(bool hasCodeInput) { setCodeInputName(hasCodeInput ? "code" : ""); }
+    void setMethod(const _MethodPointer_ &method) {
+        _method = method;
+        setIsRunnable(method);
+    }
 
-    virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL);
+    virtual Node *run(Node *receiver) {
+        CHILD_PUSH_RUN(this);
+        return (receiver->*method())();
+    }
 private:
     _MethodPointer_ _method;
-    QString _codeInputName;
 };
 
 CHILD_END

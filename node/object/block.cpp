@@ -10,6 +10,7 @@ void Block::initRoot() {
 }
 
 Node *Block::run(Node *receiver) {
+    CHILD_PUSH_RUN(this);
     if(docSection()) receiver->addOrSetChild("doc", docSection()->run(receiver));
     if(testSection()) {
         TestSuite *testSuite = TestSuite::cast(child("test_suite"));

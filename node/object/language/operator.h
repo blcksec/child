@@ -25,16 +25,16 @@ namespace Language {
         QString name;
 
         explicit Operator(Node *origin, const QString &text = "", Type type = Null, short precedence = 0,
-                Associativity associativity = LeftAssociative, const bool useLHSAsReceiver = true,
-                 const bool isSpecial = false, const QString &name = "") :
+                Associativity associativity = LeftAssociative, bool useLHSAsReceiver = true,
+                 bool isSpecial = false, const QString &name = "") :
             Object(origin), text(text), type(type), precedence(precedence), associativity(associativity),
             useLHSAsReceiver(useLHSAsReceiver), isSpecial(isSpecial), name(name) {
             if(name.isEmpty()) this->name = text;
         }
 
-        CHILD_FORK_METHOD(Operator, text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name);
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Operator, text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name);
 
-        const bool isNull() const { return type == Null; }
+        bool isNull() const { return type == Null; }
 
         virtual QString toString(bool debug = false, short level = 0) const {
             Q_UNUSED(debug);

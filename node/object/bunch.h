@@ -22,7 +22,7 @@ public:
 
     Bunch(const Bunch &other) : GenericList<Node *>(other) {}
 
-    CHILD_FORK_METHOD(Bunch);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Bunch);
 
     virtual QString toString(bool debug = false, short level = 0) const {
         return "[" + join(", ", "", "", debug, level) + "]";

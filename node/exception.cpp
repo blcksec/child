@@ -19,6 +19,7 @@ const QString Exception::report() const {
 CHILD_EXCEPTION_DEFINITION(LexerException, Exception);
 CHILD_EXCEPTION_DEFINITION(ParserException, Exception);
 CHILD_EXCEPTION_DEFINITION(RuntimeException, Exception);
+CHILD_EXCEPTION_DEFINITION(InterpreterException, RuntimeException);
 CHILD_EXCEPTION_DEFINITION(ArgumentException, RuntimeException);
 CHILD_EXCEPTION_DEFINITION(NullPointerException, RuntimeException);
 CHILD_EXCEPTION_DEFINITION(IndexOutOfBoundsException, RuntimeException);

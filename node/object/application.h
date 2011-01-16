@@ -13,7 +13,7 @@ class Application : public Object {
 public:
     explicit Application(Node *origin) : Object(origin) {}
 
-    CHILD_FORK_METHOD(Application);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Application);
 };
 
 CHILD_END

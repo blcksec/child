@@ -5,20 +5,20 @@ CHILD_BEGIN
 CHILD_DEFINE(Number, Element, Object);
 
 void Number::initRoot() {
-    CHILD_NATIVE_METHOD_ADD(Number, add, +);
-    CHILD_NATIVE_METHOD_ADD(Number, subtract, -);
-    CHILD_NATIVE_METHOD_ADD(Number, multiply, *);
-    CHILD_NATIVE_METHOD_ADD(Number, divide, /);
-    CHILD_NATIVE_METHOD_ADD(Number, modulo, %);
+    CHILD_ADD_NATIVE_METHOD(Number, add, +);
+    CHILD_ADD_NATIVE_METHOD(Number, subtract, -);
+    CHILD_ADD_NATIVE_METHOD(Number, multiply, *);
+    CHILD_ADD_NATIVE_METHOD(Number, divide, /);
+    CHILD_ADD_NATIVE_METHOD(Number, modulo, %);
 
-    CHILD_NATIVE_METHOD_ADD(Number, unary_plus, unary+);
-    CHILD_NATIVE_METHOD_ADD(Number, unary_minus, unary-);
+    CHILD_ADD_NATIVE_METHOD(Number, unary_plus, unary+);
+    CHILD_ADD_NATIVE_METHOD(Number, unary_minus, unary-);
 
-    CHILD_NATIVE_METHOD_ADD(Number, prefix_increment, prefix++);
-    CHILD_NATIVE_METHOD_ADD(Number, prefix_decrement, prefix--);
+    CHILD_ADD_NATIVE_METHOD(Number, prefix_increment, prefix++);
+    CHILD_ADD_NATIVE_METHOD(Number, prefix_decrement, prefix--);
 
-    CHILD_NATIVE_METHOD_ADD(Number, equal_to, ==);
-    CHILD_NATIVE_METHOD_ADD(Number, compare, <=>);
+    CHILD_ADD_NATIVE_METHOD(Number, equal_to, ==);
+    CHILD_ADD_NATIVE_METHOD(Number, compare, <=>);
 }
 
 CHILD_END

@@ -39,40 +39,40 @@ Node *Node::root() {
 void Node::initRoot() {
     pushContext(this);
 
-    CHILD_NATIVE_METHOD_ADD(Node, self);
+    CHILD_ADD_NATIVE_METHOD(Node, self);
 
     Property::root();
 
     Property *originProperty = CHILD_PROPERTY();
-    originProperty->CHILD_NATIVE_METHOD_ADD(Node, origin_get, get);
-    originProperty->CHILD_NATIVE_METHOD_ADD(Node, origin_set, set);
+    originProperty->CHILD_ADD_NATIVE_METHOD(Node, origin_get, get);
+    originProperty->CHILD_ADD_NATIVE_METHOD(Node, origin_set, set);
     addChild("origin", originProperty);
 
     Property *extensionsProperty = CHILD_PROPERTY();
-    extensionsProperty->CHILD_NATIVE_METHOD_ADD(Node, extensions_get, get);
+    extensionsProperty->CHILD_ADD_NATIVE_METHOD(Node, extensions_get, get);
     addChild("extensions", extensionsProperty);
 
-    CHILD_NATIVE_METHOD_ADD(Node, fork);
-    CHILD_NATIVE_METHOD_ADD(Node, define, :=);
-    CHILD_NATIVE_METHOD_ADD(Node, assign, =);
+    CHILD_ADD_NATIVE_METHOD(Node, fork);
+    CHILD_ADD_NATIVE_METHOD(Node, define, :=);
+    CHILD_ADD_NATIVE_METHOD(Node, assign, =);
 
-    CHILD_NATIVE_METHOD_ADD(Node, parent);
-    CHILD_NATIVE_METHOD_ADD(Node, parent_qm, parent?);
+    CHILD_ADD_NATIVE_METHOD(Node, parent);
+    CHILD_ADD_NATIVE_METHOD(Node, parent_qm, parent?);
 
-    CHILD_NATIVE_METHOD_ADD(Node, or, ||);
-    CHILD_NATIVE_METHOD_ADD(Node, and, &&);
-    CHILD_NATIVE_METHOD_ADD(Node, not, !);
+    CHILD_ADD_NATIVE_METHOD(Node, or, ||);
+    CHILD_ADD_NATIVE_METHOD(Node, and, &&);
+    CHILD_ADD_NATIVE_METHOD(Node, not, !);
 
-    CHILD_NATIVE_METHOD_ADD(Node, or_assign, ||=);
-    CHILD_NATIVE_METHOD_ADD(Node, and_assign, &&=);
+    CHILD_ADD_NATIVE_METHOD(Node, or_assign, ||=);
+    CHILD_ADD_NATIVE_METHOD(Node, and_assign, &&=);
 
-    CHILD_NATIVE_METHOD_ADD(Node, equal_to, ==);
-    CHILD_NATIVE_METHOD_ADD(Node, different_from, !=);
-    CHILD_NATIVE_METHOD_ADD(Node, assert, ?:);
-    CHILD_NATIVE_METHOD_ADD(Node, print);
-    CHILD_NATIVE_METHOD_ADD(Node, inspect);
+    CHILD_ADD_NATIVE_METHOD(Node, equal_to, ==);
+    CHILD_ADD_NATIVE_METHOD(Node, different_from, !=);
+    CHILD_ADD_NATIVE_METHOD(Node, assert, ?:);
+    CHILD_ADD_NATIVE_METHOD(Node, print);
+    CHILD_ADD_NATIVE_METHOD(Node, inspect);
 
-    CHILD_NATIVE_METHOD_ADD(Node, memory_address);
+    CHILD_ADD_NATIVE_METHOD(Node, memory_address);
 }
 
 const QString Node::className() const {
@@ -98,12 +98,14 @@ void Node::declare(const QString &name) const {
     roots().append(Root(constCast(this), name));
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, self) {
+CHILD_DEFINE_NATIVE_METHOD(Node, self) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     return this;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
+CHILD_DEFINE_NATIVE_METHOD(Node, fork) {
+    CHILD_FIND_LAST_MESSAGE;
     Node *node = fork();
     if(node->hasChild("init")) {
         Message* initMessage = message->fork();
@@ -113,12 +115,14 @@ CHILD_NATIVE_METHOD_DEFINE(Node, fork) {
     return node;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, origin_get) {
+CHILD_DEFINE_NATIVE_METHOD(Node, origin_get) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     return parent()->origin();
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, origin_set) {
+CHILD_DEFINE_NATIVE_METHOD(Node, origin_set) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(1);
     parent()->setOrigin(message->runFirstInput());
     return this;
@@ -168,12 +172,13 @@ QList<Node *> Node::extensions() const {
     return _extensions ? *_extensions : QList<Node *>();
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, extensions_get) {
+CHILD_DEFINE_NATIVE_METHOD(Node, extensions_get) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     VirtualList *value = VirtualList::dynamicCast(hasDirectChild("cached_value"));
     if(!value) {
-        value = CHILD_VIRTUAL_LIST(&parent()->real()->_extensions);
-        if(parent()->isReal()) addOrSetChild("cached_value", value);
+        value = CHILD_VIRTUAL_LIST(&parent()->_extensions);
+        addOrSetChild("cached_value", value);
     }
     return value;
 }
@@ -211,7 +216,8 @@ void Node::_setChild(const QString &name, Node *value) {
     if(value) value->_addParent(this);
 }
 
-Node *Node::defineOrAssign(Message *message, bool isDefine) {
+Node *Node::defineOrAssign(bool isDefine) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(2);
     Primitive *primitive = message->firstInput()->value();
     Message *msg = Message::dynamicCast(primitive->value());
@@ -317,7 +323,8 @@ Node *Node::parent() const {
     return _parents->keys().first();
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, parent) {
+CHILD_DEFINE_NATIVE_METHOD(Node, parent) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     return parent();
 }
@@ -326,7 +333,8 @@ bool Node::hasOneParent() const {
     return _parents && _parents->size() == 1;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, parent_qm) {
+CHILD_DEFINE_NATIVE_METHOD(Node, parent_qm) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     return CHILD_BOOLEAN(hasOneParent());
 }
@@ -335,33 +343,26 @@ Node *Node::receive(Primitive *primitive) {
     return primitive->run(this);
 }
 
-Node *Node::run(Node *receiver, Message *message, Primitive *code) {
-    Q_UNUSED(receiver);
-    Q_UNUSED(code);
-    if(message->inputs(false)) {
-        Message *forkMessage = message->fork();
-        forkMessage->setName("fork");
-        return forkMessage->run(this);
-    } else
-        return this;
-}
-
-CHILD_NATIVE_METHOD_DEFINE(Node, or) {
+CHILD_DEFINE_NATIVE_METHOD(Node, or) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(1);
     return CHILD_BOOLEAN(toBool() || message->runFirstInput()->toBool());
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, and) {
+CHILD_DEFINE_NATIVE_METHOD(Node, and) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(1);
     return CHILD_BOOLEAN(toBool() && message->runFirstInput()->toBool());
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, not) {
+CHILD_DEFINE_NATIVE_METHOD(Node, not) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     return CHILD_BOOLEAN(!toBool());
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, or_assign) {
+CHILD_DEFINE_NATIVE_METHOD(Node, or_assign) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(2);
     Node *lhs = message->runFirstInput();
     if(!lhs->toBool())
@@ -370,7 +371,8 @@ CHILD_NATIVE_METHOD_DEFINE(Node, or_assign) {
         return lhs;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, and_assign) {
+CHILD_DEFINE_NATIVE_METHOD(Node, and_assign) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(2);
     Node *lhs = message->runFirstInput();
     if(lhs->toBool())
@@ -379,35 +381,41 @@ CHILD_NATIVE_METHOD_DEFINE(Node, and_assign) {
         return lhs;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, equal_to) {
+CHILD_DEFINE_NATIVE_METHOD(Node, equal_to) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(1);
     return CHILD_BOOLEAN(isEqualTo(message->runFirstInput()));
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, different_from) {
+CHILD_DEFINE_NATIVE_METHOD(Node, different_from) {
+    CHILD_FIND_LAST_MESSAGE;
     return CHILD_BOOLEAN(!Boolean::cast(CHILD_MESSAGE("==", message->inputs(false))->run(this))->value());
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, assert) {
+CHILD_DEFINE_NATIVE_METHOD(Node, assert) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     if(!toBool()) CHILD_THROW(AssertionException, "assertion failed");
     passedAssertionCount()++;
     return this;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, print) {
+CHILD_DEFINE_NATIVE_METHOD(Node, print) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     print();
     return this;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, inspect) {
+CHILD_DEFINE_NATIVE_METHOD(Node, inspect) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     inspect();
     return this;
 }
 
-CHILD_NATIVE_METHOD_DEFINE(Node, memory_address) {
+CHILD_DEFINE_NATIVE_METHOD(Node, memory_address) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     return CHILD_NUMBER(memoryAddress());
 }

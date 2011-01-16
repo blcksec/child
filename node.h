@@ -9,17 +9,17 @@ CHILD_BEGIN
 
 #define CHILD_NODE(ARGS...) new Node(context()->child("Node"), ##ARGS)
 
-#define CHILD_FORK_METHOD(NAME, ARGS...) \
+#define CHILD_DECLARE_AND_DEFINE_FORK_METHOD(NAME, ARGS...) \
 virtual NAME *fork() const { \
     NAME *node = new NAME(constCast(this), ##ARGS); \
     node->initFork(); \
     return node; \
 }
 
-#define CHILD_FORK_METHOD_DECLARE(NAME) \
+#define CHILD_DECLARE_FORK_METHOD(NAME) \
 virtual NAME *fork() const;
 
-#define CHILD_FORK_METHOD_DEFINE(NAME, ARGS...) \
+#define CHILD_DEFINE_FORK_METHOD(NAME, ARGS...) \
 NAME *NAME::fork() const { \
     NAME *node = new NAME(constCast(this), ##ARGS); \
     node->initFork(); \
@@ -33,34 +33,25 @@ NAME *NAME::fork() const { \
 if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Node pointer is NULL")
 
 class Message;
-
-namespace Language {
-    class Primitive;
-}
-
+namespace Language { class Primitive; }
 using namespace Language;
 
-#define CHILD_NATIVE_METHOD_DECLARE(METHOD) \
-Node *_##METHOD##_(Message *message, Primitive *)
+#define CHILD_DECLARE_NATIVE_METHOD(METHOD) \
+Node *_##METHOD##_()
 
-#define CHILD_NATIVE_METHOD_DEFINE(NAME, METHOD) \
-Node *NAME::_##METHOD##_(Message *message, Primitive *)
-
-#define CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DECLARE(METHOD) \
-Node *_##METHOD##_(Message *message, Primitive *code)
-
-#define CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DEFINE(NAME, METHOD) \
-Node *NAME::_##METHOD##_(Message *message, Primitive *code)
+#define CHILD_DEFINE_NATIVE_METHOD(NAME, METHOD) \
+Node *NAME::_##METHOD##_()
 
 class Node {
 public:
     static const bool isInitialized;
 
     explicit Node(Node *origin) : _origin(origin), _extensions(NULL), // default constructor
-        _children(NULL), _parents(NULL), _isAbstract(true), _isVirtual(false) {}
+        _children(NULL), _parents(NULL), _isAbstract(true), _isVirtual(false), _isRunnable(false) {}
 
     Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
-        _children(NULL), _parents(NULL), _isAbstract(other._isAbstract), _isVirtual(other._isVirtual) {
+        _children(NULL), _parents(NULL), _isAbstract(other._isAbstract),
+        _isVirtual(other._isVirtual), _isRunnable(other._isRunnable) {
         if(other._extensions) _extensions = new QList<Node *>(*other._extensions);
         if(other._children) {
             QHashIterator<QString, Node *> i(other.children());
@@ -81,21 +72,21 @@ public:
 
     void declare(const QString &name) const;
 
-    CHILD_FORK_METHOD(Node);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Node);
     virtual void initFork() {}
 
-    CHILD_NATIVE_METHOD_DECLARE(self);
-    CHILD_NATIVE_METHOD_DECLARE(fork);
+    CHILD_DECLARE_NATIVE_METHOD(self);
+    CHILD_DECLARE_NATIVE_METHOD(fork);
 
     Node *origin() const {
         if(!_origin) CHILD_THROW_NULL_POINTER_EXCEPTION("origin is NULL");
         return _origin;
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(origin_get);
+    CHILD_DECLARE_NATIVE_METHOD(origin_get);
 
     void setOrigin(Node *node);
-    CHILD_NATIVE_METHOD_DECLARE(origin_set);
+    CHILD_DECLARE_NATIVE_METHOD(origin_set);
 
     bool isAbstract() const { return _isAbstract; }
     bool isConcrete() const { return !_isAbstract; }
@@ -107,6 +98,9 @@ public:
     void setIsVirtual(bool isVirtual) { _isVirtual = isVirtual; }
     void setIsReal(bool isReal) { _isVirtual = !isReal; }
 
+    bool isRunnable() const { return _isRunnable; }
+    void setIsRunnable(bool isRunnable) { _isRunnable = isRunnable; }
+
     Node *real();
     const Node *real() const { return constCast(this)->real(); }
 
@@ -117,7 +111,7 @@ public:
     bool hasExtension(Node *node) const;
     QList<Node *> extensions() const;
 
-    CHILD_NATIVE_METHOD_DECLARE(extensions_get);
+    CHILD_DECLARE_NATIVE_METHOD(extensions_get);
 
     Node *child(const QString &name) const;
 
@@ -137,14 +131,12 @@ public:
     Node *addOrSetChild(const QString &name, Node *value) { return setChild(name, value, true); }
 
 private:
-    Node *defineOrAssign(Message *message, bool isDefine);
+    Node *defineOrAssign(bool isDefine);
 public:
-    CHILD_NATIVE_METHOD_DECLARE(define) { return defineOrAssign(message, true); }
-    CHILD_NATIVE_METHOD_DECLARE(assign) { return defineOrAssign(message, false); }
+    CHILD_DECLARE_NATIVE_METHOD(define) { return defineOrAssign(true); }
+    CHILD_DECLARE_NATIVE_METHOD(assign) { return defineOrAssign(false); }
 
-    virtual void hasBeenAssigned(Message *message) const {
-        Q_UNUSED(message);
-    }
+    virtual void hasBeenAssigned(Message *) const {}
 
     void removeChild(const QString &name);
 
@@ -189,9 +181,9 @@ public:
     QList<Node *> parents() const;
 
     Node *parent() const;
-    CHILD_NATIVE_METHOD_DECLARE(parent);
+    CHILD_DECLARE_NATIVE_METHOD(parent);
     bool hasOneParent() const;
-    CHILD_NATIVE_METHOD_DECLARE(parent_qm);
+    CHILD_DECLARE_NATIVE_METHOD(parent_qm);
 
     virtual Node *receive(Primitive *primitive);
 
@@ -200,34 +192,32 @@ public:
         return this;
     }
 
-    virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL);
+    CHILD_DECLARE_NATIVE_METHOD(or);
+    CHILD_DECLARE_NATIVE_METHOD(and);
+    CHILD_DECLARE_NATIVE_METHOD(not);
 
-    CHILD_NATIVE_METHOD_DECLARE(or);
-    CHILD_NATIVE_METHOD_DECLARE(and);
-    CHILD_NATIVE_METHOD_DECLARE(not);
-
-    CHILD_NATIVE_METHOD_DECLARE(or_assign);
-    CHILD_NATIVE_METHOD_DECLARE(and_assign);
+    CHILD_DECLARE_NATIVE_METHOD(or_assign);
+    CHILD_DECLARE_NATIVE_METHOD(and_assign);
 
     virtual bool isEqualTo(const Node *other) const { return real() == other->real(); }
-    CHILD_NATIVE_METHOD_DECLARE(equal_to);
-    CHILD_NATIVE_METHOD_DECLARE(different_from);
+    CHILD_DECLARE_NATIVE_METHOD(equal_to);
+    CHILD_DECLARE_NATIVE_METHOD(different_from);
 
     static HugeUnsignedInteger &passedAssertionCount() {
         static HugeUnsignedInteger _count = 0;
         return _count;
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(assert);
+    CHILD_DECLARE_NATIVE_METHOD(assert);
 
     void print() const { P(toString().toUtf8()); }
-    CHILD_NATIVE_METHOD_DECLARE(print);
+    CHILD_DECLARE_NATIVE_METHOD(print);
 
     void inspect() const { P(toString(true).toUtf8()); }
-    CHILD_NATIVE_METHOD_DECLARE(inspect);
+    CHILD_DECLARE_NATIVE_METHOD(inspect);
 
     long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
-    CHILD_NATIVE_METHOD_DECLARE(memory_address);
+    CHILD_DECLARE_NATIVE_METHOD(memory_address);
 
     QString hexMemoryAddress() const { return QString("0x%1").arg(memoryAddress(), 0, 16); }
 
@@ -267,6 +257,7 @@ private:
     mutable QHash<Node *, HugeUnsignedInteger> *_parents;
     bool _isAbstract : 1;
     bool _isVirtual  : 1;
+    bool _isRunnable : 1;
 };
 
 inline bool operator==(const Node &a, const Node &b) { return a.isEqualTo(&b); }

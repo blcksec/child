@@ -28,7 +28,7 @@ public:
     explicit Element(Node *origin, Node *value = NULL) :
         GenericElement<Node *>(origin, value) {}
 
-    CHILD_FORK_METHOD(Element, CHILD_FORK_IF_NOT_NULL(value()));
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Element, CHILD_FORK_IF_NOT_NULL(value()));
 
     virtual void setValue(Node *const &newValue) {
         if(newValue != value()) {

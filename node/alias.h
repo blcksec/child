@@ -12,9 +12,9 @@ class Alias : public Node {
 public:
     explicit Alias(Node *origin, const QString &target = "") : Node(origin), _target(target) {}
 
-    CHILD_FORK_METHOD(Alias, target());
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Alias, target());
 
-    CHILD_NATIVE_METHOD_DECLARE(init);
+    CHILD_DECLARE_NATIVE_METHOD(init);
 
     QString target() const { return _target; }
     void setTarget(const QString &target) { _target = target; }

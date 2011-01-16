@@ -10,6 +10,7 @@ namespace Language {
 
     Node *TestSuite::run(Node *receiver) {
         Q_UNUSED(receiver);
+        CHILD_PUSH_RUN(this);
         Iterator i(this);
         while(Test *test = i.next())
             test->run();

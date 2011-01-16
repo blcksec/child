@@ -11,15 +11,16 @@ CHILD_BEGIN
 class Boolean : public GenericElement<bool> {
     CHILD_DECLARE(Boolean, Element, Object);
 public:
-    explicit Boolean(Node *origin, const bool value = false) : GenericElement<bool>(origin, value) {}
+    explicit Boolean(Node *origin, bool value = false) : GenericElement<bool>(origin, value) {}
 
-    CHILD_FORK_METHOD(Boolean, value());
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Boolean, value());
 
     virtual bool isEqualTo(const Node *other) const {
         return value() == Boolean::cast(other)->value();
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(equal_to) {
+    CHILD_DECLARE_NATIVE_METHOD(equal_to) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_BOOLEAN(value() == message->runFirstInput()->toBool());
     }

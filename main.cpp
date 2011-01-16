@@ -4,8 +4,8 @@
 
 #include "node.h"
 //#include "tests/runalltests.h"
-//#include "node/object/application.h"
-//#include "node/object/language/interpreter.h"
+#include "node/object/application.h"
+#include "node/object/language/interpreter.h"
 
 CHILD_USE
 
@@ -15,17 +15,17 @@ int main() { // int argc, char *argv[]
     #ifdef CHILD_CATCH_EXCEPTIONS
     try {
     #endif
-        /*
         Application *app = Application::root();
         pushContext(app);
         SourceCode *source = Interpreter::root()->loadSourceCode("../child/examples/test.child");
-        source->inspect();
-        P("--");
-        P("-> " + source->run()->toString(true));
+        if(source->block()->isNotEmpty()) {
+            source->inspect();
+            P("--");
+            P("-> " + source->run()->toString(true));
+        }
 //        TextPointer t(CHILD_TEXT("hello"));
 //        ((*t).*NativeMethodPointer(t->child("print"))->method())(CHILD_ARGUMENT_BUNCH());
         popContext();
-        */
     #ifdef CHILD_CATCH_EXCEPTIONS
     } catch(ExceptionPointer e) {
         qDebug() << e->report().toUtf8();

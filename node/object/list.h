@@ -123,12 +123,14 @@ class AbstractList : public GenericAbstractList<Node *> {
 public:
     explicit AbstractList(Node *origin) : GenericAbstractList<Node *>(origin) {}
 
-    CHILD_FORK_METHOD(AbstractList);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(AbstractList);
 
-    CHILD_NATIVE_METHOD_DECLARE(append);
+    CHILD_DECLARE_NATIVE_METHOD(get);
 
-    CHILD_NATIVE_METHOD_DECLARE(size);
-    CHILD_NATIVE_METHOD_DECLARE(empty_qm);
+    CHILD_DECLARE_NATIVE_METHOD(append);
+
+    CHILD_DECLARE_NATIVE_METHOD(size);
+    CHILD_DECLARE_NATIVE_METHOD(empty_qm);
 };
 
 // === GenericList ===
@@ -141,19 +143,19 @@ public:
     using GenericAbstractList<T>::checkIndex;
     using GenericAbstractList<T>::hasChanged;
 
-    explicit GenericList(Node *origin, const bool isBunch = false) :
+    explicit GenericList(Node *origin, bool isBunch = false) :
         GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) {}
 
-    GenericList(Node *origin, const T &value, const bool isBunch = false) :
+    GenericList(Node *origin, const T &value, bool isBunch = false) :
         GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) { append(value); }
 
-    GenericList(Node *origin, const T &value1, const T &value2, const bool isBunch = false) :
+    GenericList(Node *origin, const T &value1, const T &value2, bool isBunch = false) :
         GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) { append(value1); append(value2); }
 
-    GenericList(Node *origin, const T &value1, const T &value2, const T &value3, const bool isBunch = false) :
+    GenericList(Node *origin, const T &value1, const T &value2, const T &value3, bool isBunch = false) :
         GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) { append(value1); append(value2); append(value3); }
 
-    GenericList(Node *origin, const QList<T> &other, const bool isBunch = false) :
+    GenericList(Node *origin, const QList<T> &other, bool isBunch = false) :
         GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) {
         if(!other.isEmpty()) {
             foreach(T node, other) silentlyAppend(node);
@@ -250,7 +252,9 @@ public:
 
     List(Node *origin, const QList<Node *> &other) : GenericList<Node *>(origin, other) {}
 
-    CHILD_FORK_METHOD(List);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(List);
+
+    CHILD_DECLARE_NATIVE_METHOD(init);
 };
 
 // === GenericVirtualList ===
@@ -315,7 +319,7 @@ class VirtualList : public GenericVirtualList<Node *> {
 public:
     explicit VirtualList(Node *origin, QList<Node *> **source = NULL) : GenericVirtualList<Node *>(origin, source) {}
 
-    CHILD_FORK_METHOD(VirtualList, source());
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(VirtualList, source());
 };
 
 CHILD_END

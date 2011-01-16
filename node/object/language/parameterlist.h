@@ -15,7 +15,7 @@ namespace Language {
     public:
         explicit ParameterList(Node *origin) : GenericList<Parameter *>(origin) {}
 
-        CHILD_FORK_METHOD(ParameterList);
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(ParameterList);
 
         using GenericList<Parameter *>::get;
         Parameter *get(const QString &label) { return _labels.value(label); }

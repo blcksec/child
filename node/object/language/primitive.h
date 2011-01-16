@@ -24,7 +24,7 @@ namespace Language {
             setNext(NULL);
         }
 
-        CHILD_FORK_METHOD(Primitive, CHILD_FORK_IF_NOT_NULL(value()), sourceCodeRef(), CHILD_FORK_IF_NOT_NULL(next()));
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Primitive, CHILD_FORK_IF_NOT_NULL(value()), sourceCodeRef(), CHILD_FORK_IF_NOT_NULL(next()));
 
         const QStringRef &sourceCodeRef() const { return _sourceCodeRef; }
         void setSourceCodeRef(const QStringRef &sourceCodeRef) { _sourceCodeRef = sourceCodeRef; }
@@ -38,37 +38,26 @@ namespace Language {
         Primitive *previous() const { return _previous; }
         bool hasPrevious() const { return _previous; }
 
-        virtual Node *run(Node *receiver = context()) {
-            Node *result = value()->run(receiver);
-            return hasNext() ? result->receive(next()) : result;
-//            try {
-//            } catch(ExceptionPointer e) {
-//                if(!sourceCodeRef().isNull()) {
-//                    const QString &source = *(sourceCodeRef().string());
-//                    int column, line;
-//                    computeColumnAndLineForPosition(source, sourceCodeRef().position(), column, line);
-//                    QString text = extractLine(source, line);
-//                    if(!text.isEmpty()) {
-//                        QString cursor = QString(" ").repeated(column - 1).append("^");
-//                        e->message += "\n" + text + "\n" + cursor;
-//                        e->line = line;
-//                        e->function.clear();
-//                    }
-//                }
-//                throw;
-//            }
-        }
-
-        Node *runExceptLast(Node *receiver = context()) {
-            return hasNext() ? next()->runExceptLast(value()->run(receiver)) : receiver;
-        }
+        virtual Node *run(Node *receiver = context());
 
         virtual QString toString(bool debug = false, short level = 0) const;
     private:
         QStringRef _sourceCodeRef;
         Primitive *_previous;
         Primitive *_next;
+    public:
+        // === Skip ===
+
+        class Skip {
+        public:
+            Node *result;
+            Skip(Node *result = NULL) : result(result) {}
+        };
     };
+
+    #define CHILD_FIND_LAST_PRIMITIVE Primitive *primitive = findLastPrimitive();
+
+    inline Primitive *findLastPrimitive() { return findRun<Primitive>(); }
 }
 
 CHILD_END

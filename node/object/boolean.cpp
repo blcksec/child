@@ -5,7 +5,7 @@ CHILD_BEGIN
 CHILD_DEFINE(Boolean, Element, Object);
 
 void Boolean::initRoot() {
-    CHILD_NATIVE_METHOD_ADD(Boolean, equal_to, ==);
+    CHILD_ADD_NATIVE_METHOD(Boolean, equal_to, ==);
 }
 
 CHILD_END

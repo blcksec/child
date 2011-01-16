@@ -17,11 +17,11 @@ namespace Language {
     public:
         explicit OperatorTable(Node *origin) : GenericList<Operator *>(origin) {}
 
-        CHILD_FORK_METHOD(OperatorTable);
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(OperatorTable);
 
         void append(const QString &text, Operator::Type type, short precedence,
                     Operator::Associativity associativity = Operator::LeftAssociative,
-                    const bool useLHSAsReceiver = true, const bool isSpecial = false,
+                    bool useLHSAsReceiver = true, bool isSpecial = false,
                     const QString &name = "") {
             GenericList<Operator *>::append(
                         CHILD_OPERATOR(text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name));

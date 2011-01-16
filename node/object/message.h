@@ -42,7 +42,7 @@ public:
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL),
         _isEscaped(false), _isParented(false), _isVariadic(false) {}
 
-    CHILD_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
                       isEscaped(), isParented(), isVariadic(), codeInputName());
 
     const QString &name() const { return _name; }
@@ -71,12 +71,28 @@ public:
     bool hasAThirdInput() const { return hasInput(2); }
     Node *runThirdInput(Node *receiver = context()) const { return runInput(2, receiver); }
 
+    int numInputs() const { return inputs(false) ? inputs()->size() : 0; }
+
     ArgumentBunch *outputs(bool createIfNull = true) const {
         if(!_outputs && createIfNull) constCast(this)->_outputs = CHILD_ARGUMENT_BUNCH();
         return _outputs;
     }
 
     void setOutputs(ArgumentBunch *outputs) { _outputs = outputs; }
+
+    Argument *output(short i) const { return outputs(false)->get(i); }
+    bool hasOutput(short i) const { return outputs(false) && outputs()->hasIndex(i); }
+
+    Argument *firstOutput() const { return output(0); }
+    bool hasAnOutput() const { return hasOutput(0); }
+
+    Argument *secondOutput() const { return output(1); }
+    bool hasASecondOutput() const { return hasOutput(1); }
+
+    Argument *thirdOutput() const { return output(2); }
+    bool hasAThirdOutput() const { return hasOutput(2); }
+
+    int numOutputs() const { return outputs(false) ? outputs()->size() : 0; }
 
     bool isEscaped() const { return _isEscaped; }
     void setIsEscaped(bool isEscaped) { _isEscaped = isEscaped; }
@@ -96,7 +112,16 @@ public:
         Node *result = rcvr->child(name());
         Alias *alias = Alias::dynamicCast(result);
         if(alias && !alias->target().isEmpty()) result = rcvr->child(alias->target());
-        if(!isEscaped()) result = result->run(rcvr, this);
+        if(!isEscaped()) {
+            if(result->isRunnable()) {
+                CHILD_PUSH_RUN(this);
+                result = result->run(rcvr);
+            } else if(inputs(false)) {
+                Message *forkMessage = fork();
+                forkMessage->setName("fork");
+                result = forkMessage->run(result);
+            }
+        }
         return result;
     }
 
@@ -125,28 +150,11 @@ private:
     bool _isParented;
     bool _isVariadic;
     QString _codeInputName;
-public:
-
-    // === Message::Sending ===
-
-    #define CHILD_MESSAGE_SENDING(ARGS...) new Message::Sending(context()->child("Message", "Sending"), ##ARGS)
-
-    class Sending : public Node {
-        CHILD_DECLARE(Sending, Node, Message);
-    public:
-        explicit Sending(Node *origin, Message *message = NULL, Node *receiver = NULL) :
-            Node(origin), _message(message), _receiver(receiver) {}
-
-        CHILD_FORK_METHOD(Sending, CHILD_FORK_IF_NOT_NULL(_message), CHILD_FORK_IF_NOT_NULL(_receiver));
-
-        virtual Node *receive(Primitive *primitive) {
-            return _receiver->child(_message->name())->run(_receiver, _message, primitive);
-        }
-    private:
-        Message *_message;
-        Node *_receiver;
-    };
 };
+
+#define CHILD_FIND_LAST_MESSAGE Message *message = findLastMessage();
+
+inline Message *findLastMessage() { return findRun<Message>(); }
 
 CHILD_END
 

@@ -14,23 +14,23 @@ class ControlFlow : public Node {
 public:
     explicit ControlFlow(Node *origin) : Node(origin) {}
 
-    CHILD_FORK_METHOD(ControlFlow);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(ControlFlow);
 
-    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DECLARE(if) { return ifOrUnless(message, code, true); }
-    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DECLARE(unless) { return ifOrUnless(message, code, false); }
+    CHILD_DECLARE_NATIVE_METHOD(if) { return ifOrUnless(true); }
+    CHILD_DECLARE_NATIVE_METHOD(unless) { return ifOrUnless(false); }
 private:
-    Node *ifOrUnless(Message *message, Primitive *code, bool isIf);
+    Node *ifOrUnless(bool isIf);
 public:
 
-    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DECLARE(loop);
+    CHILD_DECLARE_NATIVE_METHOD(loop);
 
-    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DECLARE(while) { return whileOrUntil(message, code, true); }
-    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DECLARE(until) { return whileOrUntil(message, code, false); }
+    CHILD_DECLARE_NATIVE_METHOD(while) { return whileOrUntil(true); }
+    CHILD_DECLARE_NATIVE_METHOD(until) { return whileOrUntil(false); }
 private:
-    Node *whileOrUntil(Message *message, Primitive *code, bool isWhile);
+    Node *whileOrUntil(bool isWhile);
 public:
 
-    CHILD_NATIVE_METHOD_DECLARE(break);
+    CHILD_DECLARE_NATIVE_METHOD(break);
 
     // === Break ===
 

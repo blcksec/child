@@ -16,26 +16,15 @@ body:
         n := Node()
         ?: n extensions empty?
         e1 := Node()
-        n extensions << e1
+        n extensions << e1 // TODO: test DuplicateException
         ?: n extensions size == 1
+        ?: n extensions[0] == e1
+        // TODO: ?: catch(DuplicateException) { n extensions << e1 }
         e2 := Node()
-        n extensions << e2
+        n extensions << e2 // TODO: test DuplicateException
         ?: n extensions size == 2
-        /*
-        Node *node1 = CHILD_NODE();
-        Node *node2 = CHILD_NODE();
-        Node *obj = CHILD_NODE();
-        QCOMPARE(obj->extensions().size(), 0);
-        QCATCH(obj->addExtension(NULL), NullPointerException);
-        obj->addExtension(node1);
-        QCOMPARE(obj->extensions().size(), 1);
-        QCOMPARE(obj->extensions()[0], node1);
-        QCATCH(obj->addExtension(node1), DuplicateException);
-        obj->addExtension(node2);
-        QCOMPARE(obj->extensions().size(), 2);
-        QCOMPARE(obj->extensions()[1], node2);
-        QCATCH(obj->addExtension(node2), DuplicateException);
-        */
+        ?: n extensions[1] == e2
+        // TODO: ?: catch(DuplicateException) { n extensions << e2 }
     }
 
     \fork {

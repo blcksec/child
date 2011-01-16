@@ -16,7 +16,7 @@ public:
     explicit Method(Node *origin, ParameterList *inputs = NULL, ParameterList *outputs = NULL, Block *block = NULL) :
         GenericElement<Block *>(origin, block), _inputs(inputs), _outputs(outputs) {}
 
-    CHILD_FORK_METHOD(Method, CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Method, CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
                       CHILD_FORK_IF_NOT_NULL(block()));
 
     Block *block() const { return value(); } // aliases
@@ -48,9 +48,9 @@ public:
         return this;
     }
 
-    virtual Node *run(Node *receiver, Message *message, Primitive *code = NULL) {
-        Q_UNUSED(code);
-        if(!block()) return Node::run(receiver, message); // method creation
+    virtual Node *run(Node *receiver) {
+        Q_UNUSED(receiver);
+        CHILD_FIND_LAST_MESSAGE;
         Method *forkedMethod = this; //->fork();
         QHash<QString, Parameter *> labels(inputs()->labels());
         if(message->inputs(false)) {
@@ -83,7 +83,8 @@ public:
             Node *val = parameter->isEscaped() ? parameter->defaultValue() : parameter->run();
             rcvr->addChild(parameter->label(), val);
         }
-        ContextPusher pusher(forkedMethod); Q_UNUSED(pusher);
+        CHILD_PUSH_RUN(this);
+        CHILD_PUSH_CONTEXT(forkedMethod);
         Node *result = NULL;
         try {
             result = forkedMethod->block()->bodySection()->run();

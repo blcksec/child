@@ -1,6 +1,11 @@
-`<<` := "yo" // Alias(append)
+if(true) "yo" print
 
 /*
+n := Node()
+n extensions << "ext1" << "ext2"
+i := 0
+n extensions[i]
+
 Person := Object() {
     name := Text()
     age := Number()

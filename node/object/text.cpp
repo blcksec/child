@@ -5,15 +5,15 @@ CHILD_BEGIN
 CHILD_DEFINE(Text, Element, Object);
 
 void Text::initRoot() {
-    CHILD_NATIVE_METHOD_ADD(Text, init);
-    CHILD_NATIVE_METHOD_ADD(Text, concatenate, +);
-    CHILD_NATIVE_METHOD_ADD(Text, multiply, *);
-    CHILD_NATIVE_METHOD_ADD(Text, uppercased);
-    CHILD_NATIVE_METHOD_ADD(Text, uppercase_em, uppercase!);
-    CHILD_NATIVE_METHOD_ADD(Text, lowercased);
-    CHILD_NATIVE_METHOD_ADD(Text, lowercase_em, lowercase!);
-    CHILD_NATIVE_METHOD_ADD(Text, equal_to, ==);
-    CHILD_NATIVE_METHOD_ADD(Text, compare, <=>);
+    CHILD_ADD_NATIVE_METHOD(Text, init);
+    CHILD_ADD_NATIVE_METHOD(Text, concatenate, +);
+    CHILD_ADD_NATIVE_METHOD(Text, multiply, *);
+    CHILD_ADD_NATIVE_METHOD(Text, uppercased);
+    CHILD_ADD_NATIVE_METHOD(Text, uppercase_em, uppercase!);
+    CHILD_ADD_NATIVE_METHOD(Text, lowercased);
+    CHILD_ADD_NATIVE_METHOD(Text, lowercase_em, lowercase!);
+    CHILD_ADD_NATIVE_METHOD(Text, equal_to, ==);
+    CHILD_ADD_NATIVE_METHOD(Text, compare, <=>);
 }
 
 QString Text::unescapeSequence(const QString &source) {

@@ -21,7 +21,7 @@ namespace Language {
             setBlock(NULL);
         }
 
-        CHILD_FORK_METHOD(SourceCode, url(), text(), CHILD_FORK_IF_NOT_NULL(block()));
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(SourceCode, url(), text(), CHILD_FORK_IF_NOT_NULL(block()));
 
         const QString &url() const { return _url; }
         void setUrl(const QString &url) { _url = QFileInfo(url).absoluteFilePath(); }
@@ -43,16 +43,8 @@ namespace Language {
         void parse(const QString &newText = "");
 
         virtual Node *run(Node *receiver = context()) {
-            #ifdef CHILD_CATCH_EXCEPTIONS
-            try {
-            #endif
-                return block() && block()->bodySection() ? block()->bodySection()->run(receiver) : NULL;
-            #ifdef CHILD_CATCH_EXCEPTIONS
-            } catch(ExceptionPointer e) {
-                e->file = _url;
-                throw;
-            }
-            #endif
+            CHILD_PUSH_RUN(this);
+            return block() && block()->bodySection() ? block()->bodySection()->run(receiver) : NULL;
         }
 
         virtual QString toString(bool debug = false, short level = 0) const;

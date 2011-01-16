@@ -15,41 +15,48 @@ class Text : public GenericElement<QString> {
 public:
     explicit Text(Node *origin, const QString &value = "") : GenericElement<QString>(origin, value) {}
 
-    CHILD_FORK_METHOD(Text, value());
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Text, value());
 
-    CHILD_NATIVE_METHOD_DECLARE(init) {
+    CHILD_DECLARE_NATIVE_METHOD(init) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0, 1);
         if(message->hasInput(0)) setValue(message->runFirstInput()->toString());
         return this;
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(concatenate) {
+    CHILD_DECLARE_NATIVE_METHOD(concatenate) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_TEXT(value() + message->runFirstInput()->toString());
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(multiply) {
+    CHILD_DECLARE_NATIVE_METHOD(multiply) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_TEXT(value().repeated(message->runFirstInput()->toDouble()));
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(uppercased) {
+    CHILD_DECLARE_NATIVE_METHOD(uppercased) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
         return CHILD_TEXT(value().toUpper());
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(uppercase_em) {
+    CHILD_DECLARE_NATIVE_METHOD(uppercase_em) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
         setValue(value().toUpper());
         return this;
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(lowercased) {
+    CHILD_DECLARE_NATIVE_METHOD(lowercased) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
         return CHILD_TEXT(value().toLower());
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(lowercase_em) {
+    CHILD_DECLARE_NATIVE_METHOD(lowercase_em) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
         setValue(value().toLower());
         return this;
@@ -59,7 +66,8 @@ public:
         return value() == Text::cast(other)->value();
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(equal_to) {
+    CHILD_DECLARE_NATIVE_METHOD(equal_to) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_BOOLEAN(value() == message->runFirstInput()->toString());
     }
@@ -75,7 +83,8 @@ public:
         else return 0;
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(compare) {
+    CHILD_DECLARE_NATIVE_METHOD(compare) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_NUMBER(compare(message->runFirstInput()->toString()));
     }

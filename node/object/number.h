@@ -16,50 +16,59 @@ class Number : public GenericElement<double> {
 public:
     explicit Number(Node *origin, const double value = 0) : GenericElement<double>(origin, value) {}
 
-    CHILD_FORK_METHOD(Number, value());
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Number, value());
 
-    CHILD_NATIVE_METHOD_DECLARE(add) {
+    CHILD_DECLARE_NATIVE_METHOD(add) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_NUMBER(value() + message->runFirstInput()->toDouble());
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(subtract) {
+    CHILD_DECLARE_NATIVE_METHOD(subtract) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_NUMBER(value() - message->runFirstInput()->toDouble());
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(multiply) {
+    CHILD_DECLARE_NATIVE_METHOD(multiply) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_NUMBER(value() * message->runFirstInput()->toDouble());
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(divide) {
+    CHILD_DECLARE_NATIVE_METHOD(divide) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_NUMBER(value() / message->runFirstInput()->toDouble());
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(modulo) {
+    CHILD_DECLARE_NATIVE_METHOD(modulo) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_NUMBER(llround(value()) % llround(message->runFirstInput()->toDouble()));
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(unary_plus) {
+    CHILD_DECLARE_NATIVE_METHOD(unary_plus) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
         return CHILD_NUMBER(value());
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(unary_minus) {
+    CHILD_DECLARE_NATIVE_METHOD(unary_minus) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
         return CHILD_NUMBER(-value());
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(prefix_increment) {
+    CHILD_DECLARE_NATIVE_METHOD(prefix_increment) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
         setValue(value() + 1);
         return this;
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(prefix_decrement) {
+    CHILD_DECLARE_NATIVE_METHOD(prefix_decrement) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
         setValue(value() - 1);
         return this;
@@ -69,7 +78,8 @@ public:
         return value() == Number::cast(other)->value();
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(equal_to) {
+    CHILD_DECLARE_NATIVE_METHOD(equal_to) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_BOOLEAN(value() == message->runFirstInput()->toDouble());
     }
@@ -84,7 +94,8 @@ public:
         else return 0;
     }
 
-    CHILD_NATIVE_METHOD_DECLARE(compare) {
+    CHILD_DECLARE_NATIVE_METHOD(compare) {
+        CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(1);
         return CHILD_NUMBER(compare(message->runFirstInput()->toDouble()));
     }

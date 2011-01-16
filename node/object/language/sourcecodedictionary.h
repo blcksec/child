@@ -16,7 +16,7 @@ namespace Language {
         SourceCodeDictionary(Node *origin) :
             GenericDictionary<Node::Reference, SourceCode *>(origin) {}
 
-        CHILD_FORK_METHOD(SourceCodeDictionary);
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(SourceCodeDictionary);
     };
 }
 

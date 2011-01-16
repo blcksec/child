@@ -8,36 +8,43 @@ CHILD_BEGIN
 CHILD_DEFINE(ControlFlow, Node, Node);
 
 void ControlFlow::initRoot() {
-    CHILD_NATIVE_METHOD_ADD(ControlFlow, if);
-    CHILD_NATIVE_METHOD_ADD(ControlFlow, unless);
+    CHILD_ADD_NATIVE_METHOD(ControlFlow, if);
+    CHILD_ADD_NATIVE_METHOD(ControlFlow, unless);
 
-    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(ControlFlow, loop);
+    CHILD_ADD_NATIVE_METHOD(ControlFlow, loop);
 
-    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(ControlFlow, while);
-    CHILD_NATIVE_METHOD_WITH_CODE_INPUT_ADD(ControlFlow, until);
+    CHILD_ADD_NATIVE_METHOD(ControlFlow, while);
+    CHILD_ADD_NATIVE_METHOD(ControlFlow, until);
 
-    CHILD_NATIVE_METHOD_ADD(ControlFlow, break);
+    CHILD_ADD_NATIVE_METHOD(ControlFlow, break);
 }
 
-Node *ControlFlow::ifOrUnless(Message *message, Primitive *code, bool isIf) {
+Node *ControlFlow::ifOrUnless(bool isIf) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(1, 3);
+    Node *testResult = message->runFirstInput();
     if(message->hasASecondInput()) {
-        Node *testResult = message->runFirstInput();
         if(testResult->toBool() == isIf) return message->runSecondInput(this);
         if(message->hasAThirdInput()) return message->runThirdInput(this);
         return testResult;
-    } else if(code) {
-        Node *testResult = message->runFirstInput();
-        if(testResult->toBool() == isIf) return code->run(this);
-        Block *block = Block::dynamicCast(code->value());
-        if(block && block->elseSection()) return block->elseSection()->run(this);
-        return testResult;
-    } else
-        return new Message::Sending(Message::Sending::root(), message, this);
+    }
+    CHILD_FIND_LAST_PRIMITIVE;
+    if(Primitive *nextPrimitive = primitive->next()) {
+        if(testResult->toBool() == isIf) throw Primitive::Skip(nextPrimitive->run(this));
+        Block *block = Block::dynamicCast(nextPrimitive->value());
+        if(block && block->elseSection()) throw Primitive::Skip(block->elseSection()->run(this));
+        throw Primitive::Skip(testResult);
+    }
+    CHILD_THROW(InterpreterException, QString("missing code after an %1 statement").arg(isIf ? "if" : "unless"));
 }
 
-CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DEFINE(ControlFlow, loop) {
+CHILD_DEFINE_NATIVE_METHOD(ControlFlow, loop) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0, 1);
+    CHILD_FIND_LAST_PRIMITIVE;
+    Primitive *nextPrimitive = primitive->next();
+    if(!nextPrimitive)
+        CHILD_THROW(InterpreterException, "missing code after a loop statement");
     HugeInteger count;
     if(message->hasAnInput()) { // finite loop
         count = message->runFirstInput()->toDouble();
@@ -48,19 +55,24 @@ CHILD_NATIVE_METHOD_WITH_CODE_INPUT_DEFINE(ControlFlow, loop) {
     try {
         if(count > 0)
             for(HugeInteger i = 0; i < count; ++i)
-                result = code->run();
+                result = nextPrimitive->run();
         else if (count == 0)
             result = CHILD_NODE();
         else
-            while(true) code->run();
+            while(true) nextPrimitive->run();
     } catch(const Break &brk) {
         result = brk.result;
     }
-    return result;
+    throw Primitive::Skip(result);
 }
 
-Node *ControlFlow::whileOrUntil(Message *message, Primitive *code, bool isWhile) {
+Node *ControlFlow::whileOrUntil(bool isWhile) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(1);
+    CHILD_FIND_LAST_PRIMITIVE;
+    Primitive *nextPrimitive = primitive->next();
+    if(!nextPrimitive)
+        CHILD_THROW(InterpreterException, QString("missing code after %1 statement").arg(isWhile ? "a while" : "an until"));
     Node *result = NULL;
     try {
         Node *test = NULL;
@@ -69,7 +81,7 @@ Node *ControlFlow::whileOrUntil(Message *message, Primitive *code, bool isWhile)
                 test = message->runFirstInput();
                 if(test->toBool()) result = test; else break;
             }
-            result = code->run();
+            result = nextPrimitive->run();
             if(!isWhile) {
                 test = message->runFirstInput();
                 if(test->toBool()) break;
@@ -78,10 +90,11 @@ Node *ControlFlow::whileOrUntil(Message *message, Primitive *code, bool isWhile)
     } catch(const Break &brk) {
         result = brk.result;
     }
-    return result;
+    throw Primitive::Skip(result);
 }
 
-CHILD_NATIVE_METHOD_DEFINE(ControlFlow, break) {
+CHILD_DEFINE_NATIVE_METHOD(ControlFlow, break) {
+    CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0, 1);
     Node *result = message->hasAnInput() ? message->runFirstInput() : CHILD_NODE();
     throw Break(result);

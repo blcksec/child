@@ -25,7 +25,7 @@ public:
               const int line = 0, const QString &function = "") :
         Node(origin), message(message), file(file), line(line), function(function) {}
 
-    CHILD_FORK_METHOD(Exception, message, file, line, function);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Exception, message, file, line, function);
 
     const QString report() const;
 
@@ -43,7 +43,7 @@ public: \
     explicit NAME(Node *origin, const QString &message = "", const QString &file = "", \
          const int line = 0, const QString &function = "") : \
         ORIGIN(origin, message, file, line, function) {} \
-    CHILD_FORK_METHOD(NAME, message, file, line, function); \
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(NAME, message, file, line, function); \
 };
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \
@@ -53,6 +53,7 @@ void NAME::initRoot() {}
 CHILD_EXCEPTION_DECLARATION(LexerException, Exception);
 CHILD_EXCEPTION_DECLARATION(ParserException, Exception);
 CHILD_EXCEPTION_DECLARATION(RuntimeException, Exception);
+CHILD_EXCEPTION_DECLARATION(InterpreterException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(ArgumentException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(NullPointerException, RuntimeException);
 CHILD_EXCEPTION_DECLARATION(IndexOutOfBoundsException, RuntimeException);

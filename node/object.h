@@ -15,21 +15,21 @@ class Object : public Node {
 public:
     explicit Object(Node *origin) : Node(origin) {}
 
-    CHILD_FORK_METHOD(Object);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Object);
 
-    CHILD_NATIVE_METHOD_DECLARE(postfix_increment);
-    CHILD_NATIVE_METHOD_DECLARE(postfix_decrement);
+    CHILD_DECLARE_NATIVE_METHOD(postfix_increment);
+    CHILD_DECLARE_NATIVE_METHOD(postfix_decrement);
 
-    CHILD_NATIVE_METHOD_DECLARE(add_assign);
-    CHILD_NATIVE_METHOD_DECLARE(subtract_assign);
-    CHILD_NATIVE_METHOD_DECLARE(multiply_assign);
-    CHILD_NATIVE_METHOD_DECLARE(divide_assign);
-    CHILD_NATIVE_METHOD_DECLARE(modulo_assign);
+    CHILD_DECLARE_NATIVE_METHOD(add_assign);
+    CHILD_DECLARE_NATIVE_METHOD(subtract_assign);
+    CHILD_DECLARE_NATIVE_METHOD(multiply_assign);
+    CHILD_DECLARE_NATIVE_METHOD(divide_assign);
+    CHILD_DECLARE_NATIVE_METHOD(modulo_assign);
 
-    CHILD_NATIVE_METHOD_DECLARE(less_than);
-    CHILD_NATIVE_METHOD_DECLARE(less_than_or_equal_to);
-    CHILD_NATIVE_METHOD_DECLARE(greater_than);
-    CHILD_NATIVE_METHOD_DECLARE(greater_than_or_equal_to);
+    CHILD_DECLARE_NATIVE_METHOD(less_than);
+    CHILD_DECLARE_NATIVE_METHOD(less_than_or_equal_to);
+    CHILD_DECLARE_NATIVE_METHOD(greater_than);
+    CHILD_DECLARE_NATIVE_METHOD(greater_than_or_equal_to);
 public:
     class Return {
     public:
@@ -37,7 +37,7 @@ public:
         Return(Node *result = NULL) : result(result) {}
     };
 
-    CHILD_NATIVE_METHOD_DECLARE(return);
+    CHILD_DECLARE_NATIVE_METHOD(return);
 };
 
 CHILD_END

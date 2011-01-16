@@ -22,7 +22,7 @@ namespace Language {
         return scanBlock();
     }
 
-    const bool Parser::is(const Token::Type type, const QString &text) const {
+    bool Parser::is(const Token::Type type, const QString &text) const {
         if(text.isNull())
             return tokenType() == type;
         else
@@ -104,6 +104,8 @@ namespace Language {
 
     Primitive *Parser::scanPrimaryExpression(Primitive *currentPrimitive) {
         CHILD_PRIMITIVE_ADD(currentPrimitive, scanOperand());
+        while(isCollectionAccessor())
+            scanCollectionAccessor(currentPrimitive);
         while(Operator *op = isPostfixOperator())
             scanPostfixOperator(currentPrimitive, op);
         return currentPrimitive;
@@ -114,6 +116,8 @@ namespace Language {
             return scanName();
         } else if(isLiteral()) {
             return scanLiteral();
+        } else if(isCollection()) {
+            return scanCollection();
         } else if(isSubexpression()) {
             return scanSubexpression();
         } else if(isNestedBlock()) {
@@ -145,7 +149,7 @@ namespace Language {
         return primitive;
     }
 
-    const bool Parser::isLiteral() const {
+    bool Parser::isLiteral() const {
         Token::Type type = tokenType();
         return type == Token::Boolean || type == Token::Number ||
                type == Token::Character || type == Token::Text;
@@ -179,6 +183,30 @@ namespace Language {
         return primitive;
     }
 
+    Primitive *Parser::scanCollection() {
+        Message *message = CHILD_MESSAGE();
+        int begin = token()->sourceCodeRef.position();
+        openToken();
+        consume(); // Left bracket
+        consumeNewline();
+        if(!is(Token::RightBracket))
+            message->inputs()->append(scanExpression());
+        else
+            message->inputs(); // create an empty inputs argument bunch
+        bool hasKey = false;
+        for(int i = 0; i < message->numInputs(); ++i)
+            if(message->input(i)->label()) {
+                hasKey = true;
+                break;
+            }
+        message->setName(!hasKey ? "List" : "Dictionary");
+        int end = token()->sourceCodeRef.position() + 1;
+        closeToken();
+        match(Token::RightBracket);
+        QStringRef sourceCodeRef = lexer()->source().midRef(begin, end - begin);
+        return CHILD_PRIMITIVE(message, sourceCodeRef);
+    }
+
     Primitive *Parser::scanSubexpression() {
         Primitive *primitive = CHILD_PRIMITIVE();
         int begin = token()->sourceCodeRef.position();
@@ -205,6 +233,22 @@ namespace Language {
         match(Token::RightBrace);
         primitive->setSourceCodeRef(lexer()->source().midRef(begin, end - begin));
         return primitive;
+    }
+
+    Primitive *Parser::scanCollectionAccessor(Primitive *currentPrimitive) {
+        Message *message = CHILD_MESSAGE("[]");
+        int begin = token()->sourceCodeRef.position();
+        openToken();
+        consume(); // Left bracket
+        consumeNewline();
+        if(!is(Token::RightBracket))
+            message->inputs()->append(scanExpression());
+        int end = token()->sourceCodeRef.position() + 1;
+        closeToken();
+        match(Token::RightBracket);
+        QStringRef sourceCodeRef = lexer()->source().midRef(begin, end - begin);
+        CHILD_PRIMITIVE_ADD(currentPrimitive, CHILD_PRIMITIVE(message, sourceCodeRef));
+        return currentPrimitive;
     }
 
     Operator *Parser::isOperator(Operator::Type type) const {
