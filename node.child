@@ -15,16 +15,18 @@ body:
     test:
         n := Node()
         ?: n extensions empty?
-        e1 := Node()
-        n extensions << e1 // TODO: test DuplicateException
+        E1 := Node()
+        n extensions << E1
         ?: n extensions size == 1
-        ?: n extensions[0] == e1
-        // TODO: ?: catch(DuplicateException) { n extensions << e1 }
-        e2 := Node()
-        n extensions << e2 // TODO: test DuplicateException
+        ?: n extensions[0] == E1
+        // TODO: ?: !(catch(ArgumentException) { n extensions[0] = E1 })
+        // TODO: ?: catch(ArgumentException) { n extensions << E1 }
+        E2 := Node()
+        n extensions << E2
         ?: n extensions size == 2
-        ?: n extensions[1] == e2
-        // TODO: ?: catch(DuplicateException) { n extensions << e2 }
+        ?: n extensions[1] == E2
+        // TODO: ?: catch(ArgumentException) { n extensions << E2 }
+        // TODO: ?: catch(ArgumentException) { n extensions[1] = E1 }
     }
 
     \fork {

@@ -37,6 +37,7 @@ public:
     void setInputs(ParameterList *inputs) { _inputs = inputs; }
 
     void setInputs(ArgumentBunch *arguments) {
+        if(hasAnInput()) inputs()->clear();
         ArgumentBunch::Iterator i(arguments);
         while(Argument *argument = i.next()) {
             Primitive *label = argument->label();
@@ -59,6 +60,7 @@ public:
     Parameter *input(const QString &label) const { return inputs(false)->get(label); }
     bool hasInput(short i) const { return inputs(false) && inputs()->hasIndex(i); }
     bool hasInput(const QString &label) const { return inputs(false) && inputs()->hasLabel(label); }
+    bool hasAnInput() const { return hasInput(0); }
 
     ParameterList *outputs(bool createIfNull = true) const {
         if(!_outputs && createIfNull) constCast(this)->_outputs = CHILD_PARAMETER_LIST();
@@ -102,7 +104,8 @@ public:
             Node *val = parameter->isEscaped() ? parameter->defaultValue() : parameter->run();
             rcvr->addOrSetChild(parameter->label(), val);
         }
-        Section *body = forkedMethod->block()->bodySection();
+        Section *body = NULL;
+        if(forkedMethod->block()) body = forkedMethod->block()->bodySection();
         if(body) {
             try {
                 CHILD_PUSH_CONTEXT(forkedMethod);
@@ -133,6 +136,16 @@ public:
 private:
     ParameterList *_inputs;
     ParameterList *_outputs;
+public:
+    // === Return ===
+
+    class Return {
+    public:
+        Node *result;
+        Return(Node *result = NULL) : result(result) {}
+    };
+
+    CHILD_DECLARE_NATIVE_METHOD(return);
 };
 
 CHILD_END

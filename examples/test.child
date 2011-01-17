@@ -1,19 +1,36 @@
-Person(@name: "", @age: 0) := Object() {
-    init := { "arf" }
-    imprimer := {
-        (name + " (" + age + ")") print
-    }
+/*
+a := ["a", "b"]
+
+a[] := "arf"
+a
+
+i := 0
+loop {
+    ++i
+    if(i <= 3) continue
+    if(i > 5) break
+    i print
 }
 
-Person \init inspect
+Hello(@what: "World") := Object() {
+    say := { ("Hello, " + what capitalized + "!") print }
+}
+
+Hello() say // -> "Hello, World!"
+Hello("manu") say // -> "Hello, Manu!"
+
+Person(@name: "", @age: 0) := Object() {
+    imprimer := {
+        ( name + " (" + age + ")") print
+    }
+}
 
 mvila := Person("Manu", 38)
 bgonod := Person("Boris", 28)
 
 mvila imprimer
-// bgonod imprimer
+bgonod imprimer
 
-/*
 n := Node()
 n extensions << "ext1" << "ext2"
 i := 0

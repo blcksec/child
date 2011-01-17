@@ -100,6 +100,10 @@ void Node::declare(const QString &name) const {
     roots().append(Root(constCast(this), name));
 }
 
+void Node::initFork() {
+    setIsAutoRunnable(origin()->isAutoRunnable());
+}
+
 CHILD_DEFINE_NATIVE_METHOD(Node, fork) {
     CHILD_FIND_LAST_MESSAGE;
     Node *node = fork();
@@ -190,6 +194,7 @@ CHILD_DEFINE_NATIVE_METHOD(Node, extensions_get) {
     VirtualList *value = VirtualList::dynamicCast(hasDirectChild("cached_value"));
     if(!value) {
         value = CHILD_VIRTUAL_LIST(&parent()->_extensions);
+        value->setAreDuplicateValuesNotAllowed(true);
         addOrSetChild("cached_value", value);
     }
     return value;
@@ -231,9 +236,17 @@ void Node::_setChild(const QString &name, Node *value) {
 Node *Node::defineOrAssign(bool isDefine) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(2);
-    Primitive *primitive = message->firstInput()->value();
-    Message *msg = Message::dynamicCast(primitive->value());
+    Message *msg = Message::dynamicCast(message->firstInput()->value()->value());
     if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
+    if(msg->name() == "[]") {
+        message = message->fork();
+        message->setName(isDefine ? "[]:=" : "[]=");
+        if(msg->hasAnInput())
+            message->inputs()->set(0, msg->firstInput());
+        else
+            message->inputs()->remove(0);
+        return message->run(this);
+    }
     Node *value;
     Block *block = Block::dynamicCast(message->secondInput()->value()->value());
     if(block) { // if rhs is a block, we have a method definition shorthand
@@ -253,11 +266,14 @@ void Node::hasBeenDefined(Message *message) {
     if(!message->name().isEmpty() && message->name().at(0).isUpper()) {
         setNodeName(message->name());
         if(message->hasAnInput()) {
-            Method *method = CHILD_METHOD();
-            method->setIsAutoRunnable(true);
-            method->setNodeName("init");
+            Method *method = Method::dynamicCast(hasDirectChild("init"));
+            if(!method) {
+                method = CHILD_METHOD();
+                method->setIsAutoRunnable(true);
+                method->setNodeName("init");
+                addOrSetChild("init", method);
+            }
             method->setInputs(message->inputs());
-            setChild("init", method);
         }
     }
 }

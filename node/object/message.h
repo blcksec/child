@@ -71,6 +71,9 @@ public:
     bool hasAThirdInput() const { return hasInput(2); }
     Node *runThirdInput(Node *receiver = context()) const { return runInput(2, receiver); }
 
+    Argument *lastInput() const { return inputs(false)->last(); }
+    Node *runLastInput(Node *receiver = context()) const { return lastInput()->run(receiver); }
+
     int numInputs() const { return inputs(false) ? inputs()->size() : 0; }
 
     ArgumentBunch *outputs(bool createIfNull = true) const {

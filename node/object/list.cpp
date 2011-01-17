@@ -7,6 +7,8 @@ CHILD_DEFINE(AbstractList, Object, Object);
 
 void AbstractList::initRoot() {
     CHILD_ADD_NATIVE_METHOD(AbstractList, get, []);
+    CHILD_ADD_NATIVE_METHOD(AbstractList, set, []=);
+    CHILD_ADD_NATIVE_METHOD(AbstractList, append_or_set, []:=);
 
     CHILD_ADD_NATIVE_METHOD(AbstractList, append);
 
@@ -19,6 +21,31 @@ CHILD_DEFINE_NATIVE_METHOD(AbstractList, get) {
     CHILD_CHECK_INPUT_SIZE(1);
     int index = message->runFirstInput()->toDouble();
     return get(index);
+}
+
+CHILD_DEFINE_NATIVE_METHOD(AbstractList, set) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(2);
+    int index = message->runFirstInput()->toDouble();
+    return set(index, message->runSecondInput());
+}
+
+CHILD_DEFINE_NATIVE_METHOD(AbstractList, append_or_set) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(1, 2);
+    int index;
+    if(message->hasASecondInput())
+        index = message->runFirstInput()->toDouble();
+    else
+        index = size();
+    Node *value = message->runLastInput();
+    if(hasIndex(index))
+        return set(index, value);
+    else {
+        int numBlanksToAppend = index - size();
+        for(int i = 1; i <= numBlanksToAppend; ++i) append(CHILD_NODE());
+        return append(value);
+    }
 }
 
 CHILD_DEFINE_NATIVE_METHOD(AbstractList, append) {

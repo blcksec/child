@@ -30,14 +30,6 @@ public:
     CHILD_DECLARE_NATIVE_METHOD(less_than_or_equal_to);
     CHILD_DECLARE_NATIVE_METHOD(greater_than);
     CHILD_DECLARE_NATIVE_METHOD(greater_than_or_equal_to);
-public:
-    class Return {
-    public:
-        Node *result;
-        Return(Node *result = NULL) : result(result) {}
-    };
-
-    CHILD_DECLARE_NATIVE_METHOD(return);
 };
 
 CHILD_END

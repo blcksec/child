@@ -17,6 +17,7 @@ void ControlFlow::initRoot() {
     CHILD_ADD_NATIVE_METHOD(ControlFlow, until);
 
     CHILD_ADD_NATIVE_METHOD(ControlFlow, break);
+    CHILD_ADD_NATIVE_METHOD(ControlFlow, continue);
 }
 
 Node *ControlFlow::ifOrUnless(bool isIf) {
@@ -55,11 +56,11 @@ CHILD_DEFINE_NATIVE_METHOD(ControlFlow, loop) {
     try {
         if(count > 0)
             for(HugeInteger i = 0; i < count; ++i)
-                result = nextPrimitive->run();
+                try { result = nextPrimitive->run(); } catch(Continue) {}
         else if (count == 0)
             result = CHILD_NODE();
         else
-            while(true) nextPrimitive->run();
+            while(true) try { result = nextPrimitive->run(); } catch(Continue) {}
     } catch(const Break &brk) {
         result = brk.result;
     }
@@ -81,7 +82,7 @@ Node *ControlFlow::whileOrUntil(bool isWhile) {
                 test = message->runFirstInput();
                 if(test->toBool()) result = test; else break;
             }
-            result = nextPrimitive->run();
+            try { result = nextPrimitive->run(); } catch(Continue) {}
             if(!isWhile) {
                 test = message->runFirstInput();
                 if(test->toBool()) break;
@@ -94,10 +95,19 @@ Node *ControlFlow::whileOrUntil(bool isWhile) {
 }
 
 CHILD_DEFINE_NATIVE_METHOD(ControlFlow, break) {
+    CHILD_FIND_LAST_PRIMITIVE;
+    if(primitive->next())
+        CHILD_THROW(InterpreterException, "dead code found after a break statement");
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0, 1);
     Node *result = message->hasAnInput() ? message->runFirstInput() : CHILD_NODE();
     throw Break(result);
+}
+
+CHILD_DEFINE_NATIVE_METHOD(ControlFlow, continue) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    throw Continue();
 }
 
 CHILD_END

@@ -35,6 +35,20 @@ Object Text {
         txt lowercase!
         ?: txt == "hello"
     }
+
+    \capitalized {
+    test:
+        txt := "hello"
+        ?: txt capitalized == "Hello"
+        ?: txt == "hello"
+    }
+
+    \capitalize! {
+    test:
+        txt := "hello"
+        txt capitalize!
+        ?: txt == "Hello"
+    }
 test:
     ?: origin == Object Element
     ?: parent == Object

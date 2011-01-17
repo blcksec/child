@@ -13,7 +13,16 @@ if(!(VALUE)) CHILD_THROW(NullPointerException, "value is NULL")
 template<class T>
 class GenericAbstractList : public Object {
 public:
-    explicit GenericAbstractList(Node *origin) : Object(origin) {}
+    explicit GenericAbstractList(Node *origin) : Object(origin), _areDuplicateValuesNotAllowed(false) {}
+
+    virtual void initFork() {
+        Object::initFork();
+        GenericAbstractList *orig = static_cast<GenericAbstractList *>(origin());
+        setAreDuplicateValuesNotAllowed(orig->areDuplicateValuesNotAllowed());
+    }
+
+    bool areDuplicateValuesNotAllowed() const { return _areDuplicateValuesNotAllowed; }
+    void setAreDuplicateValuesNotAllowed(bool value) { _areDuplicateValuesNotAllowed = value; }
 
     virtual T get(int i) const {
         Q_UNUSED(i);
@@ -79,6 +88,13 @@ public:
         return false;
     }
 
+    bool isValueAllowed(const T &value) const {
+        CHILD_CHECK_VALUE(value);
+        if(areDuplicateValuesNotAllowed())
+            return !hasValue(value);
+        return true;
+    }
+
     virtual int size() const  {
         CHILD_THROW(RuntimeException, "abstract method called");
     }
@@ -112,6 +128,8 @@ public:
     virtual QString toString(bool debug = false, short level = 0) const {
         return "[" + join(", ", "", "", debug, level) + "]";
     }
+private:
+    bool _areDuplicateValuesNotAllowed;
 };
 
 // === AbstractList ===
@@ -126,6 +144,8 @@ public:
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(AbstractList);
 
     CHILD_DECLARE_NATIVE_METHOD(get);
+    CHILD_DECLARE_NATIVE_METHOD(set);
+    CHILD_DECLARE_NATIVE_METHOD(append_or_set);
 
     CHILD_DECLARE_NATIVE_METHOD(append);
 
@@ -178,7 +198,7 @@ public:
     }
 
     virtual void initFork() {
-        Object::initFork();
+        GenericAbstractList<T>::initFork();
         GenericList *orig = static_cast<GenericList *>(origin());
         if(orig->isNotEmpty()) {
             foreach(T node, *orig->_list) silentlyAppend(node->fork());
@@ -194,16 +214,19 @@ public:
     virtual T set(int i, const T &value) {
         checkIndex(i);
         CHILD_CHECK_VALUE(value);
-        removeAnonymousChild(_list->at(i));
-        _list->replace(i, value);
-        addAnonymousChild(value);
-        hasChanged();
+        if(get(i) != value) {
+            if(!isValueAllowed(value)) CHILD_THROW(ArgumentException, "cannot set a non-allowed value");
+            removeAnonymousChild(_list->at(i));
+            _list->replace(i, value);
+            addAnonymousChild(value);
+            hasChanged();
+        }
         return value;
     }
 
     virtual void silentlyInsert(int i, const T &value) {
         checkIndex(i, true);
-        CHILD_CHECK_VALUE(value);
+        if(!isValueAllowed(value)) CHILD_THROW(ArgumentException, "cannot insert a non-allowed value");
         if(!_list) { _list = new QList<T>; }
         _list->insert(i, value);
         addAnonymousChild(value);
@@ -280,14 +303,17 @@ public:
     virtual T set(int i, const T &value) {
         checkIndex(i);
         CHILD_CHECK_VALUE(value);
-        (*_source)->replace(i, value);
-        hasChanged();
+        if(get(i) != value) {
+            if(!isValueAllowed(value)) CHILD_THROW(ArgumentException, "cannot set a non-allowed value");
+            (*_source)->replace(i, value);
+            hasChanged();
+        }
         return value;
     }
 
     virtual void silentlyInsert(int i, const T &value) {
         checkIndex(i, true);
-        CHILD_CHECK_VALUE(value);
+        if(!isValueAllowed(value)) CHILD_THROW(ArgumentException, "cannot insert a non-allowed value");
         if(!*_source) { *_source = new QList<T>; }
         (*_source)->insert(i, value);
     }

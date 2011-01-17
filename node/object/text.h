@@ -62,6 +62,24 @@ public:
         return this;
     }
 
+    static QString capitalize(QString text) {
+        if(!text.isEmpty()) text[0] = text[0].toUpper();
+        return text;
+    }
+
+    CHILD_DECLARE_NATIVE_METHOD(capitalized) {
+        CHILD_FIND_LAST_MESSAGE;
+        CHILD_CHECK_INPUT_SIZE(0);
+        return CHILD_TEXT(capitalize(value()));
+    }
+
+    CHILD_DECLARE_NATIVE_METHOD(capitalize_em) {
+        CHILD_FIND_LAST_MESSAGE;
+        CHILD_CHECK_INPUT_SIZE(0);
+        setValue(capitalize(value()));
+        return this;
+    }
+
     virtual bool isEqualTo(const Node *other) const {
         return value() == Text::cast(other)->value();
     }

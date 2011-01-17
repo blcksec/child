@@ -23,8 +23,6 @@ void Object::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Object, less_than_or_equal_to, <=);
     CHILD_ADD_NATIVE_METHOD(Object, greater_than, >);
     CHILD_ADD_NATIVE_METHOD(Object, greater_than_or_equal_to, >=);
-
-    CHILD_ADD_NATIVE_METHOD(Object, return);
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Object, postfix_increment) {
@@ -92,13 +90,6 @@ CHILD_DEFINE_NATIVE_METHOD(Object, greater_than) {
 CHILD_DEFINE_NATIVE_METHOD(Object, greater_than_or_equal_to) {
     CHILD_FIND_LAST_MESSAGE;
     return CHILD_BOOLEAN(Number::cast(CHILD_MESSAGE("<=>", message->inputs(false))->run(this))->value() >= 0);
-}
-
-CHILD_DEFINE_NATIVE_METHOD(Object, return) {
-    CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_INPUT_SIZE(0, 1);
-    Node *result = message->hasInput(0) ? message->runFirstInput() : NULL;
-    throw Return(result);
 }
 
 CHILD_END

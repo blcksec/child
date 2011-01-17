@@ -29,9 +29,6 @@ public:
 private:
     Node *whileOrUntil(bool isWhile);
 public:
-
-    CHILD_DECLARE_NATIVE_METHOD(break);
-
     // === Break ===
 
     class Break {
@@ -39,6 +36,17 @@ public:
         Node *result;
         Break(Node *result = NULL) : result(result) {}
     };
+
+    CHILD_DECLARE_NATIVE_METHOD(break);
+
+    // === Continue ===
+
+    class Continue {
+    public:
+        Continue() {}
+    };
+
+    CHILD_DECLARE_NATIVE_METHOD(continue);
 };
 
 CHILD_END

@@ -73,7 +73,7 @@ public:
     void declare(const QString &name) const;
 
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Node);
-    virtual void initFork() {}
+    virtual void initFork();
 
     CHILD_DECLARE_NATIVE_METHOD(fork);
     CHILD_DECLARE_NATIVE_METHOD(init);
