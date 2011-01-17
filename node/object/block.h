@@ -19,6 +19,8 @@ public:
 
     virtual Node *run(Node *receiver = context());
 
+    void runMetaSections(Node *receiver);
+
     Section *section(const QString &label);
     Section *docSection();
     Section *bodySection();

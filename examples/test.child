@@ -1,9 +1,17 @@
-Person := Object() {
-    name := ""
-    age := 0
+Person(@name: "", @age: 0) := Object() {
+    init := { "arf" }
+    imprimer := {
+        (name + " (" + age + ")") print
+    }
 }
 
-Person inspect
+Person \init inspect
+
+mvila := Person("Manu", 38)
+bgonod := Person("Boris", 28)
+
+mvila imprimer
+// bgonod imprimer
 
 /*
 n := Node()

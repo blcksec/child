@@ -10,16 +10,20 @@ void Block::initRoot() {
 }
 
 Node *Block::run(Node *receiver) {
-    CHILD_PUSH_RUN(this);
+    runMetaSections(receiver);
+    if(bodySection()) {
+        CHILD_PUSH_RUN(this);
+        return bodySection()->run(receiver);
+    } else
+        return receiver;
+}
+
+void Block::runMetaSections(Node *receiver) {
     if(docSection()) receiver->addOrSetChild("doc", docSection()->run(receiver));
     if(testSection()) {
         TestSuite *testSuite = TestSuite::cast(child("test_suite"));
         testSuite->append(CHILD_TEST(testSection(), receiver));
     }
-    if(bodySection())
-        return bodySection()->run(receiver);
-    else
-        return receiver;
 }
 
 Section *Block::section(const QString &label) {

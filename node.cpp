@@ -236,9 +236,9 @@ Node *Node::defineOrAssign(bool isDefine) {
     if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
     Node *value;
     Block *block = Block::dynamicCast(message->secondInput()->value()->value());
-    if(block) // if rhs is a block, we have a method definition shorthand
+    if(block) { // if rhs is a block, we have a method definition shorthand
         value = CHILD_METHOD(NULL, NULL, block);
-    else // rhs is not a block
+    } else // rhs is not a block
         value = message->runSecondInput();
     Property *property = NULL;
     if(!isDefine && (property = Property::dynamicCast(hasChild(msg->name()))))
@@ -250,8 +250,16 @@ Node *Node::defineOrAssign(bool isDefine) {
 }
 
 void Node::hasBeenDefined(Message *message) {
-    if(!message->name().isEmpty() && message->name().at(0).isUpper())
+    if(!message->name().isEmpty() && message->name().at(0).isUpper()) {
         setNodeName(message->name());
+        if(message->hasAnInput()) {
+            Method *method = CHILD_METHOD();
+            method->setIsAutoRunnable(true);
+            method->setNodeName("init");
+            method->setInputs(message->inputs());
+            setChild("init", method);
+        }
+    }
 }
 
 void Node::removeChild(const QString &name) {

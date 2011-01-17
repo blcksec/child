@@ -11,7 +11,7 @@ CHILD_BEGIN
 class Boolean : public GenericElement<bool> {
     CHILD_DECLARE(Boolean, Element, Object);
 public:
-    explicit Boolean(Node *origin, bool value = false) : GenericElement<bool>(origin, value) {}
+    explicit Boolean(Node *origin, bool value = false) : GenericElement<bool>(origin, false) { setValue(value); }
 
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Boolean, value());
 

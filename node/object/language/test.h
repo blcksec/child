@@ -10,11 +10,11 @@ namespace Language {
     #define CHILD_TEST(ARGS...) \
     new Language::Test(context()->child("Object", "Language", "Test"), ##ARGS)
 
-    class Test : public GenericElement<Section *> {
+    class Test : public GenericNodeElement<Section> {
         CHILD_DECLARE(Test, Element, Language);
     public:
         explicit Test(Node *origin, Section *section = NULL, Node *receiver = NULL) :
-            GenericElement<Section *>(origin, section), _receiver(receiver) {}
+            GenericNodeElement<Section>(origin), _receiver(receiver) { setSection(section); }
 
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Test, CHILD_FORK_IF_NOT_NULL(section()), CHILD_FORK_IF_NOT_NULL(receiver()));
 

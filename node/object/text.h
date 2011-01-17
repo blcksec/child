@@ -13,7 +13,7 @@ CHILD_BEGIN
 class Text : public GenericElement<QString> {
     CHILD_DECLARE(Text, Element, Object);
 public:
-    explicit Text(Node *origin, const QString &value = "") : GenericElement<QString>(origin, value) {}
+    explicit Text(Node *origin, const QString &value = "") : GenericElement<QString>(origin, "") { setValue(value); }
 
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Text, value());
 

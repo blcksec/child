@@ -10,17 +10,24 @@ CHILD_BEGIN
 
 #define CHILD_METHOD(ARGS...) new Method(context()->child("Object", "Method"), ##ARGS)
 
-class Method : public GenericElement<Block *> {
+class Method : public GenericNodeElement<Block> {
     CHILD_DECLARE(Method, Element, Object);
 public:
     explicit Method(Node *origin, ParameterList *inputs = NULL, ParameterList *outputs = NULL, Block *block = NULL) :
-        GenericElement<Block *>(origin, block), _inputs(inputs), _outputs(outputs) {}
+        GenericNodeElement<Block>(origin), _inputs(inputs), _outputs(outputs) { setBlock(block); }
 
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Method, CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
                       CHILD_FORK_IF_NOT_NULL(block()));
 
+    CHILD_DECLARE_NATIVE_METHOD(init);
+
     Block *block() const { return value(); } // aliases
     void setBlock(Block *block) { setValue(block); }
+
+    virtual void hasChanged() {
+        setIsAutoRunnable(block());
+        if(block()) block()->runMetaSections(this);
+    }
 
     ParameterList *inputs(bool createIfNull = true) const {
         if(!_inputs && createIfNull) constCast(this)->_inputs = CHILD_PARAMETER_LIST();
@@ -28,6 +35,25 @@ public:
     }
 
     void setInputs(ParameterList *inputs) { _inputs = inputs; }
+
+    void setInputs(ArgumentBunch *arguments) {
+        ArgumentBunch::Iterator i(arguments);
+        while(Argument *argument = i.next()) {
+            Primitive *label = argument->label();
+            Primitive *defaultValue = argument->value();
+            if(!label) {
+                label = defaultValue;
+                defaultValue = NULL;
+            }
+            if(label->hasNext())
+                CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message");
+            Message *labelMsg = Message::dynamicCast(label->value());
+            if(!labelMsg)
+                CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message)");
+            inputs()->append(CHILD_PARAMETER(labelMsg->name(), defaultValue,
+                                             labelMsg->isEscaped(), labelMsg->isParented()));
+        }
+    }
 
     Parameter *input(short i) const { return inputs(false)->get(i); }
     Parameter *input(const QString &label) const { return inputs(false)->get(label); }
@@ -66,7 +92,7 @@ public:
                 }
                 Node *rcvr = parameter->isParented() ? forkedMethod->parent() : forkedMethod;
                 Node *val = parameter->isEscaped() ? argument->value() : argument->run();
-                rcvr->addChild(parameter->label(), val);
+                rcvr->addOrSetChild(parameter->label(), val);
                 labels.remove(parameter->label());
             }
         }
@@ -74,41 +100,29 @@ public:
             if(!parameter->defaultValue()) CHILD_THROW(ArgumentException, "missing mandatory parameter");
             Node *rcvr = parameter->isParented() ? forkedMethod->parent() : forkedMethod;
             Node *val = parameter->isEscaped() ? parameter->defaultValue() : parameter->run();
-            rcvr->addChild(parameter->label(), val);
+            rcvr->addOrSetChild(parameter->label(), val);
         }
-        Node *result = NULL;
-        try {
-            CHILD_PUSH_CONTEXT(forkedMethod);
-            CHILD_PUSH_RUN(this);
-            result = forkedMethod->block()->bodySection()->run();
-        } catch(const Return &ret) { result = ret.result; }
-        return result;
+        Section *body = forkedMethod->block()->bodySection();
+        if(body) {
+            try {
+                CHILD_PUSH_CONTEXT(forkedMethod);
+                CHILD_PUSH_RUN(this);
+                return body->run();
+            } catch(const Return &ret) {
+                return ret.result;
+            }
+        } else
+            return CHILD_NODE();
     }
 
     virtual void hasBeenDefined(Message *message) {
-        if(message->inputs(false)) {
-            ArgumentBunch::Iterator i(message->inputs());
-            while(Argument *argument = i.next()) {
-                Primitive *label = argument->label();
-                Primitive *defaultValue = argument->value();
-                if(!label) {
-                    label = defaultValue;
-                    defaultValue = NULL;
-                }
-                if(label->hasNext())
-                    CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message");
-                Message *labelMsg = Message::dynamicCast(label->value());
-                if(!labelMsg)
-                    CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message)");
-                inputs()->append(CHILD_PARAMETER(labelMsg->name(), defaultValue,
-                                                 labelMsg->isEscaped(), labelMsg->isParented()));
-            }
-        }
-        GenericElement<Block *>::hasBeenDefined(message);
+        setNodeName(message->name());
+        if(message->hasAnInput()) setInputs(message->inputs());
     }
 
     virtual QString toString(bool debug = false, short level = 0) const {
-        QString str = "Method(";
+        QString str = nodeName();
+        str += "(";
         if(inputs(false)) str += inputs()->toString(debug, level);
         str += ")";
         if(outputs(false) && outputs()->isNotEmpty())

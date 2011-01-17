@@ -14,7 +14,7 @@ CHILD_BEGIN
 class Number : public GenericElement<double> {
     CHILD_DECLARE(Number, Element, Object);
 public:
-    explicit Number(Node *origin, const double value = 0) : GenericElement<double>(origin, value) {}
+    explicit Number(Node *origin, const double value = 0) : GenericElement<double>(origin, 0) { setValue(value); }
 
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Number, value());
 
