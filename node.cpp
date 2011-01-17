@@ -149,6 +149,17 @@ void Node::setOrigin(Node *node) {
     _origin = node;
 }
 
+bool Node::isOriginatingFrom(Node *orig) const {
+    orig = orig->real();
+    const Node *node = real();
+    while(node != orig) {
+        if(node->origin() == node) // Node::root reached?
+            return false;
+        node = node->origin();
+    }
+    return true;
+}
+
 Node *Node::real() {
     Node *node = this;
     while(node->isVirtual()) node = node->origin();
@@ -436,9 +447,13 @@ CHILD_DEFINE_NATIVE_METHOD(Node, different_from) {
 CHILD_DEFINE_NATIVE_METHOD(Node, assert) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
-    if(!toBool()) CHILD_THROW(AssertionException, "assertion failed");
+    CHILD_FIND_LAST_PRIMITIVE;
+    Primitive *nextPrimitive = primitive->next();
+    if(!nextPrimitive) CHILD_THROW(InterpreterException, "missing code after '?:' statement");
+    Node *result = nextPrimitive->run();
+    if(!result->toBool()) CHILD_THROW(AssertionException, "assertion failed");
     passedAssertionCount()++;
-    return this;
+    throw Primitive::Skip(result);
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Node, print) {

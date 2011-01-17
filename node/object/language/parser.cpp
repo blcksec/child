@@ -273,8 +273,8 @@ namespace Language {
                 if(!msg) throw parserException("missing message after '\\' operator");
                 msg->setIsEscaped(true);
             } else if(currentOp->name == "?:") {
-                chain = scanExpression();
-                CHILD_PRIMITIVE_ADD(chain, CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), sourceCodeRef));
+                chain = CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), sourceCodeRef);
+                CHILD_PRIMITIVE_ADD(chain, scanExpression());
             } else
                 throw parserException("unimplemented special operator");
         } else {

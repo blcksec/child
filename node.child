@@ -19,14 +19,14 @@ body:
         n extensions << E1
         ?: n extensions size == 1
         ?: n extensions[0] == E1
-        // TODO: ?: !(catch(ArgumentException) { n extensions[0] = E1 })
-        // TODO: ?: catch(ArgumentException) { n extensions << E1 }
+        ?: !(DuplicateException thrown? { n extensions[0] = E1 })
+        ?: DuplicateException thrown? { n extensions << E1 }
         E2 := Node()
         n extensions << E2
         ?: n extensions size == 2
         ?: n extensions[1] == E2
-        // TODO: ?: catch(ArgumentException) { n extensions << E2 }
-        // TODO: ?: catch(ArgumentException) { n extensions[1] = E1 }
+        ?: DuplicateException thrown? { n extensions << E2 }
+        ?: DuplicateException thrown? { n extensions[1] = E1 }
     }
 
     \fork {

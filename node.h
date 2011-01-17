@@ -90,6 +90,8 @@ public:
     void setOrigin(Node *node);
     CHILD_DECLARE_NATIVE_METHOD(origin_set);
 
+    bool isOriginatingFrom(Node *node) const;
+
     bool isAbstract() const { return _isAbstract; }
     bool isConcrete() const { return !_isAbstract; }
     void setIsAbstract(bool isAbstract) { _isAbstract = isAbstract; }

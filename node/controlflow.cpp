@@ -18,6 +18,8 @@ void ControlFlow::initRoot() {
 
     CHILD_ADD_NATIVE_METHOD(ControlFlow, break);
     CHILD_ADD_NATIVE_METHOD(ControlFlow, continue);
+
+    CHILD_ADD_NATIVE_METHOD(ControlFlow, thrown_qm, thrown?);
 }
 
 Node *ControlFlow::ifOrUnless(bool isIf) {
@@ -108,6 +110,25 @@ CHILD_DEFINE_NATIVE_METHOD(ControlFlow, continue) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     throw Continue();
+}
+
+CHILD_DEFINE_NATIVE_METHOD(ControlFlow, thrown_qm) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    CHILD_FIND_LAST_PRIMITIVE;
+    Primitive *nextPrimitive = primitive->next();
+    if(!nextPrimitive)
+        CHILD_THROW(InterpreterException, "missing code after 'thrown?' method");
+    bool result = false;
+    try {
+        nextPrimitive->run();
+    } catch(const Node &node) {
+        if(node.isOriginatingFrom(this))
+            result = true;
+        else
+            throw;
+    }
+    throw Primitive::Skip(CHILD_BOOLEAN(result));
 }
 
 CHILD_END

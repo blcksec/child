@@ -88,11 +88,9 @@ public:
         return false;
     }
 
-    bool isValueAllowed(const T &value) const {
-        CHILD_CHECK_VALUE(value);
-        if(areDuplicateValuesNotAllowed())
-            return !hasValue(value);
-        return true;
+    void checkIfValueIsAllowed(const T &value) const {
+        if(areDuplicateValuesNotAllowed() && hasValue(value))
+            CHILD_THROW(DuplicateException, "cannot add something which is already there");
     }
 
     virtual int size() const  {
@@ -214,8 +212,8 @@ public:
     virtual T set(int i, const T &value) {
         checkIndex(i);
         CHILD_CHECK_VALUE(value);
-        if(get(i) != value) {
-            if(!isValueAllowed(value)) CHILD_THROW(ArgumentException, "cannot set a non-allowed value");
+        if(!get(i)->isEqualTo(value)) {
+            checkIfValueIsAllowed(value);
             removeAnonymousChild(_list->at(i));
             _list->replace(i, value);
             addAnonymousChild(value);
@@ -226,7 +224,8 @@ public:
 
     virtual void silentlyInsert(int i, const T &value) {
         checkIndex(i, true);
-        if(!isValueAllowed(value)) CHILD_THROW(ArgumentException, "cannot insert a non-allowed value");
+        CHILD_CHECK_VALUE(value);
+        checkIfValueIsAllowed(value);
         if(!_list) { _list = new QList<T>; }
         _list->insert(i, value);
         addAnonymousChild(value);
@@ -303,8 +302,8 @@ public:
     virtual T set(int i, const T &value) {
         checkIndex(i);
         CHILD_CHECK_VALUE(value);
-        if(get(i) != value) {
-            if(!isValueAllowed(value)) CHILD_THROW(ArgumentException, "cannot set a non-allowed value");
+        if(!get(i)->isEqualTo(value)) {
+            checkIfValueIsAllowed(value);
             (*_source)->replace(i, value);
             hasChanged();
         }
@@ -313,7 +312,8 @@ public:
 
     virtual void silentlyInsert(int i, const T &value) {
         checkIndex(i, true);
-        if(!isValueAllowed(value)) CHILD_THROW(ArgumentException, "cannot insert a non-allowed value");
+        CHILD_CHECK_VALUE(value);
+        checkIfValueIsAllowed(value);
         if(!*_source) { *_source = new QList<T>; }
         (*_source)->insert(i, value);
     }

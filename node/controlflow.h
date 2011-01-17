@@ -47,6 +47,10 @@ public:
     };
 
     CHILD_DECLARE_NATIVE_METHOD(continue);
+
+    // === Exception handling ===
+
+    CHILD_DECLARE_NATIVE_METHOD(thrown_qm);
 };
 
 CHILD_END
