@@ -10,7 +10,7 @@ const QString Exception::report() const {
     QString str;
     if(!file.isEmpty()) str += QString("%1:").arg(QFileInfo(file).fileName());
     if(line != 0) str += QString("%1: ").arg(line);
-    str += className();
+    str += nodeName();
     if(!message.isEmpty()) str += QString(": %1").arg(message);
     if(!function.isEmpty()) str += QString(" in '%1'").arg(function);
     return str;

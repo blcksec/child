@@ -41,13 +41,6 @@ public:
 
     void setOutputs(ParameterList *outputs) { _outputs = outputs; }
 
-    virtual Node *receive(Primitive *primitive) {
-        Block *receivedBlock = Block::dynamicCast(primitive->value());
-        if(!receivedBlock || block() || this == root()) return Node::receive(primitive); // not a method definition
-        setBlock(receivedBlock);
-        return this;
-    }
-
     virtual Node *run(Node *receiver) {
         Q_UNUSED(receiver);
         CHILD_FIND_LAST_MESSAGE;
@@ -83,16 +76,16 @@ public:
             Node *val = parameter->isEscaped() ? parameter->defaultValue() : parameter->run();
             rcvr->addChild(parameter->label(), val);
         }
-        CHILD_PUSH_RUN(this);
-        CHILD_PUSH_CONTEXT(forkedMethod);
         Node *result = NULL;
         try {
+            CHILD_PUSH_CONTEXT(forkedMethod);
+            CHILD_PUSH_RUN(this);
             result = forkedMethod->block()->bodySection()->run();
         } catch(const Return &ret) { result = ret.result; }
         return result;
     }
 
-    virtual void hasBeenAssigned(Message *message) const {
+    virtual void hasBeenDefined(Message *message) {
         if(message->inputs(false)) {
             ArgumentBunch::Iterator i(message->inputs());
             while(Argument *argument = i.next()) {
@@ -111,6 +104,7 @@ public:
                                                  labelMsg->isEscaped(), labelMsg->isParented()));
             }
         }
+        GenericElement<Block *>::hasBeenDefined(message);
     }
 
     virtual QString toString(bool debug = false, short level = 0) const {

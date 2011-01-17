@@ -53,6 +53,8 @@ void Node::initRoot() {
     addChild("extensions", extensionsProperty);
 
     CHILD_ADD_NATIVE_METHOD(Node, fork);
+    CHILD_ADD_NATIVE_METHOD(Node, init);
+
     CHILD_ADD_NATIVE_METHOD(Node, define, :=);
     CHILD_ADD_NATIVE_METHOD(Node, assign, =);
 
@@ -75,20 +77,20 @@ void Node::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Node, memory_address);
 }
 
-const QString Node::className() const {
+const QString Node::nodeName() const {
     return child("__name__")->toString();
 }
 
-void Node::setClassName(const QString &name) {
+void Node::setNodeName(const QString &name) {
     addOrSetChild("__name__", CHILD_TEXT(name));
 }
 
-const QString Node::classPath() const {
+const QString Node::nodePath() const {
     QString path;
     const Node *cur = this;
     const Node *par;
     while((par = cur->parent()) != cur) {
-        path.prepend(par->className().toLower() + "/");
+        path.prepend(par->nodeName().toLower() + "/");
         cur = par;
     }
     return path;
@@ -96,12 +98,6 @@ const QString Node::classPath() const {
 
 void Node::declare(const QString &name) const {
     roots().append(Root(constCast(this), name));
-}
-
-CHILD_DEFINE_NATIVE_METHOD(Node, self) {
-    CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_INPUT_SIZE(0);
-    return this;
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Node, fork) {
@@ -113,6 +109,22 @@ CHILD_DEFINE_NATIVE_METHOD(Node, fork) {
         initMessage->run(node);
     }
     return node;
+}
+
+CHILD_DEFINE_NATIVE_METHOD(Node, init) {
+    CHILD_FIND_LAST_PRIMITIVE;
+    Primitive *nextPrimitive = primitive->next();
+    if(nextPrimitive) {
+        nextPrimitive->run(this);
+        throw Primitive::Skip(this);
+    }
+    return this;
+}
+
+CHILD_DEFINE_NATIVE_METHOD(Node, self) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    return this;
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Node, origin_get) {
@@ -233,8 +245,13 @@ Node *Node::defineOrAssign(bool isDefine) {
         CHILD_MESSAGE("set", value)->run(property);
     else
         setChild(msg->name(), value, isDefine);
-    value->hasBeenAssigned(msg);
+    if(isDefine) value->hasBeenDefined(msg);
     return value;
+}
+
+void Node::hasBeenDefined(Message *message) {
+    if(!message->name().isEmpty() && message->name().at(0).isUpper())
+        setNodeName(message->name());
 }
 
 void Node::removeChild(const QString &name) {
@@ -423,7 +440,7 @@ CHILD_DEFINE_NATIVE_METHOD(Node, memory_address) {
 QString Node::toString(bool debug, short level) const {
     Q_UNUSED(debug);
     Q_UNUSED(level);
-    return QString("%1:%2: [%3]").arg(className()).arg(hexMemoryAddress(), QStringList(children().keys()).join(", "));
+    return QString("%1:%2: [%3]").arg(nodeName()).arg(hexMemoryAddress(), QStringList(children().keys()).join(", "));
 }
 
 CHILD_END

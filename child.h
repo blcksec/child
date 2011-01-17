@@ -132,7 +132,7 @@ T *findRun() {
         run = T::dynamicCast(runStack().at(i));
         if(run) return run;
     }
-    CHILD_THROW_NOT_FOUND_EXCEPTION("no <className> found in run stack"); // TODO: replace <className> with the class name...
+    CHILD_THROW_NOT_FOUND_EXCEPTION("no <nodeName> found in run stack"); // TODO: replace <nodeName> with the class name...
 }
 
 class RunPusher {

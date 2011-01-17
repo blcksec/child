@@ -47,11 +47,11 @@ public:
     static const bool isInitialized;
 
     explicit Node(Node *origin) : _origin(origin), _extensions(NULL), // default constructor
-        _children(NULL), _parents(NULL), _isAbstract(true), _isVirtual(false), _isRunnable(false) {}
+        _children(NULL), _parents(NULL), _isAbstract(true), _isVirtual(false), _isAutoRunnable(false) {}
 
     Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
         _children(NULL), _parents(NULL), _isAbstract(other._isAbstract),
-        _isVirtual(other._isVirtual), _isRunnable(other._isRunnable) {
+        _isVirtual(other._isVirtual), _isAutoRunnable(other._isAutoRunnable) {
         if(other._extensions) _extensions = new QList<Node *>(*other._extensions);
         if(other._children) {
             QHashIterator<QString, Node *> i(other.children());
@@ -66,17 +66,19 @@ public:
     static Node *root();
     virtual void initRoot();
 
-    const QString className() const;
-    void setClassName(const QString &name);
-    const QString classPath() const;
+    const QString nodeName() const;
+    void setNodeName(const QString &name);
+    const QString nodePath() const;
 
     void declare(const QString &name) const;
 
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Node);
     virtual void initFork() {}
 
-    CHILD_DECLARE_NATIVE_METHOD(self);
     CHILD_DECLARE_NATIVE_METHOD(fork);
+    CHILD_DECLARE_NATIVE_METHOD(init);
+
+    CHILD_DECLARE_NATIVE_METHOD(self);
 
     Node *origin() const {
         if(!_origin) CHILD_THROW_NULL_POINTER_EXCEPTION("origin is NULL");
@@ -98,8 +100,8 @@ public:
     void setIsVirtual(bool isVirtual) { _isVirtual = isVirtual; }
     void setIsReal(bool isReal) { _isVirtual = !isReal; }
 
-    bool isRunnable() const { return _isRunnable; }
-    void setIsRunnable(bool isRunnable) { _isRunnable = isRunnable; }
+    bool isAutoRunnable() const { return _isAutoRunnable; }
+    void setIsAutoRunnable(bool isAutoRunnable) { _isAutoRunnable = isAutoRunnable; }
 
     Node *real();
     const Node *real() const { return constCast(this)->real(); }
@@ -136,7 +138,7 @@ public:
     CHILD_DECLARE_NATIVE_METHOD(define) { return defineOrAssign(true); }
     CHILD_DECLARE_NATIVE_METHOD(assign) { return defineOrAssign(false); }
 
-    virtual void hasBeenAssigned(Message *) const {}
+    virtual void hasBeenDefined(Message *message);
 
     void removeChild(const QString &name);
 
@@ -224,12 +226,12 @@ public:
     virtual bool toBool() const { return true; };
 
     virtual double toDouble() const {
-        CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Number").arg(className()));
+        CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Number").arg(nodeName()));
         return 0;
     };
 
     virtual QChar toChar() const {
-        CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Character").arg(className()));
+        CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Character").arg(nodeName()));
         return 0;
     };
 
@@ -255,9 +257,9 @@ private:
     QList<Node *> *_extensions;
     QHash<QString, Node *> *_children;
     mutable QHash<Node *, HugeUnsignedInteger> *_parents;
-    bool _isAbstract : 1;
-    bool _isVirtual  : 1;
-    bool _isRunnable : 1;
+    bool _isAbstract     : 1;
+    bool _isVirtual      : 1;
+    bool _isAutoRunnable : 1;
 };
 
 inline bool operator==(const Node &a, const Node &b) { return a.isEqualTo(&b); }

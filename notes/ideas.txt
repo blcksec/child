@@ -296,7 +296,7 @@ Hello(@what: "World") := Object {
 Hello(@what: "World") := Object {
     "A cool class"
 use:
-    [Archivable, Runnable]
+    [Archivable, AutoRunnable]
 init:
     log write("...")
 body:

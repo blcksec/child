@@ -10,13 +10,13 @@ CHILD_BEGIN
 
 void init() {
     foreach(Root root, roots())
-        root.node->setClassName(root.name);
+        root.node->setNodeName(root.name);
 
     Interpreter *interpreter = Interpreter::root();
     QString path = "../child/";
     foreach(Root root, roots()) {
         Node *node = root.node;
-        QString childFile = path + node->classPath() + node->className().toLower() + ".child";
+        QString childFile = path + node->nodePath() + node->nodeName().toLower() + ".child";
         if(QFileInfo(childFile).exists()) {
             interpreter->loadSourceCode(childFile)->run();
         }

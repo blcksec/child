@@ -26,7 +26,7 @@ public:
 
     void setMethod(const _MethodPointer_ &method) {
         _method = method;
-        setIsRunnable(method);
+        setIsAutoRunnable(method);
     }
 
     virtual Node *run(Node *receiver) {

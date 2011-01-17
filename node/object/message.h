@@ -113,7 +113,7 @@ public:
         Alias *alias = Alias::dynamicCast(result);
         if(alias && !alias->target().isEmpty()) result = rcvr->child(alias->target());
         if(!isEscaped()) {
-            if(result->isRunnable()) {
+            if(result->isAutoRunnable()) {
                 CHILD_PUSH_RUN(this);
                 result = result->run(rcvr);
             } else if(inputs(false)) {

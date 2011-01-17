@@ -1,4 +1,9 @@
-if(true) "yo" print
+Person := Object() {
+    name := ""
+    age := 0
+}
+
+Person inspect
 
 /*
 n := Node()

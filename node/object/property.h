@@ -11,7 +11,7 @@ new Property(context()->child("Object", "Property"), ##ARGS)
 class Property : public Object {
     CHILD_DECLARE(Property, Object, Object);
 public:
-    explicit Property(Node *origin) : Object(origin) { setIsRunnable(true); }
+    explicit Property(Node *origin) : Object(origin) { setIsAutoRunnable(true); }
 
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Property);
 
