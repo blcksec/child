@@ -185,9 +185,8 @@ public:
     QList<Node *> parents() const;
 
     Node *parent() const;
-    CHILD_DECLARE_NATIVE_METHOD(parent);
     bool hasOneParent() const;
-    CHILD_DECLARE_NATIVE_METHOD(parent_qm);
+    CHILD_DECLARE_NATIVE_METHOD(parent);
 
     virtual Node *receive(Primitive *primitive);
 
@@ -212,7 +211,9 @@ public:
         return _count;
     }
 
-    CHILD_DECLARE_NATIVE_METHOD(assert);
+    Node *assert(bool isAssertTrue = true);
+    CHILD_DECLARE_NATIVE_METHOD(assert_true) { return assert(true); }
+    CHILD_DECLARE_NATIVE_METHOD(assert_false) { return assert(false); }
 
     void print() const { P(toString().toUtf8()); }
     CHILD_DECLARE_NATIVE_METHOD(print);

@@ -36,30 +36,26 @@ public:
         return CHILD_TEXT(value().repeated(message->runFirstInput()->toDouble()));
     }
 
-    CHILD_DECLARE_NATIVE_METHOD(uppercased) {
+    CHILD_DECLARE_NATIVE_METHOD(uppercase) {
         CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
-        return CHILD_TEXT(value().toUpper());
+        if(!message->isExclaimed())
+            return CHILD_TEXT(value().toUpper());
+        else {
+            setValue(value().toUpper());
+            return this;
+        }
     }
 
-    CHILD_DECLARE_NATIVE_METHOD(uppercase_em) {
+    CHILD_DECLARE_NATIVE_METHOD(lowercase) {
         CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
-        setValue(value().toUpper());
-        return this;
-    }
-
-    CHILD_DECLARE_NATIVE_METHOD(lowercased) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(0);
-        return CHILD_TEXT(value().toLower());
-    }
-
-    CHILD_DECLARE_NATIVE_METHOD(lowercase_em) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(0);
-        setValue(value().toLower());
-        return this;
+        if(!message->isExclaimed())
+            return CHILD_TEXT(value().toLower());
+        else {
+            setValue(value().toLower());
+            return this;
+        }
     }
 
     static QString capitalize(QString text) {
@@ -67,21 +63,20 @@ public:
         return text;
     }
 
-    CHILD_DECLARE_NATIVE_METHOD(capitalized) {
+    CHILD_DECLARE_NATIVE_METHOD(capitalize) {
         CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0);
-        return CHILD_TEXT(capitalize(value()));
-    }
-
-    CHILD_DECLARE_NATIVE_METHOD(capitalize_em) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(0);
-        setValue(capitalize(value()));
-        return this;
+        if(!message->isExclaimed())
+            return CHILD_TEXT(capitalize(value()));
+        else {
+            setValue(capitalize(value()));
+            return this;
+        }
     }
 
     virtual bool isEqualTo(const Node *other) const {
-        return value() == Text::cast(other)->value();
+        const Text *otherText = Text::dynamicCast(other);
+        return otherText && value() == otherText->value();
     }
 
     CHILD_DECLARE_NATIVE_METHOD(equal_to) {

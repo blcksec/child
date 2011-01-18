@@ -13,20 +13,55 @@ body:
 
     \extensions {
     test:
-        n := Node()
-        ?: n extensions empty?
+        // Adding...
+        N := Node()
+        ?: N extensions empty?
         E1 := Node()
-        n extensions << E1
-        ?: n extensions size == 1
-        ?: n extensions[0] == E1
-        ?: !(DuplicateException thrown? { n extensions[0] = E1 })
-        ?: DuplicateException thrown? { n extensions << E1 }
+        N extensions << E1
+        ?: N extensions size == 1
+        ?: N extensions[0] == E1
+        !: DuplicateException throw? { N extensions[0] = E1 }
+        ?: DuplicateException throw? { N extensions << E1 }
         E2 := Node()
-        n extensions << E2
-        ?: n extensions size == 2
-        ?: n extensions[1] == E2
-        ?: DuplicateException thrown? { n extensions << E2 }
-        ?: DuplicateException thrown? { n extensions[1] = E1 }
+        N extensions << E2
+        ?: N extensions size == 2
+        ?: N extensions[1] == E2
+        ?: DuplicateException throw? { N extensions << E2 }
+        ?: DuplicateException throw? { N extensions[1] = E1 }
+
+        // Querying...
+        ?: N extensions[:E1]
+        ?: N extensions[:E2]
+        E3 := Node()
+        ?: NotFoundException throw? { N extensions[:E3] }
+        !: N extensions[:E3]?
+        N extensions << E3
+        !: NotFoundException throw? { N extensions[:E3] }
+        ?: N extensions[:E3]?
+
+        // Removing...
+        // E4 := Node()
+        // N extensions[:E4] >>
+
+        /*
+        Node *node1 = CHILD_NODE();
+        Node *node2 = CHILD_NODE();
+        Node *obj = CHILD_NODE();
+        QCOMPARE(obj->extensions().size(), 0);
+        obj->addExtension(node1);
+        QCOMPARE(obj->extensions().size(), 1);
+        QCATCH(obj->removeExtension(NULL), NullPointerException);
+        QCATCH(obj->removeExtension(node2), NotFoundException);
+        obj->removeExtension(node1);
+        QCOMPARE(obj->extensions().size(), 0);
+        obj->addExtension(node1);
+        obj->addExtension(node2);
+        QCOMPARE(obj->extensions().size(), 2);
+        obj->removeExtension(node1);
+        QCOMPARE(obj->extensions().size(), 1);
+        obj->removeExtension(node2);
+        QCOMPARE(obj->extensions().size(), 0);
+        */
     }
 
     \fork {

@@ -59,18 +59,20 @@ void Node::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Node, assign, =);
 
     CHILD_ADD_NATIVE_METHOD(Node, parent);
-    CHILD_ADD_NATIVE_METHOD(Node, parent_qm, parent?);
 
     CHILD_ADD_NATIVE_METHOD(Node, or, ||);
     CHILD_ADD_NATIVE_METHOD(Node, and, &&);
-    CHILD_ADD_NATIVE_METHOD(Node, not, !);
+    CHILD_ADD_NATIVE_METHOD(Node, not, prefix!);
 
     CHILD_ADD_NATIVE_METHOD(Node, or_assign, ||=);
     CHILD_ADD_NATIVE_METHOD(Node, and_assign, &&=);
 
     CHILD_ADD_NATIVE_METHOD(Node, equal_to, ==);
     CHILD_ADD_NATIVE_METHOD(Node, different_from, !=);
-    CHILD_ADD_NATIVE_METHOD(Node, assert, ?:);
+
+    CHILD_ADD_NATIVE_METHOD(Node, assert_true, ?:);
+    CHILD_ADD_NATIVE_METHOD(Node, assert_false, !:);
+
     CHILD_ADD_NATIVE_METHOD(Node, print);
     CHILD_ADD_NATIVE_METHOD(Node, inspect);
 
@@ -213,7 +215,8 @@ CHILD_DEFINE_NATIVE_METHOD(Node, extensions_get) {
 
 Node *Node::child(const QString &name) const {
     Node *node = hasChild(name);
-    if(!node) CHILD_THROW(NotFoundException, "child not found");
+    if(!node) CHILD_THROW(NotFoundException,
+                          QString("child not found (name = %1)").arg(name)); // TODO: remove name information in release
     return node;
 }
 
@@ -375,20 +378,14 @@ Node *Node::parent() const {
     return _parents->keys().first();
 }
 
-CHILD_DEFINE_NATIVE_METHOD(Node, parent) {
-    CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_INPUT_SIZE(0);
-    return parent();
-}
-
 bool Node::hasOneParent() const {
     return _parents && _parents->size() == 1;
 }
 
-CHILD_DEFINE_NATIVE_METHOD(Node, parent_qm) {
+CHILD_DEFINE_NATIVE_METHOD(Node, parent) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
-    return CHILD_BOOLEAN(hasOneParent());
+    return message->isQuestioned() ? CHILD_BOOLEAN(hasOneParent()) : parent();
 }
 
 Node *Node::receive(Primitive *primitive) {
@@ -444,14 +441,15 @@ CHILD_DEFINE_NATIVE_METHOD(Node, different_from) {
     return CHILD_BOOLEAN(!Boolean::cast(CHILD_MESSAGE("==", message->inputs(false))->run(this))->value());
 }
 
-CHILD_DEFINE_NATIVE_METHOD(Node, assert) {
+Node *Node::assert(bool isAssertTrue) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     CHILD_FIND_LAST_PRIMITIVE;
     Primitive *nextPrimitive = primitive->next();
-    if(!nextPrimitive) CHILD_THROW(InterpreterException, "missing code after '?:' statement");
+    if(!nextPrimitive)
+        CHILD_THROW(InterpreterException, QString("missing code after '%1' statement").arg(message->name()));
     Node *result = nextPrimitive->run();
-    if(!result->toBool()) CHILD_THROW(AssertionException, "assertion failed");
+    if(result->toBool() != isAssertTrue) CHILD_THROW(AssertionException, "assertion failed");
     passedAssertionCount()++;
     throw Primitive::Skip(result);
 }

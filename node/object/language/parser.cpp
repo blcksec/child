@@ -105,9 +105,9 @@ namespace Language {
     Primitive *Parser::scanPrimaryExpression(Primitive *currentPrimitive) {
         CHILD_PRIMITIVE_ADD(currentPrimitive, scanOperand());
         while(isCollectionAccessor())
-            scanCollectionAccessor(currentPrimitive);
+            currentPrimitive = scanCollectionAccessor(currentPrimitive);
         while(Operator *op = isPostfixOperator())
-            scanPostfixOperator(currentPrimitive, op);
+            currentPrimitive = scanPostfixOperator(currentPrimitive, op);
         return currentPrimitive;
     }
 
@@ -272,7 +272,10 @@ namespace Language {
                 Message *msg = Message::dynamicCast(chain->value());
                 if(!msg) throw parserException("missing message after '\\' operator");
                 msg->setIsEscaped(true);
-            } else if(currentOp->name == "?:") {
+            } else if(currentOp->name == "value:") {
+                Primitive *key = CHILD_PRIMITIVE(CHILD_MESSAGE("value"), sourceCodeRef);
+                chain = CHILD_PRIMITIVE(CHILD_PAIR(key, scanExpression()), sourceCodeRef);
+            } else if(currentOp->name == "?:" || currentOp->name == "!:") {
                 chain = CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), sourceCodeRef);
                 CHILD_PRIMITIVE_ADD(chain, scanExpression());
             } else
@@ -287,7 +290,17 @@ namespace Language {
 
     Primitive *Parser::scanPostfixOperator(Primitive *currentPrimitive, Operator *currentOp) {
         if(currentOp->isSpecial) {
-            if(currentOp->name == "...") {
+            if(currentOp->name == "postfix?") {
+                if(!currentPrimitive) throw parserException("missing primitive before '?'");
+                Message *message = Message::dynamicCast(currentPrimitive->last()->value());
+                if(!message) throw parserException("missing message before '?'");
+                message->setIsQuestioned(true);
+            } else if(currentOp->name == "postfix!") {
+                if(!currentPrimitive) throw parserException("missing primitive before '!'");
+                Message *message = Message::dynamicCast(currentPrimitive->last()->value());
+                if(!message) throw parserException("missing message before '!'");
+                message->setIsExclaimed(true);
+            } else if(currentOp->name == "...") {
                 if(!currentPrimitive) throw parserException("missing primitive before '...'");
                 Message *message = Message::dynamicCast(currentPrimitive->last()->value());
                 if(!message) throw parserException("missing message before '...'");
@@ -298,12 +311,24 @@ namespace Language {
                     methodSignature->setCodeInputName(name);
                     currentPrimitive->last()->previous()->setNext(NULL);
                 } else
-                    message->setIsVariadic(true);
+                    message->setIsEllipsed(true);
             } else
                 throw parserException("unimplemented special operator");
-        } else
-            CHILD_PRIMITIVE_ADD(currentPrimitive,
-                                CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), token()->sourceCodeRef));
+        } else {
+            if(currentOp->useLHSAsReceiver) {
+                CHILD_PRIMITIVE_ADD(currentPrimitive,
+                                    CHILD_PRIMITIVE(CHILD_MESSAGE(currentOp->name), token()->sourceCodeRef));
+            } else {
+                if(!currentPrimitive) throw parserException(QString("missing primitive before '%1'").arg(currentOp->name));
+                Message *message = CHILD_MESSAGE(currentOp->name);
+                message->inputs()->append(currentPrimitive->last());
+                Primitive *primitive = CHILD_PRIMITIVE(message, token()->sourceCodeRef);
+                if(currentPrimitive->hasNext())
+                    currentPrimitive->last()->previous()->setNext(primitive);
+                else
+                    currentPrimitive = primitive;
+            }
+        }
         consume();
         consumeUselessNewline();
         return currentPrimitive;
@@ -359,10 +384,11 @@ namespace Language {
                 Message *message = CHILD_MESSAGE(op->name);
                 message->inputs()->append(lhs->last());
                 message->inputs()->append(rhs);
+                Primitive *primitive = CHILD_PRIMITIVE(message, sourceCodeRef);
                 if(lhs->hasNext())
-                    lhs->last()->previous()->setNext(CHILD_PRIMITIVE(message, sourceCodeRef));
+                    lhs->last()->previous()->setNext(primitive);
                 else
-                    lhs = CHILD_PRIMITIVE(message, sourceCodeRef);
+                    lhs = primitive;
             }
         }
         return lhs;

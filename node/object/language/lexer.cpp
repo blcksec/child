@@ -91,7 +91,7 @@ namespace Language {
     Token *Lexer::scanName() {
         startToken();
         consume();
-        while(_currentChar.isLetterOrNumber() || _currentChar == '_' || _currentChar == '!' || _currentChar == '?')
+        while(_currentChar.isLetterOrNumber() || _currentChar == '_')
             consume();
         const QStringRef text(tokenTextRef());
         if(text == "yes" || text == "no" || text == "true" || text == "false") return finishToken(Token::Boolean);

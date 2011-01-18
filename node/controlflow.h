@@ -50,7 +50,7 @@ public:
 
     // === Exception handling ===
 
-    CHILD_DECLARE_NATIVE_METHOD(thrown_qm);
+    CHILD_DECLARE_NATIVE_METHOD(throw);
 };
 
 CHILD_END

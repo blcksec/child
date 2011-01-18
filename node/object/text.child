@@ -8,44 +8,29 @@ Object Text {
         ?: new_txt == "Hello"
     }
 
-    \uppercased {
+    \uppercase {
     test:
         txt := "Hello"
-        ?: txt uppercased == "HELLO"
+        ?: txt uppercase == "HELLO"
         ?: txt == "Hello"
-    }
-
-    \uppercase! {
-    test:
-        txt := "Hello"
         txt uppercase!
         ?: txt == "HELLO"
     }
 
-    \lowercased {
+    \lowercase {
     test:
         txt := "HELLO"
-        ?: txt lowercased == "hello"
+        ?: txt lowercase == "hello"
         ?: txt == "HELLO"
-    }
-
-    \lowercase! {
-    test:
-        txt := "HELLO"
         txt lowercase!
         ?: txt == "hello"
     }
 
-    \capitalized {
+    \capitalize {
     test:
         txt := "hello"
-        ?: txt capitalized == "Hello"
+        ?: txt capitalize == "Hello"
         ?: txt == "hello"
-    }
-
-    \capitalize! {
-    test:
-        txt := "hello"
         txt capitalize!
         ?: txt == "Hello"
     }

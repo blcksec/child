@@ -11,16 +11,30 @@ void AbstractList::initRoot() {
     CHILD_ADD_NATIVE_METHOD(AbstractList, append_or_set, []:=);
 
     CHILD_ADD_NATIVE_METHOD(AbstractList, append);
+    CHILD_ADD_NATIVE_METHOD(AbstractList, remove);
 
     CHILD_ADD_NATIVE_METHOD(AbstractList, size);
-    CHILD_ADD_NATIVE_METHOD(AbstractList, empty_qm, empty?);
+    CHILD_ADD_NATIVE_METHOD(AbstractList, empty);
 }
 
-CHILD_DEFINE_NATIVE_METHOD(AbstractList, get) {
+CHILD_DEFINE_NATIVE_METHOD(AbstractList, get) { // TODO: use multiple return values (-> index, found)
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(1);
-    int index = message->runFirstInput()->toDouble();
-    return get(index);
+    Node *value = NULL;
+    if(Primitive *label = message->firstInput()->label()) {
+        Message *msg = Message::dynamicCast(label->value());
+        if(msg && msg->name() == "value")
+            value = message->runFirstInput();
+    }
+    bool wasFound = true;
+    if(value) {
+        int index = get(value, message->isQuestioned() ? &wasFound : NULL);
+        if(wasFound) return CHILD_NUMBER(index); else return CHILD_BOOLEAN(false);
+    } else {
+        int index = message->runFirstInput()->toDouble();
+        value = get(index, message->isQuestioned() ? &wasFound : NULL);
+        if(wasFound) return value; else return CHILD_BOOLEAN(false);
+    }
 }
 
 CHILD_DEFINE_NATIVE_METHOD(AbstractList, set) {
@@ -56,13 +70,21 @@ CHILD_DEFINE_NATIVE_METHOD(AbstractList, append) {
     return this;
 }
 
+CHILD_DEFINE_NATIVE_METHOD(AbstractList, remove) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(1);
+    Node *value = message->runFirstInput();
+    append(value);
+    return this;
+}
+
 CHILD_DEFINE_NATIVE_METHOD(AbstractList, size) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     return CHILD_NUMBER(size());
 }
 
-CHILD_DEFINE_NATIVE_METHOD(AbstractList, empty_qm) {
+CHILD_DEFINE_NATIVE_METHOD(AbstractList, empty) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     return CHILD_BOOLEAN(isEmpty());

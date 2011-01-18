@@ -12,38 +12,43 @@ CHILD_BEGIN
 class Message : public Object {
     CHILD_DECLARE(Message, Object, Object);
 public:
+    typedef unsigned int Modifiers;
+
+    enum Modifier {
+        Escaped = 1,
+        Parented = 2,
+        Questioned = 4,
+        Exclaimed = 8,
+        Ellipsed = 16
+    };
+
     explicit Message(Node *origin, const QString &name = "", ArgumentBunch *inputs = NULL, ArgumentBunch *outputs = NULL,
-                     bool isEscaped = false, bool isParented = false, bool isVariadic = false, const QString &codeInputName = "") :
-        Object(origin), _name(name), _inputs(inputs), _outputs(outputs),
-        _isEscaped(isEscaped), _isParented(isParented), _isVariadic(isVariadic),
+                     Modifiers modifiers = 0, const QString &codeInputName = "") :
+        Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _modifiers(modifiers),
         _codeInputName(codeInputName) {}
 
     Message(Node *origin, const QString &name, Argument *input) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL),
-        _isEscaped(false), _isParented(false), _isVariadic(false) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL), _modifiers(0) {}
 
     Message(Node *origin, const QString &name, Argument *input1, Argument *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL),
-        _isEscaped(false), _isParented(false), _isVariadic(false) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL), _modifiers(0) {}
 
     Message(Node *origin, const QString &name, Node *input) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL),
-        _isEscaped(false), _isParented(false), _isVariadic(false) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL), _modifiers(0) {}
 
     Message(Node *origin, const QString &name, Argument *input1, Node *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))), _outputs(NULL),
-        _isEscaped(false), _isParented(false), _isVariadic(false) {}
+        _modifiers(0) {}
 
     Message(Node *origin, const QString &name, Node *input1, Argument *input2) :
         Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)), _outputs(NULL),
-        _isEscaped(false), _isParented(false), _isVariadic(false) {}
+        _modifiers(0) {}
 
     Message(Node *origin, const QString &name, Node *input1, Node *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL),
-        _isEscaped(false), _isParented(false), _isVariadic(false) {}
+        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL), _modifiers(0) {}
 
-    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
-                      isEscaped(), isParented(), isVariadic(), codeInputName());
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)),
+                                         CHILD_FORK_IF_NOT_NULL(outputs(false)), modifiers(), codeInputName());
 
     const QString &name() const { return _name; }
     void setName(const QString &name) { _name = name; }
@@ -97,14 +102,23 @@ public:
 
     int numOutputs() const { return outputs(false) ? outputs()->size() : 0; }
 
-    bool isEscaped() const { return _isEscaped; }
-    void setIsEscaped(bool isEscaped) { _isEscaped = isEscaped; }
+    Modifiers modifiers() const { return _modifiers; }
+    void setModifiers(const Modifiers modifiers) { _modifiers = modifiers; }
 
-    bool isParented() const { return _isParented; }
-    void setIsParented(bool isParented) { _isParented = isParented; }
+    bool isEscaped() const { return _modifiers & Escaped; }
+    void setIsEscaped(bool isEscaped) { _modifiers = isEscaped ? _modifiers | Escaped : _modifiers & ~Escaped; }
 
-    bool isVariadic() const { return _isVariadic; }
-    void setIsVariadic(bool isVariadic) { _isVariadic = isVariadic; }
+    bool isParented() const { return _modifiers & Parented; }
+    void setIsParented(bool isParented) { _modifiers = isParented ? _modifiers | Parented : _modifiers & ~Parented; }
+
+    bool isQuestioned() const { return _modifiers & Questioned; }
+    void setIsQuestioned(bool isQuestioned) { _modifiers = isQuestioned ? _modifiers | Questioned : _modifiers & ~Questioned; }
+
+    bool isExclaimed() const { return _modifiers & Exclaimed; }
+    void setIsExclaimed(bool isExclaimed) { _modifiers = isExclaimed ? _modifiers | Exclaimed : _modifiers & ~Exclaimed; }
+
+    bool isEllipsed() const { return _modifiers & Ellipsed; }
+    void setIsEllipsed(bool isEllipsed) { _modifiers = isEllipsed ? _modifiers | Ellipsed : _modifiers & ~Ellipsed; }
 
     const QString &codeInputName() const { return _codeInputName; }
     void setCodeInputName(const QString &name) { _codeInputName = name; }
@@ -130,28 +144,22 @@ public:
 
     virtual QString toString(bool debug = false, short level = 0) const {
         QString str;
-        if(isEscaped())
-            str += "\\";
-        if(isParented())
-            str += "@";
+        if(isEscaped()) str += "\\";
+        if(isParented()) str += "@";
         str += name();
-        if(isVariadic())
-            str += "...";
-        if(inputs(false))
-            str += "(" + inputs()->toString(debug, level) + ")";
-        if(hasCodeInput())
-            str += " " + codeInputName() + "...";
-        if(outputs(false))
-            str += " -> " + outputs()->toString(debug, level);
+        if(inputs(false)) str += "(" + inputs()->toString(debug, level) + ")";
+        if(isQuestioned()) str += "?";
+        if(isExclaimed()) str += "!";
+        if(isEllipsed()) str += "...";
+        if(hasCodeInput()) str += " " + codeInputName() + "...";
+        if(outputs(false)) str += " -> " + outputs()->toString(debug, level);
         return str;
     }
 private:
     QString _name;
     ArgumentBunch *_inputs;
     ArgumentBunch *_outputs;
-    bool _isEscaped;
-    bool _isParented;
-    bool _isVariadic;
+    Modifiers _modifiers;
     QString _codeInputName;
 };
 

@@ -8,12 +8,9 @@ void Text::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Text, init);
     CHILD_ADD_NATIVE_METHOD(Text, concatenate, +);
     CHILD_ADD_NATIVE_METHOD(Text, multiply, *);
-    CHILD_ADD_NATIVE_METHOD(Text, uppercased);
-    CHILD_ADD_NATIVE_METHOD(Text, uppercase_em, uppercase!);
-    CHILD_ADD_NATIVE_METHOD(Text, lowercased);
-    CHILD_ADD_NATIVE_METHOD(Text, lowercase_em, lowercase!);
-    CHILD_ADD_NATIVE_METHOD(Text, capitalized);
-    CHILD_ADD_NATIVE_METHOD(Text, capitalize_em, capitalize!);
+    CHILD_ADD_NATIVE_METHOD(Text, uppercase);
+    CHILD_ADD_NATIVE_METHOD(Text, lowercase);
+    CHILD_ADD_NATIVE_METHOD(Text, capitalize);
     CHILD_ADD_NATIVE_METHOD(Text, equal_to, ==);
     CHILD_ADD_NATIVE_METHOD(Text, compare, <=>);
 }

@@ -1,9 +1,8 @@
+a := [1, 2, "arf", 3, 1.5]
+
+// a[2] >>
+
 /*
-a := ["a", "b"]
-
-a[] := "arf"
-a
-
 i := 0
 loop {
     ++i
@@ -21,7 +20,7 @@ Hello("manu") say // -> "Hello, Manu!"
 
 Person(@name: "", @age: 0) := Object() {
     imprimer := {
-        ( name + " (" + age + ")") print
+        (name + " (" + age + ")") print
     }
 }
 

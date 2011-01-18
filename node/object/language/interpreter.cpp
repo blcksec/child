@@ -24,7 +24,12 @@ namespace Language {
         ops->append("--", Operator::Postfix, Operator::namePrecedence, Operator::LeftAssociative, true, false, "postfix--");
 
         ops->append(".", Operator::Binary, Operator::namePrecedence);
+
+        ops->append("?", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, true, true, "postfix?");
+        ops->append("!", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, true, true, "postfix!");
         ops->append("...", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, true, true);
+
+        ops->append(">>", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, false);
 
         ops->append("\\", Operator::Prefix, 531, Operator::NonAssociative, true, true);
         ops->append("@", Operator::Prefix, 541, Operator::NonAssociative, true, true);
@@ -36,7 +41,7 @@ namespace Language {
 
         ops->append("+", Operator::Prefix, 511, Operator::RightAssociative, true, false, "unary+");
         ops->append("-", Operator::Prefix, 511, Operator::RightAssociative, true, false, "unary-");
-        ops->append("!", Operator::Prefix, 511, Operator::RightAssociative);
+        ops->append("!", Operator::Prefix, 511, Operator::RightAssociative, true, false, "prefix!");
 
         ops->append("+", Operator::Binary, 451);
         ops->append("-", Operator::Binary, 451);
@@ -48,7 +53,6 @@ namespace Language {
         ops->append("|", Operator::Binary, 451);
         ops->append("^", Operator::Binary, 451);
         ops->append("<<", Operator::Binary, 461);
-        ops->append(">>", Operator::Binary, 461);
 
         ops->append("..", Operator::Binary, 451);
 
@@ -82,8 +86,10 @@ namespace Language {
         ops->append("=", Operator::Binary, 206, Operator::RightAssociative, false);
         ops->append(":=", Operator::Binary, 201, Operator::RightAssociative, false);
 
-        ops->append("?:", Operator::Prefix, 121, Operator::NonAssociative, false, true);
+        ops->append("?:", Operator::Prefix, 131, Operator::NonAssociative, false, true);
+        ops->append("!:", Operator::Prefix, 131, Operator::NonAssociative, false, true);
 
+        ops->append(":", Operator::Prefix, 121, Operator::NonAssociative, false, true, "value:");
         ops->append(":", Operator::Binary, 111, Operator::NonAssociative, false, true);
 
         _operatorTable = ops;

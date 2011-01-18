@@ -12,7 +12,7 @@ void Dictionary::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Dictionary, get, []);
 
     CHILD_ADD_NATIVE_METHOD(Dictionary, size);
-    CHILD_ADD_NATIVE_METHOD(Dictionary, empty_qm, empty?);
+    CHILD_ADD_NATIVE_METHOD(Dictionary, empty);
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Dictionary, init) {
@@ -25,7 +25,7 @@ CHILD_DEFINE_NATIVE_METHOD(Dictionary, init) {
         Message *msg = Message::dynamicCast(primitive->value());
         if(msg) {
             if(msg->inputs(false) || msg->outputs(false) || msg->isEscaped() || msg->isParented()
-                    || msg->isVariadic() || msg->hasCodeInput())
+                    || msg->isEllipsed() || msg->hasCodeInput())
                 CHILD_THROW(ArgumentException, "invalid key in Dictionary initialization");
             key = CHILD_TEXT(msg->name());
         } else
@@ -47,7 +47,7 @@ CHILD_DEFINE_NATIVE_METHOD(Dictionary, size) {
     return CHILD_NUMBER(size());
 }
 
-CHILD_DEFINE_NATIVE_METHOD(Dictionary, empty_qm) {
+CHILD_DEFINE_NATIVE_METHOD(Dictionary, empty) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     return CHILD_BOOLEAN(isEmpty());

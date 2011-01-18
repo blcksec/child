@@ -8,9 +8,7 @@
   'Hello World!' // ne sera jamais traduit
   '{name}' // rien ne se passe, {name} n'est pas évalué
 
-* First class "Control Flows" :
+* "Code catchers" :
 
-  countdown := while(i >= 0)
-  // later...
-  i := 10
-  countdown { --i print }
+before... remove := {}
+loop after... := {}

@@ -367,9 +367,9 @@ Primitive
 Message
     name
     inputDictionary (Dictionary of PrimitiveChain)
-    hasVariadicInput
+    hasEllipsedInput
     outputDictionary (Dictionary of PrimitiveChain)
-    hasVariadicOutput
+    hasEllipsedOutput
     block
 
 ***

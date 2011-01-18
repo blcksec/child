@@ -24,7 +24,16 @@ public:
     bool areDuplicateValuesNotAllowed() const { return _areDuplicateValuesNotAllowed; }
     void setAreDuplicateValuesNotAllowed(bool value) { _areDuplicateValuesNotAllowed = value; }
 
-    virtual T get(int i) const {
+    T get(int i, bool *wasFoundPtr = NULL) const {
+        bool wasFound = hasIndex(i);
+        if(wasFoundPtr)
+            *wasFoundPtr = wasFound;
+        else if(!wasFound)
+            CHILD_THROW(IndexOutOfBoundsException, "index is out of bounds");
+        return wasFound ? doGet(i) : NULL;
+    }
+
+    virtual T doGet(int i) const {
         Q_UNUSED(i);
         CHILD_THROW(RuntimeException, "abstract method called");
     }
@@ -35,6 +44,22 @@ public:
     T fourth() const { return get(3); }
     T fifth() const { return get(4); }
     T last() const { return get(size()-1); }
+
+    int get(const T &value, bool *wasFoundPtr = NULL) const {
+        CHILD_CHECK_VALUE(value);
+        bool wasFound = false;
+        int i;
+        for(i = 0; i < size(); ++i)
+            if(get(i)->isEqualTo(value)) {
+                wasFound = true;
+                break;
+            }
+        if(wasFoundPtr)
+            *wasFoundPtr = wasFound;
+        else if(!wasFound)
+            CHILD_THROW(NotFoundException, "value not found");
+        return i;
+    }
 
     virtual T set(int i, const T &value)  {
         Q_UNUSED(i);
@@ -78,14 +103,12 @@ public:
         CHILD_THROW(RuntimeException, "abstract method called");
     }
 
-    bool hasIndex(int i) { return i >= 0 && i < size(); }
+    bool hasIndex(int i) const { return i >= 0 && i < size(); }
 
     bool hasValue(const T &value) const {
-        CHILD_CHECK_VALUE(value);
-        for(int i = 0; i < size(); ++i)
-            if(get(i)->isEqualTo(value))
-                return true;
-        return false;
+        bool wasFound;
+        get(value, &wasFound);
+        return wasFound;
     }
 
     void checkIfValueIsAllowed(const T &value) const {
@@ -146,9 +169,10 @@ public:
     CHILD_DECLARE_NATIVE_METHOD(append_or_set);
 
     CHILD_DECLARE_NATIVE_METHOD(append);
+    CHILD_DECLARE_NATIVE_METHOD(remove);
 
     CHILD_DECLARE_NATIVE_METHOD(size);
-    CHILD_DECLARE_NATIVE_METHOD(empty_qm);
+    CHILD_DECLARE_NATIVE_METHOD(empty);
 };
 
 // === GenericList ===
@@ -204,15 +228,14 @@ public:
         }
     }
 
-    virtual T get(int i) const {
-        checkIndex(i);
+    virtual T doGet(int i) const {
         return _list->at(i);
     }
 
     virtual T set(int i, const T &value) {
         checkIndex(i);
         CHILD_CHECK_VALUE(value);
-        if(!get(i)->isEqualTo(value)) {
+        if(!doGet(i)->isEqualTo(value)) {
             checkIfValueIsAllowed(value);
             removeAnonymousChild(_list->at(i));
             _list->replace(i, value);
@@ -294,15 +317,14 @@ public:
     QList<T> **source() const { return _source; }
     void setSource(QList<T> **source) { _source = source; }
 
-    virtual T get(int i) const {
-        checkIndex(i);
+    virtual T doGet(int i) const {
         return (*_source)->at(i);
     }
 
     virtual T set(int i, const T &value) {
         checkIndex(i);
         CHILD_CHECK_VALUE(value);
-        if(!get(i)->isEqualTo(value)) {
+        if(!doGet(i)->isEqualTo(value)) {
             checkIfValueIsAllowed(value);
             (*_source)->replace(i, value);
             hasChanged();

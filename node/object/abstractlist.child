@@ -1,5 +1,5 @@
 Object AbstractList {
-    add := `<<` := Alias(append)
+    `<<` := Alias(append)
 test:
     ?: origin == Object
     ?: parent == Object
