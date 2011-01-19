@@ -123,7 +123,7 @@ CHILD_DEFINE_NATIVE_METHOD(Node, init) {
     Primitive *nextPrimitive = primitive->next();
     if(nextPrimitive) {
         nextPrimitive->run(this);
-        throw Primitive::Skip(this);
+        Primitive::skip(this);
     }
     return this;
 }
@@ -325,7 +325,7 @@ CHILD_DEFINE_NATIVE_METHOD(Node, remove) {
     }
     bool wasFound = true;
     removeChild(msg->name(), msg->isQuestioned() ? &wasFound : NULL);
-    if(!wasFound) throw Primitive::Skip(CHILD_BOOLEAN(false));
+    if(!wasFound) Primitive::skip(CHILD_BOOLEAN(false));
     return this;
 }
 
@@ -480,7 +480,7 @@ Node *Node::assert(bool isAssertTrue) {
     Node *result = nextPrimitive->run();
     if(result->toBool() != isAssertTrue) CHILD_THROW(AssertionException, "assertion failed");
     passedAssertionCount()++;
-    throw Primitive::Skip(result);
+    Primitive::skip(result);
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Node, print) {

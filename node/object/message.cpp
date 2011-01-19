@@ -12,7 +12,7 @@ Node *Message::run(Node *receiver) {
     Node *rcvr = isParented() ? receiver->parent() : receiver;
     bool wasFound = true;
     Node *result = rcvr->child(name(), isQuestioned() ? &wasFound : NULL);
-    if(!wasFound) throw Primitive::Skip(CHILD_BOOLEAN(false));
+    if(!wasFound) Primitive::skip(CHILD_BOOLEAN(false));
     Alias *alias = Alias::dynamicCast(result);
     if(alias && !alias->target().isEmpty()) result = rcvr->child(alias->target());
     if(!isEscaped()) {

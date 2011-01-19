@@ -141,8 +141,9 @@ public:
 
     class Return {
     public:
-        Node *result;
         Return(Node *result = NULL) : result(result) {}
+
+        Node *result;
     };
 
     CHILD_DECLARE_NATIVE_METHOD(return);

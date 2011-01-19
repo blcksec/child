@@ -35,7 +35,7 @@ CHILD_DEFINE_NATIVE_METHOD(AbstractList, get) { // TODO: use multiple return val
         value = get(index, message->isQuestioned() ? &wasFound : NULL);
         if(wasFound) return value;
     }
-    throw Primitive::Skip(CHILD_BOOLEAN(false));
+    Primitive::skip(CHILD_BOOLEAN(false));
 }
 
 CHILD_DEFINE_NATIVE_METHOD(AbstractList, set) {
@@ -83,11 +83,11 @@ CHILD_DEFINE_NATIVE_METHOD(AbstractList, remove) {
     bool wasFound = true;
     if(value) {
 //        remove(value, message->isQuestioned() ? &wasFound : NULL);
-        if(!wasFound) throw Primitive::Skip(CHILD_BOOLEAN(false));
+        if(!wasFound) Primitive::skip(CHILD_BOOLEAN(false));
     } else {
         int index = message->runFirstInput()->toDouble();
         remove(index); // message->isQuestioned() ? &wasFound : NULL
-        if(!wasFound) throw Primitive::Skip(CHILD_BOOLEAN(false));
+        if(!wasFound) Primitive::skip(CHILD_BOOLEAN(false));
     }
     return this;
 }

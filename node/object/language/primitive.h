@@ -50,9 +50,12 @@ namespace Language {
 
         class Skip {
         public:
-            Node *result;
             Skip(Node *result = NULL) : result(result) {}
+
+            Node *result;
         };
+
+        static void skip(Node *result) __attribute__ ((noreturn)) { throw Skip(result); }
     };
 
     #define CHILD_FIND_LAST_PRIMITIVE Primitive *primitive = findLastPrimitive();

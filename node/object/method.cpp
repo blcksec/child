@@ -17,7 +17,7 @@ CHILD_DEFINE_NATIVE_METHOD(Method, init) {
         Block *block = Block::dynamicCast(nextPrimitive->value());
         if(block) {
             setBlock(block);
-            throw Primitive::Skip(this);
+            Primitive::skip(this);
         }
     }
     return this;

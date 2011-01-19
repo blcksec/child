@@ -31,7 +31,6 @@ SOURCES += main.cpp \
     node/object/list.cpp \
     node/object/bunch.cpp \
     node/object/dictionary.cpp \
-    node/object/block.cpp \
     node/object/method.cpp \
     node/object/message.cpp \
     node/object/application.cpp \
@@ -45,6 +44,7 @@ SOURCES += main.cpp \
     node/object/language/parameter.cpp \
     node/object/language/parameterlist.cpp \
     node/object/language/section.cpp \
+    node/object/language/block.cpp \
     node/object/language/sourcecode.cpp \
     node/object/language/sourcecodedictionary.cpp \
     node/object/language/test.cpp \
@@ -76,7 +76,6 @@ HEADERS += \
     node/object/list.h \
     node/object/bunch.h \
     node/object/dictionary.h \
-    node/object/block.h \
     node/object/method.h \
     node/object/message.h \
     node/object/application.h \
@@ -90,6 +89,7 @@ HEADERS += \
     node/object/language/parameter.h \
     node/object/language/parameterlist.h \
     node/object/language/section.h \
+    node/object/language/block.h \
     node/object/language/sourcecode.h \
     node/object/language/sourcecodedictionary.h \
     node/object/language/test.h \

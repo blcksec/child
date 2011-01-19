@@ -33,10 +33,10 @@ Node *ControlFlow::ifOrUnless(bool isIf) {
     }
     CHILD_FIND_LAST_PRIMITIVE;
     if(Primitive *nextPrimitive = primitive->next()) {
-        if(testResult->toBool() == isIf) throw Primitive::Skip(nextPrimitive->run(this));
+        if(testResult->toBool() == isIf) Primitive::skip(nextPrimitive->run(this));
         Block *block = Block::dynamicCast(nextPrimitive->value());
-        if(block && block->elseSection()) throw Primitive::Skip(block->elseSection()->run(this));
-        throw Primitive::Skip(testResult);
+        if(block && block->elseSection()) Primitive::skip(block->elseSection()->run(this));
+        Primitive::skip(testResult);
     }
     CHILD_THROW(InterpreterException, QString("missing code after an %1 statement").arg(isIf ? "if" : "unless"));
 }
@@ -66,7 +66,7 @@ CHILD_DEFINE_NATIVE_METHOD(ControlFlow, loop) {
     } catch(const Break &brk) {
         result = brk.result;
     }
-    throw Primitive::Skip(result);
+    Primitive::skip(result);
 }
 
 Node *ControlFlow::whileOrUntil(bool isWhile) {
@@ -93,7 +93,7 @@ Node *ControlFlow::whileOrUntil(bool isWhile) {
     } catch(const Break &brk) {
         result = brk.result;
     }
-    throw Primitive::Skip(result);
+    Primitive::skip(result);
 }
 
 CHILD_DEFINE_NATIVE_METHOD(ControlFlow, break) {
@@ -129,7 +129,7 @@ CHILD_DEFINE_NATIVE_METHOD(ControlFlow, throw) {
         else
             throw;
     }
-    throw Primitive::Skip(CHILD_BOOLEAN(result));
+    Primitive::skip(CHILD_BOOLEAN(result));
 }
 
 CHILD_END

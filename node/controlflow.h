@@ -33,8 +33,9 @@ public:
 
     class Break {
     public:
-        Node *result;
         Break(Node *result = NULL) : result(result) {}
+
+        Node *result;
     };
 
     CHILD_DECLARE_NATIVE_METHOD(break);
