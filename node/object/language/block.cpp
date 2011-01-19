@@ -1,4 +1,4 @@
-#include "node/object/block.h"
+#include "node/object/language/block.h"
 #include "node/object/message.h"
 #include "node/object/language/testsuite.h"
 

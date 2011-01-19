@@ -7,9 +7,9 @@
 #include "node/object/number.h"
 #include "node/object/text.h"
 #include "node/object/message.h"
-#include "node/object/block.h"
 #include "node/object/method.h"
 #include "node/object/property.h"
+#include "node/object/language/block.h"
 
 CHILD_BEGIN
 
@@ -70,6 +70,8 @@ void Node::initRoot() {
 
     CHILD_ADD_NATIVE_METHOD(Node, equal_to, ==);
     CHILD_ADD_NATIVE_METHOD(Node, different_from, !=);
+
+    CHILD_ADD_NATIVE_METHOD(Node, throw);
 
     CHILD_ADD_NATIVE_METHOD(Node, assert_true, ?:);
     CHILD_ADD_NATIVE_METHOD(Node, assert_false, !:);
@@ -315,13 +317,9 @@ CHILD_DEFINE_NATIVE_METHOD(Node, remove) {
     Message *msg = Message::dynamicCast(message->firstInput()->value()->value());
     if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
     if(msg->name() == "[]") {
-        message = message->fork();
-        message->setName("[]>>");
-        if(msg->hasAnInput())
-            message->inputs()->set(0, msg->firstInput());
-        else
-            message->inputs()->remove(0);
-        return message->run(this);
+        msg = msg->fork();
+        msg->setName("[]>>");
+        return msg->run(this);
     }
     bool wasFound = true;
     removeChild(msg->name(), msg->isQuestioned() ? &wasFound : NULL);
@@ -468,6 +466,26 @@ CHILD_DEFINE_NATIVE_METHOD(Node, equal_to) {
 CHILD_DEFINE_NATIVE_METHOD(Node, different_from) {
     CHILD_FIND_LAST_MESSAGE;
     return CHILD_BOOLEAN(!Boolean::cast(CHILD_MESSAGE("==", message->inputs(false))->run(this))->value());
+}
+
+CHILD_DEFINE_NATIVE_METHOD(Node, throw) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    if(!message->isQuestioned()) throw *this;
+    CHILD_FIND_LAST_PRIMITIVE;
+    Primitive *nextPrimitive = primitive->next();
+    if(!nextPrimitive)
+        CHILD_THROW(InterpreterException, "missing code after 'throw?' method");
+    bool result = false;
+    try {
+        nextPrimitive->run();
+    } catch(const Node &node) {
+        if(node.isOriginatingFrom(this))
+            result = true;
+        else
+            throw;
+    }
+    Primitive::skip(CHILD_BOOLEAN(result));
 }
 
 Node *Node::assert(bool isAssertTrue) {

@@ -2,8 +2,8 @@
 #define CHILD_METHOD_H
 
 #include "node/object/element.h"
-#include "node/object/block.h"
 #include "node/object/message.h"
+#include "node/object/language/block.h"
 #include "node/object/language/parameterlist.h"
 
 CHILD_BEGIN

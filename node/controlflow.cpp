@@ -1,7 +1,7 @@
 #include "node/controlflow.h"
 #include "node/object/boolean.h"
 #include "node/object/message.h"
-#include "node/object/block.h"
+#include "node/object/language/block.h"
 
 CHILD_BEGIN
 
@@ -18,8 +18,6 @@ void ControlFlow::initRoot() {
 
     CHILD_ADD_NATIVE_METHOD(ControlFlow, break);
     CHILD_ADD_NATIVE_METHOD(ControlFlow, continue);
-
-    CHILD_ADD_NATIVE_METHOD(ControlFlow, throw);
 }
 
 Node *ControlFlow::ifOrUnless(bool isIf) {
@@ -110,26 +108,6 @@ CHILD_DEFINE_NATIVE_METHOD(ControlFlow, continue) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     throw Continue();
-}
-
-CHILD_DEFINE_NATIVE_METHOD(ControlFlow, throw) {
-    CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_INPUT_SIZE(0);
-    if(!message->isQuestioned()) throw *this;
-    CHILD_FIND_LAST_PRIMITIVE;
-    Primitive *nextPrimitive = primitive->next();
-    if(!nextPrimitive)
-        CHILD_THROW(InterpreterException, "missing code after 'throw?' method");
-    bool result = false;
-    try {
-        nextPrimitive->run();
-    } catch(const Node &node) {
-        if(node.isOriginatingFrom(this))
-            result = true;
-        else
-            throw;
-    }
-    Primitive::skip(CHILD_BOOLEAN(result));
 }
 
 CHILD_END

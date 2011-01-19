@@ -45,15 +45,19 @@ public:
     T fifth() const { return get(4); }
     T last() const { return get(size()-1); }
 
-    int get(const T &value, bool *wasFoundPtr = NULL) const {
-        CHILD_CHECK_VALUE(value);
+    int get(T *value, bool *wasFoundPtr = NULL) const {
+        CHILD_CHECK_VALUE(*value);
         bool wasFound = false;
         int i;
-        for(i = 0; i < size(); ++i)
-            if(get(i)->isEqualTo(value)) {
+        T val;
+        for(i = 0; i < size(); ++i) {
+            val = get(i);
+            if(val->isEqualTo(*value)) {
                 wasFound = true;
+                *value = val;
                 break;
             }
+        }
         if(wasFoundPtr)
             *wasFoundPtr = wasFound;
         else if(!wasFound)
@@ -132,9 +136,9 @@ public:
 
     bool hasIndex(int i) const { return i >= 0 && i < size(); }
 
-    bool hasValue(const T &value) const {
+    bool hasValue(T value) const {
         bool wasFound;
-        get(value, &wasFound);
+        get(&value, &wasFound);
         return wasFound;
     }
 

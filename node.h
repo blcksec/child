@@ -211,6 +211,8 @@ public:
     CHILD_DECLARE_NATIVE_METHOD(equal_to);
     CHILD_DECLARE_NATIVE_METHOD(different_from);
 
+    CHILD_DECLARE_NATIVE_METHOD(throw);
+
     static HugeUnsignedInteger &passedAssertionCount() {
         static HugeUnsignedInteger _count = 0;
         return _count;

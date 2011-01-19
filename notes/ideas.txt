@@ -4,6 +4,28 @@ a[-1] >> v // supprime le dernier élément en l'assignant à v (équivalent à 
 
 ---
 
+c := Collection()
+s["Yo"]?      // find
+s["Yo"] >>    // remove
+s clear       // clear
+s size        // size
+s values      // values
+s each {}     // each
+
+s := Set()    // fork de Collection
+s << "Yo"     // append
+
+d := Dictionary() // fork de Collection
+d["k1"]       // get
+d["k1"] = 7   // set
+d["k1"] >>    // delete
+d keys        // keys
+
+l := List()   // fork de Dictionary
+l[3] << "Ya"  // insert
+
+---
+
 Person := Object() {
     extensions << Archivable
 }

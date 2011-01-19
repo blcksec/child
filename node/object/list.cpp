@@ -28,7 +28,7 @@ CHILD_DEFINE_NATIVE_METHOD(AbstractList, get) { // TODO: use multiple return val
     }
     bool wasFound = true;
     if(value) {
-        int index = get(value, message->isQuestioned() ? &wasFound : NULL);
+        int index = get(&value, message->isQuestioned() ? &wasFound : NULL);
         if(wasFound) return CHILD_NUMBER(index);
     } else {
         int index = message->runFirstInput()->toDouble();
@@ -80,16 +80,17 @@ CHILD_DEFINE_NATIVE_METHOD(AbstractList, remove) {
         if(msg && msg->name() == "value")
             value = message->runFirstInput();
     }
+    int index;
     bool wasFound = true;
     if(value) {
-//        remove(value, message->isQuestioned() ? &wasFound : NULL);
-        if(!wasFound) Primitive::skip(CHILD_BOOLEAN(false));
+        index = get(&value, message->isQuestioned() ? &wasFound : NULL);
     } else {
-        int index = message->runFirstInput()->toDouble();
-        remove(index); // message->isQuestioned() ? &wasFound : NULL
-        if(!wasFound) Primitive::skip(CHILD_BOOLEAN(false));
+        index = message->runFirstInput()->toDouble();
+        value = get(index, message->isQuestioned() ? &wasFound : NULL);
     }
-    return this;
+    if(!wasFound) Primitive::skip(CHILD_BOOLEAN(false));
+    remove(index);
+    return value;
 }
 
 CHILD_DEFINE_NATIVE_METHOD(AbstractList, size) {

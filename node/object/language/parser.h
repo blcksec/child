@@ -6,7 +6,7 @@
 #include "node/object/character.h"
 #include "node/object/text.h"
 #include "node/object/message.h"
-#include "node/object/block.h"
+#include "node/object/language/block.h"
 #include "node/object/language/lexer.h"
 
 CHILD_BEGIN

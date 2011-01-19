@@ -40,28 +40,17 @@ body:
         ?: N extensions[:E3]?
 
         // Removing...
-        // E4 := Node()
-        // N extensions[:E4] >>
-
-        /*
-        Node *node1 = CHILD_NODE();
-        Node *node2 = CHILD_NODE();
-        Node *obj = CHILD_NODE();
-        QCOMPARE(obj->extensions().size(), 0);
-        obj->addExtension(node1);
-        QCOMPARE(obj->extensions().size(), 1);
-        QCATCH(obj->removeExtension(NULL), NullPointerException);
-        QCATCH(obj->removeExtension(node2), NotFoundException);
-        obj->removeExtension(node1);
-        QCOMPARE(obj->extensions().size(), 0);
-        obj->addExtension(node1);
-        obj->addExtension(node2);
-        QCOMPARE(obj->extensions().size(), 2);
-        obj->removeExtension(node1);
-        QCOMPARE(obj->extensions().size(), 1);
-        obj->removeExtension(node2);
-        QCOMPARE(obj->extensions().size(), 0);
-        */
+        E4 := Node()
+        ?: NotFoundException throw? { N extensions[:E4] >> }
+        N extensions[:E3] >>
+        ?: N extensions size == 2
+        !: N extensions[:E3]?
+        N extensions[:E2] >>
+        ?: N extensions size == 1
+        !: N extensions[:E2]?
+        N extensions[:E1] >>
+        ?: N extensions empty?
+        !: N extensions[:E1]?
     }
 
     \fork {
@@ -75,4 +64,23 @@ body:
 test:
     ?: origin == self
     ?: parent == self
+
+    // child creation
+    world := Node()
+    !: world country1?
+    ?: NotFoundException throw? { world country1 = "France" }
+    world country1 := "France"
+    ?: world country1?
+    ?: world country1 == "France"
+    world country1 := "Spain"
+    ?: world country1 == "Spain"
+    world country1 = "UK"
+    ?: world country1 == "UK"
+    world country2 := "USA"
+    ?: world country2 == "USA"
+    new_world := world()
+    ?: new_world country1 == "UK"
+    new_world country1 = "England"
+    ?: new_world country1 == "England"
+    ?: world country1 == "UK"
 }

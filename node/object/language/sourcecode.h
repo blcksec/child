@@ -2,7 +2,7 @@
 #define CHILD_LANGUAGE_SOURCE_CODE_H
 
 #include "node/object/text.h"
-#include "node/object/block.h"
+#include "node/object/language/block.h"
 #include "node/object/language/parser.h"
 
 CHILD_BEGIN
