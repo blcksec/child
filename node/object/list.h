@@ -61,19 +61,33 @@ public:
         return i;
     }
 
-    virtual T set(int i, const T &value)  {
+    T set(int i, const T &value) {
+        checkIndex(i);
+        CHILD_CHECK_VALUE(value);
+        if(!doGet(i)->isEqualTo(value)) {
+            checkIfValueIsAllowed(value);
+            doSet(i, value);
+            hasChanged();
+        }
+        return value;
+    }
+
+    virtual void doSet(int i, const T &value) {
         Q_UNUSED(i);
         Q_UNUSED(value);
         CHILD_THROW(RuntimeException, "abstract method called");
     }
 
     T insert(int i, const T &value) {
-        silentlyInsert(i, value);
+        checkIndex(i, true);
+        CHILD_CHECK_VALUE(value);
+        checkIfValueIsAllowed(value);
+        doInsert(i, value);
         hasChanged();
         return value;
     }
 
-    virtual void silentlyInsert(int i, const T &value)  {
+    virtual void doInsert(int i, const T &value) {
         Q_UNUSED(i);
         Q_UNUSED(value);
         CHILD_THROW(RuntimeException, "abstract method called");
@@ -83,23 +97,36 @@ public:
         checkIndex(i, true);
         if(!otherList) CHILD_THROW(NullPointerException, "List pointer is NULL");
         for(int j = 0; j < otherList->size(); j++) {
-            silentlyInsert(i + j, otherList->get(j));
+            doInsert(i + j, otherList->get(j));
         }
         hasChanged();
         return otherList;
     }
 
     T append(const T &value) { return insert(size(), value); }
-    void silentlyAppend(const T &value) { silentlyInsert(size(), value); }
     const GenericAbstractList *append(const GenericAbstractList *otherList) { return insert(size(), otherList); }
     T prepend(const T &value) { return insert(0, value); }
     const GenericAbstractList *prepend(const GenericAbstractList *otherList) { return insert(0, otherList); }
 
-    virtual void remove(int i)  {
+    void remove(int i) {
+        checkIndex(i);
+        doRemove(i);
+        hasChanged();
+    }
+
+    virtual void doRemove(int i) {
         Q_UNUSED(i);
         CHILD_THROW(RuntimeException, "abstract method called");
     }
-    virtual void clear()  {
+
+    void clear() {
+        if(size() > 0) {
+            doClear();
+            hasChanged();
+        }
+    }
+
+    virtual void doClear() {
         CHILD_THROW(RuntimeException, "abstract method called");
     }
 
@@ -116,7 +143,7 @@ public:
             CHILD_THROW(DuplicateException, "cannot add something which is already there");
     }
 
-    virtual int size() const  {
+    virtual int size() const {
         CHILD_THROW(RuntimeException, "abstract method called");
     }
     bool isEmpty() const { return size() == 0; }
@@ -200,14 +227,14 @@ public:
     GenericList(Node *origin, const QList<T> &other, bool isBunch = false) :
         GenericAbstractList<T>(origin), _list(NULL), _isBunch(isBunch) {
         if(!other.isEmpty()) {
-            foreach(T node, other) silentlyAppend(node);
+            foreach(T node, other) doInsert(size(), node);
             hasChanged();
         }
     }
 
     GenericList(const GenericList &other) : GenericAbstractList<T>(other), _list(NULL), _isBunch(other._isBunch) {
         if(other.isNotEmpty()) {
-            foreach(T node, *other._list) silentlyAppend(node);
+            foreach(T node, *other._list) doInsert(size(), node);
             hasChanged();
         }
     }
@@ -223,7 +250,7 @@ public:
         GenericAbstractList<T>::initFork();
         GenericList *orig = static_cast<GenericList *>(origin());
         if(orig->isNotEmpty()) {
-            foreach(T node, *orig->_list) silentlyAppend(node->fork());
+            foreach(T node, *orig->_list) doInsert(size(), node->fork());
             hasChanged();
         }
     }
@@ -232,40 +259,27 @@ public:
         return _list->at(i);
     }
 
-    virtual T set(int i, const T &value) {
-        checkIndex(i);
-        CHILD_CHECK_VALUE(value);
-        if(!doGet(i)->isEqualTo(value)) {
-            checkIfValueIsAllowed(value);
-            removeAnonymousChild(_list->at(i));
-            _list->replace(i, value);
-            addAnonymousChild(value);
-            hasChanged();
-        }
-        return value;
+    virtual void doSet(int i, const T &value) {
+        removeAnonymousChild(_list->at(i));
+        _list->replace(i, value);
+        addAnonymousChild(value);
     }
 
-    virtual void silentlyInsert(int i, const T &value) {
-        checkIndex(i, true);
-        CHILD_CHECK_VALUE(value);
-        checkIfValueIsAllowed(value);
+    virtual void doInsert(int i, const T &value) {
         if(!_list) { _list = new QList<T>; }
         _list->insert(i, value);
         addAnonymousChild(value);
     }
 
-    virtual void remove(int i) {
-        checkIndex(i);
+    virtual void doRemove(int i) {
         removeAnonymousChild(_list->at(i));
         _list->removeAt(i);
-        hasChanged();
     }
 
-    virtual void clear() {
+    virtual void doClear() {
         if(_list) {
             foreach(Node *node, *_list) removeAnonymousChild(node);
             _list->clear();
-            hasChanged();
         }
     }
 
@@ -321,36 +335,21 @@ public:
         return (*_source)->at(i);
     }
 
-    virtual T set(int i, const T &value) {
-        checkIndex(i);
-        CHILD_CHECK_VALUE(value);
-        if(!doGet(i)->isEqualTo(value)) {
-            checkIfValueIsAllowed(value);
-            (*_source)->replace(i, value);
-            hasChanged();
-        }
-        return value;
+    virtual void doSet(int i, const T &value) {
+        (*_source)->replace(i, value);
     }
 
-    virtual void silentlyInsert(int i, const T &value) {
-        checkIndex(i, true);
-        CHILD_CHECK_VALUE(value);
-        checkIfValueIsAllowed(value);
+    virtual void doInsert(int i, const T &value) {
         if(!*_source) { *_source = new QList<T>; }
         (*_source)->insert(i, value);
     }
 
-    virtual void remove(int i) {
-        checkIndex(i);
+    virtual void doRemove(int i) {
         (*_source)->removeAt(i);
-        hasChanged();
     }
 
-    virtual void clear() {
-        if(*_source) {
-            (*_source)->clear();
-            hasChanged();
-        }
+    virtual void doClear() {
+        if(*_source) (*_source)->clear();
     }
 
     virtual int size() const { return *_source ? (*_source)->size() : 0; }

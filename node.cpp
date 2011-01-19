@@ -57,6 +57,7 @@ void Node::initRoot() {
 
     CHILD_ADD_NATIVE_METHOD(Node, define, :=);
     CHILD_ADD_NATIVE_METHOD(Node, assign, =);
+    CHILD_ADD_NATIVE_METHOD(Node, remove, >>);
 
     CHILD_ADD_NATIVE_METHOD(Node, parent);
 
@@ -213,16 +214,19 @@ CHILD_DEFINE_NATIVE_METHOD(Node, extensions_get) {
     return value;
 }
 
-Node *Node::child(const QString &name) const {
-    Node *node = hasChild(name);
-    if(!node) CHILD_THROW(NotFoundException,
-                          QString("child not found (name = %1)").arg(name)); // TODO: remove name information in release
+Node *Node::child(const QString &name, bool *wasFoundPtr) const {
+    Node *node = findChild(name);
+    if(wasFoundPtr)
+        *wasFoundPtr = node;
+    else if(!node)
+        CHILD_THROW(NotFoundException,
+                    QString("child not found (name = %1)").arg(name)); // TODO: remove name information in release
     return node;
 }
 
 Node *Node::addChild(const QString &name, Node *value) {
     CHILD_CHECK_POINTER(value);
-    if(hasChild(name, false)) CHILD_THROW(DuplicateException, "child with same name is already there");
+    if(findChild(name, false)) CHILD_THROW(DuplicateException, "child with same name is already there");
     _setChild(name, value);
     return value;
 }
@@ -231,7 +235,7 @@ Node *Node::setChild(const QString &name, Node *value, bool addOrSetMode) {
     CHILD_CHECK_POINTER(value);
     Node *parent = this;
     bool isDirect;
-    if(Node *current = hasChild(name, !addOrSetMode, &parent, false, &isDirect)) {
+    if(Node *current = findChild(name, !addOrSetMode, &parent, false, &isDirect)) {
         if(isDirect) {
             if(current == value) return value;
             current->_removeParent(parent);
@@ -268,7 +272,7 @@ Node *Node::defineOrAssign(bool isDefine) {
     } else // rhs is not a block
         value = message->runSecondInput();
     Property *property = NULL;
-    if(!isDefine && (property = Property::dynamicCast(hasChild(msg->name()))))
+    if(!isDefine && (property = Property::dynamicCast(findChild(msg->name()))))
         CHILD_MESSAGE("set", value)->run(property);
     else
         setChild(msg->name(), value, isDefine);
@@ -292,23 +296,48 @@ void Node::hasBeenDefined(Message *message) {
     }
 }
 
-void Node::removeChild(const QString &name) {
+void Node::removeChild(const QString &name, bool *wasFoundPtr) {
     bool isDirect;
-    if(Node *current = hasChild(name, false, NULL, false, &isDirect)) {
+    Node *current = findChild(name, false, NULL, false, &isDirect);
+    if(current) {
         if(isDirect) current->_removeParent(this);
-    } else CHILD_THROW(NotFoundException, "child not found");
-    _setChild(name, NULL);
+        _setChild(name, NULL);
+    }
+    if(wasFoundPtr)
+        *wasFoundPtr = current;
+    else if(!current)
+        CHILD_THROW(NotFoundException, "child not found");
 }
 
-Node *Node::hasChild(const QString &name, bool searchInParents, Node **parentPtr, bool autoFork, bool *isDirectPtr) const {
-    Node *node = hasChildInSelfOrOrigins(name, autoFork, isDirectPtr);
+CHILD_DEFINE_NATIVE_METHOD(Node, remove) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(1);
+    Message *msg = Message::dynamicCast(message->firstInput()->value()->value());
+    if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
+    if(msg->name() == "[]") {
+        message = message->fork();
+        message->setName("[]>>");
+        if(msg->hasAnInput())
+            message->inputs()->set(0, msg->firstInput());
+        else
+            message->inputs()->remove(0);
+        return message->run(this);
+    }
+    bool wasFound = true;
+    removeChild(msg->name(), msg->isQuestioned() ? &wasFound : NULL);
+    if(!wasFound) throw Primitive::Skip(CHILD_BOOLEAN(false));
+    return this;
+}
+
+Node *Node::findChild(const QString &name, bool searchInParents, Node **parentPtr, bool autoFork, bool *isDirectPtr) const {
+    Node *node = findChildInSelfOrOrigins(name, autoFork, isDirectPtr);
     if(searchInParents) {
         if(node) {
             if(parentPtr) *parentPtr = constCast(this);
         } else if(_parents)
             foreach(Node *parent, _parents->keys()) {
                 if(parent != this) { // for Node::root which is child of itself
-                    node = parent->hasChild(name, searchInParents, parentPtr, autoFork, isDirectPtr);
+                    node = parent->findChild(name, searchInParents, parentPtr, autoFork, isDirectPtr);
                     if(node) break;
                 }
             }
@@ -316,15 +345,15 @@ Node *Node::hasChild(const QString &name, bool searchInParents, Node **parentPtr
     return node;
 }
 
-Node *Node::hasChildInSelfOrOrigins(const QString &name, bool autoFork, bool *isDirectPtr) const {
+Node *Node::findChildInSelfOrOrigins(const QString &name, bool autoFork, bool *isDirectPtr) const {
     bool isRemoved;
     Node *node = hasDirectChild(name, &isRemoved);
     bool isDirect = node || isRemoved;
     if(!isDirect) {
-        if(origin() != this) node = origin()->hasChildInSelfOrOrigins(name);
+        if(origin() != this) node = origin()->findChildInSelfOrOrigins(name);
         if(!node && _extensions) {
             foreach(Node *extension, *_extensions) {
-                node = extension->hasChildInSelfOrOrigins(name);
+                node = extension->findChildInSelfOrOrigins(name);
                 if(node) break;
             }
         }

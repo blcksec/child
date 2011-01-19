@@ -117,7 +117,7 @@ public:
 
     CHILD_DECLARE_NATIVE_METHOD(extensions_get);
 
-    Node *child(const QString &name) const;
+    Node *child(const QString &name, bool *wasFoundPtr = NULL) const;
 
     Node *child(const QString &name1, const QString &name2) const {
         return child(name1)->child(name2);
@@ -142,7 +142,9 @@ public:
 
     virtual void hasBeenDefined(Message *message);
 
-    void removeChild(const QString &name);
+    void removeChild(const QString &name, bool *wasFoundPtr = NULL);
+
+    CHILD_DECLARE_NATIVE_METHOD(remove);
 
     void addAnonymousChild(Node *value) {
         CHILD_CHECK_POINTER(value);
@@ -154,11 +156,14 @@ public:
         value->_removeParent(this);
     }
 
-    Node *hasChild(const QString &name, bool searchInParents = true, Node **parentPtr = NULL,
+    Node *findChild(const QString &name, bool searchInParents = true, Node **parentPtr = NULL,
                    bool autoFork = true, bool *isDirectPtr = NULL) const;
 private:
-    Node *hasChildInSelfOrOrigins(const QString &name, bool autoFork = true, bool *isDirectPtr = NULL) const;
+    Node *findChildInSelfOrOrigins(const QString &name, bool autoFork = true, bool *isDirectPtr = NULL) const;
 public:
+    bool hasChild(const QString &name, bool searchInParents = true) const {
+        return findChild(name, searchInParents);
+    }
 
     Node *hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) const {
         Node *child = NULL;

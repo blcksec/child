@@ -124,37 +124,9 @@ public:
     void setCodeInputName(const QString &name) { _codeInputName = name; }
     bool hasCodeInput() const { return !_codeInputName.isEmpty(); }
 
-    virtual Node *run(Node *receiver = context()) {
-        Node *rcvr = isParented() ? receiver->parent() : receiver;
-        Node *result = rcvr->child(name());
-        Alias *alias = Alias::dynamicCast(result);
-        if(alias && !alias->target().isEmpty()) result = rcvr->child(alias->target());
-        if(!isEscaped()) {
-            if(result->isAutoRunnable()) {
-                CHILD_PUSH_RUN(this);
-                result = result->run(rcvr);
-            } else if(inputs(false)) {
-                Message *forkMessage = fork();
-                forkMessage->setName("fork");
-                result = forkMessage->run(result);
-            }
-        }
-        return result;
-    }
+    virtual Node *run(Node *receiver = context());
 
-    virtual QString toString(bool debug = false, short level = 0) const {
-        QString str;
-        if(isEscaped()) str += "\\";
-        if(isParented()) str += "@";
-        str += name();
-        if(inputs(false)) str += "(" + inputs()->toString(debug, level) + ")";
-        if(isQuestioned()) str += "?";
-        if(isExclaimed()) str += "!";
-        if(isEllipsed()) str += "...";
-        if(hasCodeInput()) str += " " + codeInputName() + "...";
-        if(outputs(false)) str += " -> " + outputs()->toString(debug, level);
-        return str;
-    }
+    virtual QString toString(bool debug = false, short level = 0) const;
 private:
     QString _name;
     ArgumentBunch *_inputs;

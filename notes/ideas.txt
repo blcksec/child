@@ -1,3 +1,9 @@
+a[0..2] << "i" // remplace les 3 premiers éléments par "i"
+
+a[-1] >> v // supprime le dernier élément en l'assignant à v (équivalent à un pop)
+
+---
+
 Person := Object() {
     extensions << Archivable
 }
