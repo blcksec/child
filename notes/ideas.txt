@@ -4,30 +4,37 @@ a[-1] >> v // supprime le dernier élément en l'assignant à v (équivalent à 
 
 ---
 
-e := Enumeration()
-e["Yo"]?      // find
-e values      // values
-s size        // size
+a each {}     // each
 
-c := Collection()
-s["Yo"] >>    // remove
-s clear       // clear
-s each {}     // each
+a << "Yo"     // append
+a["Yo"] >>    // remove
 
-s := Set()
-s << "Yo"     // append
+a["k1"]       // get
+a["k1"] = 7   // set
+a["k1"] >>    // delete
+a indexes     // indexes or keys
 
-l := List()
-d[2]          // get
-d[2] = "yo"   // set
-l[3] << "Ya"  // insert
-d[2] >>       // delete
+a[3] << "Ya"  // insert
 
-d := Dictionary()
-d["k1"]       // get
-d["k1"] = 7   // set
-d["k1"] >>    // delete
-d keys        // keys
+-------------------------------------------------
+
+Enumerable := Object()
+require: each
+
+Collection := Object(extension: Enumerable)
+require: append, remove
+
+Set := Collection()
+
+Indexable := Object()
+require: get, set, delete, indexes
+
+Dictionary := Collection(extension: Indexable)
+
+Orderable := Indexable()
+require: insert
+
+List := Collection(extension: Orderable)
 
 ---
 
