@@ -4,25 +4,30 @@ a[-1] >> v // supprime le dernier élément en l'assignant à v (équivalent à 
 
 ---
 
+e := Enumeration()
+e["Yo"]?      // find
+e values      // values
+s size        // size
+
 c := Collection()
-s["Yo"]?      // find
 s["Yo"] >>    // remove
 s clear       // clear
-s size        // size
-s values      // values
 s each {}     // each
 
-s := Set()    // fork de Collection
+s := Set()
 s << "Yo"     // append
 
-d := Dictionary() // fork de Collection
+l := List()
+d[2]          // get
+d[2] = "yo"   // set
+l[3] << "Ya"  // insert
+d[2] >>       // delete
+
+d := Dictionary()
 d["k1"]       // get
 d["k1"] = 7   // set
 d["k1"] >>    // delete
 d keys        // keys
-
-l := List()   // fork de Dictionary
-l[3] << "Ya"  // insert
 
 ---
 
