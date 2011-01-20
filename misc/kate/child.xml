@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<!-- Author: Manuel Vila <mvila@3base.com> -->
+<language name="Child" version="0.1" kateversion="2.4" section="Scripts" extensions="*.child"
+          mimetype="text/x-child;application/x-child" indenter="cstyle"
+          author="Manuel Vila (mvila@3base.com)" license="">
+    <highlighting>
+        <list name="keywords">
+            <item>if</item>
+            <item>unless</item>
+            <item>switch</item>
+            <item>loop</item>
+            <item>while</item>
+            <item>until</item>
+            <item>continue</item>
+            <item>break</item>
+            <item>return</item>
+            <item>throw</item>
+        </list>
+        <contexts>
+            <context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+                <keyword attribute="Keyword" context="#stay" String="keywords"/>
+                <RegExpr attribute="Data Type" context="#stay" String="[A-Z][a-zA-Z0-9_]*"/>
+                <RegExpr attribute="Label" context="#stay" String="[a-zA-Z][a-zA-Z0-9_\(\)]*:" firstNonSpace="true"/>
+                <RegExpr attribute="Identifier" context="#stay" String="[a-zA-Z][a-zA-Z0-9_]*"/>
+                <Int attribute="Decimal" context="#stay"/>
+                <HlCOct attribute="Decimal" context="#stay"/>
+                <HlCHex attribute="Decimal" context="#stay"/>
+                <Float attribute="Float" context="#stay"/>
+                <DetectChar attribute="String" context="String" char="&quot;"/>
+                <DetectChar attribute="String" context="String" char="'"/>
+                <Detect2Chars attribute="Comment" context="Comment" char="/" char1="/"/>
+                <Detect2Chars attribute="Comment" context="Multiline Comment" char="/" char1="*" beginRegion="Comment"/>
+                <DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="Brace" />
+                <DetectChar attribute="Symbol" context="#stay" char="}" endRegion="Brace" />
+                <AnyChar attribute="Symbol" context="#stay" String="()[]"/>
+                <AnyChar attribute="Symbol" context="#stay" String="@#&amp;!-^$*%?,;.:/=+"/>
+            </context>
+            <context attribute="String" lineEndContext="#pop" name="String">
+                <HlCStringChar attribute="String Char" context="#stay"/>
+                <DetectChar attribute="String" context="#pop" char="&quot;"/>
+                <DetectChar attribute="String" context="#pop" char="'"/>
+            </context>
+            <context attribute="Comment" lineEndContext="#pop" name="Comment">
+            </context>
+            <context attribute="Comment" lineEndContext="#stay" name="Multiline Comment">
+                <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="Comment"/>
+            </context>
+        </contexts>
+        <itemDatas>
+            <itemData name="Normal Text" defStyleNum="dsNormal"/>
+            <itemData name="Keyword" defStyleNum="dsKeyword"/>
+            <itemData name="Data Type" defStyleNum="dsDataType"/>
+            <itemData name="Label" defStyleNum="dsKeyword"/>
+            <itemData name="Identifier" defStyleNum="dsNormal"/>
+            <itemData name="String" defStyleNum="dsString"/>
+            <itemData name="String Char" defStyleNum="dsChar"/>
+            <itemData name="Decimal" defStyleNum="dsDecVal"/>
+            <itemData name="Float" defStyleNum="dsFloat"/>
+            <itemData name="Symbol" defStyleNum="dsNormal"/>
+            <itemData name="Comment" defStyleNum="dsComment"/>
+        </itemDatas>
+    </highlighting>
+    <general>
+        <comments>
+            <comment name="singleLine" start="//"/>
+            <comment name="multiLine" start="/*" end="*/"/>
+        </comments>
+        <keywords casesensitive="1"/>
+    </general>
+</language>

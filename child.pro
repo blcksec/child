@@ -122,4 +122,5 @@ OTHER_FILES += \
     node/exception.child \
     node/object.child \
     node/object/text.child \
-    node/object/abstractlist.child
+    node/object/abstractlist.child \
+    misc/kate/child.xml

@@ -1,12 +1,24 @@
-/*
-i := 0
-loop {
-    ++i
-    if(i <= 3) continue
-    if(i > 5) break
-    i print
+meth := Object() {
+doc:
+    "Hello ici et là"
+body:
+    if(true)
+
+    i := 0
+    loop {
+        ++i
+        if(i <= 3) continue
+        if(i > 5) break
+        i print
+    }
+test:
+    n := Node()
+    n extensions << "ext1" << "ext2"
+    i := 0
+    n extensions[i]
 }
 
+/*
 Hello(@what: "World") := Object() {
     say := { ("Hello, " + what capitalized + "!") print }
 }
