@@ -1,3 +1,4 @@
+/*
 meth := Object() {
 doc:
     "Hello ici et là"
@@ -18,7 +19,6 @@ test:
     n extensions[i]
 }
 
-/*
 Hello(@what: "World") := Object() {
     say := { ("Hello, " + what capitalized + "!") print }
 }

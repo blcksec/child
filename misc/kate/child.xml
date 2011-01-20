@@ -5,7 +5,7 @@
           mimetype="text/x-child;application/x-child" indenter="cstyle"
           author="Manuel Vila (mvila@3base.com)" license="">
     <highlighting>
-        <list name="keywords">
+        <list name="Keywords">
             <item>if</item>
             <item>unless</item>
             <item>switch</item>
@@ -15,14 +15,15 @@
             <item>continue</item>
             <item>break</item>
             <item>return</item>
-            <item>throw</item>
         </list>
         <contexts>
             <context attribute="Normal Text" lineEndContext="#stay" name="Normal">
-                <keyword attribute="Keyword" context="#stay" String="keywords"/>
+                <keyword attribute="Keyword" context="#stay" String="Keywords"/>
+								<StringDetect attribute="Keyword" context="#stay" String="throw?"/>
+								<StringDetect attribute="Keyword" context="#stay" String="throw"/>
                 <RegExpr attribute="Data Type" context="#stay" String="[A-Z][a-zA-Z0-9_]*"/>
                 <RegExpr attribute="Label" context="#stay" String="[a-zA-Z][a-zA-Z0-9_\(\)]*:" firstNonSpace="true"/>
-                <RegExpr attribute="Identifier" context="#stay" String="[a-zA-Z][a-zA-Z0-9_]*"/>
+                <RegExpr attribute="Identifier" context="#stay" String="\\?@?[a-zA-Z][a-zA-Z0-9_]*[!\?]?"/>
                 <Int attribute="Decimal" context="#stay"/>
                 <HlCOct attribute="Decimal" context="#stay"/>
                 <HlCHex attribute="Decimal" context="#stay"/>
@@ -34,7 +35,7 @@
                 <DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="Brace" />
                 <DetectChar attribute="Symbol" context="#stay" char="}" endRegion="Brace" />
                 <AnyChar attribute="Symbol" context="#stay" String="()[]"/>
-                <AnyChar attribute="Symbol" context="#stay" String="@#&amp;!-^$*%?,;.:/=+"/>
+                <AnyChar attribute="Symbol" context="#stay" String="@#&amp;!-^$*%?,;.:/=+&lt;&gt;\\"/>
             </context>
             <context attribute="String" lineEndContext="#pop" name="String">
                 <HlCStringChar attribute="String Char" context="#stay"/>
@@ -57,7 +58,7 @@
             <itemData name="String Char" defStyleNum="dsChar"/>
             <itemData name="Decimal" defStyleNum="dsDecVal"/>
             <itemData name="Float" defStyleNum="dsFloat"/>
-            <itemData name="Symbol" defStyleNum="dsNormal"/>
+            <itemData name="Symbol" defStyleNum="dsKeyword" color="#3399CC"/>
             <itemData name="Comment" defStyleNum="dsComment"/>
         </itemDatas>
     </highlighting>
