@@ -127,7 +127,17 @@ namespace Language {
     }
 
     Primitive *Parser::scanName() {
-        Message *message = CHILD_MESSAGE(tokenText());
+        Message *message = CHILD_MESSAGE();
+        QString name = tokenText();
+        if(name.contains('?')) {
+            message->setIsQuestioned(true);
+            name.remove('?');
+        }
+        if(name.contains('!')) {
+            message->setIsExclaimed(true);
+            name.remove('!');
+        }
+        message->setName(name);
         Primitive *primitive = CHILD_PRIMITIVE(message);
         int begin = token()->sourceCodeRef.position();
         consume();
@@ -202,7 +212,9 @@ namespace Language {
         message->setName(!hasKey ? "List" : "Dictionary");
         int end = token()->sourceCodeRef.position() + 1;
         closeToken();
-        match(Token::RightBracket);
+        QString rightBracket = match(Token::RightBracket);
+        if(rightBracket.contains("?")) message->setIsQuestioned(true);
+        if(rightBracket.contains("!")) message->setIsExclaimed(true);
         QStringRef sourceCodeRef = lexer()->source().midRef(begin, end - begin);
         return CHILD_PRIMITIVE(message, sourceCodeRef);
     }
@@ -245,7 +257,9 @@ namespace Language {
             message->inputs()->append(scanExpression());
         int end = token()->sourceCodeRef.position() + 1;
         closeToken();
-        match(Token::RightBracket);
+        QString rightBracket = match(Token::RightBracket);
+        if(rightBracket.contains("?")) message->setIsQuestioned(true);
+        if(rightBracket.contains("!")) message->setIsExclaimed(true);
         QStringRef sourceCodeRef = lexer()->source().midRef(begin, end - begin);
         CHILD_PRIMITIVE_ADD(currentPrimitive, CHILD_PRIMITIVE(message, sourceCodeRef));
         return currentPrimitive;
@@ -290,17 +304,7 @@ namespace Language {
 
     Primitive *Parser::scanPostfixOperator(Primitive *currentPrimitive, Operator *currentOp) {
         if(currentOp->isSpecial) {
-            if(currentOp->name == "postfix?") {
-                if(!currentPrimitive) throw parserException("missing primitive before '?'");
-                Message *message = Message::dynamicCast(currentPrimitive->last()->value());
-                if(!message) throw parserException("missing message before '?'");
-                message->setIsQuestioned(true);
-            } else if(currentOp->name == "postfix!") {
-                if(!currentPrimitive) throw parserException("missing primitive before '!'");
-                Message *message = Message::dynamicCast(currentPrimitive->last()->value());
-                if(!message) throw parserException("missing message before '!'");
-                message->setIsExclaimed(true);
-            } else if(currentOp->name == "...") {
+            if(currentOp->name == "...") {
                 if(!currentPrimitive) throw parserException("missing primitive before '...'");
                 Message *message = Message::dynamicCast(currentPrimitive->last()->value());
                 if(!message) throw parserException("missing message before '...'");

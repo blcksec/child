@@ -3,6 +3,8 @@
 
 CHILD_BEGIN
 
+// === AbastractList ===
+
 CHILD_DEFINE(AbstractList, Object, Object);
 
 void AbstractList::initRoot() {
@@ -105,6 +107,8 @@ CHILD_DEFINE_NATIVE_METHOD(AbstractList, empty) {
     return CHILD_BOOLEAN(isEmpty());
 }
 
+// === List ===
+
 CHILD_DEFINE(List, AbstractList, Object);
 
 void List::initRoot() {
@@ -115,6 +119,15 @@ CHILD_DEFINE_NATIVE_METHOD(List, init) {
     CHILD_FIND_LAST_MESSAGE;
     for(int i = 0; i < message->numInputs(); ++i)
         append(message->runInput(i));
+
+    // === TODO: DRY ===
+    CHILD_FIND_LAST_PRIMITIVE;
+    Primitive *nextPrimitive = primitive->next();
+    if(nextPrimitive) {
+        nextPrimitive->run(this);
+        Primitive::skip(this);
+    }
+
     return this;
 }
 

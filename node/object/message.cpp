@@ -10,15 +10,15 @@ void Message::initRoot() {
 
 Node *Message::run(Node *receiver) {
     Node *rcvr = isParented() ? receiver->parent() : receiver;
-    bool wasFound = true;
-    Node *result = rcvr->child(name(), isQuestioned() ? &wasFound : NULL);
-    if(!wasFound) Primitive::skip(CHILD_BOOLEAN(false));
+    Node *parent;
+    Node *result = rcvr->child(name(), NULL, &parent);
     Alias *alias = Alias::dynamicCast(result);
-    if(alias && !alias->target().isEmpty()) result = rcvr->child(alias->target());
+    if(alias && !alias->target().isEmpty())
+        result = rcvr->child(alias->target(), NULL, &parent);
     if(!isEscaped()) {
         if(result->isAutoRunnable()) {
             CHILD_PUSH_RUN(this);
-            result = result->run(rcvr);
+            result = result->run(parent);
         } else if(inputs(false)) {
             Message *forkMessage = fork();
             forkMessage->setName("fork");

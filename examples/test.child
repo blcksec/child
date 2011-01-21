@@ -1,4 +1,34 @@
 /*
+
+Stack := List() {
+    push(val) := { parent << val }
+    pop := { parent[size - 1] >> }
+    taille := { size }
+}
+
+s := Stack()
+s push(3)
+s push(2)
+s push(1)
+s print
+s pop
+s print
+s pop
+s print
+s pop
+s print
+
+// s := Stack()
+// s push(3)
+
+/*
+T := Text("Arf") {
+    up := { uppercase }
+}
+
+T up
+
+
 meth := Object() {
 doc:
     "Hello ici et là"

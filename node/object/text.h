@@ -21,6 +21,15 @@ public:
         CHILD_FIND_LAST_MESSAGE;
         CHILD_CHECK_INPUT_SIZE(0, 1);
         if(message->hasInput(0)) setValue(message->runFirstInput()->toString());
+
+        // === TODO: DRY ===
+        CHILD_FIND_LAST_PRIMITIVE;
+        Primitive *nextPrimitive = primitive->next();
+        if(nextPrimitive) {
+            nextPrimitive->run(this);
+            Primitive::skip(this);
+        }
+
         return this;
     }
 

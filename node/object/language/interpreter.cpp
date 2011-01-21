@@ -25,8 +25,6 @@ namespace Language {
 
         ops->append(".", Operator::Binary, Operator::namePrecedence);
 
-        ops->append("?", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, true, true, "postfix?");
-        ops->append("!", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, true, true, "postfix!");
         ops->append("...", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, true, true);
 
         ops->append(">>", Operator::Postfix, Operator::namePrecedence, Operator::NonAssociative, false);
@@ -41,7 +39,7 @@ namespace Language {
 
         ops->append("+", Operator::Prefix, 511, Operator::RightAssociative, true, false, "unary+");
         ops->append("-", Operator::Prefix, 511, Operator::RightAssociative, true, false, "unary-");
-        ops->append("!", Operator::Prefix, 511, Operator::RightAssociative, true, false, "prefix!");
+        ops->append("!", Operator::Prefix, 511, Operator::RightAssociative);
 
         ops->append("+", Operator::Binary, 451);
         ops->append("-", Operator::Binary, 451);

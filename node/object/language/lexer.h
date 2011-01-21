@@ -78,6 +78,8 @@ namespace Language {
         void consumeEscapeSequence();
         void consumeEscapeSequenceNumber();
 
+        Token *scanRightBracket();
+
         LexerException lexerException(QString message) const;
 
         virtual QString toString(bool debug = false, short level = 0) const;

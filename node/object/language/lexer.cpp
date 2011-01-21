@@ -31,7 +31,7 @@ namespace Language {
             case '(': return scan(Token::LeftParenthesis);
             case ')': return scan(Token::RightParenthesis);
             case '[': return scan(Token::LeftBracket);
-            case ']': return scan(Token::RightBracket);
+            case ']': return scanRightBracket();
             case '{': return scan(Token::LeftBrace);
             case '}': return scan(Token::RightBrace);
             case ';': return scan(Token::Semicolon);
@@ -91,7 +91,7 @@ namespace Language {
     Token *Lexer::scanName() {
         startToken();
         consume();
-        while(_currentChar.isLetterOrNumber() || _currentChar == '_')
+        while(_currentChar.isLetterOrNumber() || _currentChar == '_' || _currentChar == '!' || _currentChar == '?')
             consume();
         const QStringRef text(tokenTextRef());
         if(text == "yes" || text == "no" || text == "true" || text == "false") return finishToken(Token::Boolean);
@@ -240,6 +240,13 @@ namespace Language {
         ushort code = type == 'o' ? number.toUShort(&ok, 8) : number.toUShort(&ok, 16);
         if(!ok) throw lexerException("invalid number in escape sequence");
         if(type != 'u' && code > 0xFF) throw lexerException("invalid number in escape sequence");
+    }
+
+    Token *Lexer::scanRightBracket() {
+        startToken();
+        consume(); // ]
+        while(_currentChar == '!' || _currentChar == '?') consume();
+        return finishToken(Token::RightBracket);
     }
 
     LexerException Lexer::lexerException(QString message) const {

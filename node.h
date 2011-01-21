@@ -91,6 +91,7 @@ public:
     CHILD_DECLARE_NATIVE_METHOD(origin_set);
 
     bool isOriginatingFrom(Node *node) const;
+    CHILD_DECLARE_NATIVE_METHOD(is);
 
     bool isAbstract() const { return _isAbstract; }
     bool isConcrete() const { return !_isAbstract; }
@@ -117,7 +118,7 @@ public:
 
     CHILD_DECLARE_NATIVE_METHOD(extensions_get);
 
-    Node *child(const QString &name, bool *wasFoundPtr = NULL) const;
+    Node *child(const QString &name, bool *wasFoundPtr = NULL, Node **parentPtr = NULL) const;
 
     Node *child(const QString &name1, const QString &name2) const {
         return child(name1)->child(name2);
@@ -164,6 +165,8 @@ public:
     bool hasChild(const QString &name, bool searchInParents = true) const {
         return findChild(name, searchInParents);
     }
+
+    CHILD_DECLARE_NATIVE_METHOD(has);
 
     Node *hasDirectChild(const QString &name, bool *isRemovedPtr = NULL) const {
         Node *child = NULL;

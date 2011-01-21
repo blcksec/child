@@ -52,6 +52,8 @@ void Node::initRoot() {
     extensionsProperty->CHILD_ADD_NATIVE_METHOD(Node, extensions_get, get);
     addChild("extensions", extensionsProperty);
 
+    CHILD_ADD_NATIVE_METHOD(Node, is);
+
     CHILD_ADD_NATIVE_METHOD(Node, fork);
     CHILD_ADD_NATIVE_METHOD(Node, init);
 
@@ -59,11 +61,13 @@ void Node::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Node, assign, =);
     CHILD_ADD_NATIVE_METHOD(Node, remove, >>);
 
+    CHILD_ADD_NATIVE_METHOD(Node, has);
+
     CHILD_ADD_NATIVE_METHOD(Node, parent);
 
     CHILD_ADD_NATIVE_METHOD(Node, or, ||);
     CHILD_ADD_NATIVE_METHOD(Node, and, &&);
-    CHILD_ADD_NATIVE_METHOD(Node, not, prefix!);
+    CHILD_ADD_NATIVE_METHOD(Node, not, !);
 
     CHILD_ADD_NATIVE_METHOD(Node, or_assign, ||=);
     CHILD_ADD_NATIVE_METHOD(Node, and_assign, &&=);
@@ -123,7 +127,7 @@ CHILD_DEFINE_NATIVE_METHOD(Node, fork) {
 CHILD_DEFINE_NATIVE_METHOD(Node, init) {
     CHILD_FIND_LAST_PRIMITIVE;
     Primitive *nextPrimitive = primitive->next();
-    if(nextPrimitive) {
+    if(nextPrimitive && Block::dynamicCast(nextPrimitive->value())) {
         nextPrimitive->run(this);
         Primitive::skip(this);
     }
@@ -154,7 +158,7 @@ void Node::setOrigin(Node *node) {
     _origin = node;
 }
 
-bool Node::isOriginatingFrom(Node *orig) const {
+bool Node::isOriginatingFrom(Node *orig) const { // TODO: take into account extensions
     orig = orig->real();
     const Node *node = real();
     while(node != orig) {
@@ -163,6 +167,13 @@ bool Node::isOriginatingFrom(Node *orig) const {
         node = node->origin();
     }
     return true;
+}
+
+CHILD_DEFINE_NATIVE_METHOD(Node, is) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(1);
+    if(!message->isQuestioned()) CHILD_THROW(InterpreterException, "missing question mark");
+    return CHILD_BOOLEAN(isOriginatingFrom(message->runFirstInput()));
 }
 
 Node *Node::real() {
@@ -216,8 +227,8 @@ CHILD_DEFINE_NATIVE_METHOD(Node, extensions_get) {
     return value;
 }
 
-Node *Node::child(const QString &name, bool *wasFoundPtr) const {
-    Node *node = findChild(name);
+Node *Node::child(const QString &name, bool *wasFoundPtr, Node **parentPtr) const {
+    Node *node = findChild(name, true, parentPtr);
     if(wasFoundPtr)
         *wasFoundPtr = node;
     else if(!node)
@@ -362,6 +373,17 @@ Node *Node::findChildInSelfOrOrigins(const QString &name, bool autoFork, bool *i
         }
     }
     if(isDirectPtr) *isDirectPtr = isDirect;
+    return node;
+}
+
+CHILD_DEFINE_NATIVE_METHOD(Node, has) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(1);
+    if(!message->isQuestioned()) CHILD_THROW(InterpreterException, "missing question mark");
+    Message *msg = Message::dynamicCast(message->firstInput()->value()->value());
+    if(!msg) CHILD_THROW(ArgumentException, "argument is not message");
+    Node *node = findChild(msg->name());
+    if(!node) Primitive::skip(CHILD_BOOLEAN(false));
     return node;
 }
 

@@ -53,6 +53,47 @@ body:
         !: N extensions[:E1]?
     }
 
+    \is {
+    test:
+        ?: Node is?(Node)
+        ?: Node() is?(Node)
+        !: Node() is?(Node())
+        !: Node is?(Node())
+        ?: "Hello" is?(Object Text)
+        !: "Hello" is?(Object Number)
+        ?: 123 is?(Object Number)
+        !: 123 is?(Object Text)
+        N1 := Node()
+        ?: N1 is?(N1) && N1 is?(Node)
+        N2 := N1()
+        ?: N2 is?(N2) && N2 is?(N1) && N2 is?(Node)
+        N3 := N2()
+        ?: N3 is?(N3) && N3 is?(N2) && N3 is?(N1) && N3 is?(Node)
+    }
+
+    \has {
+    test:
+        ?: Node has?(Node)
+        !: Node has?(__CrazyNode__)
+        ?: Node has?(fork)
+        !: Node has?(__crazy_fork__)
+        ?: Object has?(Text)
+        ?: Object Text has?(fork)
+        n := Node()
+        n a := Node()
+        ?: n has?(a)
+        ?: n a has?(n)
+        n b := Node()
+        ?: n has?(b)
+        ?: n a has?(b)
+        ?: n b has?(a)
+        n2 := n()
+        ?: n2 has?(a)
+        ?: n2 has?(b)
+        ?: n2 a has?(b)
+        ?: n2 b has?(a)
+    }
+
     \fork {
     doc:
         "Fork the receiver."
@@ -67,7 +108,7 @@ test:
 
     // child creation
     world := Node()
-    !: world country1?
+    !: world has?(country1)
     ?: NotFoundException throw? { world country1 = "France" }
     world country1 := "France"
     ?: world country1?
