@@ -13,6 +13,7 @@ class Property : public Object {
 public:
     explicit Property(Node *origin) : Object(origin) { setIsAutoRunnable(true); }
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Property);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Property);
 
     virtual Node *run(Node *receiver) {

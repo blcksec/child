@@ -15,6 +15,7 @@ namespace Language {
     public:
         explicit ParameterList(Node *origin) : GenericList<Parameter *>(origin) {}
 
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(ParameterList);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(ParameterList);
 
         using GenericList<Parameter *>::get;

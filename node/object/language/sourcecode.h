@@ -18,9 +18,10 @@ namespace Language {
                    const QString &txt = "", Block *block = NULL);
 
         virtual ~SourceCode() {
-            setBlock(NULL);
+            CHILD_UNSET_FIELD(_block);
         }
 
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(SourceCode);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(SourceCode, url(), text(), CHILD_FORK_IF_NOT_NULL(block()));
 
         const QString &url() const { return _url; }
@@ -32,11 +33,7 @@ namespace Language {
         Block *block() const { return _block; }
 
         void setBlock(Block *block) {
-            if(block != _block) {
-                if(_block) removeAnonymousChild(_block);
-                _block = block;
-                if(block) addAnonymousChild(block);
-            }
+            CHILD_SET_FIELD(_block, block);
         }
 
         void load(const QString &newUrl = "");

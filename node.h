@@ -9,6 +9,9 @@ CHILD_BEGIN
 
 #define CHILD_NODE(ARGS...) new Node(context()->child("Node"), ##ARGS)
 
+#define CHILD_DECLARE_AND_DEFINE_COPY_METHOD(NAME) \
+virtual NAME *copy() const { return new NAME(*this); }
+
 #define CHILD_DECLARE_AND_DEFINE_FORK_METHOD(NAME, ARGS...) \
 virtual NAME *fork() const { \
     NAME *node = new NAME(constCast(this), ##ARGS); \
@@ -29,8 +32,15 @@ NAME *NAME::fork() const { \
 #define CHILD_FORK_IF_NOT_NULL(NODE) \
 ((NODE) ? (NODE)->fork() : NULL)
 
-#define CHILD_CHECK_POINTER(POINTER) \
-if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Node pointer is NULL")
+#define CHILD_SET_FIELD(FIELD, VALUE) \
+if((VALUE) != FIELD) { \
+    if(FIELD) removeAnonymousChild(FIELD); \
+    FIELD = (VALUE); \
+    if(VALUE) addAnonymousChild(VALUE); \
+}
+
+#define CHILD_UNSET_FIELD(FIELD) \
+if(FIELD) removeAnonymousChild(FIELD);
 
 class Message;
 namespace Language { class Primitive; }
@@ -42,6 +52,9 @@ Node *_##METHOD##_()
 #define CHILD_DEFINE_NATIVE_METHOD(NAME, METHOD) \
 Node *NAME::_##METHOD##_()
 
+#define CHILD_CHECK_POINTER(POINTER) \
+if(!(POINTER)) CHILD_THROW_NULL_POINTER_EXCEPTION("Node pointer is NULL")
+
 class Node {
 public:
     static const bool isInitialized;
@@ -49,15 +62,7 @@ public:
     explicit Node(Node *origin) : _origin(origin), _extensions(NULL), // default constructor
         _children(NULL), _parents(NULL), _isAbstract(true), _isVirtual(false), _isAutoRunnable(false) {}
 
-    Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
-        _children(NULL), _parents(NULL), _isAbstract(other._isAbstract),
-        _isVirtual(other._isVirtual), _isAutoRunnable(other._isAutoRunnable) {
-        if(other._extensions) _extensions = new QList<Node *>(*other._extensions);
-        if(other._children) {
-            QHashIterator<QString, Node *> i(other.children());
-            while(i.hasNext()) { i.next(); addChild(i.key(), i.value()); }
-        }
-    }
+    Node(const Node &other); // copy constructor
 
     virtual ~Node();
 
@@ -72,8 +77,11 @@ public:
 
     void declare(const QString &name) const;
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Node);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Node);
     virtual void initFork();
+
+    CHILD_DECLARE_NATIVE_METHOD(copy);
 
     CHILD_DECLARE_NATIVE_METHOD(fork);
     CHILD_DECLARE_NATIVE_METHOD(init);
@@ -119,6 +127,8 @@ public:
     CHILD_DECLARE_NATIVE_METHOD(extensions_get);
 
     Node *child(const QString &name, bool *wasFoundPtr = NULL, Node **parentPtr = NULL) const;
+
+    Node *child(const QStringList &names, bool *wasFoundPtr = NULL, Node **parentPtr = NULL) const;
 
     Node *child(const QString &name1, const QString &name2) const {
         return child(name1)->child(name2);
@@ -196,6 +206,8 @@ public:
     bool hasOneParent() const;
     CHILD_DECLARE_NATIVE_METHOD(parent);
 
+    Node *findParentOriginatingFrom(Node *orig) const;
+
     virtual Node *receive(Primitive *primitive);
 
     virtual Node *run(Node *receiver = context()) {
@@ -225,11 +237,11 @@ public:
     CHILD_DECLARE_NATIVE_METHOD(assert_true) { return assert(true); }
     CHILD_DECLARE_NATIVE_METHOD(assert_false) { return assert(false); }
 
-    void print() const { P(toString().toUtf8()); }
-    CHILD_DECLARE_NATIVE_METHOD(print);
-
-    void inspect() const { P(toString(true).toUtf8()); }
+    void inspect() const { P(toString(true).toUtf8()); } // TODO: use Console print
     CHILD_DECLARE_NATIVE_METHOD(inspect);
+
+    void dump() const { P(Node::toString(true).toUtf8()); } // TODO: use Console print
+    CHILD_DECLARE_NATIVE_METHOD(dump);
 
     long long int memoryAddress() const { return reinterpret_cast<long long int>(this); }
     CHILD_DECLARE_NATIVE_METHOD(memory_address);
@@ -238,7 +250,8 @@ public:
 
     virtual bool toBool() const { return true; };
 
-    virtual double toDouble() const {
+    virtual double toDouble(bool *okPtr = NULL) const {
+        Q_UNUSED(okPtr);
         CHILD_THROW_CONVERSION_EXCEPTION(QString("cannot convert from %1 to Number").arg(nodeName()));
         return 0;
     };

@@ -19,6 +19,7 @@ namespace Language {
         explicit Interpreter(Node *origin) :
             Object(origin), _operatorTable(NULL), _lexer(NULL), _parser(NULL), _sourceCodes(NULL) {}
 
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Interpreter);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Interpreter); // TODO
 
         void initOperatorTable();

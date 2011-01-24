@@ -20,6 +20,7 @@ public:
     explicit NativeMethod(Node *origin, const _MethodPointer_ &method = NULL) :
         Node(origin) { setMethod(method); }
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(NativeMethod);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(NativeMethod, method());
 
     _MethodPointer_ method() const { return _method; }

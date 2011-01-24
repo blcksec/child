@@ -53,7 +53,7 @@ body:
         !: N extensions[:E1]?
     }
 
-    \is {
+    \is? {
     test:
         ?: Node is?(Node)
         ?: Node() is?(Node)
@@ -71,12 +71,12 @@ body:
         ?: N3 is?(N3) && N3 is?(N2) && N3 is?(N1) && N3 is?(Node)
     }
 
-    \has {
+    \has? {
     test:
         ?: Node has?(Node)
         !: Node has?(__CrazyNode__)
         ?: Node has?(fork)
-        !: Node has?(__crazy_fork__)
+        !: Node has?(__crazy_method__)
         ?: Object has?(Text)
         ?: Object Text has?(fork)
         n := Node()
@@ -102,6 +102,20 @@ body:
         f := n fork
         ?: f origin = n
     }
+
+    write := {
+        Console write(parent)
+    }
+
+    print := {
+        Console print(parent)
+    }
+
+    alert := {
+        Console alert(parent)
+    }
+
+    read := Alias(Console read)
 test:
     ?: origin == self
     ?: parent == self

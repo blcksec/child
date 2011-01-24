@@ -13,6 +13,7 @@ class Boolean : public GenericElement<bool> {
 public:
     explicit Boolean(Node *origin, bool value = false) : GenericElement<bool>(origin, false) { setValue(value); }
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Boolean);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Boolean, value());
 
     virtual bool isEqualTo(const Node *other) const {
@@ -27,7 +28,10 @@ public:
 
     virtual bool toBool() const { return value(); };
 
-    virtual double toDouble() const { return value() ? 1 : 0; };
+    virtual double toDouble(bool *okPtr = NULL) const {
+        Q_UNUSED(okPtr);
+        return value() ? 1 : 0;
+    }
 
     virtual QString toString(bool debug = false, short level = 0) const {
         Q_UNUSED(debug);

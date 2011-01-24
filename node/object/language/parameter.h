@@ -13,12 +13,21 @@ namespace Language {
     class Parameter : public GenericPair<QString, Primitive *> {
         CHILD_DECLARE(Parameter, Pair, Language);
     public:
-        explicit Parameter(Node *origin, const QString &label = NULL, Primitive *defaultValue = NULL,
+        explicit Parameter(Node *origin, const QString &label = "", Primitive *defaultValue = NULL,
                            bool isEscaped = false, bool isParented = false) :
-            GenericPair<QString, Primitive *>(origin, label, defaultValue),
-            _isEscaped(isEscaped), _isParented(isParented) {}
+            GenericPair<QString, Primitive *>(origin, "", NULL), _isEscaped(isEscaped), _isParented(isParented) {
+            setLabel(label); setDefaultValue(defaultValue);
+        }
 
+        virtual ~Parameter() {
+            setValue(NULL);
+        }
+
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Parameter);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Parameter, label(), CHILD_FORK_IF_NOT_NULL(defaultValue()), isEscaped(), isParented());
+
+        virtual void secondValueWillChange() { if(second()) removeAnonymousChild(second()); }
+        virtual void secondValueHasChanged() { if(second()) addAnonymousChild(second()); }
 
         // aliases...
         QString label() const { return key(); }

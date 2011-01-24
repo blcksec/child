@@ -57,7 +57,9 @@ SOURCES += main.cpp \
     tests/texttest.cpp \
     tests/listtest.cpp \
     tests/dictionarytest.cpp \
-    node/alias.cpp
+    node/alias.cpp \
+    node/runstack.cpp \
+    node/console.cpp
 
 HEADERS += \
     child.h \
@@ -105,7 +107,9 @@ HEADERS += \
     tests/texttest.h \
     tests/listtest.h \
     tests/dictionarytest.h \
-    node/alias.h
+    node/alias.h \
+    node/runstack.h \
+    node/console.h
 
 OTHER_FILES += \
     README.txt \

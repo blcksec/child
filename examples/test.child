@@ -1,3 +1,12 @@
+name := while(read("Name? ") empty?) {}
+age := 0
+loop {
+    age = Number?(read("Age? "))
+    if(age > 0) break
+    "Age should be more than 0!" alert
+}
+("Hello " + name + " (" + age + ")!") print
+
 /*
 
 Stack := List() {

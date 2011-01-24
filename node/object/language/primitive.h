@@ -24,6 +24,7 @@ namespace Language {
             setNext(NULL);
         }
 
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Primitive);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Primitive, CHILD_FORK_IF_NOT_NULL(value()), sourceCodeRef(), CHILD_FORK_IF_NOT_NULL(next()));
 
         const QStringRef &sourceCodeRef() const { return _sourceCodeRef; }
@@ -60,7 +61,7 @@ namespace Language {
 
     #define CHILD_FIND_LAST_PRIMITIVE Primitive *primitive = findLastPrimitive();
 
-    inline Primitive *findLastPrimitive() { return findRun<Primitive>(); }
+    inline Primitive *findLastPrimitive(RunStack *stack = runStack()) { return stack->find<Primitive>(); }
 }
 
 CHILD_END

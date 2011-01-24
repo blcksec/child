@@ -16,6 +16,7 @@ namespace Language {
         explicit Section(Node *origin, Primitive *label = NULL) :
             GenericList<Primitive *>(origin), _label(label) {}
 
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Section);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Section, CHILD_FORK_IF_NOT_NULL(label()));
 
         Primitive *label() const { return _label; }

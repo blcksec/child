@@ -20,6 +20,7 @@ namespace Language {
     public:
         explicit Parser(Node *origin) : Object(origin), _lexer(NULL), _currentToken(NULL) {}
 
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Parser);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Parser); // TODO
 
         Lexer *lexer() const;

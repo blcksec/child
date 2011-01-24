@@ -2,6 +2,7 @@
 #define CHILD_EXCEPTION_H
 
 #include "node.h"
+#include "node/runstack.h"
 
 CHILD_BEGIN
 
@@ -20,12 +21,14 @@ public:
     QString file;
     int line;
     QString function;
+    RunStack *runStackCapture;
 
     explicit Exception(Node *origin, const QString &message = "", const QString &file = "",
-              const int line = 0, const QString &function = "") :
-        Node(origin), message(message), file(file), line(line), function(function) {}
+              const int line = 0, const QString &function = "", RunStack *runStackCapture = runStack()->copy()) :
+        Node(origin), message(message), file(file), line(line), function(function), runStackCapture(runStackCapture) {}
 
-    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Exception, message, file, line, function);
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Exception);
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Exception, message, file, line, function, runStackCapture);
 
     const QString report() const;
 
@@ -41,9 +44,10 @@ class NAME : public ORIGIN { \
     CHILD_DECLARE(NAME, ORIGIN, Node); \
 public: \
     explicit NAME(Node *origin, const QString &message = "", const QString &file = "", \
-         const int line = 0, const QString &function = "") : \
-        ORIGIN(origin, message, file, line, function) {} \
-    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(NAME, message, file, line, function); \
+         const int line = 0, const QString &function = "", RunStack *runStackCapture = runStack()->copy()) : \
+        ORIGIN(origin, message, file, line, function, runStackCapture) {} \
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(NAME); \
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(NAME, message, file, line, function, runStackCapture); \
 };
 
 #define CHILD_EXCEPTION_DEFINITION(NAME, ORIGIN) \

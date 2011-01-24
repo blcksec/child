@@ -12,9 +12,13 @@ void Alias::initRoot() {
 CHILD_DEFINE_NATIVE_METHOD(Alias, init) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(1);
-    Message *msg = Message::dynamicCast(message->firstInput()->value()->value());
-    if(!msg) CHILD_THROW(ArgumentException, "expected 'Message'");
-    setTarget(msg->name());
+    Primitive *primitive = message->firstInput()->value();
+    while(primitive) {
+        Message *msg = Message::dynamicCast(primitive->value());
+        if(!msg) CHILD_THROW(ArgumentException, "expected 'Message'");
+        names().append(msg->name());
+        primitive = primitive->next();
+    }
     return this;
 }
 

@@ -97,53 +97,6 @@ private:
     ContextPusher &operator=(const ContextPusher &);
 };
 
-// === runStack ===
-
-#define CHILD_PUSH_RUN(NODE) \
-RunPusher runPusher(NODE); Q_UNUSED(runPusher);
-
-inline QStack<Node *> &runStack() {
-    static QStack<Node *> _stack;
-    return _stack;
-}
-
-inline bool hasRun() {
-    return !runStack().isEmpty();
-}
-
-inline Node *lastRun() {
-    if(!hasRun()) qFatal("Fatal error: run stack is empty!");
-    return runStack().top();
-}
-
-inline void pushRun(Node *node) {
-    runStack().push(node);
-}
-
-inline Node *popRun() {
-    if(!hasRun()) qFatal("Fatal error: run stack is empty!");
-    return runStack().pop();
-}
-
-template<class T>
-T *findRun() {
-    T *run;
-    for (int i = runStack().size() - 1; i > 0; --i) {
-        run = T::dynamicCast(runStack().at(i));
-        if(run) return run;
-    }
-    CHILD_THROW_NOT_FOUND_EXCEPTION("no <nodeName> found in run stack"); // TODO: replace <nodeName> with the class name...
-}
-
-class RunPusher {
-public:
-    explicit RunPusher(Node *node) { pushRun(node); }
-    ~RunPusher() { popRun(); }
-private:
-    RunPusher(const RunPusher &); // prevent copying
-    RunPusher &operator=(const RunPusher &);
-};
-
 // === Miscellaneous ===
 
 QString readTextFile(const QString &name);

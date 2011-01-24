@@ -28,13 +28,17 @@ void Object::initRoot() {
 CHILD_DEFINE_NATIVE_METHOD(Object, postfix_increment) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
-    CHILD_TODO;
+    Node *temp = copy();
+    CHILD_MESSAGE("prefix++")->run(this);
+    return temp;
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Object, postfix_decrement) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
-    CHILD_TODO;
+    Node *temp = copy();
+    CHILD_MESSAGE("prefix--")->run(this);
+    return temp;
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Object, add_assign) {

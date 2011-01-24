@@ -31,6 +31,7 @@ namespace Language {
             GenericList<Argument *>(
                 origin, CHILD_ARGUMENT(argument1), CHILD_ARGUMENT(argument2), true) {}
 
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(ArgumentBunch);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(ArgumentBunch);
 
         using GenericList<Argument *>::append;

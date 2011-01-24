@@ -16,7 +16,28 @@ class Number : public GenericElement<double> {
 public:
     explicit Number(Node *origin, const double value = 0) : GenericElement<double>(origin, 0) { setValue(value); }
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Number);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Number, value());
+
+    CHILD_DECLARE_NATIVE_METHOD(init) {
+        CHILD_FIND_LAST_MESSAGE;
+        CHILD_CHECK_INPUT_SIZE(0, 1);
+        if(message->hasInput(0)) {
+            bool ok = true;
+            double value = message->runFirstInput()->toDouble(message->isQuestioned() ? &ok : NULL);
+            if(ok) setValue(value);
+        }
+
+        // === TODO: DRY ===
+        CHILD_FIND_LAST_PRIMITIVE;
+        Primitive *nextPrimitive = primitive->next();
+        if(nextPrimitive) {
+            nextPrimitive->run(this);
+            Primitive::skip(this);
+        }
+
+        return this;
+    }
 
     CHILD_DECLARE_NATIVE_METHOD(add) {
         CHILD_FIND_LAST_MESSAGE;
@@ -100,7 +121,10 @@ public:
         return CHILD_NUMBER(compare(message->runFirstInput()->toDouble()));
     }
 
-    virtual double toDouble() const { return value(); };
+    virtual double toDouble(bool *okPtr = NULL) const {
+        Q_UNUSED(okPtr);
+        return value();
+    };
 
     virtual QChar toChar() const { return QChar(int(value())); };
 

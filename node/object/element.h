@@ -10,7 +10,7 @@ inline uint qHash(const double &number) { CHILD_TODO; return number; }
 template<typename T>
 class GenericElement : public Object {
 public:
-    explicit GenericElement(Node *origin, const T &defaultValue) : Object(origin), _value(defaultValue) {}
+    explicit GenericElement(Node *origin, const T &defaultValue = T()) : Object(origin), _value(defaultValue) {}
 
     T value() const { return _value; }
 
@@ -55,6 +55,7 @@ class Element : public GenericNodeElement<Node> {
 public:
     explicit Element(Node *origin, Node *value = NULL) : GenericNodeElement<Node>(origin) { setValue(value); }
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Element);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Element, CHILD_FORK_IF_NOT_NULL(value()));
 };
 

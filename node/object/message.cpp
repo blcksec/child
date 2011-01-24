@@ -13,8 +13,8 @@ Node *Message::run(Node *receiver) {
     Node *parent;
     Node *result = rcvr->child(name(), NULL, &parent);
     Alias *alias = Alias::dynamicCast(result);
-    if(alias && !alias->target().isEmpty())
-        result = rcvr->child(alias->target(), NULL, &parent);
+    if(alias && alias->isNotEmpty())
+        result = rcvr->child(alias->names(), NULL, &parent);
     if(!isEscaped()) {
         if(result->isAutoRunnable()) {
             CHILD_PUSH_RUN(this);

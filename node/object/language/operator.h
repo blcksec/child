@@ -32,6 +32,7 @@ namespace Language {
             if(name.isEmpty()) this->name = text;
         }
 
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Operator);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Operator, text, type, precedence, associativity, useLHSAsReceiver, isSpecial, name);
 
         bool isNull() const { return type == Null; }

@@ -14,6 +14,7 @@ class ControlFlow : public Node {
 public:
     explicit ControlFlow(Node *origin) : Node(origin) {}
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(ControlFlow);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(ControlFlow);
 
     CHILD_DECLARE_NATIVE_METHOD(if) { return ifOrUnless(true); }

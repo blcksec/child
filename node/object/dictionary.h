@@ -124,6 +124,7 @@ public:
     explicit Dictionary(Node *origin) :
         GenericDictionary<Node::Reference, Node *>(origin) {}
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Dictionary);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Dictionary);
 
     CHILD_DECLARE_NATIVE_METHOD(init);

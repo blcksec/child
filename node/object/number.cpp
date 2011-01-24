@@ -5,6 +5,8 @@ CHILD_BEGIN
 CHILD_DEFINE(Number, Element, Object);
 
 void Number::initRoot() {
+    CHILD_ADD_NATIVE_METHOD(Number, init);
+
     CHILD_ADD_NATIVE_METHOD(Number, add, +);
     CHILD_ADD_NATIVE_METHOD(Number, subtract, -);
     CHILD_ADD_NATIVE_METHOD(Number, multiply, *);

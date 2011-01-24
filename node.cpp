@@ -15,6 +15,16 @@ CHILD_BEGIN
 
 const bool Node::isInitialized = Node::root();
 
+Node::Node(const Node &other) : _origin(other._origin), _extensions(NULL), // copy constructor
+    _children(NULL), _parents(NULL), _isAbstract(other._isAbstract),
+    _isVirtual(other._isVirtual), _isAutoRunnable(other._isAutoRunnable) {
+    if(other._extensions) _extensions = new QList<Node *>(*other._extensions);
+    if(other._children) {
+        QHashIterator<QString, Node *> i(other.children());
+        while(i.hasNext()) { i.next(); addOrSetChild(i.key(), i.value()); }
+    }
+}
+
 Node::~Node() {
     if(_extensions) delete _extensions;
     if(_children) {
@@ -54,6 +64,8 @@ void Node::initRoot() {
 
     CHILD_ADD_NATIVE_METHOD(Node, is);
 
+    CHILD_ADD_NATIVE_METHOD(Node, copy);
+
     CHILD_ADD_NATIVE_METHOD(Node, fork);
     CHILD_ADD_NATIVE_METHOD(Node, init);
 
@@ -80,8 +92,8 @@ void Node::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Node, assert_true, ?:);
     CHILD_ADD_NATIVE_METHOD(Node, assert_false, !:);
 
-    CHILD_ADD_NATIVE_METHOD(Node, print);
     CHILD_ADD_NATIVE_METHOD(Node, inspect);
+    CHILD_ADD_NATIVE_METHOD(Node, dump);
 
     CHILD_ADD_NATIVE_METHOD(Node, memory_address);
 }
@@ -107,6 +119,12 @@ const QString Node::nodePath() const {
 
 void Node::declare(const QString &name) const {
     roots().append(Root(constCast(this), name));
+}
+
+CHILD_DEFINE_NATIVE_METHOD(Node, copy) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    return copy();
 }
 
 void Node::initFork() {
@@ -232,8 +250,16 @@ Node *Node::child(const QString &name, bool *wasFoundPtr, Node **parentPtr) cons
     if(wasFoundPtr)
         *wasFoundPtr = node;
     else if(!node)
-        CHILD_THROW(NotFoundException,
-                    QString("child not found (name = %1)").arg(name)); // TODO: remove name information in release
+        CHILD_THROW(NotFoundException, QString("child not found"));
+    return node;
+}
+
+Node *Node::child(const QStringList &names, bool *wasFoundPtr, Node **parentPtr) const {
+    Node *node = constCast(this);
+    foreach(QString name, names) {
+        node = node->child(name, wasFoundPtr, parentPtr);
+        if(wasFoundPtr && !*wasFoundPtr) break;
+    }
     return node;
 }
 
@@ -437,6 +463,20 @@ CHILD_DEFINE_NATIVE_METHOD(Node, parent) {
     return message->isQuestioned() ? CHILD_BOOLEAN(hasOneParent()) : parent();
 }
 
+Node *Node::findParentOriginatingFrom(Node *orig) const {
+    if(_parents) {
+        orig = orig->real();
+        Node *node;
+        foreach(Node *parent, _parents->keys()) {
+            if(parent->isOriginatingFrom(orig)) return parent;
+            if(parent != this) { // for Node::root which is child of itself
+                if((node = parent->findParentOriginatingFrom(orig))) return node;
+            }
+        }
+    }
+    return NULL;
+}
+
 Node *Node::receive(Primitive *primitive) {
     return primitive->run(this);
 }
@@ -523,17 +563,17 @@ Node *Node::assert(bool isAssertTrue) {
     Primitive::skip(result);
 }
 
-CHILD_DEFINE_NATIVE_METHOD(Node, print) {
-    CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_INPUT_SIZE(0);
-    print();
-    return this;
-}
-
 CHILD_DEFINE_NATIVE_METHOD(Node, inspect) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     inspect();
+    return this;
+}
+
+CHILD_DEFINE_NATIVE_METHOD(Node, dump) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    dump();
     return this;
 }
 

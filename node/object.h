@@ -15,6 +15,7 @@ class Object : public Node {
 public:
     explicit Object(Node *origin) : Node(origin) {}
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Object);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Object);
 
     CHILD_DECLARE_NATIVE_METHOD(postfix_increment);

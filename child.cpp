@@ -1,35 +1,72 @@
+#define CHILD_CATCH_EXCEPTIONS
+
 #include <QtCore/QFile>
 
 #include "child.h"
 #include "node/exception.h"
-#include "node/object/language/primitive.h"
 #include "node/object/message.h"
+#include "node/object/application.h"
+#include "node/object/language/primitive.h"
 #include "node/object/language/interpreter.h"
 
 CHILD_BEGIN
 
 void init() {
-    foreach(Root root, roots())
-        root.node->setNodeName(root.name);
-
-    Interpreter *interpreter = Interpreter::root();
-    QString path = "../child/";
-    foreach(Root root, roots()) {
-        Node *node = root.node;
-        QString childFile = path + node->nodePath() + node->nodeName().toLower() + ".child";
-        if(QFileInfo(childFile).exists()) {
-            interpreter->loadSourceCode(childFile)->run();
+    foreach(Root root, roots()) root.node->setNodeName(root.name);
+    #ifdef CHILD_CATCH_EXCEPTIONS
+    try {
+    #endif
+        Interpreter *interpreter = Interpreter::root();
+        QString path = "../child/";
+        foreach(Root root, roots()) {
+            Node *node = root.node;
+            QString childFile = path + node->nodePath() + node->nodeName().toLower() + ".child";
+            if(QFileInfo(childFile).exists()) {
+                interpreter->loadSourceCode(childFile)->run();
+            }
         }
+        interpreter->testSuite()->run();
+        P(QString("All tests passed (%1 sections, %2 assertions)").
+          arg(interpreter->testSuite()->size()).arg(Node::passedAssertionCount()));
+
+        // run Application
+        pushContext(Application::root());
+        SourceCode *source = interpreter->loadSourceCode("../child/examples/test.child");
+        if(source->block()->isNotEmpty()) {
+            P("-----------------------------------------------------------------------");
+            source->inspect();
+            P("-----------------------------------------------------------------------");
+            P("-> " + source->run()->toString(true));
+        }
+        popContext();
+    #ifdef CHILD_CATCH_EXCEPTIONS
+    } catch(Exception &e) {
+        Primitive *primitive = findLastPrimitive(e.runStackCapture);
+        if(primitive && !primitive->sourceCodeRef().isNull()) {
+            const QString &source = *(primitive->sourceCodeRef().string());
+            int column, line;
+            computeColumnAndLineForPosition(source, primitive->sourceCodeRef().position(), column, line);
+            QString text = extractLine(source, line);
+            if(!text.isEmpty()) {
+                QString cursor = QString(" ").repeated(column - 1).append("^");
+                e.message += "\n" + text + "\n" + cursor;
+                SourceCode *sourceCode = SourceCode::dynamicCast(primitive->findParentOriginatingFrom(SourceCode::root()));
+                e.file = sourceCode ? sourceCode->url() : "";
+                e.line = line;
+                e.function.clear();
+            }
+        }
+        QTextStream(stderr) << e.report().toUtf8() << '\n';
     }
-    interpreter->testSuite()->run();
-    P(QString("All tests passed (%1 sections, %2 assertions)").
-      arg(interpreter->testSuite()->size()).arg(Node::passedAssertionCount()));
+    #endif
 }
 
 QList<Root> &roots() {
     static QList<Root> _roots;
     return _roots;
 }
+
+// === Miscellaneous ===
 
 QString readTextFile(const QString &name) {
     QFile file(name);

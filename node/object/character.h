@@ -16,6 +16,7 @@ public:
     explicit Character(Node *origin, const QChar &value = QChar::Null) :
         GenericElement<QChar>(origin, QChar::Null) { setValue(value); }
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Character);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Character, value());
 
     virtual bool isEqualTo(const Node *other) const {
@@ -44,7 +45,10 @@ public:
         return CHILD_NUMBER(compare(message->runFirstInput()->toChar()));
     }
 
-    virtual double toDouble() const { return value().unicode(); };
+    virtual double toDouble(bool *okPtr = NULL) const {
+        Q_UNUSED(okPtr);
+        return value().unicode();
+    };
 
     virtual QChar toChar() const { return value(); };
 

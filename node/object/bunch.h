@@ -22,6 +22,7 @@ public:
 
     Bunch(const Bunch &other) : GenericList<Node *>(other) {}
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Bunch);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Bunch);
 
     virtual QString toString(bool debug = false, short level = 0) const {

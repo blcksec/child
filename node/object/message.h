@@ -24,29 +24,46 @@ public:
 
     explicit Message(Node *origin, const QString &name = "", ArgumentBunch *inputs = NULL, ArgumentBunch *outputs = NULL,
                      Modifiers modifiers = 0, const QString &codeInputName = "") :
-        Object(origin), _name(name), _inputs(inputs), _outputs(outputs), _modifiers(modifiers),
-        _codeInputName(codeInputName) {}
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(modifiers), _codeInputName(codeInputName) {
+        setInputs(inputs); setOutputs(outputs);
+    }
 
     Message(Node *origin, const QString &name, Argument *input) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL), _modifiers(0) {}
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        setInputs(CHILD_ARGUMENT_BUNCH(input)); setOutputs(NULL);
+    }
 
     Message(Node *origin, const QString &name, Argument *input1, Argument *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL), _modifiers(0) {}
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        setInputs(CHILD_ARGUMENT_BUNCH(input1, input2)); setOutputs(NULL);
+    }
 
     Message(Node *origin, const QString &name, Node *input) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input)), _outputs(NULL), _modifiers(0) {}
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        setInputs(CHILD_ARGUMENT_BUNCH(input)); setOutputs(NULL);
+    }
 
     Message(Node *origin, const QString &name, Argument *input1, Node *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))), _outputs(NULL),
-        _modifiers(0) {}
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        setInputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))); setOutputs(NULL);
+    }
 
     Message(Node *origin, const QString &name, Node *input1, Argument *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)), _outputs(NULL),
-        _modifiers(0) {}
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        setInputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)); setOutputs(NULL);
+    }
 
     Message(Node *origin, const QString &name, Node *input1, Node *input2) :
-        Object(origin), _name(name), _inputs(CHILD_ARGUMENT_BUNCH(input1, input2)), _outputs(NULL), _modifiers(0) {}
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        setInputs(CHILD_ARGUMENT_BUNCH(input1, input2)); setOutputs(NULL);
+    }
 
+    virtual ~Message() {
+        setInputs(NULL);
+        setOutputs(NULL);
+    }
+
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Message);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)),
                                          CHILD_FORK_IF_NOT_NULL(outputs(false)), modifiers(), codeInputName());
 
@@ -54,11 +71,13 @@ public:
     void setName(const QString &name) { _name = name; }
 
     ArgumentBunch *inputs(bool createIfNull = true) const {
-        if(!_inputs && createIfNull) constCast(this)->_inputs = CHILD_ARGUMENT_BUNCH();
+        if(!_inputs && createIfNull) constCast(this)->setInputs(CHILD_ARGUMENT_BUNCH());
         return _inputs;
     }
 
-    void setInputs(ArgumentBunch *inputs) { _inputs = inputs; }
+    void setInputs(ArgumentBunch *inputs) {
+        CHILD_SET_FIELD(_inputs, inputs)
+    }
 
     Argument *input(short i) const { return inputs(false)->get(i); }
     bool hasInput(short i) const { return inputs(false) && inputs()->hasIndex(i); }
@@ -82,11 +101,13 @@ public:
     int numInputs() const { return inputs(false) ? inputs()->size() : 0; }
 
     ArgumentBunch *outputs(bool createIfNull = true) const {
-        if(!_outputs && createIfNull) constCast(this)->_outputs = CHILD_ARGUMENT_BUNCH();
+        if(!_outputs && createIfNull) constCast(this)->setOutputs(CHILD_ARGUMENT_BUNCH());
         return _outputs;
     }
 
-    void setOutputs(ArgumentBunch *outputs) { _outputs = outputs; }
+    void setOutputs(ArgumentBunch *outputs) {
+        CHILD_SET_FIELD(_outputs, outputs)
+    }
 
     Argument *output(short i) const { return outputs(false)->get(i); }
     bool hasOutput(short i) const { return outputs(false) && outputs()->hasIndex(i); }
@@ -137,7 +158,7 @@ private:
 
 #define CHILD_FIND_LAST_MESSAGE Message *message = findLastMessage();
 
-inline Message *findLastMessage() { return findRun<Message>(); }
+inline Message *findLastMessage(RunStack *stack = runStack()) { return stack->find<Message>(); }
 
 CHILD_END
 

@@ -193,6 +193,7 @@ class AbstractList : public GenericAbstractList<Node *> {
 public:
     explicit AbstractList(Node *origin) : GenericAbstractList<Node *>(origin) {}
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(AbstractList);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(AbstractList);
 
     CHILD_DECLARE_NATIVE_METHOD(get);
@@ -315,6 +316,7 @@ public:
 
     List(Node *origin, const QList<Node *> &other) : GenericList<Node *>(origin, other) {}
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(List);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(List);
 
     CHILD_DECLARE_NATIVE_METHOD(init);
@@ -370,6 +372,7 @@ class VirtualList : public GenericVirtualList<Node *> {
 public:
     explicit VirtualList(Node *origin, QList<Node *> **source = NULL) : GenericVirtualList<Node *>(origin, source) {}
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(VirtualList);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(VirtualList, source());
 };
 

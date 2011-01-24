@@ -16,6 +16,7 @@ public:
     explicit Method(Node *origin, ParameterList *inputs = NULL, ParameterList *outputs = NULL, Block *block = NULL) :
         GenericNodeElement<Block>(origin), _inputs(inputs), _outputs(outputs) { setBlock(block); }
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Method);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Method, CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
                       CHILD_FORK_IF_NOT_NULL(block()));
 

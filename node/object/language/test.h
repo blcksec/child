@@ -16,6 +16,7 @@ namespace Language {
         explicit Test(Node *origin, Section *section = NULL, Node *receiver = NULL) :
             GenericNodeElement<Section>(origin), _receiver(receiver) { setSection(section); }
 
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Test);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Test, CHILD_FORK_IF_NOT_NULL(section()), CHILD_FORK_IF_NOT_NULL(receiver()));
 
         // aliases...

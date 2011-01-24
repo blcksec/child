@@ -15,6 +15,7 @@ class Text : public GenericElement<QString> {
 public:
     explicit Text(Node *origin, const QString &value = "") : GenericElement<QString>(origin, "") { setValue(value); }
 
+    CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Text);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Text, value());
 
     CHILD_DECLARE_NATIVE_METHOD(init) {
@@ -114,11 +115,14 @@ public:
     static QString unescapeSequence(const QString &source);
     static QChar unescapeSequenceNumber(const QString &source, int &i);
 
-    virtual double toDouble() const {
+    virtual double toDouble(bool *okPtr = NULL) const {
         bool ok;
         double number = value().toDouble(&ok);
-        if(!ok) CHILD_THROW_CONVERSION_EXCEPTION("conversion from Text to Number failed");
-        return number;
+        if(okPtr)
+            *okPtr = ok;
+        else if(!ok)
+            CHILD_THROW_CONVERSION_EXCEPTION("conversion from Text to Number failed");
+        return ok ? number : 0;
     };
 
     virtual QChar toChar() const {
