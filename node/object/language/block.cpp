@@ -32,6 +32,7 @@ Section *Block::section(const QString &label) {
     else if(label == "body") return bodySection();
     else if(label == "test") return testSection();
     else if(label == "else") return elseSection();
+    else if(label == "between") return betweenSection();
     else return findSection(label);
 }
 
@@ -67,6 +68,14 @@ Section *Block::elseSection() {
         _elseIsCached = true;
     }
     return _else;
+}
+
+Section *Block::betweenSection() {
+    if(!_betweenIsCached) {
+        _between = findSection("between");
+        _betweenIsCached = true;
+    }
+    return _between;
 }
 
 Section *Block::findSection(const QString &label) {

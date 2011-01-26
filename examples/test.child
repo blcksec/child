@@ -1,11 +1,20 @@
-name := while(read("Name? ") empty?) {}
-age := 0
-loop {
-    age = Number?(read("Age? "))
-    if(age > 0) break
-    "Age should be more than 0!" alert
-}
-("Hello " + name + " (" + age + ")!") print
+a := "a\nb"
+
+//name := ""
+//until(name != "") {
+//    name = read("Name? ")
+//between:
+//    "Name should not be empty!" alert
+//}
+
+//age := 0
+//until(age > 0) {
+//    age = Number?(read("Age? "))
+//between:
+//    "Age should be more than 0!" alert
+//}
+
+//("Hello " + name + " (" + age + ")!") print
 
 /*
 

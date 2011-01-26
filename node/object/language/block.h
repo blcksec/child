@@ -12,8 +12,8 @@ class Block : public GenericList<Section *> {
     CHILD_DECLARE(Block, List, Object);
 public:
     explicit Block(Node *origin) : GenericList<Section *>(origin),
-        _doc(NULL), _docIsCached(false), _body(NULL), _bodyIsCached(false),
-        _test(NULL), _testIsCached(false), _else(NULL), _elseIsCached(false) {}
+        _doc(NULL), _docIsCached(false), _body(NULL), _bodyIsCached(false), _test(NULL), _testIsCached(false),
+        _else(NULL), _elseIsCached(false), _between(NULL), _betweenIsCached(false)  {}
 
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Block);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Block);
@@ -27,6 +27,7 @@ public:
     Section *bodySection();
     Section *testSection();
     Section *elseSection();
+    Section *betweenSection();
 private:
     Section *findSection(const QString &label);
 public:
@@ -42,6 +43,8 @@ private:
     bool _testIsCached;
     Section *_else;
     bool _elseIsCached;
+    Section *_between;
+    bool _betweenIsCached;
 };
 
 CHILD_END
