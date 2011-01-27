@@ -16,6 +16,8 @@ class Number : public GenericElement<double> {
 public:
     explicit Number(Node *origin, const double value = 0) : GenericElement<double>(origin, 0) { setValue(value); }
 
+    Number(const Number &other) : GenericElement<double>(other) { setValue(other.value()); }
+
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Number);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Number, value());
 

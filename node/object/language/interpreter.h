@@ -30,6 +30,7 @@ namespace Language {
 
         SourceCodeDictionary *sourceCodes() const { return _sourceCodes; }
         SourceCode *loadSourceCode(QString url);
+        Node *runSourceCode(QString url, Node *receiver = context()) { return loadSourceCode(url)->run(receiver); }
         SourceCode *sourceCodeIsAlreadyLoaded(QString url);
 
         TestSuite *testSuite() const { return TestSuite::cast(constCast(this)->child("test_suite")); }

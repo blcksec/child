@@ -13,6 +13,9 @@ namespace Language {
     #define CHILD_CHECK_INPUT_SIZE(ARGS...) \
     ArgumentBunch::checkSpecifiedSize(message->inputs(false) ? message->inputs()->size() : 0, ##ARGS)
 
+    #define CHILD_CHECK_QUESTION_MARK \
+    if(!message->isQuestioned()) CHILD_THROW(InterpreterException, "missing question mark");
+
     class ArgumentBunch : public GenericList<Argument *> {
         CHILD_DECLARE(ArgumentBunch, Bunch, Language);
     public:

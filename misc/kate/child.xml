@@ -17,7 +17,7 @@
             <item>return</item>
         </list>
         <contexts>
-            <context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+            <context attribute="Normal" lineEndContext="#stay" name="Normal">
                 <keyword attribute="Keyword" context="#stay" String="Keywords"/>
                 <StringDetect attribute="Keyword" context="#stay" String="throw?"/>
                 <StringDetect attribute="Keyword" context="#stay" String="throw"/>
@@ -30,17 +30,22 @@
                 <Float attribute="Float" context="#stay"/>
                 <DetectChar attribute="String" context="String" char="&quot;"/>
                 <DetectChar attribute="String" context="String" char="'"/>
+                <DetectChar attribute="Identifier" context="Backquoted" char="`"/>
                 <Detect2Chars attribute="Comment" context="Comment" char="/" char1="/"/>
                 <Detect2Chars attribute="Comment" context="Multiline Comment" char="/" char1="*" beginRegion="Comment"/>
                 <DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="Brace" />
                 <DetectChar attribute="Symbol" context="#stay" char="}" endRegion="Brace" />
                 <AnyChar attribute="Symbol" context="#stay" String="()[]"/>
-                <AnyChar attribute="Symbol" context="#stay" String="@#&amp;!-^$*%?,;.:/=+&lt;&gt;\\"/>
+                <AnyChar attribute="Symbol" context="#stay" String="@#&amp;!-^$*%?,;.:/=+&lt;&gt;"/>
             </context>
             <context attribute="String" lineEndContext="#pop" name="String">
                 <HlCStringChar attribute="String Char" context="#stay"/>
                 <DetectChar attribute="String" context="#pop" char="&quot;"/>
                 <DetectChar attribute="String" context="#pop" char="'"/>
+            </context>
+            <context attribute="Identifier" lineEndContext="#pop" name="Backquoted">
+                <HlCStringChar attribute="String Char" context="#stay"/>
+                <DetectChar attribute="Identifier" context="#pop" char="`"/>
             </context>
             <context attribute="Comment" lineEndContext="#pop" name="Comment">
             </context>
@@ -49,7 +54,7 @@
             </context>
         </contexts>
         <itemDatas>
-            <itemData name="Normal Text" defStyleNum="dsNormal"/>
+            <itemData name="Normal" defStyleNum="dsNormal"/>
             <itemData name="Keyword" defStyleNum="dsKeyword"/>
             <itemData name="Data Type" defStyleNum="dsDataType"/>
             <itemData name="Label" defStyleNum="dsKeyword"/>

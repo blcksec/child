@@ -13,10 +13,21 @@ CHILD_BEGIN
 class Text : public GenericElement<QString> {
     CHILD_DECLARE(Text, Element, Object);
 public:
-    explicit Text(Node *origin, const QString &value = "") : GenericElement<QString>(origin, "") { setValue(value); }
+    explicit Text(Node *origin, const QString &value = "", bool isTranslatable = false,
+                  QList<IntPair> *interpolableSlices = NULL) : GenericElement<QString>(origin, ""),
+    _isTranslatable(isTranslatable) { setValue(value); setInterpolableSlices(interpolableSlices); }
+
+    Text(const Text &other) : GenericElement<QString>(other), _isTranslatable(other.isTranslatable()) {
+        setValue(other.value());
+        setInterpolableSlices(other.interpolableSlices());
+    }
+
+    virtual ~Text() {
+        delete _interpolableSlices;
+    }
 
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Text);
-    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Text, value());
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Text, value(), isTranslatable(), interpolableSlices());
 
     CHILD_DECLARE_NATIVE_METHOD(init) {
         CHILD_FIND_LAST_MESSAGE;
@@ -33,6 +44,18 @@ public:
 
         return this;
     }
+
+    bool isTranslatable() const { return _isTranslatable; }
+    void setIsTranslatable(bool isTranslatable) { _isTranslatable = isTranslatable; }
+
+    QList<IntPair> *interpolableSlices() const { return _interpolableSlices; }
+
+    void setInterpolableSlices(QList<IntPair> *interpolableSlices) {
+        _interpolableSlices = interpolableSlices && !interpolableSlices->isEmpty() ?
+                    new QList<IntPair>(*interpolableSlices) : NULL;
+    }
+
+    virtual Node *run(Node *receiver = context());
 
     CHILD_DECLARE_NATIVE_METHOD(concatenate) {
         CHILD_FIND_LAST_MESSAGE;
@@ -84,6 +107,19 @@ public:
         }
     }
 
+    CHILD_DECLARE_NATIVE_METHOD(size) {
+        CHILD_FIND_LAST_MESSAGE;
+        CHILD_CHECK_INPUT_SIZE(0);
+        return CHILD_NUMBER(value().size());
+    }
+
+    CHILD_DECLARE_NATIVE_METHOD(empty) {
+        CHILD_FIND_LAST_MESSAGE;
+        CHILD_CHECK_QUESTION_MARK;
+        CHILD_CHECK_INPUT_SIZE(0);
+        return CHILD_BOOLEAN(value().isEmpty());
+    }
+
     virtual bool isEqualTo(const Node *other) const {
         const Text *otherText = Text::dynamicCast(other);
         return otherText && value() == otherText->value();
@@ -112,7 +148,7 @@ public:
         return CHILD_NUMBER(compare(message->runFirstInput()->toString()));
     }
 
-    static QString unescapeSequence(const QString &source);
+    static QString unescapeSequence(const QString &source, QList<IntPair> *interpolableSlices = NULL);
     static QChar unescapeSequenceNumber(const QString &source, int &i);
 
     virtual double toDouble(bool *okPtr = NULL) const {
@@ -134,6 +170,9 @@ public:
         Q_UNUSED(level);
         return debug ? "\"" + value() + "\"" : value();
     }
+private:
+    bool _isTranslatable;
+    QList<IntPair> *_interpolableSlices;
 };
 
 CHILD_END

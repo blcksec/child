@@ -13,6 +13,8 @@ class Boolean : public GenericElement<bool> {
 public:
     explicit Boolean(Node *origin, bool value = false) : GenericElement<bool>(origin, false) { setValue(value); }
 
+    Boolean(const Boolean &other) : GenericElement<bool>(other) { setValue(other.value()); }
+
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Boolean);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Boolean, value());
 

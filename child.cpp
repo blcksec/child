@@ -41,8 +41,9 @@ void init() {
         popContext();
     #ifdef CHILD_CATCH_EXCEPTIONS
     } catch(Exception &e) {
-        Primitive *primitive = findLastPrimitive(e.runStackCapture);
-        if(primitive && !primitive->sourceCodeRef().isNull()) {
+        bool ok;
+        Primitive *primitive = findLastPrimitive(e.runStackCapture, &ok);
+        if(ok && !primitive->sourceCodeRef().isNull()) {
             const QString &source = *(primitive->sourceCodeRef().string());
             int column, line;
             computeColumnAndLineForPosition(source, primitive->sourceCodeRef().position(), column, line);
@@ -67,6 +68,14 @@ QList<Root> &roots() {
 }
 
 // === Miscellaneous ===
+
+QString normalizeUrl(QString url) {
+    if(!(url.isEmpty() || url.startsWith("file://") || url.startsWith("http://") || url.startsWith("child:")))
+        url.prepend("file://");
+    if(url.startsWith("file://"))
+        url = "file://" + QFileInfo(url.mid(7)).absoluteFilePath();
+    return url;
+}
 
 QString readTextFile(const QString &name) {
     QFile file(name);

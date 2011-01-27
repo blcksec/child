@@ -5,10 +5,10 @@ CHILD_BEGIN
 namespace Language {
     CHILD_DEFINE(SourceCode, Object, Language);
 
-    SourceCode::SourceCode(Node *origin, const QString &url,
-               const QString &txt, Block *block) :
-        Object(origin), _url(url), _text(txt), _block(block) {
-        if(!url.isEmpty() && txt.isEmpty()) load();
+    SourceCode::SourceCode(Node *origin, const QString &theUrl, const QString &txt, Block *block) :
+        Object(origin), _text(txt), _block(block) {
+        setUrl(theUrl);
+        if(!url().isEmpty() && txt.isEmpty()) load();
     }
 
     void SourceCode::initRoot() {
@@ -17,7 +17,12 @@ namespace Language {
     void SourceCode::load(const QString &newUrl) {
         if(!newUrl.isEmpty()) setUrl(newUrl);
         if(url().isEmpty()) CHILD_THROW(ArgumentException, "URL is empty");
-        setText(readTextFile(url()));
+        if(url().startsWith("file://"))
+            setText(readTextFile(url().mid(7)));
+        else if(url().startsWith("child:"))
+            setText(url().mid(6));
+        else
+            CHILD_TODO;
     }
 
     void SourceCode::parse(const QString &newText) {

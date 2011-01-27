@@ -121,10 +121,10 @@ OTHER_FILES += \
     notes/specification.txt \
     notes/features.txt \
     examples/test.child \
-    examples/lexertest.child \
     node.child \
     node/exception.child \
     node/object.child \
     node/object/text.child \
     node/object/abstractlist.child \
-    misc/kate/child.xml
+    misc/kate/child.xml \
+    examples/console_read.child

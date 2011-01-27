@@ -30,13 +30,17 @@ public:
     }
 
     template<class T>
-    T *find() const {
-        T *run;
+    T *find(bool *okPtr = NULL) const {
+        T *run = NULL;
         for (int i = _stack.size() - 1; i > 0; --i) {
             run = T::dynamicCast(_stack.at(i));
-            if(run) return run;
+            if(run) break;
         }
-        CHILD_THROW_NOT_FOUND_EXCEPTION("no <nodeName> found in run stack"); // TODO: replace <nodeName> with the class name...
+        if(okPtr)
+            *okPtr = run;
+        else if(!run)
+            CHILD_THROW_NOT_FOUND_EXCEPTION("no <nodeName> found in run stack"); // TODO: replace <nodeName> with the class name...
+        return run;
     }
 
     void dump() const;

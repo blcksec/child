@@ -16,6 +16,8 @@ public:
     explicit Character(Node *origin, const QChar &value = QChar::Null) :
         GenericElement<QChar>(origin, QChar::Null) { setValue(value); }
 
+    Character(const Character &other) : GenericElement<QChar>(other) { setValue(other.value()); }
+
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Character);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Character, value());
 

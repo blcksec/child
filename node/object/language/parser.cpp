@@ -180,10 +180,16 @@ namespace Language {
             c = Text::unescapeSequence(tokenText().mid(1, tokenText().size() - 2)).at(0);
             value = CHILD_CHARACTER(c);
             break;
-        case Token::Text:
-            s = Text::unescapeSequence(tokenText().mid(1, tokenText().size() - 2));
-            value = CHILD_TEXT(s);
+        case Token::Text: {
+            QList<IntPair> interpolableSlices;
+            try {
+                s = Text::unescapeSequence(tokenText().mid(1, tokenText().size() - 2), &interpolableSlices);
+            } catch(const Exception &e) {
+                throw parserException(e.message);
+            }
+            value = CHILD_TEXT(s, true, &interpolableSlices);
             break;
+        }
         default:
             throw parserException("unimplemented token");
         }

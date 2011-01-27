@@ -1,0 +1,13 @@
+name := ""
+until(name !empty?) {
+    name = read("Name? ")
+between:
+    "Name cannot be empty!" alert
+}
+age := 0
+until(age > 0) {
+    age = Number?(read("Age? "))
+between:
+    "Age must be more than 0!" alert
+}
+"Hello {name capitalize} ({age})!" print

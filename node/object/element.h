@@ -12,6 +12,8 @@ class GenericElement : public Object {
 public:
     explicit GenericElement(Node *origin, const T &defaultValue = T()) : Object(origin), _value(defaultValue) {}
 
+    GenericElement(const GenericElement &other) : Object(other), _value(T()) {}
+
     T value() const { return _value; }
 
     virtual void setValue(const T &newValue) {

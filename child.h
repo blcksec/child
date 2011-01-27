@@ -1,6 +1,7 @@
 #ifndef CHILD_GLOBAL_H
 #define CHILD_GLOBAL_H
 
+#include <QtCore/QPair>
 #include <QtCore/QTextStream>
 #include <QtCore/QStack>
 
@@ -44,6 +45,8 @@ throwConversionException(MESSAGE, __FILE__, __LINE__, Q_FUNC_INFO)
 
 typedef long long int HugeInteger;
 typedef unsigned long long int HugeUnsignedInteger;
+
+typedef QPair<int, int> IntPair;
 
 class Node;
 
@@ -99,6 +102,7 @@ private:
 
 // === Miscellaneous ===
 
+QString normalizeUrl(QString url);
 QString readTextFile(const QString &name);
 QString concatenateStrings(const QString &first, const QString &separator, const QString &second);
 QString escapeTabsAndNewlines(QString text);

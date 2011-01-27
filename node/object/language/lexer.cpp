@@ -202,7 +202,7 @@ namespace Language {
     void Lexer::consumeEscapeSequence() {
         consume(); // anti-slash
         if(isEof()) throw lexerException("unexpected EOF found in an escape sequence");
-        if(QString("trn\"'\\").contains(_currentChar))
+        if(QString("trn\"'{\\").contains(_currentChar))
             consume();
         else if(QString("01234567xu").contains(_currentChar, Qt::CaseInsensitive))
             consumeEscapeSequenceNumber();

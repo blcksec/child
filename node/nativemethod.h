@@ -30,7 +30,7 @@ public:
         setIsAutoRunnable(method);
     }
 
-    virtual Node *run(Node *receiver) {
+    virtual Node *run(Node *receiver = context()) {
         CHILD_PUSH_RUN(this);
         return (receiver->*method())();
     }

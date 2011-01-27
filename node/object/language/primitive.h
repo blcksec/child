@@ -61,7 +61,9 @@ namespace Language {
 
     #define CHILD_FIND_LAST_PRIMITIVE Primitive *primitive = findLastPrimitive();
 
-    inline Primitive *findLastPrimitive(RunStack *stack = runStack()) { return stack->find<Primitive>(); }
+    inline Primitive *findLastPrimitive(RunStack *stack = runStack(), bool *okPtr = NULL) {
+        return stack->find<Primitive>(okPtr);
+    }
 }
 
 CHILD_END

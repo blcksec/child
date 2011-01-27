@@ -158,7 +158,9 @@ private:
 
 #define CHILD_FIND_LAST_MESSAGE Message *message = findLastMessage();
 
-inline Message *findLastMessage(RunStack *stack = runStack()) { return stack->find<Message>(); }
+inline Message *findLastMessage(RunStack *stack = runStack(), bool *okPtr = NULL) {
+    return stack->find<Message>(okPtr);
+}
 
 CHILD_END
 

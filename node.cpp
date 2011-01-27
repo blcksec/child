@@ -189,8 +189,8 @@ bool Node::isOriginatingFrom(Node *orig) const { // TODO: take into account exte
 
 CHILD_DEFINE_NATIVE_METHOD(Node, is) {
     CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_QUESTION_MARK;
     CHILD_CHECK_INPUT_SIZE(1);
-    if(!message->isQuestioned()) CHILD_THROW(InterpreterException, "missing question mark");
     return CHILD_BOOLEAN(isOriginatingFrom(message->runFirstInput()));
 }
 
@@ -404,8 +404,8 @@ Node *Node::findChildInSelfOrOrigins(const QString &name, bool autoFork, bool *i
 
 CHILD_DEFINE_NATIVE_METHOD(Node, has) {
     CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_QUESTION_MARK;
     CHILD_CHECK_INPUT_SIZE(1);
-    if(!message->isQuestioned()) CHILD_THROW(InterpreterException, "missing question mark");
     Message *msg = Message::dynamicCast(message->firstInput()->value()->value());
     if(!msg) CHILD_THROW(ArgumentException, "argument is not message");
     Node *node = findChild(msg->name());

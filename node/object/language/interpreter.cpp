@@ -95,7 +95,7 @@ namespace Language {
     }
 
     SourceCode *Interpreter::loadSourceCode(QString url) {
-        url = QFileInfo(url).absoluteFilePath();
+        url = normalizeUrl(url);
         SourceCode *source;
         if(!(source = sourceCodeIsAlreadyLoaded(url))) {
             source = CHILD_SOURCE_CODE(url);
@@ -106,7 +106,7 @@ namespace Language {
     }
 
     SourceCode *Interpreter::sourceCodeIsAlreadyLoaded(QString url) {
-        url = QFileInfo(url).absoluteFilePath();
+        url = normalizeUrl(url);
         return sourceCodes()->hasKey(CHILD_TEXT(url));
     }
 }

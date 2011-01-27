@@ -25,7 +25,7 @@ namespace Language {
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(SourceCode, url(), text(), CHILD_FORK_IF_NOT_NULL(block()));
 
         const QString &url() const { return _url; }
-        void setUrl(const QString &url) { _url = QFileInfo(url).absoluteFilePath(); }
+        void setUrl(const QString &url) { _url = normalizeUrl(url); }
 
         const QString &text() const { return _text; }
         void setText(const QString &text) { _text = text; }

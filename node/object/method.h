@@ -70,7 +70,7 @@ public:
 
     void setOutputs(ParameterList *outputs) { _outputs = outputs; }
 
-    virtual Node *run(Node *receiver) {
+    virtual Node *run(Node *receiver = context()) {
         Q_UNUSED(receiver);
         CHILD_FIND_LAST_MESSAGE;
         Method *forkedMethod = this; //->fork();

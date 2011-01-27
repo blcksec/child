@@ -16,7 +16,7 @@ public:
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Property);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Property);
 
-    virtual Node *run(Node *receiver) {
+    virtual Node *run(Node *receiver = context()) {
         Q_UNUSED(receiver);
         CHILD_PUSH_RUN(this);
         return child("get")->run(this);
