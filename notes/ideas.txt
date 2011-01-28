@@ -1,3 +1,21 @@
+i := "Hello" Iterator()
+
+---
+
+i := "Hello" iterator
+while(i value?) {
+    i value print
+    i next
+}
+
+---
+
+i := "Hello" iterator
+while(v := i next) { v print }
+while(i next?) { i current print }
+
+---
+
 a[0..2] << "i" // remplace les 3 premiers éléments par "i"
 
 a[-1] >> v // supprime le dernier élément en l'assignant à v (équivalent à un pop)
@@ -19,7 +37,7 @@ a[3] << "Ya"  // insert
 -------------------------------------------------
 
 Enumerable := Object()
-require: each
+require: each (Iterator?)
 
 Collection := Object(extension: Enumerable)
 require: append, remove

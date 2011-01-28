@@ -14,36 +14,16 @@ class Text : public GenericElement<QString> {
     CHILD_DECLARE(Text, Element, Object);
 public:
     explicit Text(Node *origin, const QString &value = "", bool isTranslatable = false,
-                  QList<IntPair> *interpolableSlices = NULL) : GenericElement<QString>(origin, ""),
-    _isTranslatable(isTranslatable) { setValue(value); setInterpolableSlices(interpolableSlices); }
+                  QList<IntPair> *interpolableSlices = NULL);
 
-    Text(const Text &other) : GenericElement<QString>(other), _isTranslatable(other.isTranslatable()) {
-        setValue(other.value());
-        setInterpolableSlices(other.interpolableSlices());
-    }
+    Text(const Text &other);
 
-    virtual ~Text() {
-        delete _interpolableSlices;
-    }
+    virtual ~Text() { delete _interpolableSlices; }
 
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Text);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Text, value(), isTranslatable(), interpolableSlices());
 
-    CHILD_DECLARE_NATIVE_METHOD(init) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(0, 1);
-        if(message->hasInput(0)) setValue(message->runFirstInput()->toString());
-
-        // === TODO: DRY ===
-        CHILD_FIND_LAST_PRIMITIVE;
-        Primitive *nextPrimitive = primitive->next();
-        if(nextPrimitive) {
-            nextPrimitive->run(this);
-            Primitive::skip(this);
-        }
-
-        return this;
-    }
+    CHILD_DECLARE_NATIVE_METHOD(init);
 
     bool isTranslatable() const { return _isTranslatable; }
     void setIsTranslatable(bool isTranslatable) { _isTranslatable = isTranslatable; }
@@ -57,122 +37,81 @@ public:
 
     virtual Node *run(Node *receiver = context());
 
-    CHILD_DECLARE_NATIVE_METHOD(concatenate) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(1);
-        return CHILD_TEXT(value() + message->runFirstInput()->toString());
-    }
+    CHILD_DECLARE_NATIVE_METHOD(concatenate);
+    CHILD_DECLARE_NATIVE_METHOD(multiply);
 
-    CHILD_DECLARE_NATIVE_METHOD(multiply) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(1);
-        return CHILD_TEXT(value().repeated(message->runFirstInput()->toDouble()));
-    }
+    CHILD_DECLARE_NATIVE_METHOD(uppercase);
+    CHILD_DECLARE_NATIVE_METHOD(lowercase);
 
-    CHILD_DECLARE_NATIVE_METHOD(uppercase) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(0);
-        if(!message->isExclaimed())
-            return CHILD_TEXT(value().toUpper());
-        else {
-            setValue(value().toUpper());
-            return this;
-        }
-    }
+    static QString capitalize(QString text);
+    CHILD_DECLARE_NATIVE_METHOD(capitalize);
 
-    CHILD_DECLARE_NATIVE_METHOD(lowercase) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(0);
-        if(!message->isExclaimed())
-            return CHILD_TEXT(value().toLower());
-        else {
-            setValue(value().toLower());
-            return this;
-        }
-    }
+    CHILD_DECLARE_NATIVE_METHOD(size);
+    CHILD_DECLARE_NATIVE_METHOD(empty);
 
-    static QString capitalize(QString text) {
-        if(!text.isEmpty()) text[0] = text[0].toUpper();
-        return text;
-    }
+    virtual bool isEqualTo(const Node *other) const;
+    CHILD_DECLARE_NATIVE_METHOD(equal_to);
 
-    CHILD_DECLARE_NATIVE_METHOD(capitalize) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(0);
-        if(!message->isExclaimed())
-            return CHILD_TEXT(capitalize(value()));
-        else {
-            setValue(capitalize(value()));
-            return this;
-        }
-    }
-
-    CHILD_DECLARE_NATIVE_METHOD(size) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(0);
-        return CHILD_NUMBER(value().size());
-    }
-
-    CHILD_DECLARE_NATIVE_METHOD(empty) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_QUESTION_MARK;
-        CHILD_CHECK_INPUT_SIZE(0);
-        return CHILD_BOOLEAN(value().isEmpty());
-    }
-
-    virtual bool isEqualTo(const Node *other) const {
-        const Text *otherText = Text::dynamicCast(other);
-        return otherText && value() == otherText->value();
-    }
-
-    CHILD_DECLARE_NATIVE_METHOD(equal_to) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(1);
-        return CHILD_BOOLEAN(value() == message->runFirstInput()->toString());
-    }
-
-    virtual short compare(const Node *other) const {
-        return compare(Text::cast(other)->value());
-    }
-
-    short compare(const QString &other) const {
-        int result = value().compare(other);
-        if(result > 0) return 1;
-        else if(result < 0) return -1;
-        else return 0;
-    }
-
-    CHILD_DECLARE_NATIVE_METHOD(compare) {
-        CHILD_FIND_LAST_MESSAGE;
-        CHILD_CHECK_INPUT_SIZE(1);
-        return CHILD_NUMBER(compare(message->runFirstInput()->toString()));
-    }
+    virtual short compare(const Node *other) const;
+    short compare(const QString &other) const;
+    CHILD_DECLARE_NATIVE_METHOD(compare);
 
     static QString unescapeSequence(const QString &source, QList<IntPair> *interpolableSlices = NULL);
     static QChar unescapeSequenceNumber(const QString &source, int &i);
 
-    virtual double toDouble(bool *okPtr = NULL) const {
-        bool ok;
-        double number = value().toDouble(&ok);
-        if(okPtr)
-            *okPtr = ok;
-        else if(!ok)
-            CHILD_THROW_CONVERSION_EXCEPTION("conversion from Text to Number failed");
-        return ok ? number : 0;
-    };
-
-    virtual QChar toChar() const {
-        if(value().size() != 1) CHILD_THROW_CONVERSION_EXCEPTION("conversion from Text to Character failed (size should be equal to 1)");
-        return value().at(0);
-    };
-
-    virtual QString toString(bool debug = false, short level = 0) const {
-        Q_UNUSED(level);
-        return debug ? "\"" + value() + "\"" : value();
-    }
+    virtual double toDouble(bool *okPtr = NULL) const;
+    virtual QChar toChar() const;
+    virtual QString toString(bool debug = false, short level = 0) const;
 private:
     bool _isTranslatable;
     QList<IntPair> *_interpolableSlices;
+public:
+    #define CHILD_TEXT_ITERATOR(ARGS...) new Iterator(context()->child("Object", "Text", "Iterator"), ##ARGS)
+
+    #define CHILD_CHECK_TEXT_ITERATOR_INDEX \
+    if(!hasValue()) CHILD_THROW(IndexOutOfBoundsException, "Iterator is out of bounds");
+
+    class Iterator : public Object {
+        CHILD_DECLARE(Iterator, Object, Text);
+    public:
+        explicit Iterator(Node *origin, Text *text = NULL, int index = 0) :
+            Object(origin), _text(text), _index(index) {}
+
+        CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Iterator);
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Iterator, _text, _index);
+
+        CHILD_DECLARE_NATIVE_METHOD(init);
+
+        QChar value() const {
+            CHILD_CHECK_TEXT_ITERATOR_INDEX;
+            return _text->value().at(_index);
+        }
+
+        CHILD_DECLARE_NATIVE_METHOD(value);
+
+        bool hasValue() const {
+            if(!_text) CHILD_THROW(NullPointerException, "Text pointer is NULL");
+            return _index >= 0 && _index < _text->value().size();
+        }
+
+        void first() { _index = 0; }
+        CHILD_DECLARE_NATIVE_METHOD(first);
+
+        void last() {
+            if(!_text) CHILD_THROW(NullPointerException, "Text pointer is NULL");
+            _index = _text->value().size() - 1;
+        }
+
+        CHILD_DECLARE_NATIVE_METHOD(last);
+
+        void previous() { CHILD_CHECK_TEXT_ITERATOR_INDEX; _index--; }
+        CHILD_DECLARE_NATIVE_METHOD(previous);
+        void next() { CHILD_CHECK_TEXT_ITERATOR_INDEX; _index++; }
+        CHILD_DECLARE_NATIVE_METHOD(next);
+    private:
+        Text *_text;
+        int _index;
+    };
 };
 
 CHILD_END

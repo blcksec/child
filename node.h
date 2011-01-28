@@ -314,8 +314,11 @@ NAME *NAME::root() { \
     static NAME *_root = NULL; \
     if(!_root) { \
         _root = new NAME(ORIGIN::root()); \
-        PARENT::root()->addChild(#NAME, _root); \
-        _root->declare(#NAME); \
+        QString name = #NAME; \
+        int pos = name.lastIndexOf("::"); \
+        if(pos != -1) name = name.mid(pos + 2); \
+        PARENT::root()->addChild(name, _root); \
+        _root->declare(name); \
         _root->initRoot(); \
     } \
     return _root; \

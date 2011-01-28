@@ -18,8 +18,11 @@ SOURCES += main.cpp \
     child.cpp \
     node.cpp \
     node/exception.cpp \
+    node/alias.cpp \
     node/nativemethod.cpp \
+    node/runstack.cpp \
     node/controlflow.cpp \
+    node/console.cpp \
     node/object.cpp \
     node/object/property.cpp \
     node/object/element.cpp \
@@ -56,17 +59,17 @@ SOURCES += main.cpp \
     tests/objecttest.cpp \
     tests/texttest.cpp \
     tests/listtest.cpp \
-    tests/dictionarytest.cpp \
-    node/alias.cpp \
-    node/runstack.cpp \
-    node/console.cpp
+    tests/dictionarytest.cpp
 
 HEADERS += \
     child.h \
     node.h \
     node/exception.h \
+    node/alias.h \
     node/nativemethod.h \
+    node/runstack.h \
     node/controlflow.h \
+    node/console.h \
     node/object.h \
     node/object/property.h \
     node/object/element.h \
@@ -106,10 +109,7 @@ HEADERS += \
     tests/objecttest.h \
     tests/texttest.h \
     tests/listtest.h \
-    tests/dictionarytest.h \
-    node/alias.h \
-    node/runstack.h \
-    node/console.h
+    tests/dictionarytest.h
 
 OTHER_FILES += \
     README.txt \

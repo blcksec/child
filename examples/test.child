@@ -1,3 +1,17 @@
+Enumerable := Object() {
+    each code... := {
+        i := Iterator()
+        while(i value?) {
+            i value print
+            i next
+        }
+    }
+}
+
+txt := "Manu"
+txt extensions << Enumerable
+txt each
+
 /*
 name := ""
 until(name !empty?) {
