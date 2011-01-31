@@ -215,6 +215,8 @@ public:
         return this;
     }
 
+    CHILD_DECLARE_NATIVE_METHOD(run);
+
     CHILD_DECLARE_NATIVE_METHOD(or);
     CHILD_DECLARE_NATIVE_METHOD(and);
     CHILD_DECLARE_NATIVE_METHOD(not);

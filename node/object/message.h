@@ -22,52 +22,59 @@ public:
         Ellipsed = 16
     };
 
-    explicit Message(Node *origin, const QString &name = "", ArgumentBunch *inputs = NULL, ArgumentBunch *outputs = NULL,
-                     Modifiers modifiers = 0, const QString &codeInputName = "") :
-        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(modifiers), _codeInputName(codeInputName) {
-        setInputs(inputs); setOutputs(outputs);
+    explicit Message(Node *origin, const QString &name = "", ArgumentBunch *inputs = NULL,
+                     ArgumentBunch *outputs = NULL, Modifiers modifiers = 0, const QString &codeInputName = "",
+                     QList<IntPair> *interpolableSlices = NULL) :
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(modifiers),
+        _codeInputName(codeInputName), _interpolableSlices(NULL) {
+            setInputs(inputs);
+            setOutputs(outputs);
+            setInterpolableSlices(interpolableSlices);
     }
 
-    Message(Node *origin, const QString &name, Argument *input) :
-        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+    Message(Node *origin, const QString &name, Argument *input) : Object(origin), _name(name), _inputs(NULL),
+        _outputs(NULL), _modifiers(0), _interpolableSlices(NULL) {
         setInputs(CHILD_ARGUMENT_BUNCH(input)); setOutputs(NULL);
     }
 
     Message(Node *origin, const QString &name, Argument *input1, Argument *input2) :
-        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0), _interpolableSlices(NULL) {
         setInputs(CHILD_ARGUMENT_BUNCH(input1, input2)); setOutputs(NULL);
     }
 
     Message(Node *origin, const QString &name, Node *input) :
-        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0), _interpolableSlices(NULL) {
         setInputs(CHILD_ARGUMENT_BUNCH(input)); setOutputs(NULL);
     }
 
     Message(Node *origin, const QString &name, Argument *input1, Node *input2) :
-        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0), _interpolableSlices(NULL) {
         setInputs(CHILD_ARGUMENT_BUNCH(input1, CHILD_ARGUMENT(input2))); setOutputs(NULL);
     }
 
     Message(Node *origin, const QString &name, Node *input1, Argument *input2) :
-        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0), _interpolableSlices(NULL) {
         setInputs(CHILD_ARGUMENT_BUNCH(CHILD_ARGUMENT(input1), input2)); setOutputs(NULL);
     }
 
     Message(Node *origin, const QString &name, Node *input1, Node *input2) :
-        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0) {
+        Object(origin), _name(name), _inputs(NULL), _outputs(NULL), _modifiers(0), _interpolableSlices(NULL) {
         setInputs(CHILD_ARGUMENT_BUNCH(input1, input2)); setOutputs(NULL);
     }
 
     virtual ~Message() {
         setInputs(NULL);
         setOutputs(NULL);
+        delete _interpolableSlices;
     }
 
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Message);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Message, name(), CHILD_FORK_IF_NOT_NULL(inputs(false)),
-                                         CHILD_FORK_IF_NOT_NULL(outputs(false)), modifiers(), codeInputName());
+                                         CHILD_FORK_IF_NOT_NULL(outputs(false)), modifiers(),
+                                         codeInputName(), interpolableSlices());
 
     const QString &name() const { return _name; }
+    const QString interpoledName() const;
     void setName(const QString &name) { _name = name; }
 
     ArgumentBunch *inputs(bool createIfNull = true) const {
@@ -145,6 +152,13 @@ public:
     void setCodeInputName(const QString &name) { _codeInputName = name; }
     bool hasCodeInput() const { return !_codeInputName.isEmpty(); }
 
+    QList<IntPair> *interpolableSlices() const { return _interpolableSlices; }
+
+    void setInterpolableSlices(QList<IntPair> *interpolableSlices) {
+        _interpolableSlices = interpolableSlices && !interpolableSlices->isEmpty() ?
+                    new QList<IntPair>(*interpolableSlices) : NULL;
+    }
+
     virtual Node *run(Node *receiver = context());
 
     virtual QString toString(bool debug = false, short level = 0) const;
@@ -154,6 +168,7 @@ private:
     ArgumentBunch *_outputs;
     Modifiers _modifiers;
     QString _codeInputName;
+    QList<IntPair> *_interpolableSlices;
 };
 
 #define CHILD_FIND_LAST_MESSAGE Message *message = findLastMessage();

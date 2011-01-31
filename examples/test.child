@@ -1,10 +1,12 @@
 Enumerable := Object() {
-    each(\value_argument: value, \key_argument: key) code... := {
-//        meth := Method(code, [value_argument, key_argument])
-//        \meth inspect
+    each(\value: value, \key: key) code... := {
+        between := if(code value is?(Block), code value between_section?)
         i := Iterator()
         while(i value?) {
-//            meth(i value)
+            if(between && i !first?) between run
+            code `{value}` := i value
+            code `{key}` := i key
+            code run
             ++i
         }
     }
@@ -12,7 +14,12 @@ Enumerable := Object() {
 
 txt := "Yes"
 txt extensions << Enumerable
-txt each "*" print
+txt each {
+    value uppercase write
+between:
+    "-" write
+}
+"" print
 
 /*
 name := ""

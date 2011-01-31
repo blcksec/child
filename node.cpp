@@ -84,6 +84,8 @@ void Node::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Node, or_assign, ||=);
     CHILD_ADD_NATIVE_METHOD(Node, and_assign, &&=);
 
+    CHILD_ADD_NATIVE_METHOD(Node, run);
+
     CHILD_ADD_NATIVE_METHOD(Node, equal_to, ==);
     CHILD_ADD_NATIVE_METHOD(Node, different_from, !=);
 
@@ -295,7 +297,8 @@ Node *Node::defineOrAssign(bool isDefine) {
     CHILD_CHECK_INPUT_SIZE(2);
     Message *msg = Message::dynamicCast(message->firstInput()->value()->value());
     if(!msg) CHILD_THROW(ArgumentException, "left-hand side is not a message");
-    if(msg->name() == "[]") {
+    QString name = msg->interpoledName();
+    if(name == "[]") {
         message = message->fork();
         message->setName(isDefine ? "[]:=" : "[]=");
         if(msg->hasAnInput())
@@ -311,10 +314,10 @@ Node *Node::defineOrAssign(bool isDefine) {
     } else // rhs is not a block
         value = message->runSecondInput();
     Property *property = NULL;
-    if(!isDefine && (property = Property::dynamicCast(findChild(msg->name()))))
+    if(!isDefine && (property = Property::dynamicCast(findChild(name))))
         CHILD_MESSAGE("set", value)->run(property);
     else
-        setChild(msg->name(), value, isDefine);
+        setChild(name, value, isDefine);
     if(isDefine) value->hasBeenDefined(msg);
     return value;
 }
@@ -517,6 +520,13 @@ CHILD_DEFINE_NATIVE_METHOD(Node, and_assign) {
         return CHILD_MESSAGE("=", message->firstInput(), message->secondInput())->run();
     else
         return lhs;
+}
+
+CHILD_DEFINE_NATIVE_METHOD(Node, run) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    CHILD_PUSH_CONTEXT(this);
+    return run(this);
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Node, equal_to) {

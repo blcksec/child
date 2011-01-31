@@ -19,6 +19,10 @@ namespace Language {
     #define CHILD_CHECK_EXCLAMATION_MARK \
     if(!message->isExclaimed()) CHILD_THROW(InterpreterException, "missing exclamation mark");
 
+    #define CHILD_CHECK_QUESTION_OR_EXCLAMATION_MARK \
+    if(!message->isQuestioned() && !message->isExclaimed()) \
+        CHILD_THROW(InterpreterException, "missing question or exclamation mark");
+
     class ArgumentBunch : public GenericList<Argument *> {
         CHILD_DECLARE(ArgumentBunch, Bunch, Language);
     public:

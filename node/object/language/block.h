@@ -23,11 +23,17 @@ public:
     void runMetaSections(Node *receiver);
 
     Section *section(const QString &label);
+    Node *getSection(const QString &label);
     Section *docSection();
+    CHILD_DECLARE_NATIVE_METHOD(doc_section) { return getSection("doc"); }
     Section *bodySection();
+    CHILD_DECLARE_NATIVE_METHOD(body_section) { return getSection("body"); }
     Section *testSection();
+    CHILD_DECLARE_NATIVE_METHOD(test_section) { return getSection("test"); }
     Section *elseSection();
+    CHILD_DECLARE_NATIVE_METHOD(else_section) { return getSection("else"); }
     Section *betweenSection();
+    CHILD_DECLARE_NATIVE_METHOD(between_section) { return getSection("between"); }
 private:
     Section *findSection(const QString &label);
 public:

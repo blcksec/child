@@ -37,6 +37,8 @@ public:
 
     virtual Node *run(Node *receiver = context());
 
+    static QString interpolate(QString str, QList<IntPair> *interpolableSlices);
+
     CHILD_DECLARE_NATIVE_METHOD(concatenate);
     CHILD_DECLARE_NATIVE_METHOD(multiply);
 
@@ -69,49 +71,56 @@ public:
     #define CHILD_TEXT_ITERATOR(ARGS...) new Iterator(context()->child("Object", "Text", "Iterator"), ##ARGS)
 
     #define CHILD_CHECK_TEXT_ITERATOR_INDEX \
-    if(!hasValue()) CHILD_THROW(IndexOutOfBoundsException, "Iterator is out of bounds");
+    if(!hasKey()) CHILD_THROW(IndexOutOfBoundsException, "Iterator is out of bounds");
 
     class Iterator : public Object {
         CHILD_DECLARE(Iterator, Object, Text);
     public:
         explicit Iterator(Node *origin, Text *text = NULL, int index = 0) :
-            Object(origin), _text(text), _index(index) {}
+            Object(origin), _text(text), _key(index) {}
 
         CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Iterator);
-        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Iterator, _text, _index);
+        CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Iterator, _text, _key);
 
         CHILD_DECLARE_NATIVE_METHOD(init);
 
+        int key() const {
+            CHILD_CHECK_TEXT_ITERATOR_INDEX;
+            return _key;
+        }
+
+        CHILD_DECLARE_NATIVE_METHOD(key);
+
         QChar value() const {
             CHILD_CHECK_TEXT_ITERATOR_INDEX;
-            return _text->value().at(_index);
+            return _text->value().at(_key);
         }
 
         CHILD_DECLARE_NATIVE_METHOD(value);
 
-        bool hasValue() const {
+        bool hasKey() const {
             if(!_text) CHILD_THROW(NullPointerException, "Text pointer is NULL");
-            return _index >= 0 && _index < _text->value().size();
+            return _key >= 0 && _key < _text->value().size();
         }
 
-        void first() { _index = 0; }
+        int firstKey() { return 0; }
+        void first() { _key = firstKey(); }
+        bool isFirst() { return _key == firstKey(); }
         CHILD_DECLARE_NATIVE_METHOD(first);
 
-        void last() {
-            if(!_text) CHILD_THROW(NullPointerException, "Text pointer is NULL");
-            _index = _text->value().size() - 1;
-        }
-
+        int lastKey() { return (_text ? _text->value().size() : 0) - 1; }
+        void last() { _key = lastKey(); }
+        bool isLast() { return _key == lastKey(); }
         CHILD_DECLARE_NATIVE_METHOD(last);
 
-        void next() { CHILD_CHECK_TEXT_ITERATOR_INDEX; _index++; }
+        void next() { CHILD_CHECK_TEXT_ITERATOR_INDEX; _key++; }
         CHILD_DECLARE_NATIVE_METHOD(prefix_increment);
 
-        void previous() { CHILD_CHECK_TEXT_ITERATOR_INDEX; _index--; }
+        void previous() { CHILD_CHECK_TEXT_ITERATOR_INDEX; _key--; }
         CHILD_DECLARE_NATIVE_METHOD(prefix_decrement);
     private:
         Text *_text;
-        int _index;
+        int _key;
     };
 };
 

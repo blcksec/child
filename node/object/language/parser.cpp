@@ -137,7 +137,14 @@ namespace Language {
             message->setIsExclaimed(true);
             name.remove('!');
         }
+        QList<IntPair> interpolableSlices;
+        try {
+            name = Text::unescapeSequence(name, &interpolableSlices);
+        } catch(const Exception &e) {
+            throw parserException(e.message);
+        }
         message->setName(name);
+        message->setInterpolableSlices(&interpolableSlices);
         Primitive *primitive = CHILD_PRIMITIVE(message);
         int begin = token()->sourceCodeRef.position();
         consume();

@@ -8,11 +8,13 @@ CHILD_BEGIN
 CHILD_DEFINE(Text, Element, Object);
 
 Text::Text(Node *origin, const QString &value, bool isTranslatable, QList<IntPair> *interpolableSlices) :
-    GenericElement<QString>(origin, ""), _isTranslatable(isTranslatable) {
-    setValue(value); setInterpolableSlices(interpolableSlices);
+    GenericElement<QString>(origin, ""), _isTranslatable(isTranslatable), _interpolableSlices(NULL) {
+    setValue(value);
+    setInterpolableSlices(interpolableSlices);
 }
 
-Text::Text(const Text &other) : GenericElement<QString>(other), _isTranslatable(other.isTranslatable()) {
+Text::Text(const Text &other) : GenericElement<QString>(other), _isTranslatable(other.isTranslatable()),
+    _interpolableSlices(NULL) {
     setValue(other.value());
     setInterpolableSlices(other.interpolableSlices());
 }
@@ -54,19 +56,22 @@ Node *Text::run(Node *receiver) {
     Q_UNUSED(receiver);
     if(interpolableSlices()) {
         CHILD_PUSH_RUN(this);
-        QString result = value();
-        QString source;
-        QString str;
-        int offset = 0;
-        foreach (IntPair slice, *interpolableSlices()) {
-            source = result.mid(offset + slice.first + 1, slice.second - 2);
-            str = !source.isEmpty() ? Interpreter::root()->runSourceCode("child:" + source)->toString() : "";
-            result.replace(offset + slice.first, slice.second, str);
-            offset += str.size() - slice.second;
-        }
-        return CHILD_TEXT(result);
+        return CHILD_TEXT(interpolate(value(), interpolableSlices()));
     } else
         return this;
+}
+
+QString Text::interpolate(QString str, QList<IntPair> *interpolableSlices) {
+    QString code;
+    QString result;
+    int offset = 0;
+    foreach (IntPair slice, *interpolableSlices) {
+        code = str.mid(offset + slice.first + 1, slice.second - 2);
+        result = !code.isEmpty() ? Interpreter::root()->runSourceCode("child:" + code)->toString() : "";
+        str.replace(offset + slice.first, slice.second, result);
+        offset += result.size() - slice.second;
+    }
+    return str;
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Text, concatenate) {
@@ -260,6 +265,7 @@ CHILD_DEFINE(Text::Iterator, Object, Text);
 void Text::Iterator::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Text::Iterator, init);
 
+    CHILD_ADD_NATIVE_METHOD(Text::Iterator, key);
     CHILD_ADD_NATIVE_METHOD(Text::Iterator, value);
 
     CHILD_ADD_NATIVE_METHOD(Text::Iterator, first);
@@ -276,29 +282,44 @@ CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, init) {
     return this;
 }
 
+CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, key) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    if(!message->isQuestioned())
+        return CHILD_NUMBER(key());
+    else
+        return CHILD_BOOLEAN(hasKey());
+}
+
 CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, value) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     if(!message->isQuestioned())
         return CHILD_TEXT(value());
     else
-        return CHILD_BOOLEAN(hasValue());
+        return CHILD_BOOLEAN(hasKey());
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, first) {
     CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_EXCLAMATION_MARK;
+    CHILD_CHECK_QUESTION_OR_EXCLAMATION_MARK;
     CHILD_CHECK_INPUT_SIZE(0);
-    first();
-    return this;
+    if(message->isExclaimed()) {
+        first();
+        return this;
+    } else
+        return CHILD_BOOLEAN(isFirst());
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, last) {
     CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_EXCLAMATION_MARK;
+    CHILD_CHECK_QUESTION_OR_EXCLAMATION_MARK;
     CHILD_CHECK_INPUT_SIZE(0);
-    last();
-    return this;
+    if(message->isExclaimed()) {
+        last();
+        return this;
+    } else
+        return CHILD_BOOLEAN(isLast());
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, prefix_increment) {

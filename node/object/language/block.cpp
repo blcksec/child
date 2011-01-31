@@ -1,4 +1,5 @@
 #include "node/object/language/block.h"
+#include "node/object/boolean.h"
 #include "node/object/message.h"
 #include "node/object/language/testsuite.h"
 
@@ -7,6 +8,11 @@ CHILD_BEGIN
 CHILD_DEFINE(Block, List, Object);
 
 void Block::initRoot() {
+    CHILD_ADD_NATIVE_METHOD(Block, doc_section);
+    CHILD_ADD_NATIVE_METHOD(Block, body_section);
+    CHILD_ADD_NATIVE_METHOD(Block, test_section);
+    CHILD_ADD_NATIVE_METHOD(Block, else_section);
+    CHILD_ADD_NATIVE_METHOD(Block, between_section);
 }
 
 Node *Block::run(Node *receiver) {
@@ -37,6 +43,17 @@ Section *Block::section(const QString &label) {
     else if(label == "else") return elseSection();
     else if(label == "between") return betweenSection();
     else return findSection(label);
+}
+
+Node *Block::getSection(const QString &label) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    Section *sect = section(label);
+    if(!sect && !message->isQuestioned()) CHILD_THROW(NotFoundException, QString("'%1' section not found").arg(label));
+    if(sect)
+        return sect;
+    else
+        return CHILD_BOOLEAN(false); // FIXME: abstract Section?
 }
 
 Section *Block::docSection() {

@@ -133,7 +133,7 @@ public:
         if(code()) {
             try {
                 CHILD_PUSH_CONTEXT(forkedMethod);
-                CHILD_PUSH_RUN(this);
+                CHILD_PUSH_RUN(forkedMethod);
                 result = code()->run();
             } catch(const Return &ret) {
                 result = ret.result;
