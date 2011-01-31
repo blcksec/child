@@ -11,12 +11,21 @@ void Method::initRoot() {
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Method, init) {
-    CHILD_FIND_LAST_PRIMITIVE;
-    Primitive *nextPrimitive = primitive->next();
-    if(nextPrimitive) {
-        Block *block = Block::dynamicCast(nextPrimitive->value());
-        if(block) {
-            setBlock(block);
+    CHILD_FIND_LAST_MESSAGE;
+    if(message->hasAnInput()) {
+        Primitive *primitive = Primitive::dynamicCast(message->runFirstInput());
+        if(!primitive) CHILD_THROW(ArgumentException, "code parameter must be a Primitive");
+        setCode(primitive);
+        if(message->hasASecondInput()) {
+            List *list = List::dynamicCast(message->runSecondInput());
+            if(!list) CHILD_THROW(ArgumentException, "inputs parameter must be a List");
+//            setInputs(list);
+        }
+    } else {
+        CHILD_FIND_LAST_PRIMITIVE;
+        Primitive *nextPrimitive = primitive->next();
+        if(nextPrimitive) {
+            setCode(nextPrimitive);
             Primitive::skip(this);
         }
     }

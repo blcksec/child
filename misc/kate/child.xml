@@ -22,7 +22,7 @@
                 <StringDetect attribute="Keyword" context="#stay" String="throw?"/>
                 <StringDetect attribute="Keyword" context="#stay" String="throw"/>
                 <RegExpr attribute="Data Type" context="#stay" String="\\?@?[A-Z][a-zA-Z0-9_]*[!\?]?"/>
-                <RegExpr attribute="Label" context="#stay" String="[a-zA-Z][a-zA-Z0-9_\(\)]*:" firstNonSpace="true"/>
+                <RegExpr attribute="Label" context="#stay" String="[a-zA-Z][a-zA-Z0-9_]*:" firstNonSpace="true"/>
                 <RegExpr attribute="Identifier" context="#stay" String="\\?@?[a-zA-Z][a-zA-Z0-9_]*[!\?]?"/>
                 <Int attribute="Decimal" context="#stay"/>
                 <HlCOct attribute="Decimal" context="#stay"/>

@@ -1,16 +1,18 @@
 Enumerable := Object() {
-    each code... := {
+    each(\value_argument: value, \key_argument: key) code... := {
+//        meth := Method(code, [value_argument, key_argument])
+//        \meth inspect
         i := Iterator()
         while(i value?) {
-            i value print
-            i next
+//            meth(i value)
+            ++i
         }
     }
 }
 
-txt := "Manu"
+txt := "Yes"
 txt extensions << Enumerable
-txt each
+txt each "*" print
 
 /*
 name := ""

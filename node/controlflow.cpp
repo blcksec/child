@@ -107,6 +107,7 @@ Node *ControlFlow::whileOrUntil(bool isWhile) {
     } catch(const Break &brk) {
         result = brk.result;
     }
+    if(!result) result = CHILD_NODE();
     Primitive::skip(result);
 }
 

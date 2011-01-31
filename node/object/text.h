@@ -104,10 +104,11 @@ public:
 
         CHILD_DECLARE_NATIVE_METHOD(last);
 
-        void previous() { CHILD_CHECK_TEXT_ITERATOR_INDEX; _index--; }
-        CHILD_DECLARE_NATIVE_METHOD(previous);
         void next() { CHILD_CHECK_TEXT_ITERATOR_INDEX; _index++; }
-        CHILD_DECLARE_NATIVE_METHOD(next);
+        CHILD_DECLARE_NATIVE_METHOD(prefix_increment);
+
+        void previous() { CHILD_CHECK_TEXT_ITERATOR_INDEX; _index--; }
+        CHILD_DECLARE_NATIVE_METHOD(prefix_decrement);
     private:
         Text *_text;
         int _index;

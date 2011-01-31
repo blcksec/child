@@ -19,10 +19,13 @@ Node *Block::run(Node *receiver) {
 }
 
 void Block::runMetaSections(Node *receiver) {
-    if(docSection()) receiver->addOrSetChild("doc", docSection()->run(receiver));
-    if(testSection()) {
-        TestSuite *testSuite = TestSuite::cast(child("test_suite"));
-        testSuite->append(CHILD_TEST(testSection(), receiver));
+    if(!_metaSectionsHaveBeenRun) {
+        if(docSection()) receiver->addOrSetChild("doc", docSection()->run(receiver));
+        if(testSection()) {
+            TestSuite *testSuite = TestSuite::cast(child("test_suite"));
+            testSuite->append(CHILD_TEST(testSection(), receiver));
+        }
+        _metaSectionsHaveBeenRun = true;
     }
 }
 

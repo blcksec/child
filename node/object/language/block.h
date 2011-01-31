@@ -13,7 +13,7 @@ class Block : public GenericList<Section *> {
 public:
     explicit Block(Node *origin) : GenericList<Section *>(origin),
         _doc(NULL), _docIsCached(false), _body(NULL), _bodyIsCached(false), _test(NULL), _testIsCached(false),
-        _else(NULL), _elseIsCached(false), _between(NULL), _betweenIsCached(false)  {}
+        _else(NULL), _elseIsCached(false), _between(NULL), _betweenIsCached(false), _metaSectionsHaveBeenRun(false)  {}
 
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Block);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Block);
@@ -45,6 +45,7 @@ private:
     bool _elseIsCached;
     Section *_between;
     bool _betweenIsCached;
+    bool _metaSectionsHaveBeenRun;
 };
 
 CHILD_END

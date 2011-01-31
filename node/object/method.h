@@ -10,24 +10,29 @@ CHILD_BEGIN
 
 #define CHILD_METHOD(ARGS...) new Method(context()->child("Object", "Method"), ##ARGS)
 
-class Method : public GenericNodeElement<Block> {
+class Method : public GenericNodeElement<Primitive> {
     CHILD_DECLARE(Method, Element, Object);
 public:
-    explicit Method(Node *origin, ParameterList *inputs = NULL, ParameterList *outputs = NULL, Block *block = NULL) :
-        GenericNodeElement<Block>(origin), _inputs(inputs), _outputs(outputs) { setBlock(block); }
+    explicit Method(Node *origin, Primitive *code = NULL, ParameterList *inputs = NULL, ParameterList *outputs = NULL,
+                    const QString &codeInputName = "") :
+        GenericNodeElement<Primitive>(origin), _inputs(inputs), _outputs(outputs),
+        _codeInputName(codeInputName) { setCode(code); }
 
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Method);
-    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Method, CHILD_FORK_IF_NOT_NULL(inputs(false)), CHILD_FORK_IF_NOT_NULL(outputs(false)),
-                      CHILD_FORK_IF_NOT_NULL(block()));
+    CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Method, CHILD_FORK_IF_NOT_NULL(code()), CHILD_FORK_IF_NOT_NULL(inputs(false)),
+                                         CHILD_FORK_IF_NOT_NULL(outputs(false)), codeInputName());
 
     CHILD_DECLARE_NATIVE_METHOD(init);
 
-    Block *block() const { return value(); } // aliases
-    void setBlock(Block *block) { setValue(block); }
+    Primitive *code() const { return value(); } // aliases
+    void setCode(Primitive *code) { setValue(code); }
 
     virtual void hasChanged() {
-        setIsAutoRunnable(block());
-        if(block()) block()->runMetaSections(this);
+        if(code()) {
+            setIsAutoRunnable(true);
+            Block *block = Block::dynamicCast(code()->value());
+            if(block) block->runMetaSections(this);
+        }
     }
 
     ParameterList *inputs(bool createIfNull = true) const {
@@ -40,22 +45,16 @@ public:
     void setInputs(ArgumentBunch *arguments) {
         if(hasAnInput()) inputs()->clear();
         ArgumentBunch::Iterator i(arguments);
-        while(Argument *argument = i.next()) {
-            Primitive *label = argument->label();
-            Primitive *defaultValue = argument->value();
-            if(!label) {
-                label = defaultValue;
-                defaultValue = NULL;
-            }
-            if(label->hasNext())
-                CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message");
-            Message *labelMsg = Message::dynamicCast(label->value());
-            if(!labelMsg)
-                CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message)");
-            inputs()->append(CHILD_PARAMETER(labelMsg->name(), defaultValue,
-                                             labelMsg->isEscaped(), labelMsg->isParented()));
-        }
+        while(Argument *argument = i.next())
+            appendInput(argument);
     }
+
+//    void setInputs(List *list) {
+//        if(hasAnInput()) inputs()->clear();
+//        List::Iterator i(list);
+//        while(Node *value = i.next())
+//            appendInput(CHILD_ARGUMENT(value));
+//    }
 
     Parameter *input(short i) const { return inputs(false)->get(i); }
     Parameter *input(const QString &label) const { return inputs(false)->get(label); }
@@ -63,12 +62,32 @@ public:
     bool hasInput(const QString &label) const { return inputs(false) && inputs()->hasLabel(label); }
     bool hasAnInput() const { return hasInput(0); }
 
+    void appendInput(Argument *argument) {
+        Primitive *label = argument->label();
+        Primitive *defaultValue = argument->value();
+        if(!label) {
+            label = defaultValue;
+            defaultValue = NULL;
+        }
+        if(label->hasNext())
+            CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message");
+        Message *labelMsg = Message::dynamicCast(label->value());
+        if(!labelMsg)
+            CHILD_THROW(ArgumentException, "illegal label parameter found in method definition (should be a Message)");
+        inputs()->append(CHILD_PARAMETER(labelMsg->name(), defaultValue,
+                                         labelMsg->isEscaped(), labelMsg->isParented()));
+    }
+
     ParameterList *outputs(bool createIfNull = true) const {
         if(!_outputs && createIfNull) constCast(this)->_outputs = CHILD_PARAMETER_LIST();
         return _outputs;
     }
 
     void setOutputs(ParameterList *outputs) { _outputs = outputs; }
+
+    const QString &codeInputName() const { return _codeInputName; }
+    void setCodeInputName(const QString &name) { _codeInputName = name; }
+    bool hasCodeInput() const { return !_codeInputName.isEmpty(); }
 
     virtual Node *run(Node *receiver = context()) {
         Q_UNUSED(receiver);
@@ -105,23 +124,32 @@ public:
             Node *val = parameter->isEscaped() ? parameter->defaultValue() : parameter->run();
             rcvr->addOrSetChild(parameter->label(), val);
         }
-        Section *body = NULL;
-        if(forkedMethod->block()) body = forkedMethod->block()->bodySection();
-        if(body) {
+        if(hasCodeInput()) {
+            CHILD_FIND_LAST_PRIMITIVE;
+            Primitive *nextPrimitive = primitive->next();
+            forkedMethod->addOrSetChild(codeInputName(), nextPrimitive ? nextPrimitive : CHILD_PRIMITIVE()); // FIXME: abstract primitive?
+        }
+        Node *result = NULL;
+        if(code()) {
             try {
                 CHILD_PUSH_CONTEXT(forkedMethod);
                 CHILD_PUSH_RUN(this);
-                return body->run();
+                result = code()->run();
             } catch(const Return &ret) {
-                return ret.result;
+                result = ret.result;
             }
         } else
-            return CHILD_NODE();
+            result = CHILD_NODE();
+        if(!hasCodeInput())
+            return result;
+        else
+            Primitive::skip(result);
     }
 
     virtual void hasBeenDefined(Message *message) {
         setNodeName(message->name());
         if(message->hasAnInput()) setInputs(message->inputs());
+        if(message->hasCodeInput()) setCodeInputName(message->codeInputName());
     }
 
     virtual QString toString(bool debug = false, short level = 0) const {
@@ -129,14 +157,15 @@ public:
         str += "(";
         if(inputs(false)) str += inputs()->toString(debug, level);
         str += ")";
-        if(outputs(false) && outputs()->isNotEmpty())
-            str += " -> " + outputs()->toString(debug, level);
-        if(block()) str += " " + block()->toString(debug, level + 1);
+        if(hasCodeInput()) str += " " + codeInputName() + "...";
+        if(outputs(false) && outputs()->isNotEmpty()) str += " -> " + outputs()->toString(debug, level);
+        if(code()) str += " " + code()->toString(debug, level + 1);
         return str;
     }
 private:
     ParameterList *_inputs;
     ParameterList *_outputs;
+    QString _codeInputName;
 public:
     // === Return ===
 

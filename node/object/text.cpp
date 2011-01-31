@@ -265,8 +265,8 @@ void Text::Iterator::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Text::Iterator, first);
     CHILD_ADD_NATIVE_METHOD(Text::Iterator, last);
 
-    CHILD_ADD_NATIVE_METHOD(Text::Iterator, previous);
-    CHILD_ADD_NATIVE_METHOD(Text::Iterator, next);
+    CHILD_ADD_NATIVE_METHOD(Text::Iterator, prefix_increment, prefix++);
+    CHILD_ADD_NATIVE_METHOD(Text::Iterator, prefix_decrement, prefix--);
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, init) {
@@ -287,6 +287,7 @@ CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, value) {
 
 CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, first) {
     CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_EXCLAMATION_MARK;
     CHILD_CHECK_INPUT_SIZE(0);
     first();
     return this;
@@ -294,22 +295,24 @@ CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, first) {
 
 CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, last) {
     CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_EXCLAMATION_MARK;
     CHILD_CHECK_INPUT_SIZE(0);
     last();
     return this;
 }
 
-CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, previous) {
-    CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_INPUT_SIZE(0);
-    previous();
-    return this;
-}
-
-CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, next) {
+CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, prefix_increment) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
     next();
+    return this;
+}
+
+
+CHILD_DEFINE_NATIVE_METHOD(Text::Iterator, prefix_decrement) {
+    CHILD_FIND_LAST_MESSAGE;
+    CHILD_CHECK_INPUT_SIZE(0);
+    previous();
     return this;
 }
 

@@ -307,7 +307,7 @@ Node *Node::defineOrAssign(bool isDefine) {
     Node *value;
     Block *block = Block::dynamicCast(message->secondInput()->value()->value());
     if(block) { // if rhs is a block, we have a method definition shorthand
-        value = CHILD_METHOD(NULL, NULL, block);
+        value = CHILD_METHOD(message->secondInput()->value(), NULL, NULL, "");
     } else // rhs is not a block
         value = message->runSecondInput();
     Property *property = NULL;

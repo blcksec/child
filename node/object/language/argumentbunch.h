@@ -16,6 +16,9 @@ namespace Language {
     #define CHILD_CHECK_QUESTION_MARK \
     if(!message->isQuestioned()) CHILD_THROW(InterpreterException, "missing question mark");
 
+    #define CHILD_CHECK_EXCLAMATION_MARK \
+    if(!message->isExclaimed()) CHILD_THROW(InterpreterException, "missing exclamation mark");
+
     class ArgumentBunch : public GenericList<Argument *> {
         CHILD_DECLARE(ArgumentBunch, Bunch, Language);
     public:
@@ -33,6 +36,17 @@ namespace Language {
         ArgumentBunch(Node *origin, Node *argument1, Node *argument2) :
             GenericList<Argument *>(
                 origin, CHILD_ARGUMENT(argument1), CHILD_ARGUMENT(argument2), true) {}
+
+        ArgumentBunch(Node *origin, List *list) : GenericList<Argument *>(origin, true) {
+            if(list) {
+                List::Iterator i(list);
+                while(Node *node = i.next()) {
+                    Primitive *primitive = Primitive::dynamicCast(node);
+                    if(!primitive) CHILD_THROW(ArgumentException, "Primitive expected");
+                    append(primitive); // FIXME: multiple hasChanged() triggered
+                }
+            }
+        }
 
         CHILD_DECLARE_AND_DEFINE_COPY_METHOD(ArgumentBunch);
         CHILD_DECLARE_AND_DEFINE_FORK_METHOD(ArgumentBunch);
