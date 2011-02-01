@@ -1,4 +1,6 @@
 #include "node/object/language/primitive.h"
+#include "node/object/message.h"
+#include "node/object/language/block.h"
 
 CHILD_BEGIN
 
@@ -6,6 +8,10 @@ namespace Language {
     CHILD_DEFINE(Primitive, Element, Language);
 
     void Primitive::initRoot() {
+        CHILD_ADD_NATIVE_METHOD(Primitive, run_before);
+        CHILD_ADD_NATIVE_METHOD(Primitive, run_body);
+        CHILD_ADD_NATIVE_METHOD(Primitive, run_after);
+        CHILD_ADD_NATIVE_METHOD(Primitive, run_between);
     }
 
     Primitive *Primitive::setNext(Primitive *next) {
@@ -48,6 +54,36 @@ namespace Language {
             return skip.result;
         }
         return hasNext() ? result->receive(next()) : result;
+    }
+
+    CHILD_DEFINE_NATIVE_METHOD(Primitive, run_before) {
+        CHILD_FIND_LAST_MESSAGE;
+        CHILD_CHECK_INPUT_SIZE(0);
+        Block *block = Block::dynamicCast(value());
+        Section *section = block ? block->beforeSection() : NULL;
+        return section ? section->run() : CHILD_NODE();
+    }
+
+    CHILD_DEFINE_NATIVE_METHOD(Primitive, run_body) {
+        CHILD_FIND_LAST_MESSAGE;
+        CHILD_CHECK_INPUT_SIZE(0);
+        return run();
+    }
+
+    CHILD_DEFINE_NATIVE_METHOD(Primitive, run_after) {
+        CHILD_FIND_LAST_MESSAGE;
+        CHILD_CHECK_INPUT_SIZE(0);
+        Block *block = Block::dynamicCast(value());
+        Section *section = block ? block->afterSection() : NULL;
+        return section ? section->run() : CHILD_NODE();
+    }
+
+    CHILD_DEFINE_NATIVE_METHOD(Primitive, run_between) {
+        CHILD_FIND_LAST_MESSAGE;
+        CHILD_CHECK_INPUT_SIZE(0);
+        Block *block = Block::dynamicCast(value());
+        Section *section = block ? block->betweenSection() : NULL;
+        return section ? section->run() : CHILD_NODE();
     }
 
     QString Primitive::toString(bool debug, short level) const {

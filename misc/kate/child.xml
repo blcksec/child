@@ -12,6 +12,10 @@
             <item>loop</item>
             <item>while</item>
             <item>until</item>
+            <item>each</item>
+            <item>map</item>
+            <item>reduce</item>
+            <item>map</item>
             <item>continue</item>
             <item>break</item>
             <item>return</item>

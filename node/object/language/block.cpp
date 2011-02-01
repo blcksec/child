@@ -12,6 +12,8 @@ void Block::initRoot() {
     CHILD_ADD_NATIVE_METHOD(Block, body_section);
     CHILD_ADD_NATIVE_METHOD(Block, test_section);
     CHILD_ADD_NATIVE_METHOD(Block, else_section);
+    CHILD_ADD_NATIVE_METHOD(Block, before_section);
+    CHILD_ADD_NATIVE_METHOD(Block, after_section);
     CHILD_ADD_NATIVE_METHOD(Block, between_section);
 }
 
@@ -41,6 +43,8 @@ Section *Block::section(const QString &label) {
     else if(label == "body") return bodySection();
     else if(label == "test") return testSection();
     else if(label == "else") return elseSection();
+    else if(label == "before") return beforeSection();
+    else if(label == "after") return afterSection();
     else if(label == "between") return betweenSection();
     else return findSection(label);
 }
@@ -88,6 +92,22 @@ Section *Block::elseSection() {
         _elseIsCached = true;
     }
     return _else;
+}
+
+Section *Block::beforeSection() {
+    if(!_beforeIsCached) {
+        _before = findSection("before");
+        _beforeIsCached = true;
+    }
+    return _before;
+}
+
+Section *Block::afterSection() {
+    if(!_afterIsCached) {
+        _after = findSection("after");
+        _afterIsCached = true;
+    }
+    return _after;
 }
 
 Section *Block::betweenSection() {

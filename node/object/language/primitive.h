@@ -40,6 +40,10 @@ namespace Language {
         bool hasPrevious() const { return _previous; }
 
         virtual Node *run(Node *receiver = context());
+        CHILD_DECLARE_NATIVE_METHOD(run_before);
+        CHILD_DECLARE_NATIVE_METHOD(run_body);
+        CHILD_DECLARE_NATIVE_METHOD(run_after);
+        CHILD_DECLARE_NATIVE_METHOD(run_between);
 
         virtual QString toString(bool debug = false, short level = 0) const;
     private:

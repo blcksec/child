@@ -13,7 +13,8 @@ class Block : public GenericList<Section *> {
 public:
     explicit Block(Node *origin) : GenericList<Section *>(origin),
         _doc(NULL), _docIsCached(false), _body(NULL), _bodyIsCached(false), _test(NULL), _testIsCached(false),
-        _else(NULL), _elseIsCached(false), _between(NULL), _betweenIsCached(false), _metaSectionsHaveBeenRun(false)  {}
+        _else(NULL), _elseIsCached(false),  _before(NULL), _beforeIsCached(false), _after(NULL), _afterIsCached(false),
+        _between(NULL), _betweenIsCached(false), _metaSectionsHaveBeenRun(false)  {}
 
     CHILD_DECLARE_AND_DEFINE_COPY_METHOD(Block);
     CHILD_DECLARE_AND_DEFINE_FORK_METHOD(Block);
@@ -32,6 +33,10 @@ public:
     CHILD_DECLARE_NATIVE_METHOD(test_section) { return getSection("test"); }
     Section *elseSection();
     CHILD_DECLARE_NATIVE_METHOD(else_section) { return getSection("else"); }
+    Section *beforeSection();
+    CHILD_DECLARE_NATIVE_METHOD(before_section) { return getSection("before"); }
+    Section *afterSection();
+    CHILD_DECLARE_NATIVE_METHOD(after_section) { return getSection("after"); }
     Section *betweenSection();
     CHILD_DECLARE_NATIVE_METHOD(between_section) { return getSection("between"); }
 private:
@@ -49,6 +54,10 @@ private:
     bool _testIsCached;
     Section *_else;
     bool _elseIsCached;
+    Section *_before;
+    bool _beforeIsCached;
+    Section *_after;
+    bool _afterIsCached;
     Section *_between;
     bool _betweenIsCached;
     bool _metaSectionsHaveBeenRun;

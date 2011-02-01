@@ -1,25 +1,100 @@
-Enumerable := Object() {
-    each(\value: value, \key: key) code... := {
-        between := if(code value is?(Block), code value between_section?)
-        i := Iterator()
-        while(i value?) {
-            if(between && i !first?) between run
-            code `{value}` := i value
-            code `{key}` := i key
-            code run
-            ++i
-        }
-    }
-}
+//first := true
+//loop(3) {
+//    "Hello World!" print
+//between:
+//    "---"
+//}
 
-txt := "Yes"
-txt extensions << Enumerable
-txt each {
-    value uppercase write
-between:
-    "-" write
-}
-"" print
+a := "Hello"
+x := "X"
+a b := "Bonjour"
+a b x = "Y"
+a b x print
+x print
+
+//Enumerable := Object() {
+//    each(\value_name: value, \key_name: key) code... := {
+//        i := Iterator()
+//        while(i value?, code) {
+//        before:
+//            `{value_name}` := i value
+//            `{key_name}` := i key
+//            code run_before
+//        after:
+//            ++i
+//            code run_after
+//        }
+//    }
+
+//    map(\value_name: value, \key_name: key) code... := {
+//        result := []
+//        i := Iterator()
+//        while(i value?, code) {
+//        before:
+//            `{value_name}` := i value
+//            `{key_name}` := i key
+//            code run_before
+//        body:
+//            result << code run_body
+//        after:
+//            ++i
+//            code run_after
+//        }
+//        result
+//    }
+
+//    reduce(\value_name: value, \key_name: key) code... := {
+//        result := []
+//        i := Iterator()
+//        while(i value?, code) {
+//        before:
+//            `{value_name}` := i value
+//            `{key_name}` := i key
+//            code run_before
+//        body:
+//            result << code run_body
+//        after:
+//            ++i
+//            code run_after
+//        }
+//        result
+//    }
+//}
+
+//txt := "Yeas!Yo"
+//txt extensions << Enumerable
+//txt reduce() {
+//before:
+//    if(value == "a") continue
+//    if(value == "!") break
+//body:
+//    value uppercase
+//}
+
+//txt := "Yeas!Yo"
+//txt extensions << Enumerable
+//txt each {
+//before:
+//    if(value == "a") continue
+//    if(value == "!") break
+//body:
+//    value uppercase write
+//between:
+//    "-" write
+//}
+//"" print
+
+//txt := "Yeas!Yo"
+//txt extensions << Enumerable
+//txt map {
+//before:
+//    if(value == "a") continue
+//    if(value == "!") break
+//body:
+//    value uppercase
+//}
+
+//txt each(value uppercase write, between: "-" write)
 
 /*
 name := ""

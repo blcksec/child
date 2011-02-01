@@ -39,68 +39,83 @@ Node *ControlFlow::ifOrUnless(bool isIf) {
     CHILD_THROW(InterpreterException, QString("missing code after an %1 statement").arg(isIf ? "if" : "unless"));
 }
 
-CHILD_DEFINE_NATIVE_METHOD(ControlFlow, loop) {
+Node *ControlFlow::loop(LoopType type) {
     CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_INPUT_SIZE(0, 1);
-    CHILD_FIND_LAST_PRIMITIVE;
-    Primitive *nextPrimitive = primitive->next();
-    if(!nextPrimitive)
-        CHILD_THROW(InterpreterException, "missing code after a loop statement");
-    Block *block = Block::dynamicCast(nextPrimitive->value());
-    Section *between = block ? block->betweenSection() : NULL;
     HugeInteger count;
-    if(message->hasAnInput()) { // finite loop
-        count = message->runFirstInput()->toDouble();
-        if(count < 0) CHILD_THROW(ArgumentException, "loop count must be greater (or equal) than 0");
+    Primitive *testCode;
+    if(type == Loop) {
+        CHILD_CHECK_INPUT_SIZE(0, 2);
+        if(message->hasAnInput()) {
+            count = message->runFirstInput()->toDouble();
+            if(count < -1) CHILD_THROW(ArgumentException, "loop count must be -1, 0 or greater");
+        } else
+            count = -1; // infinite loop
+    } else {
+        CHILD_CHECK_INPUT_SIZE(1, 2);
+        testCode = message->firstInput()->value();
+    }
+    Primitive *primaryCode;
+    if(message->hasASecondInput()) {
+        primaryCode = Primitive::dynamicCast(message->runSecondInput());
+        if(!primaryCode) CHILD_THROW(ArgumentException, "'primary_code' parameter must be a Primitive");
     } else
-        count = -1; // infinite loop
+        primaryCode = NULL;
+    CHILD_FIND_LAST_PRIMITIVE;
+    Primitive *secondaryCode = primitive->next();
+    if(!primaryCode && secondaryCode) {
+        primaryCode = secondaryCode;
+        secondaryCode = NULL;
+    }
+    if(!primaryCode)
+        CHILD_THROW(InterpreterException, "missing code after loop statement");
+
+    Section *before = NULL;
+    Primitive *body = primaryCode;
+    Section *after = NULL;
+    Section *between = NULL;
+    Block *block = Block::dynamicCast(primaryCode->value());
+    if(block) {
+        before = block->beforeSection();
+        after = block->afterSection();
+        between = block->betweenSection();
+    }
+    if(secondaryCode) {
+        block = Block::dynamicCast(secondaryCode->value());
+        if(block) {
+            if(block->beforeSection()) before = block->beforeSection();
+            if(block->bodySection()) body = secondaryCode;
+            if(block->afterSection()) after = block->afterSection();
+            if(block->betweenSection()) between = block->betweenSection();
+        } else
+            body = secondaryCode;
+    }
+
+    CHILD_PUSH_CONTEXT(findLastNativeMethod());
     Node *result = NULL;
-    if(count != 0) {
-        try {
-            HugeInteger i = 0;
-            bool first = true;
-            while(true) {
-                if(count > 0 && i == count) break;
+    try {
+        HugeInteger i = 0;
+        Node *test = NULL;
+        bool first = true;
+        while(true) {
+            if(type == Loop) {
+                if(count >= 0 && i == count) break;
+            } else if(type == While) {
+                test = testCode->run();
+                if(test->toBool()) result = test; else break;
+            }
+            try {
+                if(before) before->run();
                 if(!first) {
                     if(between) try { between->run(); } catch(Continue) {}
                 } else
                     first = false;
-                try { result = nextPrimitive->run(); } catch(Continue) {}
-                i++;
-            }
-        } catch(const Break &brk) {
-            result = brk.result;
-        }
-    } else
-        result = CHILD_NODE();
-    Primitive::skip(result);
-}
-
-Node *ControlFlow::whileOrUntil(bool isWhile) {
-    CHILD_FIND_LAST_MESSAGE;
-    CHILD_CHECK_INPUT_SIZE(1);
-    CHILD_FIND_LAST_PRIMITIVE;
-    Primitive *nextPrimitive = primitive->next();
-    if(!nextPrimitive)
-        CHILD_THROW(InterpreterException, QString("missing code after %1 statement").arg(isWhile ? "a while" : "an until"));
-    Block *block = Block::dynamicCast(nextPrimitive->value());
-    Section *between = block ? block->betweenSection() : NULL;
-    Node *result = NULL;
-    try {
-        Node *test = NULL;
-        bool first = true;
-        while(true) {
-            if(isWhile) {
-                test = message->runFirstInput();
-                if(test->toBool()) result = test; else break;
-            }
-            if(!first) {
-                if(between) try { between->run(); } catch(Continue) {}
-            } else
-                first = false;
-            try { result = nextPrimitive->run(); } catch(Continue) {}
-            if(!isWhile) {
-                test = message->runFirstInput();
+                result = body->run();
+            } catch(Continue) {}
+            if(after) try { after->run(); } catch(Continue) {}
+            if(type == Loop) {
+                if(count > 0) i++;
+            } else if(type == Until) {
+                test = testCode->run();
                 if(test->toBool()) break;
             }
         }

@@ -525,8 +525,7 @@ CHILD_DEFINE_NATIVE_METHOD(Node, and_assign) {
 CHILD_DEFINE_NATIVE_METHOD(Node, run) {
     CHILD_FIND_LAST_MESSAGE;
     CHILD_CHECK_INPUT_SIZE(0);
-    CHILD_PUSH_CONTEXT(this);
-    return run(this);
+    return run();
 }
 
 CHILD_DEFINE_NATIVE_METHOD(Node, equal_to) {

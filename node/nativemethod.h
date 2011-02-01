@@ -30,13 +30,16 @@ public:
         setIsAutoRunnable(method);
     }
 
-    virtual Node *run(Node *receiver = context()) {
-        CHILD_PUSH_RUN(this);
-        return (receiver->*method())();
-    }
+    virtual Node *run(Node *receiver = context());
 private:
     _MethodPointer_ _method;
 };
+
+#define CHILD_FIND_LAST_NATIVE_METHOD NativeMethod *nativeMethod = findLastNativeMethod();
+
+inline NativeMethod *findLastNativeMethod(RunStack *stack = runStack(), bool *okPtr = NULL) {
+    return stack->find<NativeMethod>(okPtr);
+}
 
 CHILD_END
 

@@ -22,13 +22,12 @@ public:
 private:
     Node *ifOrUnless(bool isIf);
 public:
-
-    CHILD_DECLARE_NATIVE_METHOD(loop);
-
-    CHILD_DECLARE_NATIVE_METHOD(while) { return whileOrUntil(true); }
-    CHILD_DECLARE_NATIVE_METHOD(until) { return whileOrUntil(false); }
+    enum LoopType { Loop, While, Until };
+    CHILD_DECLARE_NATIVE_METHOD(loop) { return loop(Loop); }
+    CHILD_DECLARE_NATIVE_METHOD(while) { return loop(While); }
+    CHILD_DECLARE_NATIVE_METHOD(until) { return loop(Until); }
 private:
-    Node *whileOrUntil(bool isWhile);
+    Node *loop(LoopType type);
 public:
     // === Break ===
 
