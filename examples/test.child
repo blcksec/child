@@ -1,75 +1,60 @@
-//first := true
-//loop(3) {
-//    "Hello World!" print
-//between:
-//    "---"
-//}
+Enumerable := Object() {
+    each(\value_name: value, \key_name: key) code... := {
+        i := Iterator()
+        while(i value?, code) {
+        before:
+            `{value_name}` := i value
+            `{key_name}` := i key
+            code run_before
+        after:
+            ++i
+            code run_after
+        }
+    }
 
-a := "Hello"
-x := "X"
-a b := "Bonjour"
-a b x = "Y"
-a b x print
-x print
+    map(\value_name: value, \key_name: key) code... := {
+        result := []
+        i := Iterator()
+        while(i value?, code) {
+        before:
+            `{value_name}` := i value
+            `{key_name}` := i key
+            code run_before
+        body:
+            result << code run_body
+        after:
+            ++i
+            code run_after
+        }
+        result
+    }
 
-//Enumerable := Object() {
-//    each(\value_name: value, \key_name: key) code... := {
-//        i := Iterator()
-//        while(i value?, code) {
-//        before:
-//            `{value_name}` := i value
-//            `{key_name}` := i key
-//            code run_before
-//        after:
-//            ++i
-//            code run_after
-//        }
-//    }
+    reduce(initial_value: Node, \result_name: result, \value_name: value, \key_name: key) code... := {
+        i := Iterator()
+        while(i value?, code) {
+        before:
+            `{value_name}` := i value
+            `{key_name}` := i key
+            code run_before
+        body:
+            result << code run_body
+        after:
+            ++i
+            code run_after
+        }
+        result
+    }
+}
 
-//    map(\value_name: value, \key_name: key) code... := {
-//        result := []
-//        i := Iterator()
-//        while(i value?, code) {
-//        before:
-//            `{value_name}` := i value
-//            `{key_name}` := i key
-//            code run_before
-//        body:
-//            result << code run_body
-//        after:
-//            ++i
-//            code run_after
-//        }
-//        result
-//    }
-
-//    reduce(\value_name: value, \key_name: key) code... := {
-//        result := []
-//        i := Iterator()
-//        while(i value?, code) {
-//        before:
-//            `{value_name}` := i value
-//            `{key_name}` := i key
-//            code run_before
-//        body:
-//            result << code run_body
-//        after:
-//            ++i
-//            code run_after
-//        }
-//        result
-//    }
-//}
-
-//txt := "Yeas!Yo"
-//txt extensions << Enumerable
-//txt reduce() {
-//before:
-//    if(value == "a") continue
-//    if(value == "!") break
-//body:
-//    value uppercase
-//}
+txt := "Yeas!Yo"
+txt extensions << Enumerable
+(txt reduce {
+before:
+    if(value == "a") continue
+    if(value == "!") break
+body:
+    result + value uppercase
+}) print
 
 //txt := "Yeas!Yo"
 //txt extensions << Enumerable
