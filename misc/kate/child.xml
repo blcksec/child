@@ -20,11 +20,19 @@
             <item>break</item>
             <item>return</item>
         </list>
+        <list name="Constants">
+            <item>yes</item>
+            <item>no</item>
+            <item>true</item>
+            <item>false</item>
+            <item>nil</item>
+        </list>
         <contexts>
             <context attribute="Normal" lineEndContext="#stay" name="Normal">
                 <keyword attribute="Keyword" context="#stay" String="Keywords"/>
                 <StringDetect attribute="Keyword" context="#stay" String="throw?"/>
                 <StringDetect attribute="Keyword" context="#stay" String="throw"/>
+                <keyword attribute="Constant" context="#stay" String="Constants"/>
                 <RegExpr attribute="Data Type" context="#stay" String="\\?@?[A-Z][a-zA-Z0-9_]*[!\?]?"/>
                 <RegExpr attribute="Label" context="#stay" String="[a-zA-Z][a-zA-Z0-9_]*:" firstNonSpace="true"/>
                 <RegExpr attribute="Identifier" context="#stay" String="\\?@?[a-zA-Z][a-zA-Z0-9_]*[!\?]?"/>
@@ -60,6 +68,7 @@
         <itemDatas>
             <itemData name="Normal" defStyleNum="dsNormal"/>
             <itemData name="Keyword" defStyleNum="dsKeyword"/>
+            <itemData name="Constant" defStyleNum="dsFloat"/>
             <itemData name="Data Type" defStyleNum="dsDataType"/>
             <itemData name="Label" defStyleNum="dsKeyword"/>
             <itemData name="Identifier" defStyleNum="dsNormal"/>

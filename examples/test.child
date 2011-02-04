@@ -1,14 +1,18 @@
-meth(\code) := {
-    a := "Ya"
-    code run // run
+{
+    a := 1
+    {
+        a print
+        b := 2
+    }
+    b print
 }
 
-a := "Yo"
-closure := {
-    a print
-}
+//each #(val, key) {
+//    val print
+//}
 
-meth(closure)
+//"hello" each upcase print
+//[1, 2, 3] reduce `+`
 
 //meth code... := {
 //    a := "Ya"
